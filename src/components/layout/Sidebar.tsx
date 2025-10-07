@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Obituários", href: "/obituaries", icon: FileText },
   { name: "Cerimónias", href: "/ceremonies", icon: Calendar },
   { name: "Clientes", href: "/clients", icon: Users },
@@ -38,7 +38,7 @@ export const Sidebar = () => {
           <NavLink
             key={item.name}
             to={item.href}
-            end={item.href === "/"}
+            end={item.href === "/dashboard"}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
