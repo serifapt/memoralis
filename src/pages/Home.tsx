@@ -147,8 +147,8 @@ export default function Home() {
                       {obit.ceremony}
                     </span>
                   </div>
-                  <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                    Ver Mais
+                  <Button size="sm" className="w-full bg-primary hover:bg-primary/90" asChild>
+                    <Link to={`/obituario/${index + 1}`}>Ver Mais</Link>
                   </Button>
                 </CardContent>
               </Card>
