@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, FileText, Eye, Edit, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const obituaries = [
   {
@@ -37,9 +38,11 @@ export default function Obituaries() {
             Gerir e publicar obituários
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" />
-          Criar Obituário
+        <Button className="bg-primary hover:bg-primary/90" asChild>
+          <Link to="/obituaries/new">
+            <Plus className="w-4 h-4 mr-2" />
+            Criar Obituário
+          </Link>
         </Button>
       </div>
 
@@ -76,13 +79,17 @@ export default function Obituaries() {
               </div>
               
               <div className="mt-4 pt-4 border-t border-border flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Ver
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link to={`/obituario/${obituary.id}`}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Ver
+                  </Link>
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Editar
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link to={`/obituaries/${obituary.id}/edit`}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Editar
+                  </Link>
                 </Button>
                 <Button variant="outline" size="sm" className="flex-1">
                   <Download className="w-4 h-4 mr-2" />

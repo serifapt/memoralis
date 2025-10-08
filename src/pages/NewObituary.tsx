@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,12 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function NewObituary() {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const isEditing = !!id;
   const [isPublic, setIsPublic] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
   
@@ -119,12 +121,29 @@ export default function NewObituary() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  useEffect(() => {
+    if (isEditing) {
+      // TODO: Load obituary data from backend when id is available
+      console.log("Loading obituary:", id);
+    }
+  }, [id, isEditing]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted:", formData);
+    // TODO: Save to backend
+    navigate("/obituaries");
+  };
+
   return (
     <div className="p-8">
       <div className="mb-6">
         <h1 className="text-3xl font-archivo font-bold text-foreground">
-          Adicionar / Arquivo Óbito
+          {isEditing ? "Editar Obituário" : "Novo Obituário"}
         </h1>
+        <p className="text-muted-foreground mt-1">
+          {isEditing ? "Atualize os dados do obituário" : "Preencha os dados para criar um novo obituário"}
+        </p>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_280px] gap-8">
@@ -1234,7 +1253,7 @@ export default function NewObituary() {
                 <Eye className="w-4 h-4" />
                 Ver Perfil Público
               </Button>
-              <Button className="w-full gap-2">
+              <Button className="w-full gap-2" onClick={handleSubmit}>
                 <Upload className="w-4 h-4" />
                 Guardar
               </Button>
