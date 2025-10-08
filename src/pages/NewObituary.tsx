@@ -18,7 +18,10 @@ export default function NewObituary() {
   const [velorio, setVelorio] = useState(false);
   const [cerimonia, setCerimonia] = useState(false);
   const [funeral, setFuneral] = useState(false);
+  const [cremacao, setCremacao] = useState(false);
   const [missa7, setMissa7] = useState(false);
+  const [missa30, setMissa30] = useState(false);
+  const [missa1ano, setMissa1ano] = useState(false);
   
   const [formData, setFormData] = useState({
     displayName: "",
@@ -60,11 +63,28 @@ export default function NewObituary() {
     funeralMapLink: "",
     funeralResponsible: "",
     funeralPhone: "",
+    // Cremação
+    cremacaoDate: "",
+    cremacaoTime: "",
+    cremacaoCemetery: "",
+    cremacaoMapLink: "",
+    cremacaoResponsible: "",
+    cremacaoPhone: "",
     // Missa 7º Dia
     missa7Date: "",
     missa7Time: "",
     missa7Location: "",
     missa7MapLink: "",
+    // Missa 30º Dia
+    missa30Date: "",
+    missa30Time: "",
+    missa30Location: "",
+    missa30MapLink: "",
+    // Missa 1º Ano
+    missa1anoDate: "",
+    missa1anoTime: "",
+    missa1anoLocation: "",
+    missa1anoMapLink: "",
     // Notas
     observations: "",
     hideCondolences: false,
@@ -627,8 +647,95 @@ export default function NewObituary() {
               </div>
 
               {/* Cremação */}
-              <div>
-                <Label className="font-medium text-lg">Cremação</Label>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={cremacao} onCheckedChange={setCremacao} />
+                  <Label className="font-medium">Cremação</Label>
+                </div>
+                {cremacao && (
+                  <div className="space-y-4 pl-8">
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div>
+                        <Label htmlFor="cremacaoDate" className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Data
+                        </Label>
+                        <Input
+                          id="cremacaoDate"
+                          type="date"
+                          value={formData.cremacaoDate}
+                          onChange={(e) =>
+                            handleInputChange("cremacaoDate", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cremacaoTime" className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          Hora
+                        </Label>
+                        <Input
+                          id="cremacaoTime"
+                          type="time"
+                          value={formData.cremacaoTime}
+                          onChange={(e) =>
+                            handleInputChange("cremacaoTime", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cremacaoCemetery" className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          Nome do Cemitério
+                        </Label>
+                        <Input
+                          id="cremacaoCemetery"
+                          value={formData.cremacaoCemetery}
+                          onChange={(e) =>
+                            handleInputChange("cremacaoCemetery", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cremacaoMapLink" className="flex items-center gap-2">
+                          <Map className="w-4 h-4" />
+                          Link do mapa
+                        </Label>
+                        <Input
+                          id="cremacaoMapLink"
+                          value={formData.cremacaoMapLink}
+                          onChange={(e) =>
+                            handleInputChange("cremacaoMapLink", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="cremacaoResponsible">Nome</Label>
+                        <Input
+                          id="cremacaoResponsible"
+                          placeholder="Nome do(a) Responsável"
+                          value={formData.cremacaoResponsible}
+                          onChange={(e) =>
+                            handleInputChange("cremacaoResponsible", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cremacaoPhone">Contacto Telefónico</Label>
+                        <Input
+                          id="cremacaoPhone"
+                          placeholder="+351 000 000 000"
+                          value={formData.cremacaoPhone}
+                          onChange={(e) =>
+                            handleInputChange("cremacaoPhone", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Missa 7º Dia */}
@@ -698,13 +805,135 @@ export default function NewObituary() {
               </div>
 
               {/* Missa 30º Dia */}
-              <div>
-                <Label className="font-medium text-lg">Missa 30º Dia</Label>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={missa30} onCheckedChange={setMissa30} />
+                  <Label className="font-medium">Missa 30º Dia</Label>
+                </div>
+                {missa30 && (
+                  <div className="grid md:grid-cols-4 gap-4 pl-8">
+                    <div>
+                      <Label htmlFor="missa30Date" className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Data
+                      </Label>
+                      <Input
+                        id="missa30Date"
+                        type="date"
+                        value={formData.missa30Date}
+                        onChange={(e) =>
+                          handleInputChange("missa30Date", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa30Time" className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Hora
+                      </Label>
+                      <Input
+                        id="missa30Time"
+                        type="time"
+                        value={formData.missa30Time}
+                        onChange={(e) =>
+                          handleInputChange("missa30Time", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa30Location" className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Nome do Local
+                      </Label>
+                      <Input
+                        id="missa30Location"
+                        value={formData.missa30Location}
+                        onChange={(e) =>
+                          handleInputChange("missa30Location", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa30MapLink" className="flex items-center gap-2">
+                        <Map className="w-4 h-4" />
+                        Link do mapa
+                      </Label>
+                      <Input
+                        id="missa30MapLink"
+                        value={formData.missa30MapLink}
+                        onChange={(e) =>
+                          handleInputChange("missa30MapLink", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Missa 1º Ano */}
-              <div>
-                <Label className="font-medium text-lg">Missa 1º Ano</Label>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={missa1ano} onCheckedChange={setMissa1ano} />
+                  <Label className="font-medium">Missa 1º Ano</Label>
+                </div>
+                {missa1ano && (
+                  <div className="grid md:grid-cols-4 gap-4 pl-8">
+                    <div>
+                      <Label htmlFor="missa1anoDate" className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Data
+                      </Label>
+                      <Input
+                        id="missa1anoDate"
+                        type="date"
+                        value={formData.missa1anoDate}
+                        onChange={(e) =>
+                          handleInputChange("missa1anoDate", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa1anoTime" className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Hora
+                      </Label>
+                      <Input
+                        id="missa1anoTime"
+                        type="time"
+                        value={formData.missa1anoTime}
+                        onChange={(e) =>
+                          handleInputChange("missa1anoTime", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa1anoLocation" className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Nome do Local
+                      </Label>
+                      <Input
+                        id="missa1anoLocation"
+                        value={formData.missa1anoLocation}
+                        onChange={(e) =>
+                          handleInputChange("missa1anoLocation", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa1anoMapLink" className="flex items-center gap-2">
+                        <Map className="w-4 h-4" />
+                        Link do mapa
+                      </Label>
+                      <Input
+                        id="missa1anoMapLink"
+                        value={formData.missa1anoMapLink}
+                        onChange={(e) =>
+                          handleInputChange("missa1anoMapLink", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
