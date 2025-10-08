@@ -95,7 +95,7 @@ export default function Dashboard() {
             Funerária S. João
           </h1>
           <p className="text-muted-foreground mt-1">
-            Bem-vindo ao sistema Memoralis
+            Bem-vindo ao Sistema de Gestão Funerária da Memoralis
           </p>
         </div>
         <Button 
