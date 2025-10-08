@@ -2,94 +2,67 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Facebook, 
-  MessageCircle, 
-  Mail, 
-  Link as LinkIcon, 
-  Printer,
-  MapPin,
-  Calendar,
-  Clock,
-  Heart,
-  ThumbsUp,
-  ChevronLeft
-} from "lucide-react";
+import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import logo from "@/assets/logo-memoralis.png";
-
-const events = [
-  {
-    type: "Velório",
-    date: "15/10/2025",
-    time: "18:00",
-    location: "Casa Mortuária do AVV",
-    hasMap: true
-  },
-  {
-    type: "Cerimónia",
-    date: "16/10/2025",
-    time: "18:00",
-    location: "Casa Mortuária do AVV",
-    hasMap: true
-  },
-  {
-    type: "Funeral",
-    date: "16/10/2025",
-    time: "18:00",
-    location: "Casa Mortuária do AVV",
-    hasMap: true
-  },
-  {
-    type: "Cremação",
-    date: "16/10/2025",
-    time: "18:00",
-    location: "Casa Mortuária do AVV",
-    hasMap: true
-  },
-  {
-    type: "Missa 7º Dia",
-    date: "16/10/2025",
-    time: "18:00",
-    location: "Casa Mortuária do AVV",
-    hasMap: true
-  },
-  {
-    type: "Missa 30º Dia",
-    date: "16/10/2025",
-    time: "18:00",
-    location: "Casa Mortuária do AVV",
-    hasMap: true
-  }
-];
-
-const condolences = [
-  {
-    id: 1,
-    author: "Randy W.",
-    date: "November 15, 2024",
-    message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
-    likes: 5,
-    dislikes: 0
-  },
-  {
-    id: 2,
-    author: "Randy W.",
-    date: "November 15, 2024",
-    message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
-    likes: 5,
-    dislikes: 0
-  },
-  {
-    id: 3,
-    author: "Randy W.",
-    date: "November 15, 2024",
-    message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
-    likes: 6,
-    dislikes: 0
-  }
-];
-
+const events = [{
+  type: "Velório",
+  date: "15/10/2025",
+  time: "18:00",
+  location: "Casa Mortuária do AVV",
+  hasMap: true
+}, {
+  type: "Cerimónia",
+  date: "16/10/2025",
+  time: "18:00",
+  location: "Casa Mortuária do AVV",
+  hasMap: true
+}, {
+  type: "Funeral",
+  date: "16/10/2025",
+  time: "18:00",
+  location: "Casa Mortuária do AVV",
+  hasMap: true
+}, {
+  type: "Cremação",
+  date: "16/10/2025",
+  time: "18:00",
+  location: "Casa Mortuária do AVV",
+  hasMap: true
+}, {
+  type: "Missa 7º Dia",
+  date: "16/10/2025",
+  time: "18:00",
+  location: "Casa Mortuária do AVV",
+  hasMap: true
+}, {
+  type: "Missa 30º Dia",
+  date: "16/10/2025",
+  time: "18:00",
+  location: "Casa Mortuária do AVV",
+  hasMap: true
+}];
+const condolences = [{
+  id: 1,
+  author: "Randy W.",
+  date: "November 15, 2024",
+  message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
+  likes: 5,
+  dislikes: 0
+}, {
+  id: 2,
+  author: "Randy W.",
+  date: "November 15, 2024",
+  message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
+  likes: 5,
+  dislikes: 0
+}, {
+  id: 3,
+  author: "Randy W.",
+  date: "November 15, 2024",
+  message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
+  likes: 6,
+  dislikes: 0
+}];
 const relatedObituaries = Array(4).fill({
   name: "Zé Manuel Osório",
   dates: "1930 - 2025 | 94 Anos",
@@ -99,18 +72,17 @@ const relatedObituaries = Array(4).fill({
   comments: 17,
   image: "/placeholder.svg"
 });
-
 export default function ObituaryDetail() {
-  const { id } = useParams();
-
-  return (
-    <div className="min-h-screen bg-background font-inter">
+  const {
+    id
+  } = useParams();
+  return <div className="min-h-screen bg-background font-titillium">
       {/* Header */}
       <header className="border-b border-border bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center">
-              <img src={logo} alt="Memoralis" className="h-8" />
+            <Link to="/" className="text-2xl font-archivo font-bold text-foreground">
+              <span className="text-primary">|||</span> memoralis
             </Link>
             <nav className="hidden md:flex gap-6">
               <Link to="/" className="text-sm text-muted-foreground hover:text-primary">Início</Link>
@@ -155,11 +127,7 @@ export default function ObituaryDetail() {
                 <div className="grid md:grid-cols-[200px_1fr] gap-6">
                   {/* Photo */}
                   <div>
-                    <img 
-                      src="/placeholder.svg" 
-                      alt="José Manuel Osório"
-                      className="w-full aspect-[3/4] object-cover rounded-lg"
-                    />
+                    <img src="/placeholder.svg" alt="José Manuel Osório" className="w-full aspect-[3/4] object-cover rounded-lg" />
                   </div>
 
                   {/* Info */}
@@ -178,25 +146,25 @@ export default function ObituaryDetail() {
                     {/* Share & Actions */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
                       <span className="text-sm font-medium text-foreground">Partilhar</span>
-                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
+                      <Button variant="outline" size="icon" className="h-9 w-9">
                         <Facebook className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
+                      <Button variant="outline" size="icon" className="h-9 w-9">
                         <MessageCircle className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
+                      <Button variant="outline" size="icon" className="h-9 w-9">
                         <Mail className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
+                      <Button variant="outline" size="icon" className="h-9 w-9">
                         <LinkIcon className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
+                      <Button variant="outline" size="icon" className="h-9 w-9">
                         <Printer className="w-4 h-4" />
                       </Button>
                     </div>
 
                     <div className="flex gap-3">
-                      <Button variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors">Condolências</Button>
+                      <Button variant="outline">Condolências</Button>
                       <Button className="bg-primary hover:bg-primary/90">
                         Enviar Flores
                       </Button>
@@ -228,8 +196,7 @@ export default function ObituaryDetail() {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  {events.map((event, index) => (
-                    <div key={index} className="flex items-start gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
+                  {events.map((event, index) => <div key={index} className="flex items-start gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-2">{event.type}</h3>
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -241,23 +208,20 @@ export default function ObituaryDetail() {
                             <MapPin className="w-4 h-4" />
                             <span>{event.location}</span>
                           </div>
-                          {event.hasMap && (
-                            <Button variant="link" size="sm" className="h-auto p-0 text-primary">
+                          {event.hasMap && <Button variant="link" size="sm" className="h-auto p-0 text-primary">
                               Ver no mapa
-                            </Button>
-                          )}
+                            </Button>}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
 
                 <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-border">
-                  <Button variant="outline" className="flex-1 sm:flex-none hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <Button variant="outline" className="flex-1 sm:flex-none">
                     <Clock className="w-4 h-4 mr-2" />
                     Receber e-mail de aviso
                   </Button>
-                  <Button variant="outline" className="flex-1 sm:flex-none hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <Button variant="outline" className="flex-1 sm:flex-none">
                     <Calendar className="w-4 h-4 mr-2" />
                     Adicionar ao Calendário
                   </Button>
@@ -290,10 +254,7 @@ export default function ObituaryDetail() {
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       Mensagem *
                     </label>
-                    <Textarea 
-                      placeholder="Sentidas condolências..."
-                      rows={5}
-                    />
+                    <Textarea placeholder="Sentidas condolências..." rows={5} />
                   </div>
                   <Button className="bg-primary hover:bg-primary/90">
                     Enviar mensagem
@@ -309,8 +270,7 @@ export default function ObituaryDetail() {
                   Mensagens de Condolências
                 </h2>
                 <div className="space-y-6">
-                  {condolences.map((condolence) => (
-                    <div key={condolence.id} className="pb-6 border-b border-border last:border-0 last:pb-0">
+                  {condolences.map(condolence => <div key={condolence.id} className="pb-6 border-b border-border last:border-0 last:pb-0">
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h4 className="font-semibold text-foreground">{condolence.author}</h4>
@@ -330,8 +290,7 @@ export default function ObituaryDetail() {
                           <span>{condolence.dislikes}</span>
                         </button>
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
 
                 {/* Pagination */}
@@ -357,7 +316,7 @@ export default function ObituaryDetail() {
                     <span className="text-background font-bold text-xl">SJ</span>
                   </div>
                   <h3 className="font-archivo font-bold text-foreground text-2xl">
-                    FUNERÁRIA<br />S. JOÃO
+                    FUNERÁRIAS. JOÃO
                   </h3>
                 </div>
 
@@ -404,14 +363,9 @@ export default function ObituaryDetail() {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedObituaries.map((obit, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+            {relatedObituaries.map((obit, index) => <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
-                  <img 
-                    src={obit.image} 
-                    alt={obit.name}
-                    className="w-full aspect-[3/4] object-cover"
-                  />
+                  <img src={obit.image} alt={obit.name} className="w-full aspect-[3/4] object-cover" />
                   <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/90 flex items-center justify-center hover:bg-background">
                     <Heart className="w-4 h-4" />
                   </button>
@@ -433,8 +387,7 @@ export default function ObituaryDetail() {
                     <span>💬 {obit.comments}</span>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </section>
       </div>
@@ -444,8 +397,8 @@ export default function ObituaryDetail() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="mb-4">
-                <img src={logo} alt="Memoralis" className="h-8" />
+              <div className="text-2xl font-archivo font-bold mb-4">
+                <span className="text-primary">|||</span> memoralis
               </div>
               <p className="text-sm opacity-80">
                 Homenagens que eternizam memórias e sentimentos.
@@ -477,10 +430,7 @@ export default function ObituaryDetail() {
               </ul>
               <h4 className="font-archivo font-semibold mb-4">Subscrever newsletter</h4>
               <div className="flex gap-2">
-                <Input 
-                  placeholder="Digite seu endereço de e-mail" 
-                  className="bg-background/10 border-background/20 text-foreground placeholder:text-muted-foreground"
-                />
+                <Input placeholder="Digite seu endereço de e-mail" className="bg-background/10 border-background/20 text-foreground placeholder:text-muted-foreground" />
               </div>
               <Button className="w-full mt-2 bg-primary hover:bg-primary/90">
                 Subscrever
@@ -493,6 +443,5 @@ export default function ObituaryDetail() {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 }
