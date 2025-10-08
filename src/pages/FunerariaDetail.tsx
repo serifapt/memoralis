@@ -525,7 +525,7 @@ export default function FunerariaDetail() {
                     <div className="flex items-start gap-2">
                       <Checkbox id="terms" />
                       <label htmlFor="terms" className="text-xs text-muted-foreground leading-tight">
-                        Concordo em receber info rápida no email (Pode cancelar em qualquer altura)
+                        Concordo em receber informações de novos óbitos, campanhas ou outras informações
                       </label>
                     </div>
                     <Button className="w-full bg-[hsl(var(--footer-bg))] hover:bg-[hsl(var(--footer-bg))]/90 text-[hsl(var(--footer-foreground))]">
