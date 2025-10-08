@@ -317,8 +317,8 @@ export default function Home() {
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl font-archivo font-bold">SJ</span>
+                  <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-4xl font-archivo font-bold">SJ</span>
                   </div>
                   <div className="flex-1">
                     <h3 className="font-archivo font-semibold text-foreground mb-1">
