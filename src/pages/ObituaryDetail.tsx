@@ -384,7 +384,7 @@ export default function ObituaryDetail() {
                   </p>
                 </div>
 
-                <Button className="w-full bg-[#4A7C7E] hover:bg-[#4A7C7E]/90 text-white py-6 text-base">
+                <Button className="w-full bg-[hsl(var(--footer-bg))] hover:bg-[hsl(var(--footer-bg))]/90 text-white py-6 text-base">
                   Ir para página
                 </Button>
               </CardContent>
