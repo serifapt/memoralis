@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Calendar, Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo-memoralis.png";
 
 const obituaries = Array(12).fill({
   name: "Zé Manuel Chelo",
@@ -45,8 +46,8 @@ export default function Home() {
       <header className="border-b border-border bg-background">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-2xl font-archivo font-bold text-foreground">
-              <span className="text-primary">|||</span> memoralis
+            <Link to="/" className="flex items-center">
+              <img src={logo} alt="Memoralis" className="h-8" />
             </Link>
             <nav className="hidden md:flex gap-6">
               <Link to="/" className="text-sm text-foreground hover:text-primary">Início</Link>
@@ -344,8 +345,8 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="text-2xl font-archivo font-bold mb-4">
-                <span className="text-primary">|||</span> memoralis
+              <div className="mb-4">
+                <img src={logo} alt="Memoralis" className="h-8" />
               </div>
               <p className="text-sm opacity-80">
                 Homenagens que eternizam memórias e sentimentos.

@@ -16,6 +16,7 @@ import {
   ChevronLeft
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import logo from "@/assets/logo-memoralis.png";
 
 const events = [
   {
@@ -108,8 +109,8 @@ export default function ObituaryDetail() {
       <header className="border-b border-border bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-2xl font-archivo font-bold text-foreground">
-              <span className="text-primary">|||</span> memoralis
+            <Link to="/" className="flex items-center">
+              <img src={logo} alt="Memoralis" className="h-8" />
             </Link>
             <nav className="hidden md:flex gap-6">
               <Link to="/" className="text-sm text-muted-foreground hover:text-primary">Início</Link>
@@ -443,8 +444,8 @@ export default function ObituaryDetail() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="text-2xl font-archivo font-bold mb-4">
-                <span className="text-primary">|||</span> memoralis
+              <div className="mb-4">
+                <img src={logo} alt="Memoralis" className="h-8" />
               </div>
               <p className="text-sm opacity-80">
                 Homenagens que eternizam memórias e sentimentos.

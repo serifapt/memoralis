@@ -9,6 +9,7 @@ import {
   LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo-memoralis.png";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -24,9 +25,7 @@ export const Sidebar = () => {
     <aside className="w-64 border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border">
-        <h1 className="text-2xl font-archivo font-bold text-primary">
-          Memoralis
-        </h1>
+        <img src={logo} alt="Memoralis" className="h-8 mb-2" />
         <p className="text-xs text-muted-foreground mt-1">
           Gestão Funerária
         </p>

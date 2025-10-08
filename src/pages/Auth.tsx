@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo-memoralis.png";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,9 +12,7 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-archivo font-bold text-primary mb-2">
-            Memoralis
-          </h1>
+          <img src={logo} alt="Memoralis" className="h-12 mx-auto mb-4" />
           <p className="text-sm text-muted-foreground">
             Sistema de Gestão Funerária
           </p>
