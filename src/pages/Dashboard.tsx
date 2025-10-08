@@ -92,7 +92,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-archivo font-bold text-foreground">
-            Dashboard
+            Funerária S. João
           </h1>
           <p className="text-muted-foreground mt-1">
             Bem-vindo ao sistema Memoralis
