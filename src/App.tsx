@@ -11,6 +11,7 @@ import FunerariaArchive from "./pages/FunerariaArchive";
 import FunerariaDetail from "./pages/FunerariaDetail";
 import Dashboard from "./pages/Dashboard";
 import Obituaries from "./pages/Obituaries";
+import NewObituary from "./pages/NewObituary";
 import Ceremonies from "./pages/Ceremonies";
 import Clients from "./pages/Clients";
 import Documents from "./pages/Documents";
@@ -36,6 +37,7 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/obituaries" element={<Obituaries />} />
+            <Route path="/obituaries/new" element={<NewObituary />} />
             <Route path="/ceremonies" element={<Ceremonies />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/documents" element={<Documents />} />

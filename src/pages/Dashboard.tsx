@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, FileText, Calendar, Users, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const stats = [
   {
@@ -59,6 +60,8 @@ const recentObituaries = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  
   return (
     <div className="p-8 space-y-8">
       {/* Header */}
@@ -71,7 +74,10 @@ export default function Dashboard() {
             Bem-vindo ao sistema Memoralis
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
+        <Button 
+          className="bg-primary hover:bg-primary/90"
+          onClick={() => navigate("/obituaries/new")}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Novo Obituário
         </Button>
