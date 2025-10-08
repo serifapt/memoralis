@@ -527,7 +527,7 @@ export default function FunerariaDetail() {
                         Concordo em receber info rápida no email (Pode cancelar em qualquer altura)
                       </label>
                     </div>
-                    <Button className="w-full bg-primary hover:bg-primary/90">
+                    <Button className="w-full bg-[hsl(var(--footer-bg))] hover:bg-[hsl(var(--footer-bg))]/90 text-[hsl(var(--footer-foreground))]">
                       Enviar
                     </Button>
                   </div>
