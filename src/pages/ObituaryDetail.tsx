@@ -335,69 +335,71 @@ export default function ObituaryDetail() {
             <h2 className="text-2xl font-archivo font-bold text-foreground">
               Outros óbitos
             </h2>
-            <Button variant="ghost" size="sm">
-              Ver todos →
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/obituario?funeraria=sao-joao">Ver todos →</Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedObituaries.map((obit, index) => <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative">
-                  <img src={obit.image} alt={obit.name} className="w-full aspect-[3/4] object-cover" />
-                  <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
-                    {obit.category}
-                  </Badge>
-                </div>
-                <CardContent className="p-4 space-y-3">
-                  <div>
-                    <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
-                      {obit.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      {obit.birthDate} - {obit.deathDate}
-                    </p>
-                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                      <MapPin className="w-3 h-3" />
-                      <span className="text-xs">{obit.location}</span>
+            {relatedObituaries.map((obit, index) => (
+              <Link key={index} to={`/obituario/${index + 1}`}>
+                <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                  <div className="relative">
+                    <img src={obit.image} alt={obit.name} className="w-full aspect-[3/4] object-cover" />
+                    <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
+                      {obit.category}
+                    </Badge>
+                  </div>
+                  <CardContent className="p-4 space-y-3">
+                    <div>
+                      <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
+                        {obit.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {obit.birthDate} - {obit.deathDate}
+                      </p>
+                      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                        <MapPin className="w-3 h-3" />
+                        <span className="text-xs">{obit.location}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {obit.agency}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {obit.agency}
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                      asChild
-                    >
-                      <Link to={`/obituario/${index + 1}`}>Condolências</Link>
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      className="bg-primary hover:bg-primary/90"
-                      asChild
-                    >
-                      <Link to={`/obituario/${index + 1}`}>Enviar Flores</Link>
-                    </Button>
-                  </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                      >
+                        Condolências
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        Enviar Flores
+                      </Button>
+                    </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      <span>{obit.views}</span>
+                    <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-4 h-4" />
+                        <span>{obit.views}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageSquare className="w-4 h-4" />
+                        <span>{obit.messages}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Flame className="w-4 h-4" />
+                        <span>{obit.candles}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>{obit.messages}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Flame className="w-4 h-4" />
-                      <span>{obit.candles}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>)}
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         </section>
       </div>
