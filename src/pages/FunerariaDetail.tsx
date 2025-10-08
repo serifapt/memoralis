@@ -182,7 +182,7 @@ export default function FunerariaDetail() {
           <div className="space-y-8">
             {/* Image Gallery */}
             <Card className="overflow-hidden">
-              <div className="p-4">
+              <div className="grid md:grid-cols-[200px_1fr] gap-4 p-4">
                 {/* Logo */}
                 <div className="bg-muted rounded-lg flex items-center justify-center p-6">
                   <div className="text-center">
