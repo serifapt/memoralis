@@ -315,14 +315,11 @@ export default function ObituaryDetail() {
                   <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
                     <span className="text-background font-bold text-xl">SJ</span>
                   </div>
-                  <h3 className="font-archivo font-bold text-foreground text-2xl">
-                    FUNERÁRIAS. JOÃO
-                  </h3>
                 </div>
 
-                <h4 className="font-semibold text-foreground text-center mb-6 text-lg">
+                <h3 className="font-archivo font-bold text-foreground text-center mb-6 text-2xl">
                   Funerária S. João
-                </h4>
+                </h3>
 
                 <div className="space-y-4 text-center mb-6">
                   <div>
