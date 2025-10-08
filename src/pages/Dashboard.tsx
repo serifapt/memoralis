@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const stats = [
   {
-    name: "Obituários Ativos",
+    name: "Processos Ativos",
     value: "24",
     icon: FileText,
     change: "+3 este mês",
@@ -20,14 +20,14 @@ const stats = [
     changeType: "neutral",
   },
   {
-    name: "Clientes Registados",
+    name: "Processos Concluídos",
     value: "156",
     icon: Users,
     change: "+12 este mês",
     changeType: "positive",
   },
   {
-    name: "Taxa de Satisfação",
+    name: "Novos Processos",
     value: "98%",
     icon: TrendingUp,
     change: "+2% vs. anterior",
