@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
+import { PublicHeader } from "@/components/layout/PublicHeader";
 
 const obituaries = Array(12).fill({
   name: "Zé Manuel Chelo",
@@ -47,32 +48,7 @@ const articles = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-background font-inter">
-      {/* Header */}
-      <header className="border-b border-border bg-background">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center">
-              <img src={logo} alt="Memoralis" className="h-8" />
-            </Link>
-            <nav className="hidden md:flex gap-6">
-              <Link to="/" className="text-sm text-foreground hover:text-primary">Início</Link>
-              <Link to="/obituario" className="text-sm text-muted-foreground hover:text-primary">Obituário</Link>
-              <Link to="/funerarias" className="text-sm text-muted-foreground hover:text-primary">Funerárias</Link>
-              <Link to="/sobre" className="text-sm text-muted-foreground hover:text-primary">Sobre</Link>
-              <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary">Blog</Link>
-              <Link to="/contactos" className="text-sm text-muted-foreground hover:text-primary">Contactos</Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/auth">Entrar</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link to="/auth">Registar</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 md:py-24">

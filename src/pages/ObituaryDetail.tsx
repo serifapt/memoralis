@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronLeft, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import { PublicHeader } from "@/components/layout/PublicHeader";
 const events = [{
   type: "Velório",
   date: "15/10/2025",
@@ -81,32 +82,7 @@ export default function ObituaryDetail() {
     id
   } = useParams();
   return <div className="min-h-screen bg-background font-titillium">
-      {/* Header */}
-      <header className="border-b border-border bg-background sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="text-2xl font-archivo font-bold text-foreground">
-              <span className="text-primary">|||</span> memoralis
-            </Link>
-            <nav className="hidden md:flex gap-6">
-              <Link to="/" className="text-sm text-muted-foreground hover:text-primary">Início</Link>
-              <Link to="/obituario" className="text-sm text-foreground hover:text-primary">Obituário</Link>
-              <Link to="/funerarias" className="text-sm text-muted-foreground hover:text-primary">Funerárias</Link>
-              <Link to="/sobre" className="text-sm text-muted-foreground hover:text-primary">Sobre</Link>
-              <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary">Blog</Link>
-              <Link to="/contactos" className="text-sm text-muted-foreground hover:text-primary">Contactos</Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/auth">Entrar</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link to="/auth">Registar</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       {/* Breadcrumb */}
       <div className="bg-muted/30 border-b border-border">
