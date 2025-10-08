@@ -70,9 +70,9 @@ export default function FunerariaArchive() {
         </h1>
 
         {/* Filters Section */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-6 mb-12">
           {/* Top Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
               <Input
