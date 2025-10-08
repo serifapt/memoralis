@@ -339,7 +339,7 @@ export default function NewObituary() {
         <div className="space-y-6">
           {/* Status Toggles Card */}
           <Card className="p-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <p className="text-sm font-medium mb-2">Estado do Perfil</p>
                 <div className="flex items-center gap-2">
@@ -353,6 +353,20 @@ export default function NewObituary() {
                   <Switch checked={isCompleted} onCheckedChange={setIsCompleted} />
                   <span className="text-sm text-muted-foreground">Terminado</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Completion Progress */}
+            <div className="pt-6 border-t">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">Preenchimento de informação</span>
+                <span className="text-sm font-semibold text-primary">{completionPercentage}%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${completionPercentage}%` }}
+                />
               </div>
             </div>
           </Card>
@@ -425,19 +439,6 @@ export default function NewObituary() {
 
             {/* Completion Progress Card */}
             <Card className="p-4">
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Preenchimento de informação</span>
-                  <span className="text-sm font-semibold text-primary">{completionPercentage}%</span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all duration-300"
-                    style={{ width: `${completionPercentage}%` }}
-                  />
-                </div>
-              </div>
-
               {/* Action Buttons */}
               <div className="space-y-3">
                 <Button variant="outline" className="w-full gap-2">
