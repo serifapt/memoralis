@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Star, Eye, Map, Home, ChevronRight } from "lucide-react";
+import { Search, MapPin, Star, Eye, Home, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
 
@@ -72,7 +72,7 @@ export default function FunerariaArchive() {
         {/* Filters Section */}
         <div className="space-y-6 mb-12">
           {/* Top Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
               <Input
@@ -117,11 +117,6 @@ export default function FunerariaArchive() {
                 <SelectItem value="all">Todas</SelectItem>
               </SelectContent>
             </Select>
-
-            <Button className="bg-foreground hover:bg-foreground/90 text-background">
-              <Map className="w-4 h-4 mr-2" />
-              Ver no mapa
-            </Button>
           </div>
 
           {/* Results Count and Sort */}
