@@ -56,7 +56,7 @@ export default function NewObituary() {
         </h1>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_350px] gap-8">
+      <div className="grid lg:grid-cols-[1fr_320px] gap-8">
         {/* Form Section */}
         <div className="space-y-8">
           {/* Informações Obituário */}
