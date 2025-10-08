@@ -3,7 +3,7 @@ import { Sidebar } from "./Sidebar";
 
 export const AppLayout = () => {
   return (
-    <div className="flex min-h-screen w-full bg-background font-titillium">
+    <div className="flex min-h-screen w-full bg-background font-inter">
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <Outlet />
