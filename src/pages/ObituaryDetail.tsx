@@ -253,7 +253,7 @@ export default function ObituaryDetail() {
                 </div>
 
                 <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-border">
-                  <Button variant="outline" className="flex-1 sm:flex-none">
+                  <Button variant="outline" className="flex-1 sm:flex-none hover:bg-primary hover:text-primary-foreground transition-colors">
                     <Clock className="w-4 h-4 mr-2" />
                     Receber e-mail de aviso
                   </Button>
