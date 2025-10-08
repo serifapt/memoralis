@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 
 export default function NewObituary() {
@@ -88,6 +89,21 @@ export default function NewObituary() {
     // Notas
     observations: "",
     hideCondolences: false,
+    // Informação Família / Responsável
+    familyName: "",
+    familyRelationship: "",
+    familyEmail: "",
+    familyPhone: "",
+    familyNif: "",
+    familyAddress: "",
+    familyLocality: "",
+    familyPostalCode: "",
+    familyObservations: "",
+    // Informação do Serviço
+    serviceType: "",
+    coffinBrand: "",
+    coffinRef: "",
+    servicePrice: "",
   });
 
   const completionPercentage = Math.round(
@@ -968,6 +984,211 @@ export default function NewObituary() {
               <Label htmlFor="hideCondolences" className="cursor-pointer">
                 Ocultar Condolências
               </Label>
+            </div>
+          </Card>
+
+          {/* Informação Família / Responsável */}
+          <Card className="p-6">
+            <h2 className="text-xl font-archivo font-semibold mb-6">
+              Informação Família / Responsável
+            </h2>
+
+            <div className="space-y-4">
+              {/* Nome and Grau Parentesco */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="familyName">Nome*</Label>
+                  <Input
+                    id="familyName"
+                    placeholder="Nome do(a) Responsável"
+                    value={formData.familyName}
+                    onChange={(e) =>
+                      handleInputChange("familyName", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="familyRelationship">Grau Parentesco*</Label>
+                  <Select
+                    value={formData.familyRelationship}
+                    onValueChange={(value) =>
+                      handleInputChange("familyRelationship", value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="conjuge">Cônjuge</SelectItem>
+                      <SelectItem value="filho">Filho(a)</SelectItem>
+                      <SelectItem value="pai">Pai/Mãe</SelectItem>
+                      <SelectItem value="irmao">Irmão(ã)</SelectItem>
+                      <SelectItem value="neto">Neto(a)</SelectItem>
+                      <SelectItem value="outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Email, Phone, NIF */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="familyEmail">Email*</Label>
+                  <Input
+                    id="familyEmail"
+                    type="email"
+                    placeholder="Email"
+                    value={formData.familyEmail}
+                    onChange={(e) =>
+                      handleInputChange("familyEmail", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="familyPhone">Contacto Telefónico *</Label>
+                  <Input
+                    id="familyPhone"
+                    type="tel"
+                    placeholder="+351 000 000 000"
+                    value={formData.familyPhone}
+                    onChange={(e) =>
+                      handleInputChange("familyPhone", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="familyNif">NIF *</Label>
+                  <Input
+                    id="familyNif"
+                    placeholder="000 000 000"
+                    value={formData.familyNif}
+                    onChange={(e) =>
+                      handleInputChange("familyNif", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Morada, Localidade, Código Postal */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="familyAddress">Morada *</Label>
+                  <Input
+                    id="familyAddress"
+                    placeholder="Morada"
+                    value={formData.familyAddress}
+                    onChange={(e) =>
+                      handleInputChange("familyAddress", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="familyLocality">Localidade *</Label>
+                  <Input
+                    id="familyLocality"
+                    placeholder="Localidade"
+                    value={formData.familyLocality}
+                    onChange={(e) =>
+                      handleInputChange("familyLocality", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="familyPostalCode">Código Postal *</Label>
+                  <Input
+                    id="familyPostalCode"
+                    placeholder="0000-000"
+                    value={formData.familyPostalCode}
+                    onChange={(e) =>
+                      handleInputChange("familyPostalCode", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Observações */}
+              <div>
+                <Label htmlFor="familyObservations">Observações / Notas / Pedidos</Label>
+                <Textarea
+                  id="familyObservations"
+                  placeholder="Deixe aqui as notas ou pedidos dos familiares"
+                  rows={6}
+                  value={formData.familyObservations}
+                  onChange={(e) =>
+                    handleInputChange("familyObservations", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Informação do Serviço */}
+          <Card className="p-6">
+            <h2 className="text-xl font-archivo font-semibold mb-6">
+              Informação do Serviço
+            </h2>
+
+            <div className="space-y-4">
+              {/* Tipo de Serviço, Marca Caixão, Caixão Ref. */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="serviceType">Tipo de Serviço*</Label>
+                  <Select
+                    value={formData.serviceType}
+                    onValueChange={(value) =>
+                      handleInputChange("serviceType", value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="funeral_completo">Funeral Completo</SelectItem>
+                      <SelectItem value="cremacao">Cremação</SelectItem>
+                      <SelectItem value="translado">Translado</SelectItem>
+                      <SelectItem value="basico">Serviço Básico</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="coffinBrand">Marca Caixão</Label>
+                  <Input
+                    id="coffinBrand"
+                    placeholder="Marca"
+                    value={formData.coffinBrand}
+                    onChange={(e) =>
+                      handleInputChange("coffinBrand", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="coffinRef">Caixão Ref.</Label>
+                  <Input
+                    id="coffinRef"
+                    placeholder="ID. Ref Interna"
+                    value={formData.coffinRef}
+                    onChange={(e) =>
+                      handleInputChange("coffinRef", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Preço */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="servicePrice">Preço *</Label>
+                  <Input
+                    id="servicePrice"
+                    type="number"
+                    placeholder="41900"
+                    value={formData.servicePrice}
+                    onChange={(e) =>
+                      handleInputChange("servicePrice", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
             </div>
           </Card>
         </div>
