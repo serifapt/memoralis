@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const stats = [
@@ -32,6 +33,42 @@ const stats = [
     icon: TrendingUp,
     change: "+2% vs. anterior",
     changeType: "positive",
+  },
+];
+
+const upcomingCeremonies = [
+  {
+    id: 1,
+    name: "Maria Silva Santos",
+    day: "17",
+    month: "JAN",
+    time: "10:00",
+    type: "Velório",
+    typeColor: "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+    location: "Capela São João",
+    participants: 45,
+  },
+  {
+    id: 2,
+    name: "João Pedro Costa",
+    day: "16",
+    month: "JAN",
+    time: "15:00",
+    type: "Missa",
+    typeColor: "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400",
+    location: "Igreja Nossa Senhora",
+    participants: 32,
+  },
+  {
+    id: 3,
+    name: "Ana Beatriz Oliveira",
+    day: "15",
+    month: "JAN",
+    time: "11:00",
+    type: "Sepultamento",
+    typeColor: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400",
+    location: "Cemitério Municipal",
+    participants: 28,
   },
 ];
 
@@ -223,6 +260,61 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground">
                     Pago em: {process.paymentDate}
                   </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Upcoming Ceremonies - Left Column Only */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Calendar className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-archivo font-semibold text-foreground">
+              Próximas Cerimónias
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {upcomingCeremonies.map((ceremony) => (
+              <div
+                key={ceremony.id}
+                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-center justify-center w-14 h-14 rounded-lg bg-primary/10">
+                    <span className="text-2xl font-archivo font-bold text-primary">
+                      {ceremony.day}
+                    </span>
+                    <span className="text-xs text-primary font-medium">
+                      {ceremony.month}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-foreground mb-1">{ceremony.name}</h3>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {ceremony.time}
+                      </div>
+                      <Badge className={ceremony.typeColor}>
+                        {ceremony.type}
+                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {ceremony.location}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {ceremony.participants} participantes
+                  </span>
+                  <Button variant="outline" size="sm">
+                    Detalhes
+                  </Button>
                 </div>
               </div>
             ))}
