@@ -350,43 +350,41 @@ export default function ObituaryDetail() {
           <div className="space-y-6">
             {/* Funeral Home Card */}
             <Card className="sticky top-24">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-foreground rounded flex items-center justify-center flex-shrink-0">
-                    <span className="text-background font-bold text-xs">SJ</span>
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center mb-8">
+                  <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
+                    <span className="text-background font-bold text-xl">SJ</span>
                   </div>
-                  <h3 className="font-archivo font-bold text-foreground text-lg">
+                  <h3 className="font-archivo font-bold text-foreground text-2xl">
                     FUNERÁRIA<br />S. JOÃO
                   </h3>
                 </div>
 
-                <h4 className="font-semibold text-foreground mb-3">Funerária S. João</h4>
+                <h4 className="font-semibold text-foreground text-center mb-6 text-lg">
+                  Funerária S. João
+                </h4>
 
-                <div className="space-y-2 text-sm mb-6">
+                <div className="space-y-4 text-center mb-6">
                   <div>
-                    <span className="text-muted-foreground">Contactos</span>
-                  </div>
-                  <div className="text-foreground">
-                    962 706 673<br />
-                    258 515 233
-                  </div>
-                  <div className="text-foreground">
-                    funeraria.sjoao@gmail.com<br />
-                    funeraria@sjoao.pt
+                    <p className="font-semibold text-foreground mb-2">Contactos</p>
+                    <p className="text-foreground text-sm">962 766 625</p>
+                    <p className="text-foreground text-sm">258 515 233</p>
+                    <p className="text-foreground text-sm mt-2">funeraria.s.joao@gmail.com</p>
+                    <p className="text-foreground text-sm">funerariasjoan.pt</p>
                   </div>
                 </div>
 
-                <div className="space-y-2 text-sm mb-6">
-                  <div>
-                    <span className="text-muted-foreground">Morada</span>
-                  </div>
-                  <div className="text-foreground">
-                    Rua da Glória, Edf. Sol Jardim - R/C A E B<br />
-                    4970-445 Arcos de Valdevez
-                  </div>
+                <div className="space-y-2 text-center mb-8">
+                  <p className="font-semibold text-foreground mb-2">Morada</p>
+                  <p className="text-foreground text-sm">
+                    Rua da Cêpa, E.N. 303 - Nº 43 AB
+                  </p>
+                  <p className="text-foreground text-sm">
+                    4970-446 Arcos de Valdevez
+                  </p>
                 </div>
 
-                <Button className="w-full bg-[hsl(var(--footer-bg))] hover:bg-[hsl(var(--footer-bg))]/90 text-white">
+                <Button className="w-full bg-[#4A7C7E] hover:bg-[#4A7C7E]/90 text-white py-6 text-base">
                   Ir para página
                 </Button>
               </CardContent>
