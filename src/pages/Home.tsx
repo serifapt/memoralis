@@ -56,7 +56,6 @@ export default function Home() {
             </Link>
             <nav className="hidden md:flex gap-6">
               <Link to="/" className="text-sm text-foreground hover:text-primary">Início</Link>
-              <Link to="/obituaries" className="text-sm text-muted-foreground hover:text-primary">Obituário</Link>
               <Link to="/funerarias" className="text-sm text-muted-foreground hover:text-primary">Funerárias</Link>
               <Link to="/sobre" className="text-sm text-muted-foreground hover:text-primary">Sobre</Link>
               <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary">Blog</Link>
