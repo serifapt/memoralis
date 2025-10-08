@@ -188,9 +188,12 @@ export default function Dashboard() {
         {/* Recent Obituaries */}
         <Card className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-archivo font-semibold text-foreground">
-              Obituários Recentes
-            </h2>
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-archivo font-semibold text-foreground">
+                Obituários Recentes
+              </h2>
+            </div>
             <Button variant="ghost" size="sm">
               Ver Todos
             </Button>
@@ -229,9 +232,12 @@ export default function Dashboard() {
         {/* Completed Processes */}
         <Card className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-archivo font-semibold text-foreground">
-              Processos Concluídos
-            </h2>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-archivo font-semibold text-foreground">
+                Processos Concluídos
+              </h2>
+            </div>
             <Button variant="ghost" size="sm">
               Ver Todos
             </Button>
@@ -270,11 +276,16 @@ export default function Dashboard() {
       {/* Upcoming Ceremonies - Left Column Only */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Calendar className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-archivo font-semibold text-foreground">
-              Próximas Cerimónias
-            </h2>
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-archivo font-semibold text-foreground">
+                Próximas Cerimónias
+              </h2>
+            </div>
+            <Button variant="ghost" size="sm">
+              Ver Todos
+            </Button>
           </div>
           <div className="space-y-4">
             {upcomingCeremonies.map((ceremony) => (
