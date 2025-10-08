@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronLeft, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 const events = [{
   type: "Velório",
@@ -65,11 +66,14 @@ const condolences = [{
 }];
 const relatedObituaries = Array(4).fill({
   name: "Zé Manuel Osório",
-  dates: "1930 - 2025 | 94 Anos",
+  birthDate: "01/01/1930",
+  deathDate: "15/01/2025",
   location: "Oreira - Arcos de Valdevez",
+  category: "Funeral",
+  agency: "Funerária S. João",
   views: 378,
-  likes: 5,
-  comments: 17,
+  messages: 17,
+  candles: 42,
   image: "/placeholder.svg"
 });
 export default function ObituaryDetail() {
@@ -363,25 +367,58 @@ export default function ObituaryDetail() {
             {relatedObituaries.map((obit, index) => <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <img src={obit.image} alt={obit.name} className="w-full aspect-[3/4] object-cover" />
-                  <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/90 flex items-center justify-center hover:bg-background">
-                    <Heart className="w-4 h-4" />
-                  </button>
+                  <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
+                    {obit.category}
+                  </Badge>
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-archivo font-semibold text-foreground mb-1">
-                    {obit.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {obit.dates}
-                  </p>
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <MapPin className="w-3 h-3" />
-                    <span className="text-xs">{obit.location}</span>
+                <CardContent className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
+                      {obit.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      {obit.birthDate} - {obit.deathDate}
+                    </p>
+                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                      <MapPin className="w-3 h-3" />
+                      <span className="text-xs">{obit.location}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {obit.agency}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>👁 {obit.views}</span>
-                    <span>❤️ {obit.likes}</span>
-                    <span>💬 {obit.comments}</span>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                      asChild
+                    >
+                      <Link to={`/obituario/${index + 1}`}>Condolências</Link>
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="bg-primary hover:bg-primary/90"
+                      asChild
+                    >
+                      <Link to={`/obituario/${index + 1}`}>Enviar Flores</Link>
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{obit.views}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>{obit.messages}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Flame className="w-4 h-4" />
+                      <span>{obit.candles}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>)}
