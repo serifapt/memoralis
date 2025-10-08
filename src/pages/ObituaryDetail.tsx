@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronLeft, Eye, MessageSquare, Flame } from "lucide-react";
+import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 const events = [{
@@ -88,10 +88,13 @@ export default function ObituaryDetail() {
       <div className="bg-muted/30 border-b border-border">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-muted-foreground hover:text-primary">Início</Link>
-            <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
-            <Link to="/" className="text-muted-foreground hover:text-primary">Obituário</Link>
-            <ChevronLeft className="w-4 h-4 rotate-180 text-muted-foreground" />
+            <Link to="/" className="text-muted-foreground hover:text-primary flex items-center gap-1">
+              <Home className="w-4 h-4" />
+              Início
+            </Link>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <Link to="/obituario" className="text-muted-foreground hover:text-primary">Obituário</Link>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
             <span className="text-foreground">José Manuel Osório</span>
           </div>
         </div>

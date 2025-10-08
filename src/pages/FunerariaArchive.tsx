@@ -29,17 +29,22 @@ export default function FunerariaArchive() {
     <div className="min-h-screen bg-background font-inter">
       <PublicHeader />
 
+      {/* Breadcrumb */}
+      <div className="bg-muted/30 border-b border-border">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Link to="/" className="text-muted-foreground hover:text-primary flex items-center gap-1">
+              <Home className="w-4 h-4" />
+              Início
+            </Link>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <span className="text-foreground">Funerárias</span>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Link to="/" className="hover:text-foreground flex items-center gap-1">
-            <Home className="w-4 h-4" />
-            Início
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-foreground">Funerárias</span>
-        </div>
 
         {/* Title */}
         <h1 className="text-4xl font-archivo font-bold text-foreground mb-8">
