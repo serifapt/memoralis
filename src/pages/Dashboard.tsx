@@ -146,86 +146,89 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Completed Processes */}
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-archivo font-semibold text-foreground">
-            Processos Concluídos
-          </h2>
-          <Button variant="ghost" size="sm">
-            Ver Todos
-          </Button>
-        </div>
-        <div className="space-y-4">
-          {completedProcesses.map((process) => (
-            <div
-              key={process.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+      {/* Two Column Layout for Completed Processes and Recent Obituaries */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Completed Processes */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-archivo font-semibold text-foreground">
+              Processos Concluídos
+            </h2>
+            <Button variant="ghost" size="sm">
+              Ver Todos
+            </Button>
+          </div>
+          <div className="space-y-4">
+            {completedProcesses.map((process) => (
+              <div
+                key={process.id}
+                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-foreground">{process.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Falecimento: {process.date}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-foreground">{process.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Falecimento: {process.date}
+                <div className="text-right">
+                  <p className="text-sm font-medium text-foreground">
+                    {process.amount}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Pago em: {process.paymentDate}
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-foreground">
-                  {process.amount}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Pago em: {process.paymentDate}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
 
-      {/* Recent Obituaries */}
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-archivo font-semibold text-foreground">
-            Obituários Recentes
-          </h2>
-          <Button variant="ghost" size="sm">
-            Ver Todos
-          </Button>
-        </div>
-        <div className="space-y-4">
-          {recentObituaries.map((obituary) => (
-            <div
-              key={obituary.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-            >
-              <div>
-                <h3 className="font-medium text-foreground">{obituary.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  Falecimento: {obituary.date}
-                </p>
+        {/* Recent Obituaries */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-archivo font-semibold text-foreground">
+              Obituários Recentes
+            </h2>
+            <Button variant="ghost" size="sm">
+              Ver Todos
+            </Button>
+          </div>
+          <div className="space-y-4">
+            {recentObituaries.map((obituary) => (
+              <div
+                key={obituary.id}
+                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              >
+                <div>
+                  <h3 className="font-medium text-foreground">{obituary.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Falecimento: {obituary.date}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-foreground">
+                    Cerimónia: {obituary.ceremony}
+                  </p>
+                  <span
+                    className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
+                      obituary.status === "active"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {obituary.status === "active" ? "Ativo" : "Concluído"}
+                  </span>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-foreground">
-                  Cerimónia: {obituary.ceremony}
-                </p>
-                <span
-                  className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
-                    obituary.status === "active"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {obituary.status === "active" ? "Ativo" : "Concluído"}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
