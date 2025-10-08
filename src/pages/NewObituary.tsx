@@ -139,7 +139,7 @@ export default function NewObituary() {
     <div className="p-8">
       <div className="mb-6">
         <h1 className="text-3xl font-archivo font-bold text-foreground">
-          {isEditing ? "Editar Obituário" : "Novo Obituário"}
+          {isEditing ? "Editar Processo Obituário" : "Novo Obituário"}
         </h1>
         <p className="text-muted-foreground mt-1">
           {isEditing ? "Atualize os dados do obituário" : "Preencha os dados para criar um novo obituário"}
