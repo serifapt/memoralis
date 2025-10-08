@@ -177,42 +177,43 @@ export default function FunerariaDetail() {
           </div>
         </div>
 
+        {/* Image Gallery - Full Width */}
+        <Card className="overflow-hidden mb-8">
+          <div className="grid md:grid-cols-[200px_1fr] gap-4 p-4">
+            {/* Logo */}
+            <div className="bg-muted rounded-lg flex items-center justify-center p-6">
+              <div className="text-center">
+                <div className="text-6xl font-archivo font-bold mb-2">SJ</div>
+                <div className="text-sm font-semibold">FUNERÁRIA<br />S. JOÃO</div>
+              </div>
+            </div>
+            
+            {/* Main Image */}
+            <div className="relative">
+              <img 
+                src="/placeholder.svg" 
+                alt="Funerária S. João"
+                className="w-full h-[400px] object-cover rounded-lg"
+              />
+              {/* Image dots */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                {[0, 1, 2, 3].map((index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      currentImageIndex === index ? 'bg-primary' : 'bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+
         <div className="grid lg:grid-cols-[1fr_400px] gap-8">
           {/* Main Content */}
           <div className="space-y-8">
-            {/* Image Gallery */}
-            <Card className="overflow-hidden">
-              <div className="grid md:grid-cols-[200px_1fr] gap-4 p-4">
-                {/* Logo */}
-                <div className="bg-muted rounded-lg flex items-center justify-center p-6">
-                  <div className="text-center">
-                    <div className="text-6xl font-archivo font-bold mb-2">SJ</div>
-                    <div className="text-sm font-semibold">FUNERÁRIA<br />S. JOÃO</div>
-                  </div>
-                </div>
-                
-                {/* Main Image */}
-                <div className="relative">
-                  <img 
-                    src="/placeholder.svg" 
-                    alt="Funerária S. João"
-                    className="w-full h-[400px] object-cover rounded-lg"
-                  />
-                  {/* Image dots */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                    {[0, 1, 2, 3].map((index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(index)}
-                        className={`w-2 h-2 rounded-full transition-colors ${
-                          currentImageIndex === index ? 'bg-primary' : 'bg-white/50'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
 
             {/* About Section */}
             <Card>
