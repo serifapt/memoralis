@@ -8,9 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Star, Eye, Bookmark, Map, Home, ChevronRight } from "lucide-react";
+import { Search, MapPin, Star, Eye, Map, Home, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import logo from "@/assets/logo-memoralis.png";
 
 const mockFuneralHomes = Array(9).fill(null).map((_, index) => ({
@@ -25,20 +24,6 @@ const mockFuneralHomes = Array(9).fill(null).map((_, index) => ({
 }));
 
 export default function FunerariaArchive() {
-  const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
-
-  const toggleBookmark = (id: number) => {
-    setBookmarked(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background font-inter">
       {/* Header */}
@@ -175,15 +160,6 @@ export default function FunerariaArchive() {
                   <div className="w-2 h-2 rounded-full bg-muted"></div>
                   <div className="w-2 h-2 rounded-full bg-muted"></div>
                 </div>
-                {/* Bookmark button */}
-                <button
-                  onClick={() => toggleBookmark(home.id)}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/90 flex items-center justify-center hover:bg-background transition-colors"
-                >
-                  <Bookmark
-                    className={`w-4 h-4 ${bookmarked.has(home.id) ? 'fill-primary text-primary' : 'text-foreground'}`}
-                  />
-                </button>
               </div>
               <CardContent className="p-4 space-y-2">
                 <h3 className="font-archivo font-bold text-foreground text-lg">
