@@ -181,7 +181,7 @@ export default function FunerariaDetail() {
         <Card className="overflow-hidden mb-8">
           <div className="grid md:grid-cols-[200px_1fr] gap-4 p-4">
             {/* Logo */}
-            <div className="bg-muted rounded-lg flex items-center justify-center p-6 aspect-square">
+            <div className="bg-muted rounded-lg flex items-center justify-center p-6 h-[400px]">
               <div className="text-center">
                 <div className="text-6xl font-archivo font-bold mb-2">SJ</div>
                 <div className="text-sm font-semibold">FUNERÁRIA<br />S. JOÃO</div>
