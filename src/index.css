@@ -18,8 +18,8 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 30 8% 20%;
 
-    /* Primary - Burgundy/Grená for important actions */
-    --primary: 350 45% 40%;
+    /* Primary - Coral/Red for important actions */
+    --primary: 0 63% 58%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Soft grey for subtle elements */
@@ -41,14 +41,14 @@ All colors MUST be HSL.
     /* Borders and inputs - Subtle warm grey */
     --border: 30 10% 88%;
     --input: 30 10% 88%;
-    --ring: 350 45% 40%;
+    --ring: 0 63% 58%;
 
     --radius: 0.5rem;
     
     /* Custom tokens for Memoralis */
     --sidebar-bg: 30 8% 96%;
     --sidebar-hover: 30 10% 92%;
-    --sidebar-active: 350 45% 40%;
+    --sidebar-active: 0 63% 58%;
     --gold-accent: 42 35% 50%;
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     --transition-smooth: all 0.2s ease;
@@ -89,7 +89,7 @@ All colors MUST be HSL.
     --popover: 30 8% 16%;
     --popover-foreground: 30 10% 90%;
 
-    --primary: 350 45% 50%;
+    --primary: 0 63% 58%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 30 8% 20%;
@@ -106,11 +106,11 @@ All colors MUST be HSL.
 
     --border: 30 8% 24%;
     --input: 30 8% 24%;
-    --ring: 350 45% 50%;
+    --ring: 0 63% 58%;
     
     --sidebar-bg: 30 8% 14%;
     --sidebar-hover: 30 8% 18%;
-    --sidebar-active: 350 45% 50%;
+    --sidebar-active: 0 63% 58%;
   }
 }
 
