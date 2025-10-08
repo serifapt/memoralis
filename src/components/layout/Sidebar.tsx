@@ -25,7 +25,7 @@ export const Sidebar = () => {
     <aside className="w-64 border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border">
-        <img src={logo} alt="Memoralis" className="h-8 mb-2" />
+        <img src={logo} alt="Memoralis" className="h-12 mb-2" />
         <p className="text-xs text-muted-foreground mt-1">
           Gestão Funerária
         </p>
