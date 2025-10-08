@@ -5,13 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Camera, Eye, Upload, Heart, MessageCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function NewObituary() {
   const navigate = useNavigate();
   const [isPublic, setIsPublic] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
+  
+  // Ceremony toggles
+  const [velorio, setVelorio] = useState(false);
+  const [cerimonia, setCerimonia] = useState(false);
+  const [funeral, setFuneral] = useState(false);
+  const [missa7, setMissa7] = useState(false);
+  
   const [formData, setFormData] = useState({
     displayName: "",
     fullName: "",
@@ -33,6 +41,33 @@ export default function NewObituary() {
     doctor: "",
     medicalCertificate: "",
     publicMessage: "",
+    // Velório
+    velorioDate: "",
+    velorioTime: "",
+    velorioLocation: "",
+    velorioMapLink: "",
+    // Cerimónia
+    cerimoniaDate: "",
+    cerimoniaTime: "",
+    cerimoniaChurch: "",
+    cerimoniaMapLink: "",
+    cerimoniaResponsible: "",
+    cerimoniaPhone: "",
+    // Funeral
+    funeralDate: "",
+    funeralTime: "",
+    funeralCemetery: "",
+    funeralMapLink: "",
+    funeralResponsible: "",
+    funeralPhone: "",
+    // Missa 7º Dia
+    missa7Date: "",
+    missa7Time: "",
+    missa7Location: "",
+    missa7MapLink: "",
+    // Notas
+    observations: "",
+    hideCondolences: false,
   });
 
   const completionPercentage = Math.round(
@@ -43,7 +78,7 @@ export default function NewObituary() {
 
   const handleInputChange = (
     field: string,
-    value: string
+    value: string | boolean
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -332,6 +367,379 @@ export default function NewObituary() {
                 handleInputChange("publicMessage", e.target.value)
               }
             />
+          </Card>
+
+          {/* Informações Fúnebres */}
+          <Card className="p-6">
+            <h2 className="text-xl font-archivo font-semibold mb-6">
+              Informações Fúnebres
+            </h2>
+
+            <div className="space-y-8">
+              {/* Velório */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={velorio} onCheckedChange={setVelorio} />
+                  <Label className="font-medium">Velório</Label>
+                </div>
+                {velorio && (
+                  <div className="grid md:grid-cols-4 gap-4 pl-8">
+                    <div>
+                      <Label htmlFor="velorioDate" className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Data
+                      </Label>
+                      <Input
+                        id="velorioDate"
+                        type="date"
+                        value={formData.velorioDate}
+                        onChange={(e) =>
+                          handleInputChange("velorioDate", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="velorioTime" className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Hora
+                      </Label>
+                      <Input
+                        id="velorioTime"
+                        type="time"
+                        value={formData.velorioTime}
+                        onChange={(e) =>
+                          handleInputChange("velorioTime", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="velorioLocation" className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Nome do Local
+                      </Label>
+                      <Input
+                        id="velorioLocation"
+                        value={formData.velorioLocation}
+                        onChange={(e) =>
+                          handleInputChange("velorioLocation", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="velorioMapLink" className="flex items-center gap-2">
+                        <Map className="w-4 h-4" />
+                        Link do mapa
+                      </Label>
+                      <Input
+                        id="velorioMapLink"
+                        value={formData.velorioMapLink}
+                        onChange={(e) =>
+                          handleInputChange("velorioMapLink", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Cerimónia */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={cerimonia} onCheckedChange={setCerimonia} />
+                  <Label className="font-medium">Cerimónia</Label>
+                </div>
+                {cerimonia && (
+                  <div className="space-y-4 pl-8">
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div>
+                        <Label htmlFor="cerimoniaDate" className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Data
+                        </Label>
+                        <Input
+                          id="cerimoniaDate"
+                          type="date"
+                          value={formData.cerimoniaDate}
+                          onChange={(e) =>
+                            handleInputChange("cerimoniaDate", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cerimoniaTime" className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          Hora
+                        </Label>
+                        <Input
+                          id="cerimoniaTime"
+                          type="time"
+                          value={formData.cerimoniaTime}
+                          onChange={(e) =>
+                            handleInputChange("cerimoniaTime", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cerimoniaChurch" className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          Nome da Igreja
+                        </Label>
+                        <Input
+                          id="cerimoniaChurch"
+                          value={formData.cerimoniaChurch}
+                          onChange={(e) =>
+                            handleInputChange("cerimoniaChurch", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cerimoniaMapLink" className="flex items-center gap-2">
+                          <Map className="w-4 h-4" />
+                          Link do mapa
+                        </Label>
+                        <Input
+                          id="cerimoniaMapLink"
+                          value={formData.cerimoniaMapLink}
+                          onChange={(e) =>
+                            handleInputChange("cerimoniaMapLink", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="cerimoniaResponsible">Nome</Label>
+                        <Input
+                          id="cerimoniaResponsible"
+                          placeholder="Nome do(a) Responsável"
+                          value={formData.cerimoniaResponsible}
+                          onChange={(e) =>
+                            handleInputChange("cerimoniaResponsible", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cerimoniaPhone">Contacto Telefónico</Label>
+                        <Input
+                          id="cerimoniaPhone"
+                          placeholder="+351 000 000 000"
+                          value={formData.cerimoniaPhone}
+                          onChange={(e) =>
+                            handleInputChange("cerimoniaPhone", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Funeral */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={funeral} onCheckedChange={setFuneral} />
+                  <Label className="font-medium">Funeral</Label>
+                </div>
+                {funeral && (
+                  <div className="space-y-4 pl-8">
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div>
+                        <Label htmlFor="funeralDate" className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Data
+                        </Label>
+                        <Input
+                          id="funeralDate"
+                          type="date"
+                          value={formData.funeralDate}
+                          onChange={(e) =>
+                            handleInputChange("funeralDate", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="funeralTime" className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          Hora
+                        </Label>
+                        <Input
+                          id="funeralTime"
+                          type="time"
+                          value={formData.funeralTime}
+                          onChange={(e) =>
+                            handleInputChange("funeralTime", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="funeralCemetery" className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          Nome do Cemitério
+                        </Label>
+                        <Input
+                          id="funeralCemetery"
+                          value={formData.funeralCemetery}
+                          onChange={(e) =>
+                            handleInputChange("funeralCemetery", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="funeralMapLink" className="flex items-center gap-2">
+                          <Map className="w-4 h-4" />
+                          Link do mapa
+                        </Label>
+                        <Input
+                          id="funeralMapLink"
+                          value={formData.funeralMapLink}
+                          onChange={(e) =>
+                            handleInputChange("funeralMapLink", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="funeralResponsible">Nome</Label>
+                        <Input
+                          id="funeralResponsible"
+                          placeholder="Nome do(a) Responsável"
+                          value={formData.funeralResponsible}
+                          onChange={(e) =>
+                            handleInputChange("funeralResponsible", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="funeralPhone">Contacto Telefónico</Label>
+                        <Input
+                          id="funeralPhone"
+                          placeholder="+351 000 000 000"
+                          value={formData.funeralPhone}
+                          onChange={(e) =>
+                            handleInputChange("funeralPhone", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Cremação */}
+              <div>
+                <Label className="font-medium text-lg">Cremação</Label>
+              </div>
+
+              {/* Missa 7º Dia */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={missa7} onCheckedChange={setMissa7} />
+                  <Label className="font-medium">Missa 7º Dia</Label>
+                </div>
+                {missa7 && (
+                  <div className="grid md:grid-cols-4 gap-4 pl-8">
+                    <div>
+                      <Label htmlFor="missa7Date" className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Data
+                      </Label>
+                      <Input
+                        id="missa7Date"
+                        type="date"
+                        value={formData.missa7Date}
+                        onChange={(e) =>
+                          handleInputChange("missa7Date", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa7Time" className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Hora
+                      </Label>
+                      <Input
+                        id="missa7Time"
+                        type="time"
+                        value={formData.missa7Time}
+                        onChange={(e) =>
+                          handleInputChange("missa7Time", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa7Location" className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Nome do Local
+                      </Label>
+                      <Input
+                        id="missa7Location"
+                        value={formData.missa7Location}
+                        onChange={(e) =>
+                          handleInputChange("missa7Location", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="missa7MapLink" className="flex items-center gap-2">
+                        <Map className="w-4 h-4" />
+                        Link do mapa
+                      </Label>
+                      <Input
+                        id="missa7MapLink"
+                        value={formData.missa7MapLink}
+                        onChange={(e) =>
+                          handleInputChange("missa7MapLink", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Missa 30º Dia */}
+              <div>
+                <Label className="font-medium text-lg">Missa 30º Dia</Label>
+              </div>
+
+              {/* Missa 1º Ano */}
+              <div>
+                <Label className="font-medium text-lg">Missa 1º Ano</Label>
+              </div>
+            </div>
+          </Card>
+
+          {/* Observações / Notas / Pedidos */}
+          <Card className="p-6">
+            <div className="mb-2">
+              <Label htmlFor="observations">Observações / Notas / Pedidos</Label>
+            </div>
+            <Textarea
+              id="observations"
+              placeholder="Deixe aqui as notas ou pedidos dos familiares"
+              rows={8}
+              value={formData.observations}
+              onChange={(e) =>
+                handleInputChange("observations", e.target.value)
+              }
+            />
+          </Card>
+
+          {/* Detalhes */}
+          <Card className="p-6">
+            <h3 className="font-medium mb-4">Detalhes</h3>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="hideCondolences"
+                checked={formData.hideCondolences}
+                onCheckedChange={(checked) =>
+                  handleInputChange("hideCondolences", checked as boolean)
+                }
+              />
+              <Label htmlFor="hideCondolences" className="cursor-pointer">
+                Ocultar Condolências
+              </Label>
+            </div>
           </Card>
         </div>
 
