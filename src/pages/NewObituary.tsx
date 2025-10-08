@@ -357,7 +357,7 @@ export default function NewObituary() {
             </div>
 
             {/* Completion Progress */}
-            <div className="pt-6 border-t">
+            <div className="pt-6 border-t mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium">Preenchimento de informação</span>
                 <span className="text-sm font-semibold text-primary">{completionPercentage}%</span>
@@ -368,6 +368,18 @@ export default function NewObituary() {
                   style={{ width: `${completionPercentage}%` }}
                 />
               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full gap-2">
+                <Eye className="w-4 h-4" />
+                Ver Perfil Público
+              </Button>
+              <Button className="w-full gap-2">
+                <Upload className="w-4 h-4" />
+                Guardar
+              </Button>
             </div>
           </Card>
 
@@ -437,20 +449,6 @@ export default function NewObituary() {
               </div>
             </Card>
 
-            {/* Completion Progress Card */}
-            <Card className="p-4">
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <Button variant="outline" className="w-full gap-2">
-                  <Eye className="w-4 h-4" />
-                  Ver Perfil Público
-                </Button>
-                <Button className="w-full gap-2">
-                  <Upload className="w-4 h-4" />
-                  Guardar
-                </Button>
-              </div>
-            </Card>
           </div>
         </div>
       </div>
