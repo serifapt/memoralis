@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin } from "lucide-react";
+import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, Eye, MessageCircle, Flame, Image as ImageIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const stats = [
@@ -100,23 +100,41 @@ const recentObituaries = [
   {
     id: 1,
     name: "Maria Silva Santos",
-    date: "15/01/2025",
-    ceremony: "17/01/2025 - 10:00",
-    status: "active",
+    birthYear: "1945",
+    deathYear: "2025",
+    age: 80,
+    location: "Lisboa - São Domingos de Benfica",
+    agency: "Funerária S. João",
+    type: "Funeral",
+    views: 456,
+    condolences: 12,
+    candles: 8,
   },
   {
     id: 2,
     name: "João Pedro Costa",
-    date: "14/01/2025",
-    ceremony: "16/01/2025 - 15:00",
-    status: "active",
+    birthYear: "1960",
+    deathYear: "2025",
+    age: 65,
+    location: "Porto - Matosinhos",
+    agency: "Funerária S. João",
+    type: "Missa",
+    views: 342,
+    condolences: 8,
+    candles: 5,
   },
   {
     id: 3,
     name: "Ana Beatriz Oliveira",
-    date: "13/01/2025",
-    ceremony: "15/01/2025 - 11:00",
-    status: "active",
+    birthYear: "1978",
+    deathYear: "2025",
+    age: 47,
+    location: "Braga - São Vicente",
+    agency: "Funerária S. João",
+    type: "Velório",
+    views: 289,
+    condolences: 6,
+    candles: 3,
   },
 ];
 
@@ -183,98 +201,91 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Two Column Layout for Recent Obituaries and Completed Processes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Obituaries */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-archivo font-semibold text-foreground">
-                Obituários Recentes
-              </h2>
-            </div>
-            <Button variant="ghost" size="sm">
-              Ver Todos
-            </Button>
+      {/* Recent Obituaries */}
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-archivo font-semibold text-foreground">
+              Obituários Recentes
+            </h2>
           </div>
-          <div className="space-y-4">
-            {recentObituaries.map((obituary) => (
-              <div
-                key={obituary.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-              >
+          <Button variant="ghost" size="sm">
+            Ver Todos
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {recentObituaries.map((obituary) => (
+            <Card key={obituary.id} className="overflow-hidden">
+              <div className="relative">
+                {/* Image Placeholder */}
+                <div className="w-full h-64 bg-muted flex items-center justify-center">
+                  <ImageIcon className="w-16 h-16 text-muted-foreground/30" />
+                </div>
+                {/* Type Badge */}
+                <Badge className="absolute top-4 left-4 bg-background text-foreground border">
+                  {obituary.type}
+                </Badge>
+              </div>
+              
+              {/* Content */}
+              <div className="p-6 space-y-4">
                 <div>
-                  <h3 className="font-medium text-foreground">{obituary.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Falecimento: {obituary.date}
+                  <h3 className="text-2xl font-archivo font-bold text-foreground mb-2">
+                    {obituary.name}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {obituary.birthYear} - {obituary.deathYear} | {obituary.age} Anos
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-foreground">
-                    Cerimónia: {obituary.ceremony}
-                  </p>
-                  <span
-                    className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
-                      obituary.status === "active"
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {obituary.status === "active" ? "Ativo" : "Concluído"}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Completed Processes */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-archivo font-semibold text-foreground">
-                Processos Concluídos
-              </h2>
-            </div>
-            <Button variant="ghost" size="sm">
-              Ver Todos
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {completedProcesses.map((process) => (
-              <div
-                key={process.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+                
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="w-4 h-4" />
+                    {obituary.location}
                   </div>
-                  <div>
-                    <h3 className="font-medium text-foreground">{process.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Falecimento: {process.date}
-                    </p>
+                  <p className="text-sm text-muted-foreground">Agência</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {obituary.agency}
+                  </p>
+                </div>
+                
+                {/* Buttons */}
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1">
+                    Condolências
+                  </Button>
+                  <Button className="flex-1 bg-primary hover:bg-primary/90">
+                    Enviar Flores
+                  </Button>
+                </div>
+                
+                {/* Stats */}
+                <div className="flex items-center justify-between pt-4 border-t border-border text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-4 h-4" />
+                    <span className="text-sm">{obituary.views}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="text-sm">{obituary.condolences}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Flame className="w-4 h-4" />
+                    <span className="text-sm">{obituary.candles}</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-foreground">
-                    {process.amount}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Pago em: {process.paymentDate}
-                  </p>
-                </div>
               </div>
-            ))}
-          </div>
-        </Card>
+            </Card>
+          ))}
+        </div>
       </div>
 
-      {/* Upcoming Ceremonies - Left Column Only */}
+      {/* Two Column Layout for Completed Processes and Upcoming Ceremonies */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Upcoming Ceremonies */}
         <Card className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
@@ -331,7 +342,51 @@ export default function Dashboard() {
             ))}
           </div>
         </Card>
+
+        {/* Completed Processes */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-archivo font-semibold text-foreground">
+                Processos Concluídos
+              </h2>
+            </div>
+            <Button variant="ghost" size="sm">
+              Ver Todos
+            </Button>
+          </div>
+          <div className="space-y-4">
+            {completedProcesses.map((process) => (
+              <div
+                key={process.id}
+                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-foreground">{process.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Falecimento: {process.date}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-foreground">
+                    {process.amount}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Pago em: {process.paymentDate}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
+
     </div>
   );
 }
