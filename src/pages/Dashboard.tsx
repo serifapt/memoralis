@@ -79,7 +79,7 @@ const recentObituaries = [
     name: "Ana Beatriz Oliveira",
     date: "13/01/2025",
     ceremony: "15/01/2025 - 11:00",
-    status: "completed",
+    status: "active",
   },
 ];
 
