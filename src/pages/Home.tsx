@@ -84,26 +84,37 @@ export default function Home() {
               Na Memoralis, acreditamos que cada vida merece ser celebrada e recordada com dignidade. 
               Oferecemos uma plataforma completa para criar homenagens inesquecíveis e perpetuar a memória de forma significativa e emotiva.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                  <Input 
-                    placeholder="Nome" 
-                    className="pl-10"
-                  />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                    <Input 
+                      placeholder="Nome" 
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                    <Input 
+                      placeholder="Localização" 
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                    <Input 
+                      placeholder="Funerária" 
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="flex-1">
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                  <Input 
-                    placeholder="Localização" 
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                 Pesquisar
               </Button>
             </div>
