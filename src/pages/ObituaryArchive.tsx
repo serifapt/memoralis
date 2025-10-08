@@ -160,71 +160,71 @@ export default function ObituaryArchive() {
         {/* Obituaries Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {mockObituaries.map((obit) => (
-            <Card key={obit.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative">
-                <img
-                  src={obit.image}
-                  alt={obit.name}
-                  className="w-full aspect-[3/4] object-cover"
-                />
-                <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
-                  {obit.category}
-                </Badge>
-              </div>
-              <CardContent className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
-                    {obit.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    {obit.birthYear} - {obit.deathYear} | {obit.age} Anos
-                  </p>
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <MapPin className="w-3 h-3" />
-                    <span className="text-xs">{obit.location}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Agência
-                  </p>
-                  <p className="text-sm text-foreground font-medium">
-                    {obit.agency}
-                  </p>
+            <Link key={obit.id} to={`/obituario/${obit.id}`}>
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="relative">
+                  <img
+                    src={obit.image}
+                    alt={obit.name}
+                    className="w-full aspect-[3/4] object-cover"
+                  />
+                  <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
+                    {obit.category}
+                  </Badge>
                 </div>
+                <CardContent className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
+                      {obit.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      {obit.birthYear} - {obit.deathYear} | {obit.age} Anos
+                    </p>
+                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                      <MapPin className="w-3 h-3" />
+                      <span className="text-xs">{obit.location}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Agência
+                    </p>
+                    <p className="text-sm text-foreground font-medium">
+                      {obit.agency}
+                    </p>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                    asChild
-                  >
-                    <Link to={`/obituario/${obit.id}`}>Condolências</Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-primary hover:bg-primary/90"
-                    asChild
-                  >
-                    <Link to={`/obituario/${obit.id}`}>Enviar Flores</Link>
-                  </Button>
-                </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      Condolências
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      Enviar Flores
+                    </Button>
+                  </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    <span>{obit.views}</span>
+                  <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{obit.views}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>{obit.messages}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Flame className="w-4 h-4" />
+                      <span>{obit.candles}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <MessageSquare className="w-4 h-4" />
-                    <span>{obit.messages}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Flame className="w-4 h-4" />
-                    <span>{obit.candles}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
