@@ -56,7 +56,7 @@ export default function NewObituary() {
         </h1>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_320px] gap-8">
+      <div className="grid lg:grid-cols-[1fr_280px] gap-8">
         {/* Form Section */}
         <div className="space-y-8">
           {/* Informações Obituário */}
@@ -339,7 +339,7 @@ export default function NewObituary() {
         <div className="space-y-6">
           {/* Status Toggles Card */}
           <Card className="p-6">
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="space-y-4 mb-6">
               <div>
                 <p className="text-sm font-medium mb-2">Estado do Perfil</p>
                 <div className="flex items-center gap-2">
