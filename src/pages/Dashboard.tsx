@@ -215,66 +215,37 @@ export default function Dashboard() {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {recentObituaries.map((obituary) => (
             <Card key={obituary.id} className="overflow-hidden">
-              <div className="relative">
-                {/* Image Placeholder */}
-                <div className="w-full h-64 bg-muted flex items-center justify-center">
-                  <ImageIcon className="w-16 h-16 text-muted-foreground/30" />
-                </div>
-                {/* Type Badge */}
-                <Badge className="absolute top-4 left-4 bg-background text-foreground border">
-                  {obituary.type}
-                </Badge>
-              </div>
-              
-              {/* Content */}
-              <div className="p-6 space-y-4">
-                <div>
-                  <h3 className="text-2xl font-archivo font-bold text-foreground mb-2">
-                    {obituary.name}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {obituary.birthYear} - {obituary.deathYear} | {obituary.age} Anos
-                  </p>
-                </div>
-                
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    {obituary.location}
+              <div className="p-6">
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-8 h-8 text-muted-foreground" />
                   </div>
-                  <p className="text-sm text-muted-foreground">Agência</p>
-                  <p className="text-sm font-semibold text-foreground">
-                    {obituary.agency}
-                  </p>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-archivo font-semibold text-foreground">
+                      {obituary.name}
+                    </h3>
+                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      <p>✝ {obituary.birthYear} - {obituary.deathYear} | {obituary.age} Anos</p>
+                      <p>📍 {obituary.location}</p>
+                      <p className="text-xs">{obituary.agency}</p>
+                    </div>
+                  </div>
                 </div>
                 
-                {/* Buttons */}
-                <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1">
+                <div className="mt-4 pt-4 border-t border-border flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Ver
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1">
                     Condolências
                   </Button>
-                  <Button className="flex-1 bg-primary hover:bg-primary/90">
+                  <Button size="sm" className="flex-1 bg-primary hover:bg-primary/90">
                     Enviar Flores
                   </Button>
-                </div>
-                
-                {/* Stats */}
-                <div className="flex items-center justify-between pt-4 border-t border-border text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    <span className="text-sm">{obituary.views}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="text-sm">{obituary.condolences}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Flame className="w-4 h-4" />
-                    <span className="text-sm">{obituary.candles}</span>
-                  </div>
                 </div>
               </div>
             </Card>
