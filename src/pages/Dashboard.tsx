@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, FileText, Calendar, Users, TrendingUp } from "lucide-react";
+import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const stats = [
@@ -32,6 +32,30 @@ const stats = [
     icon: TrendingUp,
     change: "+2% vs. anterior",
     changeType: "positive",
+  },
+];
+
+const completedProcesses = [
+  {
+    id: 1,
+    name: "António Manuel Ferreira",
+    date: "10/01/2025",
+    paymentDate: "12/01/2025",
+    amount: "3.500€",
+  },
+  {
+    id: 2,
+    name: "Rosa Maria Gonçalves",
+    date: "08/01/2025",
+    paymentDate: "10/01/2025",
+    amount: "4.200€",
+  },
+  {
+    id: 3,
+    name: "Carlos Alberto Sousa",
+    date: "05/01/2025",
+    paymentDate: "07/01/2025",
+    amount: "3.800€",
   },
 ];
 
@@ -121,6 +145,46 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
+
+      {/* Completed Processes */}
+      <Card className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-archivo font-semibold text-foreground">
+            Processos Concluídos
+          </h2>
+          <Button variant="ghost" size="sm">
+            Ver Todos
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {completedProcesses.map((process) => (
+            <div
+              key={process.id}
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-foreground">{process.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Falecimento: {process.date}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-foreground">
+                  {process.amount}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Pago em: {process.paymentDate}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {/* Recent Obituaries */}
       <Card className="p-6">
