@@ -141,7 +141,8 @@ export default function FunerariaArchive() {
         {/* Funeral Homes Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {mockFuneralHomes.map((home) => (
-            <Card key={home.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Link key={home.id} to={`/funerarias/${home.id}`}>
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative">
                 <img
                   src={home.image}
@@ -182,6 +183,7 @@ export default function FunerariaArchive() {
                 </div>
               </CardContent>
             </Card>
+            </Link>
           ))}
         </div>
 
