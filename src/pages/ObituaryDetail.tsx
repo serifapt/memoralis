@@ -178,25 +178,25 @@ export default function ObituaryDetail() {
                     {/* Share & Actions */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
                       <span className="text-sm font-medium text-foreground">Partilhar</span>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
                         <Facebook className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
                         <MessageCircle className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
                         <Mail className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
                         <LinkIcon className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button variant="outline" size="icon" className="h-9 w-9 hover:bg-primary hover:text-primary-foreground transition-colors">
                         <Printer className="w-4 h-4" />
                       </Button>
                     </div>
 
                     <div className="flex gap-3">
-                      <Button variant="outline">Condolências</Button>
+                      <Button variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors">Condolências</Button>
                       <Button className="bg-primary hover:bg-primary/90">
                         Enviar Flores
                       </Button>
@@ -257,7 +257,7 @@ export default function ObituaryDetail() {
                     <Clock className="w-4 h-4 mr-2" />
                     Receber e-mail de aviso
                   </Button>
-                  <Button variant="outline" className="flex-1 sm:flex-none">
+                  <Button variant="outline" className="flex-1 sm:flex-none hover:bg-primary hover:text-primary-foreground transition-colors">
                     <Calendar className="w-4 h-4 mr-2" />
                     Adicionar ao Calendário
                   </Button>
