@@ -7,6 +7,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import Home from "./pages/Home";
 import ObituaryDetail from "./pages/ObituaryDetail";
 import ObituaryArchive from "./pages/ObituaryArchive";
+import FunerariaArchive from "./pages/FunerariaArchive";
 import Dashboard from "./pages/Dashboard";
 import Obituaries from "./pages/Obituaries";
 import Ceremonies from "./pages/Ceremonies";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/obituario" element={<ObituaryArchive />} />
           <Route path="/obituario/:id" element={<ObituaryDetail />} />
+          <Route path="/funerarias" element={<FunerariaArchive />} />
           <Route path="/auth" element={<Auth />} />
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
