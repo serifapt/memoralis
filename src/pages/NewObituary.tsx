@@ -337,11 +337,9 @@ export default function NewObituary() {
 
         {/* Preview Section */}
         <div className="space-y-6">
+          {/* Status Toggles Card */}
           <Card className="p-6">
-            <h3 className="font-semibold mb-4">Pré-visualizar</h3>
-
-            {/* Status Toggles */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium mb-2">Estado do Perfil</p>
                 <div className="flex items-center gap-2">
@@ -357,76 +355,102 @@ export default function NewObituary() {
                 </div>
               </div>
             </div>
+          </Card>
 
-            {/* Preview Card */}
-            <div className="border rounded-lg overflow-hidden">
-              <div className="bg-muted aspect-[4/5] flex items-center justify-center">
-                <Camera className="w-16 h-16 text-muted-foreground" />
+          {/* Sticky Preview Container */}
+          <div className="sticky top-6 space-y-6">
+            {/* Preview Card Header */}
+            <Card className="p-4">
+              <h3 className="font-semibold text-center">Pré-visualizar</h3>
+            </Card>
+
+            {/* Preview Card - Matching ObituaryArchive Style */}
+            <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="relative">
+                <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center">
+                  <Camera className="w-16 h-16 text-muted-foreground" />
+                </div>
+                <div className="absolute top-3 left-3 bg-background/90 text-foreground border border-border rounded-md px-2 py-1 text-xs font-medium">
+                  Funeral
+                </div>
               </div>
               <div className="p-4 space-y-3">
-                <div className="text-xs text-muted-foreground">Funeral</div>
-                <h4 className="font-archivo font-semibold text-lg">
-                  {formData.displayName || "Nome do Óbito"}
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  {formData.birthDate ? new Date(formData.birthDate).getFullYear() : "1970"} -{" "}
-                  {formData.deathDate ? new Date(formData.deathDate).getFullYear() : "2025"} | 55 Anos
-                </p>
-                <p className="text-sm flex items-center gap-1">
-                  📍 {formData.freguesia || "Couto"} · {formData.locality || "Arcos de Valdevez"}
-                </p>
-                <div className="text-xs text-muted-foreground">
-                  Agência
-                  <div className="font-medium text-foreground">Funerária S. João</div>
+                <div>
+                  <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
+                    {formData.displayName || "Nome do Óbito"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    {formData.birthDate ? new Date(formData.birthDate).getFullYear() : "1970"} -{" "}
+                    {formData.deathDate ? new Date(formData.deathDate).getFullYear() : "2025"} | 55 Anos
+                  </p>
+                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                    <span className="text-xs">📍</span>
+                    <span className="text-xs">
+                      {formData.freguesia || "Couto"} - {formData.locality || "Arcos de Valdevez"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Agência</p>
+                  <p className="text-sm text-foreground font-medium">Funerária S. João</p>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
                     Condolências
                   </Button>
-                  <Button size="sm" className="flex-1">
+                  <Button size="sm" className="bg-primary hover:bg-primary/90">
                     Enviar Flores
                   </Button>
                 </div>
-                <div className="flex items-center justify-around text-sm text-muted-foreground pt-2 border-t">
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" /> 678
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Heart className="w-4 h-4" /> 5
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" /> 1
-                  </span>
+
+                <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-4 h-4" />
+                    <span>678</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageCircle className="w-4 h-4" />
+                    <span>5</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Heart className="w-4 h-4" />
+                    <span>1</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            {/* Completion Progress */}
-            <div className="mt-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Preenchimento de informação</span>
-                <span className="text-sm font-semibold text-primary">{completionPercentage}%</span>
+            {/* Completion Progress Card */}
+            <Card className="p-4">
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Preenchimento de informação</span>
+                  <span className="text-sm font-semibold text-primary">{completionPercentage}%</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${completionPercentage}%` }}
+                  />
+                </div>
               </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary transition-all duration-300"
-                  style={{ width: `${completionPercentage}%` }}
-                />
-              </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-3 mt-6">
-              <Button variant="outline" className="w-full gap-2">
-                <Eye className="w-4 h-4" />
-                Ver Perfil Público
-              </Button>
-              <Button className="w-full gap-2">
-                <Upload className="w-4 h-4" />
-                Guardar
-              </Button>
-            </div>
-          </Card>
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <Button variant="outline" className="w-full gap-2">
+                  <Eye className="w-4 h-4" />
+                  Ver Perfil Público
+                </Button>
+                <Button className="w-full gap-2">
+                  <Upload className="w-4 h-4" />
+                  Guardar
+                </Button>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
