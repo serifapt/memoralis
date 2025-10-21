@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -21,6 +23,18 @@ const navigation = [
 ];
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Erro ao sair");
+    } else {
+      toast.success("Sessão terminada com sucesso");
+      navigate("/");
+    }
+  };
+
   return (
     <aside className="w-64 border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col">
       {/* Logo */}
@@ -56,7 +70,10 @@ export const Sidebar = () => {
 
       {/* Footer */}
       <div className="p-4 border-t border-border">
-        <button className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
+        >
           <LogOut className="w-5 h-5" />
           <span className="text-sm font-medium">Sair</span>
         </button>
