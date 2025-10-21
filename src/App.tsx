@@ -17,6 +17,10 @@ import Clients from "./pages/Clients";
 import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
+import FunerariaRegister from "./pages/FunerariaRegister";
+import FunerariaStatus from "./pages/FunerariaStatus";
+import AdminFunerarias from "./pages/AdminFunerarias";
+import AdminFunerariaDetail from "./pages/AdminFunerariaDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +38,10 @@ const App = () => (
           <Route path="/funerarias" element={<FunerariaArchive />} />
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/funeraria/register" element={<FunerariaRegister />} />
+          <Route path="/funeraria/status" element={<FunerariaStatus />} />
+          <Route path="/admin/funerarias" element={<AdminFunerarias />} />
+          <Route path="/admin/funerarias/:id" element={<AdminFunerariaDetail />} />
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/obituaries" element={<Obituaries />} />

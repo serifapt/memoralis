@@ -52,15 +52,22 @@ export default function Auth() {
             {isLogin ? "Entrar" : "Registar"}
           </Button>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors block w-full"
             >
               {isLogin
                 ? "Não tem conta? Registar"
                 : "Já tem conta? Entrar"}
             </button>
+            <Button
+              variant="link"
+              className="text-sm"
+              onClick={() => window.location.href = '/funeraria/register'}
+            >
+              Registar Funerária
+            </Button>
           </div>
         </div>
       </Card>
