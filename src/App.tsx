@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import ObituaryDetail from "./pages/ObituaryDetail";
 import ObituaryArchive from "./pages/ObituaryArchive";
@@ -39,10 +40,37 @@ const App = () => (
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/funeraria/register" element={<FunerariaRegister />} />
-          <Route path="/funeraria/status" element={<FunerariaStatus />} />
-          <Route path="/admin/funerarias" element={<AdminFunerarias />} />
-          <Route path="/admin/funerarias/:id" element={<AdminFunerariaDetail />} />
-          <Route element={<AppLayout />}>
+          <Route 
+            path="/funeraria/status" 
+            element={
+              <ProtectedRoute requireRole="funeraria">
+                <FunerariaStatus />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/funerarias" 
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminFunerarias />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/funerarias/:id" 
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminFunerariaDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/obituaries" element={<Obituaries />} />
             <Route path="/obituaries/new" element={<NewObituary />} />
