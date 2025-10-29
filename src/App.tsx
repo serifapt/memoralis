@@ -18,6 +18,7 @@ import Clients from "./pages/Clients";
 import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
+import AdminAuth from "./pages/AdminAuth";
 import FunerariaRegister from "./pages/FunerariaRegister";
 import FunerariaStatus from "./pages/FunerariaStatus";
 import AdminFunerarias from "./pages/AdminFunerarias";
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/funerarias" element={<FunerariaArchive />} />
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/admin/auth" element={<AdminAuth />} />
           <Route path="/funeraria/register" element={<FunerariaRegister />} />
           <Route 
             path="/funeraria/status" 

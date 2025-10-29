@@ -387,6 +387,7 @@ export default function Home() {
                 <li><Link to="/sobre" className="opacity-80 hover:opacity-100">Sobre</Link></li>
                 <li><Link to="/blog" className="opacity-80 hover:opacity-100">Blog</Link></li>
                 <li><Link to="/contactos" className="opacity-80 hover:opacity-100">Contactos</Link></li>
+                <li><Link to="/admin/auth" className="opacity-60 hover:opacity-80 text-xs">Admin</Link></li>
               </ul>
             </div>
             <div>
