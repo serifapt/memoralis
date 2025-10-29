@@ -11,7 +11,7 @@ import { Fase1Data } from "@/lib/validation";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function FunerariaRegister() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [fase1Data, setFase1Data] = useState<Fase1Data | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
