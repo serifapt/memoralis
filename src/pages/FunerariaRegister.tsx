@@ -2,36 +2,31 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo-memoralis.png";
-import { RegisterStep1 } from "@/components/funeraria/RegisterStep1";
-import { RegisterStep2 } from "@/components/funeraria/RegisterStep2";
+import { RegisterForm } from "@/components/funeraria/RegisterForm";
 import { Fase1Data } from "@/lib/validation";
 import { supabase } from "@/integrations/supabase/client";
 
+interface CertidaoData {
+  tipo: "upload" | "codigo";
+  file?: File;
+  codigo_acesso?: string;
+}
+
 export default function FunerariaRegister() {
-  const [currentStep, setCurrentStep] = useState(2);
-  const [fase1Data, setFase1Data] = useState<Fase1Data | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleStep1Complete = (data: Fase1Data) => {
-    setFase1Data(data);
-    setCurrentStep(2);
-  };
-
-  const handleStep2Complete = async (documents: any[]) => {
-    if (!fase1Data) return;
-
+  const handleSubmit = async (data: Fase1Data, certidaoData: CertidaoData) => {
     setIsSubmitting(true);
     
     try {
       // 1. Criar conta de autenticação
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: fase1Data.email,
-        password: fase1Data.password,
+        email: data.email,
+        password: data.password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
         },
@@ -45,8 +40,8 @@ export default function FunerariaRegister() {
         .from("profiles")
         .insert({
           id: authData.user.id,
-          full_name: fase1Data.responsavel_nome,
-          phone: fase1Data.telefone,
+          full_name: data.responsavel_nome,
+          phone: data.telefone,
         });
 
       if (profileError) throw profileError;
@@ -66,12 +61,12 @@ export default function FunerariaRegister() {
         .from("funerarias")
         .insert({
           user_id: authData.user.id,
-          nome_comercial: fase1Data.nome_comercial,
-          nif: fase1Data.nif,
-          responsavel_nome: fase1Data.responsavel_nome,
-          telefone: fase1Data.telefone,
-          declaro_representacao_legal: fase1Data.declaro_representacao_legal,
-          aceito_termos: fase1Data.aceito_termos,
+          nome_comercial: data.nome_comercial,
+          nif: data.nif,
+          responsavel_nome: data.responsavel_nome,
+          telefone: data.telefone,
+          declaro_representacao_legal: data.declaro_representacao_legal,
+          aceito_termos: data.aceito_termos,
           status: "pendente",
         })
         .select()
@@ -79,49 +74,41 @@ export default function FunerariaRegister() {
 
       if (funerariaError) throw funerariaError;
 
-      // 5. Fazer upload dos documentos e criar registos
-      for (const doc of documents) {
-        if (doc.file) {
-          // Upload do ficheiro
-          const fileExt = doc.file.name.split(".").pop();
-          const fileName = `${funerariaData.id}/${doc.tipo}_${Date.now()}.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from("funeraria-docs")
-            .upload(fileName, doc.file);
+      // 5. Criar registo da certidão permanente
+      if (certidaoData.tipo === "upload" && certidaoData.file) {
+        // Upload do ficheiro
+        const fileExt = certidaoData.file.name.split(".").pop();
+        const fileName = `${funerariaData.id}/certidao_permanente_${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("funeraria-docs")
+          .upload(fileName, certidaoData.file);
 
-          if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-          // Criar registo do documento
-          const { error: docError } = await supabase
-            .from("funeraria_docs")
-            .insert({
-              funeraria_id: funerariaData.id,
-              tipo: doc.tipo,
-              ficheiro_path: fileName,
-              numero_documento: doc.numero_documento,
-              entidade_emissora: doc.entidade_emissora,
-              data_emissao: doc.data_emissao,
-              data_validade: doc.data_validade,
-            });
+        // Criar registo do documento
+        const { error: docError } = await supabase
+          .from("funeraria_docs")
+          .insert({
+            funeraria_id: funerariaData.id,
+            tipo: "certidao_permanente",
+            ficheiro_path: fileName,
+            entidade_emissora: "Conservatória do Registo Comercial",
+          });
 
-          if (docError) throw docError;
-        } else if (doc.codigo_acesso) {
-          // Criar registo com código de acesso
-          const { error: docError } = await supabase
-            .from("funeraria_docs")
-            .insert({
-              funeraria_id: funerariaData.id,
-              tipo: doc.tipo,
-              codigo_acesso: doc.codigo_acesso,
-              numero_documento: doc.numero_documento,
-              entidade_emissora: doc.entidade_emissora,
-              data_emissao: doc.data_emissao,
-              data_validade: doc.data_validade,
-            });
+        if (docError) throw docError;
+      } else if (certidaoData.tipo === "codigo" && certidaoData.codigo_acesso) {
+        // Criar registo com código de acesso
+        const { error: docError } = await supabase
+          .from("funeraria_docs")
+          .insert({
+            funeraria_id: funerariaData.id,
+            tipo: "certidao_permanente",
+            codigo_acesso: certidaoData.codigo_acesso,
+            entidade_emissora: "Conservatória do Registo Comercial",
+          });
 
-          if (docError) throw docError;
-        }
+        if (docError) throw docError;
       }
 
       toast({
@@ -153,29 +140,7 @@ export default function FunerariaRegister() {
           </p>
         </div>
 
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">
-              Passo {currentStep} de 2
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {currentStep === 1 ? "Dados Básicos" : "Documentos"}
-            </span>
-          </div>
-          <Progress value={currentStep * 50} />
-        </div>
-
-        {currentStep === 1 && (
-          <RegisterStep1 onComplete={handleStep1Complete} />
-        )}
-
-        {currentStep === 2 && (
-          <RegisterStep2 
-            onComplete={handleStep2Complete}
-            onBack={() => setCurrentStep(1)}
-            isSubmitting={isSubmitting}
-          />
-        )}
+        <RegisterForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
 
         <div className="mt-6 text-center">
           <Button
