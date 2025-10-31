@@ -8,6 +8,7 @@ import { AdminLayout } from "./components/layout/AdminLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import ObituaryDetail from "./pages/ObituaryDetail";
+import ObituaryDashboardDetail from "./pages/ObituaryDashboardDetail";
 import ObituaryArchive from "./pages/ObituaryArchive";
 import FunerariaArchive from "./pages/FunerariaArchive";
 import FunerariaDetail from "./pages/FunerariaDetail";
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/obituaries" element={<Obituaries />} />
             <Route path="/obituaries/new" element={<NewObituary />} />
+            <Route path="/obituaries/:id" element={<ObituaryDashboardDetail />} />
             <Route path="/obituaries/:id/edit" element={<NewObituary />} />
             <Route path="/ceremonies" element={<Ceremonies />} />
             <Route path="/clients" element={<Clients />} />

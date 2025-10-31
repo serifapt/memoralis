@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, User, Phone, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const clients = [
   {
@@ -11,6 +12,7 @@ const clients = [
     deceased: "Maria Silva Santos",
     phone: "+351 912 345 678",
     email: "carlos.santos@email.pt",
+    obituaryId: 1,
   },
   {
     id: 2,
@@ -19,6 +21,7 @@ const clients = [
     deceased: "João Pedro Costa",
     phone: "+351 923 456 789",
     email: "rita.costa@email.pt",
+    obituaryId: 2,
   },
 ];
 
@@ -71,8 +74,10 @@ export default function Clients() {
                       {client.relationship} de {client.deceased}
                     </p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Ver Detalhes
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to={`/obituaries/${client.obituaryId}#informacao-familia`}>
+                      Ver Detalhes
+                    </Link>
                   </Button>
                 </div>
                 
