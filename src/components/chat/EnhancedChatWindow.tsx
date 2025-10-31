@@ -4,10 +4,20 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageSquare, Loader2, Check, CheckCheck, CheckCircle } from "lucide-react";
+import { Send, MessageSquare, Loader2, Check, CheckCheck, CheckCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Message {
   id: string;
@@ -28,6 +38,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [conversationStatus, setConversationStatus] = useState<"aberta" | "resolvido">("aberta");
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -90,6 +101,27 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
     } catch (error) {
       console.error("Erro ao marcar como resolvido:", error);
       toast.error("Erro ao atualizar status");
+    }
+  };
+
+  const handleDeleteMessage = async () => {
+    if (!messageToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .eq("id", messageToDelete);
+
+      if (error) throw error;
+
+      setMessages((prev) => prev.filter((msg) => msg.id !== messageToDelete));
+      toast.success("Mensagem eliminada");
+    } catch (error) {
+      console.error("Erro ao eliminar mensagem:", error);
+      toast.error("Erro ao eliminar mensagem");
+    } finally {
+      setMessageToDelete(null);
     }
   };
 
@@ -366,32 +398,48 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                     isOwnMessage ? "justify-end" : "justify-start"
                   )}
                 >
-                  <div
-                    className={cn(
-                      "max-w-[70%] rounded-lg px-4 py-2 shadow-sm",
-                      isOwnMessage
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
-                    )}
-                  >
-                    <p className="text-sm whitespace-pre-wrap break-words">
-                      {message.content}
-                    </p>
-                    
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-xs opacity-70">
-                        {formatDate(message.created_at)}
-                      </p>
-                      {isOwnMessage && (
-                        <span className="text-xs">
-                          {message.is_read ? (
-                            <CheckCheck className="h-3 w-3" />
-                          ) : (
-                            <Check className="h-3 w-3" />
-                          )}
-                        </span>
+                  <div className={cn("relative group", isOwnMessage ? "flex-row-reverse" : "flex-row")}>
+                    <div
+                      className={cn(
+                        "max-w-[70%] rounded-lg px-4 py-2 shadow-sm",
+                        isOwnMessage
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted"
                       )}
+                    >
+                      <p className="text-sm whitespace-pre-wrap break-words">
+                        {message.content}
+                      </p>
+                      
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs opacity-70">
+                          {formatDate(message.created_at)}
+                        </p>
+                        {isOwnMessage && (
+                          <span className="text-xs">
+                            {message.is_read ? (
+                              <CheckCheck className="h-3 w-3" />
+                            ) : (
+                              <Check className="h-3 w-3" />
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    
+                    {isOwnMessage && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className={cn(
+                          "h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity ml-2",
+                          isOwnMessage ? "text-destructive hover:text-destructive hover:bg-destructive/10" : ""
+                        )}
+                        onClick={() => setMessageToDelete(message.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -428,6 +476,26 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={!!messageToDelete} onOpenChange={() => setMessageToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar mensagem?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser revertida. A mensagem será permanentemente eliminada.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteMessage}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
