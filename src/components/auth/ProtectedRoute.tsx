@@ -12,24 +12,36 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasRole, setHasRole] = useState(false);
+  const [userRole, setUserRole] = useState<"admin" | "funeraria" | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
 
-      if (currentSession && requireRole) {
-        // Check user role
-        const { data: roleData } = await supabase
+      if (currentSession) {
+        // Get all user roles
+        const { data: rolesData } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", currentSession.user.id)
-          .eq("role", requireRole)
-          .single();
+          .eq("user_id", currentSession.user.id);
 
-        setHasRole(!!roleData);
-      } else if (currentSession) {
-        setHasRole(true);
+        if (rolesData && rolesData.length > 0) {
+          // Check if user is admin
+          const isAdmin = rolesData.some((r) => r.role === "admin");
+          const isFuneraria = rolesData.some((r) => r.role === "funeraria");
+          
+          setUserRole(isAdmin ? "admin" : isFuneraria ? "funeraria" : null);
+
+          if (requireRole) {
+            setHasRole(rolesData.some((r) => r.role === requireRole));
+          } else {
+            setHasRole(true);
+          }
+        } else {
+          setUserRole(null);
+          setHasRole(!requireRole);
+        }
       }
 
       setLoading(false);
@@ -41,6 +53,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
       setSession(session);
       if (!session) {
         setHasRole(false);
+        setUserRole(null);
       }
     });
 
@@ -60,11 +73,13 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   }
 
   if (requireRole && !hasRole) {
-    // Redirect based on actual role
-    if (requireRole === "admin") {
+    // Redirect based on user's actual role
+    if (userRole === "admin") {
+      return <Navigate to="/admin/dashboard" replace />;
+    } else if (userRole === "funeraria") {
       return <Navigate to="/dashboard" replace />;
     } else {
-      return <Navigate to="/admin/dashboard" replace />;
+      return <Navigate to="/auth" replace />;
     }
   }
 
