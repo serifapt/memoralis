@@ -30,7 +30,7 @@ interface Message {
 interface StatusChange {
   id: string;
   type: "status_change";
-  status: "resolvido";
+  status: "resolvido" | "aberta";
   created_at: string;
 }
 
@@ -245,12 +245,12 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
             
             setConversationStatus(newStatus);
             
-            // Add status change indicator if changed to resolved
-            if (oldStatus !== "resolvido" && newStatus === "resolvido") {
+            // Add status change indicator when status changes
+            if (oldStatus !== newStatus) {
               const statusChange: StatusChange = {
                 id: `status-${Date.now()}`,
                 type: "status_change",
-                status: "resolvido",
+                status: newStatus,
                 created_at: new Date().toISOString(),
               };
               setStatusChanges((prev) => [...prev, statusChange]);
@@ -294,6 +294,15 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
           .update({ status: "aberta" })
           .eq("id", conversationId);
         setConversationStatus("aberta");
+        
+        // Add status change indicator for reopening
+        const statusChange: StatusChange = {
+          id: `status-${Date.now()}`,
+          type: "status_change",
+          status: "aberta",
+          created_at: new Date().toISOString(),
+        };
+        setStatusChanges((prev) => [...prev, statusChange]);
       }
 
       const { error } = await supabase.from("messages").insert({
@@ -425,10 +434,17 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
 
                 {statusChangeBetween && (
                   <div className="flex justify-center my-4">
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Problema Resolvido
-                    </Badge>
+                    {statusChangeBetween.status === "resolvido" ? (
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Problema Resolvido
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 text-xs">
+                        <MessageSquare className="h-3 w-3 mr-1" />
+                        Conversa Reaberta
+                      </Badge>
+                    )}
                   </div>
                 )}
                 
