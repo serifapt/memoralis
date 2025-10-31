@@ -158,10 +158,10 @@ export default function ObituaryDetail() {
             </Card>
 
             {/* Family Message */}
-            <Card id="informacao-familia">
+            <Card>
               <CardContent className="p-6">
                 <h2 className="text-xl font-archivo font-semibold text-foreground mb-4">
-                  Informação Família / Responsável
+                  Mensagem da Família
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
                   Sua Família anuncia o falecimento e convida a todos os parentes e amigos para o seu Velório e 
