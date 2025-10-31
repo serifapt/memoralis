@@ -235,6 +235,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
           filter: `id=eq.${conversationId}`,
         },
         (payload) => {
+          console.log("Status changed in realtime:", payload.new.status);
           if (payload.new.status) {
             const newStatus = payload.new.status as "aberta" | "resolvido";
             setConversationStatus(newStatus);
@@ -272,13 +273,17 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
 
       if (userType === "funeraria") {
         // Use RPC function for funeraria messages
-        const { error } = await supabase.rpc("post_message_funeraria", {
+        const { data, error } = await supabase.rpc("post_message_funeraria", {
           p_conversation_id: conversationId,
           p_sender_id: user.id,
           p_content: newMessage.trim(),
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error calling post_message_funeraria:", error);
+          throw error;
+        }
+        console.log("Message sent via RPC, result:", data);
       } else {
         // Admin messages - insert directly
         const { error } = await supabase.from("messages").insert({
