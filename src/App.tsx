@@ -24,6 +24,7 @@ import FunerariaRegister from "./pages/FunerariaRegister";
 import FunerariaStatus from "./pages/FunerariaStatus";
 import AdminFunerarias from "./pages/AdminFunerarias";
 import AdminFunerariaDetail from "./pages/AdminFunerariaDetail";
+import AdminUsers from "./pages/AdminUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,14 @@ const App = () => (
             } 
           />
           <Route 
+            path="/admin/users" 
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminUsers />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
             element={
               <ProtectedRoute>
                 <AppLayout />
