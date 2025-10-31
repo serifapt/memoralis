@@ -478,13 +478,13 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                   <div className={cn("relative group", isOwnMessage ? "flex-row-reverse" : "flex-row")}>
                     <div
                       className={cn(
-                        "max-w-[80%] rounded-lg px-4 py-2 shadow-sm break-words",
+                        "max-w-[85%] rounded-lg px-4 py-2 shadow-sm",
                         isOwnMessage
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       )}
                     >
-                      <p className="text-sm whitespace-pre-wrap break-words">
+                      <p className="text-sm whitespace-pre-wrap">
                         {message.content}
                       </p>
                       
