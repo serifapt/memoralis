@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EnhancedChatWindow } from "@/components/chat/EnhancedChatWindow";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -6,6 +7,7 @@ import { Loader2 } from "lucide-react";
 export default function Support() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadOrCreateConversation();
@@ -15,6 +17,17 @@ export default function Support() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Check if user is admin and redirect
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+
+      if (roles?.some((r) => r.role === "admin")) {
+        navigate("/admin/chat");
+        return;
+      }
 
       // Get funeraria_id for the current user
       const { data: funeraria } = await supabase
