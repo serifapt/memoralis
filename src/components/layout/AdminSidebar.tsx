@@ -1,30 +1,24 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
-  FileText, 
-  Calendar, 
+  Building2,
   Users, 
-  FolderOpen, 
-  Settings,
-  LogOut,
-  MessageSquare
+  MessageSquare,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const funerariaNavigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Obituários", href: "/obituaries", icon: FileText },
-  { name: "Cerimónias", href: "/ceremonies", icon: Calendar },
-  { name: "Clientes", href: "/clients", icon: Users },
-  { name: "Documentos", href: "/documents", icon: FolderOpen },
-  { name: "Chat de Suporte", href: "/support", icon: MessageSquare },
-  { name: "Configurações", href: "/settings", icon: Settings },
+const adminNavigation = [
+  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Funerárias", href: "/admin/funerarias", icon: Building2 },
+  { name: "Utilizadores", href: "/admin/users", icon: Users },
+  { name: "Chat Suporte", href: "/admin/chat", icon: MessageSquare },
 ];
 
-export const Sidebar = () => {
+export const AdminSidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -43,18 +37,18 @@ export const Sidebar = () => {
       <div className="p-6 border-b border-border">
         <img src={logo} alt="Memoralis" className="h-12 mb-2" />
         <p className="text-xs text-muted-foreground mt-1">
-          Gestão Funerária
+          Administração
         </p>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-4">
         <div className="space-y-1">
-          {funerariaNavigation.map((item) => (
+          {adminNavigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
-              end={item.href === "/dashboard"}
+              end={item.href === "/admin/dashboard"}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",

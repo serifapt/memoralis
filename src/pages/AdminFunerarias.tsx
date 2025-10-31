@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, Ban, CheckCircle } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -114,7 +113,7 @@ export default function AdminFunerarias() {
   };
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Gestão de Funerárias</h1>
@@ -241,6 +240,6 @@ export default function AdminFunerarias() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AppLayout>
+    </>
   );
 }

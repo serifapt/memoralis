@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
+import { AdminLayout } from "./components/layout/AdminLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import ObituaryDetail from "./pages/ObituaryDetail";
@@ -56,46 +57,19 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/admin/funerarias" 
+          <Route
             element={
               <ProtectedRoute requireRole="admin">
-                <AdminFunerarias />
+                <AdminLayout />
               </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/funerarias/:id" 
-            element={
-              <ProtectedRoute requireRole="admin">
-                <AdminFunerariaDetail />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/users" 
-            element={
-              <ProtectedRoute requireRole="admin">
-                <AdminUsers />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/chat" 
-            element={
-              <ProtectedRoute requireRole="admin">
-                <AdminChat />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/dashboard" 
-            element={
-              <ProtectedRoute requireRole="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
+            }
+          >
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/funerarias" element={<AdminFunerarias />} />
+            <Route path="/admin/funerarias/:id" element={<AdminFunerariaDetail />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/chat" element={<AdminChat />} />
+          </Route>
           <Route
             element={
               <ProtectedRoute requireRole="funeraria">

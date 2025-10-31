@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { Building2, Users, MessageSquare, TrendingUp, CheckCircle, Clock, AlertCircle } from "lucide-react";
 
 interface Stats {
@@ -132,8 +131,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <AppLayout>
-      <div className="space-y-8">
+    <div className="space-y-8">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-archivo font-bold text-foreground">
@@ -274,6 +272,5 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </div>
-    </AppLayout>
   );
 }

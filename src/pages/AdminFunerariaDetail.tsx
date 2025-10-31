@@ -25,7 +25,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, CheckCircle, XCircle, Download } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 
 export default function AdminFunerariaDetail() {
   const { id } = useParams();
@@ -245,22 +244,18 @@ export default function AdminFunerariaDetail() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <p>A carregar...</p>
-      </AppLayout>
+      <p>A carregar...</p>
     );
   }
 
   if (!funeraria) {
     return (
-      <AppLayout>
-        <p>Funerária não encontrada</p>
-      </AppLayout>
+      <p>Funerária não encontrada</p>
     );
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -486,7 +481,7 @@ export default function AdminFunerariaDetail() {
       {funeraria && (
         <ChatButton funerariaId={funeraria.id} userType="admin" />
       )}
-    </AppLayout>
+    </>
   );
 }
 

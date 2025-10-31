@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { MessageSquare } from "lucide-react";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 import { NewConversationDialog } from "@/components/admin/NewConversationDialog";
@@ -129,8 +128,7 @@ export default function AdminChat() {
   };
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold">Chat de Suporte</h1>
@@ -201,6 +199,5 @@ export default function AdminChat() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }
