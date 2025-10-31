@@ -983,23 +983,23 @@ export default function NewObituary() {
                   </div>
                 )}
               </div>
+              
+              {/* Observações / Notas / Pedidos */}
+              <div className="space-y-4 pt-4 border-t">
+                <div className="mb-2">
+                  <Label htmlFor="observations">Observações / Notas / Pedidos</Label>
+                </div>
+                <Textarea
+                  id="observations"
+                  placeholder="Deixe aqui as notas ou pedidos dos familiares"
+                  rows={8}
+                  value={formData.observations}
+                  onChange={(e) =>
+                    handleInputChange("observations", e.target.value)
+                  }
+                />
+              </div>
             </div>
-          </Card>
-
-          {/* Observações / Notas / Pedidos */}
-          <Card className="p-6">
-            <div className="mb-2">
-              <Label htmlFor="observations">Observações / Notas / Pedidos</Label>
-            </div>
-            <Textarea
-              id="observations"
-              placeholder="Deixe aqui as notas ou pedidos dos familiares"
-              rows={8}
-              value={formData.observations}
-              onChange={(e) =>
-                handleInputChange("observations", e.target.value)
-              }
-            />
           </Card>
 
           {/* Detalhes */}
