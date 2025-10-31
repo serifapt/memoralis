@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageSquare } from "lucide-react";
-import { ChatWindow } from "@/components/chat/ChatWindow";
+import { EnhancedChatWindow } from "@/components/chat/EnhancedChatWindow";
 import { NewConversationDialog } from "@/components/admin/NewConversationDialog";
 
 interface ConversationWithFuneraria {
@@ -184,7 +184,7 @@ export default function AdminChat() {
 
           <div className="col-span-2">
             {selectedConversation ? (
-              <ChatWindow
+              <EnhancedChatWindow
                 conversationId={selectedConversation}
                 userType="admin"
               />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChatWindow } from "@/components/chat/ChatWindow";
+import { EnhancedChatWindow } from "@/components/chat/EnhancedChatWindow";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
@@ -87,7 +87,7 @@ export default function Support() {
       </div>
       
       <div className="flex-1 overflow-hidden">
-        <ChatWindow
+        <EnhancedChatWindow
           conversationId={conversationId}
           userType="funeraria"
         />

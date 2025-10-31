@@ -1,0 +1,491 @@
+import { useEffect, useState, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Send, MessageSquare, Paperclip, Download, FileText, Image as ImageIcon, File, Loader2, Check, CheckCheck } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+
+interface Message {
+  id: string;
+  content: string;
+  sender_type: "admin" | "funeraria";
+  created_at: string;
+  is_read: boolean;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_type?: string;
+}
+
+interface ChatWindowProps {
+  conversationId: string;
+  userType: "admin" | "funeraria";
+}
+
+export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Create audio element for notification sound
+    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS67OilUBELTKXh8K1gGgU7k9nxx3kpBSh+zPLaizsIEV6y6+ejUhILSaHg8L9pHwU7k9nxx3kpBSh+zPLaizsIEV6y6+ejUhILSaHg8L9pHwU7k9nxx3kpBSh+zPLaizsI');
+    
+    loadMessages();
+    subscribeToMessages();
+    subscribeToTyping();
+  }, [conversationId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const playNotificationSound = () => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(e => console.log("Audio play failed:", e));
+    }
+  };
+
+  const loadMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      setMessages((data || []) as Message[]);
+
+      // Mark messages as read
+      if (data && data.length > 0) {
+        await supabase
+          .from("messages")
+          .update({ is_read: true })
+          .eq("conversation_id", conversationId)
+          .neq("sender_type", userType)
+          .eq("is_read", false);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar mensagens:", error);
+    }
+  };
+
+  const subscribeToMessages = () => {
+    const channel = supabase
+      .channel(`messages:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const newMsg = payload.new as Message;
+          setMessages((prev) => [...prev, newMsg]);
+          
+          // Play sound if message is from other user
+          if (newMsg.sender_type !== userType) {
+            playNotificationSound();
+            
+            // Mark as read immediately
+            supabase
+              .from("messages")
+              .update({ is_read: true })
+              .eq("id", newMsg.id)
+              .then();
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === payload.new.id ? (payload.new as Message) : msg
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const subscribeToTyping = () => {
+    const channel = supabase
+      .channel(`typing:${conversationId}`)
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const otherUserTyping = Object.values(state).some(
+          (presences: any) =>
+            presences[0]?.typing && presences[0]?.userType !== userType
+        );
+        setIsTyping(otherUserTyping);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleTyping = () => {
+    const channel = supabase.channel(`typing:${conversationId}`);
+    
+    channel.track({ typing: true, userType }).then();
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      channel.track({ typing: false, userType }).then();
+    }, 2000);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 20 * 1024 * 1024) {
+        toast.error("Ficheiro demasiado grande. Máximo: 20MB");
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const uploadFile = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Utilizador não autenticado");
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat-attachments')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('chat-attachments')
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error);
+      toast.error("Erro ao enviar ficheiro");
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() && !selectedFile) return;
+
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Utilizador não autenticado");
+
+      let attachmentUrl = null;
+      let attachmentName = null;
+      let attachmentType = null;
+
+      if (selectedFile) {
+        attachmentUrl = await uploadFile(selectedFile);
+        if (!attachmentUrl) {
+          setLoading(false);
+          return;
+        }
+        attachmentName = selectedFile.name;
+        attachmentType = selectedFile.type;
+      }
+
+      const { error } = await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        sender_type: userType,
+        content: newMessage.trim() || "Enviou um ficheiro",
+        attachment_url: attachmentUrl,
+        attachment_name: attachmentName,
+        attachment_type: attachmentType,
+      });
+
+      if (error) throw error;
+
+      // Update conversation last_message_at
+      await supabase
+        .from("conversations")
+        .update({ last_message_at: new Date().toISOString() })
+        .eq("id", conversationId);
+
+      setNewMessage("");
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+      toast.error("Erro ao enviar mensagem");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    } else {
+      handleTyping();
+    }
+  };
+
+  const downloadAttachment = async (url: string, name: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Erro ao descarregar:", error);
+      toast.error("Erro ao descarregar ficheiro");
+    }
+  };
+
+  const getFileIcon = (type?: string) => {
+    if (!type) return <File className="h-4 w-4" />;
+    if (type.startsWith('image/')) return <ImageIcon className="h-4 w-4" />;
+    return <FileText className="h-4 w-4" />;
+  };
+
+  const formatDate = (date: string) => {
+    const msgDate = new Date(date);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (msgDate.toDateString() === today.toDateString()) {
+      return msgDate.toLocaleTimeString("pt-PT", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } else if (msgDate.toDateString() === yesterday.toDateString()) {
+      return `Ontem ${msgDate.toLocaleTimeString("pt-PT", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    } else {
+      return msgDate.toLocaleDateString("pt-PT", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  };
+
+  return (
+    <Card className="flex flex-col h-[600px]">
+      <div className="p-4 border-b flex items-center gap-2 bg-muted/50">
+        <MessageSquare className="h-5 w-5 text-primary" />
+        <h3 className="font-semibold">Chat de Suporte</h3>
+        {isTyping && (
+          <Badge variant="secondary" className="ml-auto">
+            A escrever...
+          </Badge>
+        )}
+      </div>
+
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-4">
+          {messages.map((message, index) => {
+            const isOwnMessage = message.sender_type === userType;
+            const showDate = index === 0 || 
+              new Date(messages[index - 1].created_at).toDateString() !== 
+              new Date(message.created_at).toDateString();
+
+            return (
+              <div key={message.id}>
+                {showDate && (
+                  <div className="flex justify-center my-4">
+                    <Badge variant="outline" className="text-xs">
+                      {new Date(message.created_at).toLocaleDateString("pt-PT", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </Badge>
+                  </div>
+                )}
+                
+                <div
+                  className={cn(
+                    "flex",
+                    isOwnMessage ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "max-w-[70%] rounded-lg px-4 py-2 shadow-sm",
+                      isOwnMessage
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    )}
+                  >
+                    {message.attachment_url && (
+                      <div className="mb-2 p-2 rounded bg-background/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          {getFileIcon(message.attachment_type)}
+                          <span className="text-sm font-medium truncate flex-1">
+                            {message.attachment_name}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0"
+                            onClick={() => downloadAttachment(message.attachment_url!, message.attachment_name!)}
+                          >
+                            <Download className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        {message.attachment_type?.startsWith('image/') && (
+                          <img
+                            src={message.attachment_url}
+                            alt={message.attachment_name}
+                            className="rounded max-w-full h-auto"
+                          />
+                        )}
+                      </div>
+                    )}
+                    
+                    {message.content && (
+                      <p className="text-sm whitespace-pre-wrap break-words">
+                        {message.content}
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs opacity-70">
+                        {formatDate(message.created_at)}
+                      </p>
+                      {isOwnMessage && (
+                        <span className="text-xs">
+                          {message.is_read ? (
+                            <CheckCheck className="h-3 w-3" />
+                          ) : (
+                            <Check className="h-3 w-3" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          <div ref={scrollRef} />
+        </div>
+      </ScrollArea>
+
+      <div className="p-4 border-t bg-muted/30">
+        {selectedFile && (
+          <div className="mb-2 p-2 bg-background rounded-lg flex items-center gap-2">
+            {getFileIcon(selectedFile.type)}
+            <span className="text-sm flex-1 truncate">{selectedFile.name}</span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setSelectedFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+            >
+              ✕
+            </Button>
+          </div>
+        )}
+        
+        <div className="flex gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileSelect}
+            accept="image/*,.pdf,.doc,.docx,.txt"
+          />
+          
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={loading || uploading}
+          >
+            <Paperclip className="h-4 w-4" />
+          </Button>
+          
+          <Input
+            placeholder="Escreva a sua mensagem..."
+            value={newMessage}
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+              handleTyping();
+            }}
+            onKeyPress={handleKeyPress}
+            disabled={loading || uploading}
+            className="flex-1"
+          />
+          
+          <Button
+            onClick={handleSendMessage}
+            disabled={loading || uploading || (!newMessage.trim() && !selectedFile)}
+            size="icon"
+          >
+            {loading || uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
