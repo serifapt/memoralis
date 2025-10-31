@@ -272,6 +272,9 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
       if (!user) throw new Error("Utilizador não autenticado");
 
       if (userType === "funeraria") {
+        // Check if we need to reopen the conversation
+        const shouldReopen = conversationStatus === "resolvido";
+        
         // Use RPC function for funeraria messages
         const { data, error } = await supabase.rpc("post_message_funeraria", {
           p_conversation_id: conversationId,
@@ -283,7 +286,14 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
           console.error("Error calling post_message_funeraria:", error);
           throw error;
         }
+        
         console.log("Message sent via RPC, result:", data);
+        
+        // Update local status immediately if conversation was reopened
+        if (shouldReopen) {
+          console.log("Updating local status to 'aberta'");
+          setConversationStatus("aberta");
+        }
       } else {
         // Admin messages - insert directly
         const { error } = await supabase.from("messages").insert({
