@@ -192,7 +192,6 @@ export type Database = {
           is_read: boolean
           sender_id: string
           sender_type: string
-          type: string
         }
         Insert: {
           attachment_name?: string | null
@@ -205,7 +204,6 @@ export type Database = {
           is_read?: boolean
           sender_id: string
           sender_type: string
-          type?: string
         }
         Update: {
           attachment_name?: string | null
@@ -218,7 +216,6 @@ export type Database = {
           is_read?: boolean
           sender_id?: string
           sender_type?: string
-          type?: string
         }
         Relationships: [
           {
@@ -294,18 +291,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      post_message_funeraria: {
-        Args: {
-          p_content: string
-          p_conversation_id: string
-          p_sender_id: string
-        }
-        Returns: string
-      }
-      resolve_conversation_admin: {
-        Args: { p_admin_id: string; p_conversation_id: string }
-        Returns: string
       }
     }
     Enums: {

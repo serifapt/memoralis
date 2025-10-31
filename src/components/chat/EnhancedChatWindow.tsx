@@ -25,7 +25,13 @@ interface Message {
   sender_type: "admin" | "funeraria";
   created_at: string;
   is_read: boolean;
-  type: "text" | "status";
+}
+
+interface StatusChange {
+  id: string;
+  type: "status_change";
+  status: "resolvido" | "aberta";
+  created_at: string;
 }
 
 interface ChatWindowProps {
@@ -39,6 +45,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [conversationStatus, setConversationStatus] = useState<"aberta" | "resolvido">("aberta");
+  const [statusChanges, setStatusChanges] = useState<StatusChange[]>([]);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -90,13 +97,10 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
 
   const markAsResolved = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Utilizador não autenticado");
-
-      const { error } = await supabase.rpc("resolve_conversation_admin", {
-        p_conversation_id: conversationId,
-        p_admin_id: user.id,
-      });
+      const { error } = await supabase
+        .from("conversations")
+        .update({ status: "resolvido" })
+        .eq("id", conversationId);
 
       if (error) throw error;
 
@@ -235,10 +239,22 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
           filter: `id=eq.${conversationId}`,
         },
         (payload) => {
-          console.log("Status changed in realtime:", payload.new.status);
           if (payload.new.status) {
             const newStatus = payload.new.status as "aberta" | "resolvido";
+            const oldStatus = conversationStatus;
+            
             setConversationStatus(newStatus);
+            
+            // Add status change indicator when status changes
+            if (oldStatus !== newStatus) {
+              const statusChange: StatusChange = {
+                id: `status-${Date.now()}`,
+                type: "status_change",
+                status: newStatus,
+                created_at: new Date().toISOString(),
+              };
+              setStatusChanges((prev) => [...prev, statusChange]);
+            }
           }
         }
       )
@@ -271,45 +287,41 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilizador não autenticado");
 
-      if (userType === "funeraria") {
-        // Check if we need to reopen the conversation
-        const shouldReopen = conversationStatus === "resolvido";
+      // Check if conversation needs to be reopened
+      const shouldReopen = userType === "funeraria" && conversationStatus === "resolvido";
+
+      const { error } = await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        sender_type: userType,
+        content: newMessage.trim(),
+      });
+
+      if (error) throw error;
+
+      // Update conversation status and last_message_at in a single operation
+      const updateData: { last_message_at: string; status?: string } = {
+        last_message_at: new Date().toISOString(),
+      };
+
+      if (shouldReopen) {
+        updateData.status = "aberta";
+        setConversationStatus("aberta");
         
-        // Use RPC function for funeraria messages - this handles reopening automatically
-        const { error } = await supabase.rpc("post_message_funeraria", {
-          p_conversation_id: conversationId,
-          p_sender_id: user.id,
-          p_content: newMessage.trim(),
-        });
-
-        if (error) {
-          console.error("Error calling post_message_funeraria:", error);
-          throw error;
-        }
-        
-        // Update local status immediately if conversation was reopened
-        if (shouldReopen) {
-          console.log("Updating local status to 'aberta'");
-          setConversationStatus("aberta");
-        }
-      } else {
-        // Admin messages - insert directly
-        const { error } = await supabase.from("messages").insert({
-          conversation_id: conversationId,
-          sender_id: user.id,
-          sender_type: userType,
-          content: newMessage.trim(),
-          type: "text",
-        });
-
-        if (error) throw error;
-
-        // Update last_message_at
-        await supabase
-          .from("conversations")
-          .update({ last_message_at: new Date().toISOString() })
-          .eq("id", conversationId);
+        // Add status change indicator for reopening
+        const statusChange: StatusChange = {
+          id: `status-${Date.now()}`,
+          type: "status_change",
+          status: "aberta",
+          created_at: new Date().toISOString(),
+        };
+        setStatusChanges((prev) => [...prev, statusChange]);
       }
+
+      await supabase
+        .from("conversations")
+        .update(updateData)
+        .eq("id", conversationId);
 
       setNewMessage("");
     } catch (error) {
@@ -400,8 +412,14 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
               new Date(messages[index - 1].created_at).toDateString() !== 
               new Date(message.created_at).toDateString();
 
-            // Check if this is a system/status message
-            const isSystemMessage = message.type === "status";
+            // Check if there's a status change between this and previous message
+            const statusChangeBetween = statusChanges.find((sc) => {
+              if (index === 0) return false;
+              const prevMsgTime = new Date(messages[index - 1].created_at).getTime();
+              const currentMsgTime = new Date(message.created_at).getTime();
+              const statusTime = new Date(sc.created_at).getTime();
+              return statusTime > prevMsgTime && statusTime <= currentMsgTime;
+            });
 
             return (
               <div key={message.id}>
@@ -417,75 +435,73 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                   </div>
                 )}
 
-                {isSystemMessage ? (
-                  // System message - centered
-                  <div className="flex justify-center my-3">
-                    {message.content.includes("🟢") ? (
-                      <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 text-sm font-medium px-4 py-1.5">
-                        {message.content}
+                {statusChangeBetween && (
+                  <div className="flex justify-center my-4">
+                    {statusChangeBetween.status === "resolvido" ? (
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Problema Resolvido
                       </Badge>
                     ) : (
-                      <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 text-sm font-medium px-4 py-1.5">
-                        {message.content}
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 text-xs">
+                        <MessageSquare className="h-3 w-3 mr-1" />
+                        Conversa Reaberta
                       </Badge>
                     )}
                   </div>
-                ) : (
-                  // Regular message
-                  <div
-                    className={cn(
-                      "flex",
-                      isOwnMessage ? "justify-end" : "justify-start"
-                    )}
-                  >
-                    <div className={cn("relative group", isOwnMessage ? "flex-row-reverse" : "flex-row")}>
-                      <div
-                        className={cn(
-                          "rounded-2xl px-4 py-3 shadow-sm w-full",
-                          isOwnMessage
-                            ? "bg-red-500 text-white"
-                            : "bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
-                        )}
-                      >
-                        <p className="text-sm whitespace-pre-wrap">
-                          {message.content}
-                        </p>
-                        
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className={cn(
-                            "text-xs",
-                            isOwnMessage ? "text-white/70" : "text-neutral-500"
-                          )}>
-                            {formatDate(message.created_at)}
-                          </p>
-                          {isOwnMessage && (
-                            <span className="text-xs text-white/70">
-                              {message.is_read ? (
-                                <CheckCheck className="h-3 w-3" />
-                              ) : (
-                                <Check className="h-3 w-3" />
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {isOwnMessage && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className={cn(
-                            "h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity ml-2",
-                            "text-destructive hover:text-destructive hover:bg-destructive/10"
-                          )}
-                          onClick={() => setMessageToDelete(message.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
                 )}
+                
+                <div
+                  className={cn(
+                    "flex",
+                    isOwnMessage ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <div className={cn("relative group", isOwnMessage ? "flex-row-reverse" : "flex-row")}>
+                    <div
+                      className={cn(
+                        "max-w-[70%] rounded-lg px-4 py-2 shadow-sm",
+                        isOwnMessage
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted"
+                      )}
+                      style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">
+                        {message.content}
+                      </p>
+                      
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs opacity-70">
+                          {formatDate(message.created_at)}
+                        </p>
+                        {isOwnMessage && (
+                          <span className="text-xs">
+                            {message.is_read ? (
+                              <CheckCheck className="h-3 w-3" />
+                            ) : (
+                              <Check className="h-3 w-3" />
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {isOwnMessage && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className={cn(
+                          "h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity ml-2",
+                          isOwnMessage ? "text-destructive hover:text-destructive hover:bg-destructive/10" : ""
+                        )}
+                        onClick={() => setMessageToDelete(message.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
             );
           })}

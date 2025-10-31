@@ -117,8 +117,7 @@ export default function AdminChat() {
           schema: "public",
           table: "conversations",
         },
-        (payload) => {
-          console.log("Conversation changed:", payload);
+        () => {
           loadConversations();
         }
       )
@@ -129,8 +128,7 @@ export default function AdminChat() {
           schema: "public",
           table: "messages",
         },
-        (payload) => {
-          console.log("Message inserted:", payload);
+        () => {
           loadConversations();
         }
       )

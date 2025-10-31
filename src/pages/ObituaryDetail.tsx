@@ -176,11 +176,8 @@ export default function ObituaryDetail() {
             </Card>
 
             {/* Events */}
-            <Card id="informacoes-funebres">
+            <Card>
               <CardContent className="p-6">
-                <h2 className="text-xl font-archivo font-semibold text-foreground mb-4">
-                  Informações Fúnebres
-                </h2>
                 <div className="space-y-4">
                   {events.map((event, index) => <div key={index} className="flex items-start gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
                       <div className="flex-1">
