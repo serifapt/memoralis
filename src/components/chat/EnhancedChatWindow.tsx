@@ -483,9 +483,9 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       )}
-                      style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                      style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}
                     >
-                      <p className="text-sm whitespace-pre-wrap">
+                      <p className="text-sm">
                         {message.content}
                       </p>
                       
