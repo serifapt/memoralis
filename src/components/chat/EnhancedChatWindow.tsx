@@ -275,8 +275,8 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
         // Check if we need to reopen the conversation
         const shouldReopen = conversationStatus === "resolvido";
         
-        // Use RPC function for funeraria messages
-        const { data, error } = await supabase.rpc("post_message_funeraria", {
+        // Use RPC function for funeraria messages - this handles reopening automatically
+        const { error } = await supabase.rpc("post_message_funeraria", {
           p_conversation_id: conversationId,
           p_sender_id: user.id,
           p_content: newMessage.trim(),
@@ -286,8 +286,6 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
           console.error("Error calling post_message_funeraria:", error);
           throw error;
         }
-        
-        console.log("Message sent via RPC, result:", data);
         
         // Update local status immediately if conversation was reopened
         if (shouldReopen) {
@@ -443,15 +441,11 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                     <div className={cn("relative group", isOwnMessage ? "flex-row-reverse" : "flex-row")}>
                       <div
                         className={cn(
-                          "max-w-[70%] rounded-2xl px-4 py-3 shadow-sm",
+                          "rounded-2xl px-4 py-3 shadow-sm w-full",
                           isOwnMessage
                             ? "bg-red-500 text-white"
                             : "bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
                         )}
-                        style={{ 
-                          overflowWrap: 'anywhere',
-                          wordBreak: 'normal'
-                        }}
                       >
                         <p className="text-sm whitespace-pre-wrap">
                           {message.content}
