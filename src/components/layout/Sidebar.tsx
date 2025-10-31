@@ -1,5 +1,4 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -8,8 +7,6 @@ import {
   FolderOpen, 
   Settings,
   LogOut,
-  Building2,
-  Shield,
   MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,35 +20,12 @@ const navigation = [
   { name: "Cerimónias", href: "/ceremonies", icon: Calendar },
   { name: "Clientes", href: "/clients", icon: Users },
   { name: "Documentos", href: "/documents", icon: FolderOpen },
+  { name: "Chat de Suporte", href: "/support", icon: MessageSquare },
   { name: "Configurações", href: "/settings", icon: Settings },
-];
-
-const adminNavigation = [
-  { name: "Dashboard Admin", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Funerárias", href: "/admin/funerarias", icon: Building2 },
-  { name: "Utilizadores", href: "/admin/users", icon: Shield },
-  { name: "Chat Suporte", href: "/admin/chat", icon: MessageSquare },
 ];
 
 export const Sidebar = () => {
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    checkAdminRole();
-  }, []);
-
-  const checkAdminRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id);
-
-    setIsAdmin(roles?.some((r) => r.role === "admin") || false);
-  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -96,32 +70,6 @@ export const Sidebar = () => {
             </NavLink>
           ))}
         </div>
-
-        {isAdmin && (
-          <div className="space-y-1 pt-4 border-t border-border">
-            <p className="px-4 text-xs font-semibold text-muted-foreground mb-2">
-              ADMINISTRAÇÃO
-            </p>
-            {adminNavigation.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                    "hover:bg-[hsl(var(--sidebar-hover))]",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground"
-                  )
-                }
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="text-sm font-medium">{item.name}</span>
-              </NavLink>
-            ))}
-          </div>
-        )}
       </nav>
 
       {/* Footer */}
