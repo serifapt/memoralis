@@ -287,12 +287,25 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilizador não autenticado");
 
-      // If funeraria is sending message and conversation is resolved, reopen it
-      if (userType === "funeraria" && conversationStatus === "resolvido") {
-        await supabase
-          .from("conversations")
-          .update({ status: "aberta" })
-          .eq("id", conversationId);
+      // Check if conversation needs to be reopened
+      const shouldReopen = userType === "funeraria" && conversationStatus === "resolvido";
+
+      const { error } = await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        sender_type: userType,
+        content: newMessage.trim(),
+      });
+
+      if (error) throw error;
+
+      // Update conversation status and last_message_at in a single operation
+      const updateData: { last_message_at: string; status?: string } = {
+        last_message_at: new Date().toISOString(),
+      };
+
+      if (shouldReopen) {
+        updateData.status = "aberta";
         setConversationStatus("aberta");
         
         // Add status change indicator for reopening
@@ -305,19 +318,9 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
         setStatusChanges((prev) => [...prev, statusChange]);
       }
 
-      const { error } = await supabase.from("messages").insert({
-        conversation_id: conversationId,
-        sender_id: user.id,
-        sender_type: userType,
-        content: newMessage.trim(),
-      });
-
-      if (error) throw error;
-
-      // Update conversation last_message_at
       await supabase
         .from("conversations")
-        .update({ last_message_at: new Date().toISOString() })
+        .update(updateData)
         .eq("id", conversationId);
 
       setNewMessage("");
