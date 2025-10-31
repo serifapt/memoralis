@@ -20,42 +20,69 @@ export default function AdminSetup() {
     setLoading(true);
 
     try {
-      // Create the user account
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // Try to sign in first
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
       });
 
-      if (signUpError) throw signUpError;
-
-      if (!signUpData.user) {
-        throw new Error("Erro ao criar utilizador");
-      }
-
-      // Insert admin role
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: signUpData.user.id,
-          role: "admin",
+      if (signInError) {
+        // If sign in fails, try to create account
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            },
+          },
         });
 
-      if (roleError) throw roleError;
+        if (signUpError) throw signUpError;
+        if (!signUpData.user) throw new Error("Erro ao criar utilizador");
+
+        // Insert admin role for new user
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({
+            user_id: signUpData.user.id,
+            role: "admin",
+          });
+
+        if (roleError) throw roleError;
+      } else {
+        // User exists, check if already has admin role
+        const { data: existingRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", signInData.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (!existingRole) {
+          // Add admin role
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .insert({
+              user_id: signInData.user.id,
+              role: "admin",
+            });
+
+          if (roleError) throw roleError;
+        }
+
+        await supabase.auth.signOut();
+      }
 
       toast({
-        title: "Admin criado com sucesso",
+        title: "Admin configurado com sucesso",
         description: "Pode agora fazer login como administrador",
       });
 
       navigate("/admin/auth");
     } catch (error: any) {
       toast({
-        title: "Erro ao criar admin",
+        title: "Erro ao configurar admin",
         description: error.message,
         variant: "destructive",
       });
