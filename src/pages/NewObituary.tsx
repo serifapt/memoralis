@@ -425,7 +425,7 @@ export default function NewObituary() {
           </Card>
 
           {/* Informações Fúnebres */}
-          <Card className="p-6">
+          <Card className="p-6" id="informacoes-funebres">
             <h2 className="text-xl font-archivo font-semibold mb-6">
               Informações Fúnebres
             </h2>
