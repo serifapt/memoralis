@@ -9,7 +9,8 @@ import {
   Settings,
   LogOut,
   Building2,
-  Shield
+  Shield,
+  MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
@@ -28,6 +29,7 @@ const navigation = [
 const adminNavigation = [
   { name: "Funerárias", href: "/admin/funerarias", icon: Building2 },
   { name: "Utilizadores", href: "/admin/users", icon: Shield },
+  { name: "Chat Suporte", href: "/admin/chat", icon: MessageSquare },
 ];
 
 export const Sidebar = () => {

@@ -25,6 +25,7 @@ import FunerariaStatus from "./pages/FunerariaStatus";
 import AdminFunerarias from "./pages/AdminFunerarias";
 import AdminFunerariaDetail from "./pages/AdminFunerariaDetail";
 import AdminUsers from "./pages/AdminUsers";
+import AdminChat from "./pages/AdminChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -74,6 +75,14 @@ const App = () => (
             element={
               <ProtectedRoute requireRole="admin">
                 <AdminUsers />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/chat" 
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminChat />
               </ProtectedRoute>
             } 
           />

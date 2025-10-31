@@ -44,6 +44,41 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          funeraria_id: string
+          id: string
+          last_message_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          funeraria_id: string
+          id?: string
+          last_message_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          funeraria_id?: string
+          id?: string
+          last_message_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funeraria_docs: {
         Row: {
           codigo_acesso: string | null
@@ -144,6 +179,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          sender_id: string
+          sender_type: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender_id: string
+          sender_type: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender_id?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

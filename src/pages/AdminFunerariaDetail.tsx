@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ChatButton } from "@/components/chat/ChatButton";
 import {
   Dialog,
   DialogContent,
@@ -481,6 +482,10 @@ export default function AdminFunerariaDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {funeraria && (
+        <ChatButton funerariaId={funeraria.id} userType="admin" />
+      )}
     </AppLayout>
   );
 }

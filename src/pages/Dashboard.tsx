@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ChatButton } from "@/components/chat/ChatButton";
 
 const stats = [
   {
@@ -332,6 +333,8 @@ export default function Dashboard() {
           </div>
         </Card>
       </div>
+
+      <ChatButton userType="funeraria" />
     </div>
   );
 }
