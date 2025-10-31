@@ -38,10 +38,10 @@ export const Sidebar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    checkAdminRole();
+    checkUserRole();
   }, []);
 
-  const checkAdminRole = async () => {
+  const checkUserRole = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -75,30 +75,8 @@ export const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-4">
-        <div className="space-y-1">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              end={item.href === "/dashboard"}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                  "hover:bg-[hsl(var(--sidebar-hover))]",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground"
-                )
-              }
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-sm font-medium">{item.name}</span>
-            </NavLink>
-          ))}
-        </div>
-
-        {isAdmin && (
-          <div className="space-y-1 pt-4 border-t border-border">
+        {isAdmin ? (
+          <div className="space-y-1">
             <p className="px-4 text-xs font-semibold text-muted-foreground mb-2">
               ADMINISTRAÇÃO
             </p>
@@ -120,6 +98,25 @@ export const Sidebar = () => {
                 <span className="text-sm font-medium">{item.name}</span>
               </NavLink>
             ))}
+          </div>
+        ) : (
+          <div className="space-y-1">
+            <NavLink
+              to="/dashboard"
+              end
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                  "hover:bg-[hsl(var(--sidebar-hover))]",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground"
+                )
+              }
+            >
+              <MessageSquare className="w-5 h-5" />
+              <span className="text-sm font-medium">Suporte</span>
+            </NavLink>
           </div>
         )}
       </nav>
