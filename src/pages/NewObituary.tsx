@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map } from "lucide-react";
+import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -1154,7 +1154,85 @@ export default function NewObituary() {
             </div>
           </Card>
 
-          {/* Informação do Serviço */}
+          {/* Óbitos da Mesma Família */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-archivo font-semibold">
+                  Óbitos da Mesma Família
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Processos relacionados da mesma família
+                </p>
+              </div>
+              <Button variant="outline" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Relação
+              </Button>
+            </div>
+
+            {/* Lista de óbitos relacionados (mock data) */}
+            <div className="space-y-3">
+              {/* Exemplo de óbito relacionado */}
+              <div className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-foreground">Manuel Silva Santos</h4>
+                      <p className="text-sm text-muted-foreground">Pai • Falecido em 2023</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate('/obituaries/2/edit')}
+                    >
+                      Ver Processo
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Exemplo 2 */}
+              <div className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-foreground">Ana Silva Costa</h4>
+                      <p className="text-sm text-muted-foreground">Irmã • Falecida em 2022</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate('/obituaries/3/edit')}
+                    >
+                      Ver Processo
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Estado vazio */}
+              {false && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <User className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>Nenhum óbito relacionado</p>
+                  <p className="text-sm mt-1">
+                    Adicione relações para vincular processos da mesma família
+                  </p>
+                </div>
+              )}
+            </div>
+          </Card>
           <Card className="p-6">
             <h2 className="text-xl font-archivo font-semibold mb-6">
               Informação do Serviço

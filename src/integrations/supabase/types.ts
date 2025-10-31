@@ -44,6 +44,53 @@ export type Database = {
         }
         Relationships: []
       }
+      ceremony_events: {
+        Row: {
+          created_at: string
+          event_date: string | null
+          event_time: string | null
+          event_type: string
+          id: string
+          location: string | null
+          map_link: string | null
+          obituary_id: string
+          responsible_name: string | null
+          responsible_phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_date?: string | null
+          event_time?: string | null
+          event_type: string
+          id?: string
+          location?: string | null
+          map_link?: string | null
+          obituary_id: string
+          responsible_name?: string | null
+          responsible_phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_date?: string | null
+          event_time?: string | null
+          event_type?: string
+          id?: string
+          location?: string | null
+          map_link?: string | null
+          obituary_id?: string
+          responsible_name?: string | null
+          responsible_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ceremony_events_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -192,6 +239,7 @@ export type Database = {
           is_read: boolean
           sender_id: string
           sender_type: string
+          type: string
         }
         Insert: {
           attachment_name?: string | null
@@ -204,6 +252,7 @@ export type Database = {
           is_read?: boolean
           sender_id: string
           sender_type: string
+          type?: string
         }
         Update: {
           attachment_name?: string | null
@@ -216,6 +265,7 @@ export type Database = {
           is_read?: boolean
           sender_id?: string
           sender_type?: string
+          type?: string
         }
         Relationships: [
           {
@@ -223,6 +273,180 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      obituaries: {
+        Row: {
+          beneficiary: string | null
+          birth_date: string | null
+          birth_place: string | null
+          cause: string | null
+          civil_status: string | null
+          coffin_brand: string | null
+          coffin_ref: string | null
+          created_at: string
+          death_date: string | null
+          death_location: string | null
+          death_time: string | null
+          display_name: string
+          doctor: string | null
+          family_address: string | null
+          family_email: string | null
+          family_locality: string | null
+          family_name: string | null
+          family_nif: string | null
+          family_observations: string | null
+          family_phone: string | null
+          family_postal_code: string | null
+          family_relationship: string | null
+          freguesia: string | null
+          full_name: string
+          funeraria_id: string
+          hide_condolences: boolean | null
+          id: string
+          id_card: string | null
+          is_completed: boolean
+          is_public: boolean
+          locality: string | null
+          medical_certificate: string | null
+          nationality: string | null
+          observations: string | null
+          photo_url: string | null
+          profession: string | null
+          public_message: string | null
+          service_price: number | null
+          service_type: string | null
+          social_security: string | null
+          tax_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          beneficiary?: string | null
+          birth_date?: string | null
+          birth_place?: string | null
+          cause?: string | null
+          civil_status?: string | null
+          coffin_brand?: string | null
+          coffin_ref?: string | null
+          created_at?: string
+          death_date?: string | null
+          death_location?: string | null
+          death_time?: string | null
+          display_name: string
+          doctor?: string | null
+          family_address?: string | null
+          family_email?: string | null
+          family_locality?: string | null
+          family_name?: string | null
+          family_nif?: string | null
+          family_observations?: string | null
+          family_phone?: string | null
+          family_postal_code?: string | null
+          family_relationship?: string | null
+          freguesia?: string | null
+          full_name: string
+          funeraria_id: string
+          hide_condolences?: boolean | null
+          id?: string
+          id_card?: string | null
+          is_completed?: boolean
+          is_public?: boolean
+          locality?: string | null
+          medical_certificate?: string | null
+          nationality?: string | null
+          observations?: string | null
+          photo_url?: string | null
+          profession?: string | null
+          public_message?: string | null
+          service_price?: number | null
+          service_type?: string | null
+          social_security?: string | null
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          beneficiary?: string | null
+          birth_date?: string | null
+          birth_place?: string | null
+          cause?: string | null
+          civil_status?: string | null
+          coffin_brand?: string | null
+          coffin_ref?: string | null
+          created_at?: string
+          death_date?: string | null
+          death_location?: string | null
+          death_time?: string | null
+          display_name?: string
+          doctor?: string | null
+          family_address?: string | null
+          family_email?: string | null
+          family_locality?: string | null
+          family_name?: string | null
+          family_nif?: string | null
+          family_observations?: string | null
+          family_phone?: string | null
+          family_postal_code?: string | null
+          family_relationship?: string | null
+          freguesia?: string | null
+          full_name?: string
+          funeraria_id?: string
+          hide_condolences?: boolean | null
+          id?: string
+          id_card?: string | null
+          is_completed?: boolean
+          is_public?: boolean
+          locality?: string | null
+          medical_certificate?: string | null
+          nationality?: string | null
+          observations?: string | null
+          photo_url?: string | null
+          profession?: string | null
+          public_message?: string | null
+          service_price?: number | null
+          service_type?: string | null
+          social_security?: string | null
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      obituary_relationships: {
+        Row: {
+          created_at: string
+          id: string
+          obituary_id: string
+          related_obituary_id: string
+          relationship_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          obituary_id: string
+          related_obituary_id: string
+          relationship_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          obituary_id?: string
+          related_obituary_id?: string
+          relationship_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obituary_relationships_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obituary_relationships_related_obituary_id_fkey"
+            columns: ["related_obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
             referencedColumns: ["id"]
           },
         ]
@@ -291,6 +515,18 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      post_message_funeraria: {
+        Args: {
+          p_content: string
+          p_conversation_id: string
+          p_sender_id: string
+        }
+        Returns: string
+      }
+      resolve_conversation_admin: {
+        Args: { p_admin_id: string; p_conversation_id: string }
+        Returns: string
       }
     }
     Enums: {
