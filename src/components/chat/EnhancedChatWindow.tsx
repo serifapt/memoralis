@@ -4,10 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageSquare, Loader2, Check, CheckCheck, CheckCircle, Trash2 } from "lucide-react";
+import { Send, MessageSquare, Loader2, Check, CheckCheck, CheckCircle, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,8 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const [isTyping, setIsTyping] = useState(false);
   const [conversationStatus, setConversationStatus] = useState<"aberta" | "resolvido">("aberta");
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -123,6 +126,43 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
     } finally {
       setMessageToDelete(null);
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedMessages.size === 0) return;
+
+    try {
+      const messageIds = Array.from(selectedMessages);
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .in("id", messageIds);
+
+      if (error) throw error;
+
+      setMessages((prev) => prev.filter((m) => !selectedMessages.has(m.id)));
+      toast.success(`${selectedMessages.size} mensagens eliminadas`);
+      setSelectedMessages(new Set());
+      setIsSelectionMode(false);
+    } catch (error) {
+      console.error("Erro ao eliminar mensagens:", error);
+      toast.error("Erro ao eliminar mensagens");
+    }
+  };
+
+  const toggleMessageSelection = (messageId: string) => {
+    const newSelected = new Set(selectedMessages);
+    if (newSelected.has(messageId)) {
+      newSelected.delete(messageId);
+    } else {
+      newSelected.add(messageId);
+    }
+    setSelectedMessages(newSelected);
+  };
+
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedMessages(new Set());
   };
 
   const loadMessages = async () => {
@@ -357,18 +397,53 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
           </Badge>
         )}
         
-        {userType === "admin" && conversationStatus === "aberta" && (
+        <div className="ml-auto flex items-center gap-2">
           <Button
             size="sm"
-            variant="outline"
-            className="ml-auto"
-            onClick={markAsResolved}
+            variant={isSelectionMode ? "default" : "outline"}
+            onClick={toggleSelectionMode}
           >
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Marcar como Resolvido
+            {isSelectionMode ? (
+              <>
+                <X className="h-4 w-4 mr-2" />
+                Cancelar
+              </>
+            ) : (
+              <>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Selecionar
+              </>
+            )}
           </Button>
-        )}
+          
+          {userType === "admin" && conversationStatus === "aberta" && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={markAsResolved}
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Marcar como Resolvido
+            </Button>
+          )}
+        </div>
       </div>
+
+      {isSelectionMode && selectedMessages.size > 0 && (
+        <div className="p-3 border-b bg-destructive/10 flex items-center justify-between">
+          <span className="text-sm font-medium">
+            {selectedMessages.size} mensagem{selectedMessages.size !== 1 ? "ns" : ""} selecionada{selectedMessages.size !== 1 ? "s" : ""}
+          </span>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={handleBulkDelete}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Eliminar Selecionadas
+          </Button>
+        </div>
+      )}
 
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
@@ -394,10 +469,18 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                 
                 <div
                   className={cn(
-                    "flex",
-                    isOwnMessage ? "justify-end" : "justify-start"
+                    "flex items-start gap-2",
+                    isOwnMessage ? "justify-end flex-row-reverse" : "justify-start"
                   )}
                 >
+                  {isSelectionMode && isOwnMessage && (
+                    <Checkbox
+                      checked={selectedMessages.has(message.id)}
+                      onCheckedChange={() => toggleMessageSelection(message.id)}
+                      className="mt-2"
+                    />
+                  )}
+                  
                   <div className={cn("relative group", isOwnMessage ? "flex-row-reverse" : "flex-row")}>
                     <div
                       className={cn(
@@ -427,7 +510,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                       </div>
                     </div>
                     
-                    {isOwnMessage && (
+                    {isOwnMessage && !isSelectionMode && (
                       <Button
                         size="icon"
                         variant="ghost"
