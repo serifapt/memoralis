@@ -287,8 +287,17 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilizador não autenticado");
 
-      // Check if conversation needs to be reopened
-      const shouldReopen = userType === "funeraria" && conversationStatus === "resolvido";
+      // Check current conversation status from database
+      const { data: convData } = await supabase
+        .from("conversations")
+        .select("status")
+        .eq("id", conversationId)
+        .single();
+
+      const currentStatus = convData?.status || conversationStatus;
+      const shouldReopen = userType === "funeraria" && currentStatus === "resolvido";
+
+      console.log("Sending message:", { userType, currentStatus, shouldReopen });
 
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
@@ -306,7 +315,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
 
       if (shouldReopen) {
         updateData.status = "aberta";
-        setConversationStatus("aberta");
+        console.log("Reopening conversation to 'aberta'");
         
         // Add status change indicator for reopening
         const statusChange: StatusChange = {
@@ -318,10 +327,19 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
         setStatusChanges((prev) => [...prev, statusChange]);
       }
 
-      await supabase
+      const { error: updateError } = await supabase
         .from("conversations")
         .update(updateData)
         .eq("id", conversationId);
+
+      if (updateError) {
+        console.error("Error updating conversation:", updateError);
+      } else {
+        console.log("Conversation updated successfully:", updateData);
+        if (shouldReopen) {
+          setConversationStatus("aberta");
+        }
+      }
 
       setNewMessage("");
     } catch (error) {
