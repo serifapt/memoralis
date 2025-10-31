@@ -1,10 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Plus, MapPin, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const upcomingCeremonies = [
   {
     id: 1,
+    obituaryId: 1,
     deceased: "Maria Silva Santos",
     date: "17/01/2025",
     time: "10:00",
@@ -14,6 +16,7 @@ const upcomingCeremonies = [
   },
   {
     id: 2,
+    obituaryId: 1,
     deceased: "João Pedro Costa",
     date: "16/01/2025",
     time: "15:00",
@@ -23,6 +26,7 @@ const upcomingCeremonies = [
   },
   {
     id: 3,
+    obituaryId: 1,
     deceased: "Ana Beatriz Oliveira",
     date: "15/01/2025",
     time: "11:00",
@@ -101,8 +105,10 @@ export default function Ceremonies() {
                   <p className="text-sm text-muted-foreground">
                     {ceremony.attendees} participantes
                   </p>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    Detalhes
+                  <Button variant="outline" size="sm" className="mt-2" asChild>
+                    <Link to={`/obituario/${ceremony.obituaryId}#informacoes-funebres`}>
+                      Detalhes
+                    </Link>
                   </Button>
                 </div>
               </div>
