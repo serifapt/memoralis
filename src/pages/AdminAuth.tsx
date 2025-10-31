@@ -143,6 +143,17 @@ export default function AdminAuth() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "A entrar..." : "Entrar"}
             </Button>
+            
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="link"
+                className="text-sm"
+                onClick={() => navigate('/forgot-password')}
+              >
+                Esqueceu a palavra-passe?
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

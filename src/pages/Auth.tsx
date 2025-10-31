@@ -102,11 +102,20 @@ export default function Auth() {
             {loading ? "A processar..." : "Entrar"}
           </Button>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <Button
               type="button"
               variant="link"
-              className="text-sm"
+              className="text-sm w-full"
+              onClick={() => navigate('/forgot-password')}
+            >
+              Esqueceu a palavra-passe?
+            </Button>
+            
+            <Button
+              type="button"
+              variant="link"
+              className="text-sm w-full"
               onClick={() => navigate('/funeraria/register')}
             >
               Registar Funerária

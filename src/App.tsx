@@ -23,6 +23,8 @@ import AdminAuth from "./pages/AdminAuth";
 import AdminSetup from "./pages/AdminSetup";
 import FunerariaRegister from "./pages/FunerariaRegister";
 import FunerariaStatus from "./pages/FunerariaStatus";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminFunerarias from "./pages/AdminFunerarias";
 import AdminFunerariaDetail from "./pages/AdminFunerariaDetail";
@@ -46,6 +48,8 @@ const App = () => (
           <Route path="/funerarias" element={<FunerariaArchive />} />
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           <Route path="/admin/setup" element={<AdminSetup />} />
           <Route path="/funeraria/register" element={<FunerariaRegister />} />
