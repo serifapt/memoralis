@@ -6,12 +6,17 @@ import { Loader2 } from "lucide-react";
 export default function Support() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
-    loadOrCreateConversation();
-  }, []);
+    if (!hasLoaded) {
+      loadOrCreateConversation();
+    }
+  }, [hasLoaded]);
 
   const loadOrCreateConversation = async () => {
+    if (hasLoaded) return; // Prevent multiple calls
+    setHasLoaded(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -28,18 +33,26 @@ export default function Support() {
         return;
       }
 
-      // Check if conversation already exists
+      // Check if conversation already exists (including status 'fechada')
       const { data: existingConversation } = await supabase
         .from("conversations")
-        .select("id")
+        .select("id, status")
         .eq("funeraria_id", funeraria.id)
-        .eq("status", "aberta")
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (existingConversation) {
+        // Reopen if closed
+        if (existingConversation.status === "fechada") {
+          await supabase
+            .from("conversations")
+            .update({ status: "aberta" })
+            .eq("id", existingConversation.id);
+        }
         setConversationId(existingConversation.id);
       } else {
-        // Create new conversation
+        // Create new conversation only if none exists
         const { data: newConversation, error } = await supabase
           .from("conversations")
           .insert({
