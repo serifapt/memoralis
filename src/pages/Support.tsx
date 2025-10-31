@@ -33,7 +33,7 @@ export default function Support() {
         return;
       }
 
-      // Check if conversation already exists (including status 'fechada')
+      // Check if conversation already exists (get latest regardless of status)
       const { data: existingConversation } = await supabase
         .from("conversations")
         .select("id, status")
@@ -43,13 +43,6 @@ export default function Support() {
         .maybeSingle();
 
       if (existingConversation) {
-        // Reopen if closed
-        if (existingConversation.status === "fechada") {
-          await supabase
-            .from("conversations")
-            .update({ status: "aberta" })
-            .eq("id", existingConversation.id);
-        }
         setConversationId(existingConversation.id);
       } else {
         // Create new conversation only if none exists

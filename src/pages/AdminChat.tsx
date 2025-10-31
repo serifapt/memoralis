@@ -160,22 +160,33 @@ export default function AdminChat() {
                         : "hover:bg-muted"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4" />
-                        <span className="font-medium text-sm">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="flex items-center gap-2 flex-1">
+                        <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                        <span className="font-medium text-sm truncate">
                           {conv.funerarias?.nome_comercial}
                         </span>
                       </div>
                       {conv.unread_count > 0 && (
-                        <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        <Badge variant="destructive" className="h-5 min-w-[20px] flex items-center justify-center px-1 text-xs">
                           {conv.unread_count}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs opacity-70 mt-1">
-                      {new Date(conv.last_message_at).toLocaleString("pt-PT")}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs opacity-70">
+                        {new Date(conv.last_message_at).toLocaleString("pt-PT")}
+                      </p>
+                      {conv.status === "resolvido" ? (
+                        <Badge variant="secondary" className="text-xs h-5 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          Resolvido
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-xs h-5">
+                          Em Aberto
+                        </Badge>
+                      )}
+                    </div>
                   </button>
                 ))
               )}

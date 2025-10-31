@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageSquare, Loader2, Check, CheckCheck } from "lucide-react";
+import { Send, MessageSquare, Loader2, Check, CheckCheck, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [conversationStatus, setConversationStatus] = useState<"aberta" | "resolvido">("aberta");
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -35,9 +36,11 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
     // Create audio element for notification sound
     audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS67OilUBELTKXh8K1gGgU7k9nxx3kpBSh+zPLaizsIEV6y6+ejUhILSaHg8L9pHwU7k9nxx3kpBSh+zPLaizsIEV6y6+ejUhILSaHg8L9pHwU7k9nxx3kpBSh+zPLaizsI');
     
+    loadConversationStatus();
     loadMessages();
     subscribeToMessages();
     subscribeToTyping();
+    subscribeToConversationStatus();
   }, [conversationId]);
 
   useEffect(() => {
@@ -53,6 +56,40 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const playNotificationSound = () => {
     if (audioRef.current) {
       audioRef.current.play().catch(e => console.log("Audio play failed:", e));
+    }
+  };
+
+  const loadConversationStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("conversations")
+        .select("status")
+        .eq("id", conversationId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setConversationStatus(data.status as "aberta" | "resolvido");
+      }
+    } catch (error) {
+      console.error("Erro ao carregar status da conversa:", error);
+    }
+  };
+
+  const markAsResolved = async () => {
+    try {
+      const { error } = await supabase
+        .from("conversations")
+        .update({ status: "resolvido" })
+        .eq("id", conversationId);
+
+      if (error) throw error;
+
+      setConversationStatus("resolvido");
+      toast.success("Conversa marcada como resolvida");
+    } catch (error) {
+      console.error("Erro ao marcar como resolvido:", error);
+      toast.error("Erro ao atualizar status");
     }
   };
 
@@ -150,6 +187,30 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
     };
   };
 
+  const subscribeToConversationStatus = () => {
+    const channel = supabase
+      .channel(`conversation-status:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `id=eq.${conversationId}`,
+        },
+        (payload) => {
+          if (payload.new.status) {
+            setConversationStatus(payload.new.status as "aberta" | "resolvido");
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
   const handleTyping = () => {
     const channel = supabase.channel(`typing:${conversationId}`);
     
@@ -171,6 +232,15 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilizador não autenticado");
+
+      // If funeraria is sending message and conversation is resolved, reopen it
+      if (userType === "funeraria" && conversationStatus === "resolvido") {
+        await supabase
+          .from("conversations")
+          .update({ status: "aberta" })
+          .eq("id", conversationId);
+        setConversationStatus("aberta");
+      }
 
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
@@ -237,10 +307,34 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
       <div className="p-4 border-b flex items-center gap-2 bg-muted/50">
         <MessageSquare className="h-5 w-5 text-primary" />
         <h3 className="font-semibold">Chat de Suporte</h3>
+        
+        {conversationStatus === "resolvido" ? (
+          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Problema Resolvido
+          </Badge>
+        ) : (
+          <Badge variant="default">
+            Em Aberto
+          </Badge>
+        )}
+        
         {isTyping && (
-          <Badge variant="secondary" className="ml-auto">
+          <Badge variant="secondary">
             A escrever...
           </Badge>
+        )}
+        
+        {userType === "admin" && conversationStatus === "aberta" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="ml-auto"
+            onClick={markAsResolved}
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Marcar como Resolvido
+          </Button>
         )}
       </div>
 
