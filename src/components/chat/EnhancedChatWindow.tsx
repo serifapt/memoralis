@@ -27,6 +27,13 @@ interface Message {
   is_read: boolean;
 }
 
+interface StatusChange {
+  id: string;
+  type: "status_change";
+  status: "resolvido";
+  created_at: string;
+}
+
 interface ChatWindowProps {
   conversationId: string;
   userType: "admin" | "funeraria";
@@ -38,6 +45,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [conversationStatus, setConversationStatus] = useState<"aberta" | "resolvido">("aberta");
+  const [statusChanges, setStatusChanges] = useState<StatusChange[]>([]);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -232,7 +240,21 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
         },
         (payload) => {
           if (payload.new.status) {
-            setConversationStatus(payload.new.status as "aberta" | "resolvido");
+            const newStatus = payload.new.status as "aberta" | "resolvido";
+            const oldStatus = conversationStatus;
+            
+            setConversationStatus(newStatus);
+            
+            // Add status change indicator if changed to resolved
+            if (oldStatus !== "resolvido" && newStatus === "resolvido") {
+              const statusChange: StatusChange = {
+                id: `status-${Date.now()}`,
+                type: "status_change",
+                status: "resolvido",
+                created_at: new Date().toISOString(),
+              };
+              setStatusChanges((prev) => [...prev, statusChange]);
+            }
           }
         }
       )
@@ -378,6 +400,15 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
               new Date(messages[index - 1].created_at).toDateString() !== 
               new Date(message.created_at).toDateString();
 
+            // Check if there's a status change between this and previous message
+            const statusChangeBetween = statusChanges.find((sc) => {
+              if (index === 0) return false;
+              const prevMsgTime = new Date(messages[index - 1].created_at).getTime();
+              const currentMsgTime = new Date(message.created_at).getTime();
+              const statusTime = new Date(sc.created_at).getTime();
+              return statusTime > prevMsgTime && statusTime <= currentMsgTime;
+            });
+
             return (
               <div key={message.id}>
                 {showDate && (
@@ -388,6 +419,15 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                         month: "long",
                         year: "numeric",
                       })}
+                    </Badge>
+                  </div>
+                )}
+
+                {statusChangeBetween && (
+                  <div className="flex justify-center my-4">
+                    <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Problema Resolvido
                     </Badge>
                   </div>
                 )}
@@ -407,7 +447,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                           : "bg-muted"
                       )}
                     >
-                      <p className="text-sm whitespace-pre-wrap break-words">
+                      <p className="text-sm whitespace-pre-wrap break-words [word-break:break-word]">
                         {message.content}
                       </p>
                       
