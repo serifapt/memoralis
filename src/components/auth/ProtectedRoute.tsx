@@ -60,16 +60,12 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   }
 
   if (requireRole && !hasRole) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Acesso Negado</h1>
-          <p className="text-muted-foreground">
-            Não tem permissões para aceder a esta página.
-          </p>
-        </div>
-      </div>
-    );
+    // Redirect based on actual role
+    if (requireRole === "admin") {
+      return <Navigate to="/dashboard" replace />;
+    } else {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;

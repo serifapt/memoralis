@@ -27,6 +27,7 @@ const navigation = [
 ];
 
 const adminNavigation = [
+  { name: "Dashboard Admin", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Funerárias", href: "/admin/funerarias", icon: Building2 },
   { name: "Utilizadores", href: "/admin/users", icon: Shield },
   { name: "Chat Suporte", href: "/admin/chat", icon: MessageSquare },

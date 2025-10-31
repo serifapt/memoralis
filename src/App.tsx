@@ -22,6 +22,7 @@ import AdminAuth from "./pages/AdminAuth";
 import AdminSetup from "./pages/AdminSetup";
 import FunerariaRegister from "./pages/FunerariaRegister";
 import FunerariaStatus from "./pages/FunerariaStatus";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminFunerarias from "./pages/AdminFunerarias";
 import AdminFunerariaDetail from "./pages/AdminFunerariaDetail";
 import AdminUsers from "./pages/AdminUsers";
@@ -86,9 +87,17 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <ProtectedRoute requireRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
           <Route
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireRole="funeraria">
                 <AppLayout />
               </ProtectedRoute>
             }
