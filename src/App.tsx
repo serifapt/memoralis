@@ -27,6 +27,7 @@ import AdminFunerarias from "./pages/AdminFunerarias";
 import AdminFunerariaDetail from "./pages/AdminFunerariaDetail";
 import AdminUsers from "./pages/AdminUsers";
 import AdminChat from "./pages/AdminChat";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -109,6 +110,7 @@ const App = () => (
             <Route path="/ceremonies" element={<Ceremonies />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/documents" element={<Documents />} />
+            <Route path="/support" element={<Support />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
