@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageSquare, Paperclip, Download, FileText, Image as ImageIcon, File, Loader2, Check, CheckCheck } from "lucide-react";
+import { Send, MessageSquare, Loader2, Check, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +15,6 @@ interface Message {
   sender_type: "admin" | "funeraria";
   created_at: string;
   is_read: boolean;
-  attachment_url?: string;
-  attachment_name?: string;
-  attachment_type?: string;
 }
 
 interface ChatWindowProps {
@@ -29,11 +26,8 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -170,76 +164,19 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
     }, 2000);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 20 * 1024 * 1024) {
-        toast.error("Ficheiro demasiado grande. Máximo: 20MB");
-        return;
-      }
-      setSelectedFile(file);
-    }
-  };
-
-  const uploadFile = async (file: File): Promise<string | null> => {
-    try {
-      setUploading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Utilizador não autenticado");
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('chat-attachments')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('chat-attachments')
-        .getPublicUrl(fileName);
-
-      return data.publicUrl;
-    } catch (error) {
-      console.error("Erro ao fazer upload:", error);
-      toast.error("Erro ao enviar ficheiro");
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleSendMessage = async () => {
-    if (!newMessage.trim() && !selectedFile) return;
+    if (!newMessage.trim()) return;
 
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilizador não autenticado");
 
-      let attachmentUrl = null;
-      let attachmentName = null;
-      let attachmentType = null;
-
-      if (selectedFile) {
-        attachmentUrl = await uploadFile(selectedFile);
-        if (!attachmentUrl) {
-          setLoading(false);
-          return;
-        }
-        attachmentName = selectedFile.name;
-        attachmentType = selectedFile.type;
-      }
-
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         sender_id: user.id,
         sender_type: userType,
-        content: newMessage.trim() || "Enviou um ficheiro",
-        attachment_url: attachmentUrl,
-        attachment_name: attachmentName,
-        attachment_type: attachmentType,
+        content: newMessage.trim(),
       });
 
       if (error) throw error;
@@ -251,10 +188,6 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
         .eq("id", conversationId);
 
       setNewMessage("");
-      setSelectedFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
       toast.error("Erro ao enviar mensagem");
@@ -272,29 +205,6 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
     }
   };
 
-  const downloadAttachment = async (url: string, name: string) => {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(downloadUrl);
-    } catch (error) {
-      console.error("Erro ao descarregar:", error);
-      toast.error("Erro ao descarregar ficheiro");
-    }
-  };
-
-  const getFileIcon = (type?: string) => {
-    if (!type) return <File className="h-4 w-4" />;
-    if (type.startsWith('image/')) return <ImageIcon className="h-4 w-4" />;
-    return <FileText className="h-4 w-4" />;
-  };
 
   const formatDate = (date: string) => {
     const msgDate = new Date(date);
@@ -370,37 +280,9 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
                         : "bg-muted"
                     )}
                   >
-                    {message.attachment_url && (
-                      <div className="mb-2 p-2 rounded bg-background/10">
-                        <div className="flex items-center gap-2 mb-2">
-                          {getFileIcon(message.attachment_type)}
-                          <span className="text-sm font-medium truncate flex-1">
-                            {message.attachment_name}
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-6 w-6 p-0"
-                            onClick={() => downloadAttachment(message.attachment_url!, message.attachment_name!)}
-                          >
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        {message.attachment_type?.startsWith('image/') && (
-                          <img
-                            src={message.attachment_url}
-                            alt={message.attachment_name}
-                            className="rounded max-w-full h-auto"
-                          />
-                        )}
-                      </div>
-                    )}
-                    
-                    {message.content && (
-                      <p className="text-sm whitespace-pre-wrap break-words">
-                        {message.content}
-                      </p>
-                    )}
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {message.content}
+                    </p>
                     
                     <div className="flex items-center gap-2 mt-1">
                       <p className="text-xs opacity-70">
@@ -426,41 +308,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
       </ScrollArea>
 
       <div className="p-4 border-t bg-muted/30">
-        {selectedFile && (
-          <div className="mb-2 p-2 bg-background rounded-lg flex items-center gap-2">
-            {getFileIcon(selectedFile.type)}
-            <span className="text-sm flex-1 truncate">{selectedFile.name}</span>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setSelectedFile(null);
-                if (fileInputRef.current) fileInputRef.current.value = "";
-              }}
-            >
-              ✕
-            </Button>
-          </div>
-        )}
-        
         <div className="flex gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={handleFileSelect}
-            accept="image/*,.pdf,.doc,.docx,.txt"
-          />
-          
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={loading || uploading}
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
-          
           <Input
             placeholder="Escreva a sua mensagem..."
             value={newMessage}
@@ -469,16 +317,16 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
               handleTyping();
             }}
             onKeyPress={handleKeyPress}
-            disabled={loading || uploading}
+            disabled={loading}
             className="flex-1"
           />
           
           <Button
             onClick={handleSendMessage}
-            disabled={loading || uploading || (!newMessage.trim() && !selectedFile)}
+            disabled={loading || !newMessage.trim()}
             size="icon"
           >
-            {loading || uploading ? (
+            {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
