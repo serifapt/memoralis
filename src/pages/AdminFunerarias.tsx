@@ -5,13 +5,26 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye } from "lucide-react";
+import { Eye, Ban, CheckCircle } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function AdminFunerarias() {
   const [funerarias, setFunerarias] = useState<any[]>([]);
   const [filter, setFilter] = useState("pendente");
   const [loading, setLoading] = useState(true);
+  const [toggleFunerariaId, setToggleFunerariaId] = useState<string | null>(null);
+  const [toggleAction, setToggleAction] = useState<"desativar" | "ativar">("desativar");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,6 +71,48 @@ export default function AdminFunerarias() {
     }
   };
 
+  const handleToggleStatus = async () => {
+    if (!toggleFunerariaId) return;
+
+    try {
+      const newStatus = toggleAction === "desativar" ? "desativado" : "ativo";
+      
+      const { error } = await supabase
+        .from("funerarias")
+        .update({ status: newStatus })
+        .eq("id", toggleFunerariaId);
+
+      if (error) throw error;
+
+      // Log audit
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("audit_logs").insert({
+          actor_id: user.id,
+          entidade: "funeraria",
+          entidade_id: toggleFunerariaId,
+          acao: toggleAction === "desativar" ? "desativacao" : "ativacao",
+          detalhes: {
+            status_anterior: toggleAction === "desativar" ? "ativo" : "desativado",
+            status_novo: newStatus
+          }
+        });
+      }
+
+      toast.success(
+        toggleAction === "desativar"
+          ? "Conta desativada com sucesso"
+          : "Conta ativada com sucesso"
+      );
+      
+      setToggleFunerariaId(null);
+      loadFunerarias();
+    } catch (error) {
+      console.error("Erro ao alterar status:", error);
+      toast.error("Erro ao alterar status da conta");
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -72,6 +127,7 @@ export default function AdminFunerarias() {
           <TabsList>
             <TabsTrigger value="pendente">Pendentes</TabsTrigger>
             <TabsTrigger value="ativo">Ativos</TabsTrigger>
+            <TabsTrigger value="desativado">Desativados</TabsTrigger>
             <TabsTrigger value="rejeitado">Rejeitados</TabsTrigger>
             <TabsTrigger value="todos">Todos</TabsTrigger>
           </TabsList>
@@ -90,7 +146,7 @@ export default function AdminFunerarias() {
             {funerarias.map((funeraria) => (
               <Card key={funeraria.id} className="p-6">
                 <div className="flex items-start justify-between">
-                  <div className="space-y-2">
+                  <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg font-semibold">
                         {funeraria.nome_comercial}
@@ -101,6 +157,8 @@ export default function AdminFunerarias() {
                             ? "default"
                             : funeraria.status === "rejeitado"
                             ? "destructive"
+                            : funeraria.status === "desativado"
+                            ? "outline"
                             : "secondary"
                         }
                       >
@@ -124,20 +182,65 @@ export default function AdminFunerarias() {
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate(`/admin/funerarias/${funeraria.id}`)}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Ver Detalhes
-                  </Button>
+                  <div className="flex gap-2">
+                    {(funeraria.status === "ativo" || funeraria.status === "desativado") && (
+                      <Button
+                        variant={funeraria.status === "ativo" ? "destructive" : "default"}
+                        size="sm"
+                        onClick={() => {
+                          setToggleFunerariaId(funeraria.id);
+                          setToggleAction(funeraria.status === "ativo" ? "desativar" : "ativar");
+                        }}
+                      >
+                        {funeraria.status === "ativo" ? (
+                          <>
+                            <Ban className="h-4 w-4 mr-2" />
+                            Desativar
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Ativar
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/admin/funerarias/${funeraria.id}`)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Ver Detalhes
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ))}
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!toggleFunerariaId} onOpenChange={() => setToggleFunerariaId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {toggleAction === "desativar" ? "Desativar" : "Ativar"} conta
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {toggleAction === "desativar"
+                ? "Tem a certeza que deseja desativar esta conta? A funerária não poderá aceder ao sistema."
+                : "Tem a certeza que deseja ativar esta conta? A funerária voltará a ter acesso ao sistema."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleStatus}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
