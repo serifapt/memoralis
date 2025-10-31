@@ -6,17 +6,23 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus } from "lucide-react";
+import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { AddRelationshipDialog } from "@/components/obituaries/AddRelationshipDialog";
 
 export default function NewObituary() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const isEditing = !!id;
   const [isPublic, setIsPublic] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [funerariaId, setFunerariaId] = useState<string>("");
+  const [relatedObituaries, setRelatedObituaries] = useState<any[]>([]);
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
@@ -123,9 +129,9 @@ export default function NewObituary() {
   };
 
   useEffect(() => {
-    if (isEditing) {
-      // TODO: Load obituary data from backend when id is available
-      console.log("Loading obituary:", id);
+    fetchFunerariaId();
+    if (isEditing && id) {
+      fetchRelatedObituaries();
     }
   }, [id, isEditing]);
 
@@ -140,6 +146,88 @@ export default function NewObituary() {
       }, 100);
     }
   }, [location]);
+
+  const fetchFunerariaId = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('funerarias')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data) {
+          setFunerariaId(data.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching funeraria:', error);
+    }
+  };
+
+  const fetchRelatedObituaries = async () => {
+    if (!id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('obituary_relationships')
+        .select(`
+          id,
+          relationship_type,
+          related_obituary:obituaries!obituary_relationships_related_obituary_id_fkey(
+            id,
+            display_name,
+            death_date
+          )
+        `)
+        .eq('obituary_id', id);
+
+      if (error) throw error;
+      setRelatedObituaries(data || []);
+    } catch (error) {
+      console.error('Error fetching related obituaries:', error);
+    }
+  };
+
+  const handleRemoveRelationship = async (relationshipId: string) => {
+    try {
+      const { error } = await supabase
+        .from('obituary_relationships')
+        .delete()
+        .eq('id', relationshipId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Relação removida",
+        description: "O óbito foi desvinculado com sucesso",
+      });
+
+      fetchRelatedObituaries();
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível remover a relação",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getRelationshipLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      pai: "Pai/Mãe",
+      filho: "Filho(a)",
+      conjuge: "Cônjuge",
+      irmao: "Irmão(ã)",
+      avo: "Avô/Avó",
+      neto: "Neto(a)",
+      tio: "Tio(a)",
+      sobrinho: "Sobrinho(a)",
+      outro: "Outro Familiar"
+    };
+    return labels[type] || type;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1165,69 +1253,68 @@ export default function NewObituary() {
                   Processos relacionados da mesma família
                 </p>
               </div>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Relação
-              </Button>
+              {isEditing && id && funerariaId && (
+                <AddRelationshipDialog 
+                  currentObituaryId={id}
+                  funerariaId={funerariaId}
+                  onRelationshipAdded={fetchRelatedObituaries}
+                />
+              )}
             </div>
 
-            {/* Lista de óbitos relacionados (mock data) */}
+            {/* Lista de óbitos relacionados */}
             <div className="space-y-3">
-              {/* Exemplo de óbito relacionado */}
-              <div className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">Manuel Silva Santos</h4>
-                      <p className="text-sm text-muted-foreground">Pai • Falecido em 2023</p>
+              {relatedObituaries.length > 0 ? (
+                relatedObituaries.map((rel: any) => (
+                  <div 
+                    key={rel.id}
+                    className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-foreground">
+                            {rel.related_obituary?.display_name || 'Nome não disponível'}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            {getRelationshipLabel(rel.relationship_type)}
+                            {rel.related_obituary?.death_date && 
+                              ` • Falecido em ${new Date(rel.related_obituary.death_date).getFullYear()}`
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => navigate(`/obituaries/${rel.related_obituary?.id}/edit`)}
+                        >
+                          Ver Processo
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveRelationship(rel.id)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => navigate('/obituaries/2/edit')}
-                    >
-                      Ver Processo
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Exemplo 2 */}
-              <div className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">Ana Silva Costa</h4>
-                      <p className="text-sm text-muted-foreground">Irmã • Falecida em 2022</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => navigate('/obituaries/3/edit')}
-                    >
-                      Ver Processo
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Estado vazio */}
-              {false && (
+                ))
+              ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <User className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p>Nenhum óbito relacionado</p>
                   <p className="text-sm mt-1">
-                    Adicione relações para vincular processos da mesma família
+                    {isEditing 
+                      ? "Adicione relações para vincular processos da mesma família" 
+                      : "Guarde este obituário primeiro para adicionar relações"
+                    }
                   </p>
                 </div>
               )}
