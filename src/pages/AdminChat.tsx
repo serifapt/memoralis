@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MessageSquare } from "lucide-react";
 import { ChatWindow } from "@/components/chat/ChatWindow";
+import { NewConversationDialog } from "@/components/admin/NewConversationDialog";
 
 interface ConversationWithFuneraria {
   id: string;
@@ -122,14 +123,22 @@ export default function AdminChat() {
     };
   };
 
+  const handleConversationCreated = (conversationId: string) => {
+    loadConversations();
+    setSelectedConversation(conversationId);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Chat de Suporte</h1>
-          <p className="text-muted-foreground">
-            Gerir conversas com as funerárias
-          </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold">Chat de Suporte</h1>
+            <p className="text-muted-foreground">
+              Gerir conversas com as funerárias
+            </p>
+          </div>
+          <NewConversationDialog onConversationCreated={handleConversationCreated} />
         </div>
 
         <div className="grid grid-cols-3 gap-6">
