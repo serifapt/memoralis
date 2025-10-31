@@ -72,11 +72,10 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
     return <Navigate to="/auth" replace />;
   }
 
-  if (requireRole && !hasRole) {
+  // Admins can access everything
+  if (requireRole && !hasRole && userRole !== "admin") {
     // Redirect based on user's actual role
-    if (userRole === "admin") {
-      return <Navigate to="/admin/dashboard" replace />;
-    } else if (userRole === "funeraria") {
+    if (userRole === "funeraria") {
       return <Navigate to="/dashboard" replace />;
     } else {
       return <Navigate to="/auth" replace />;
