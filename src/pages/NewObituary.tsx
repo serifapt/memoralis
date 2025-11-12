@@ -13,6 +13,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AddRelationshipDialog } from "@/components/obituaries/AddRelationshipDialog";
+import { AnnouncementGenerator } from "@/components/obituaries/AnnouncementGenerator";
 
 export default function NewObituary() {
   const { id } = useParams();
@@ -252,11 +253,12 @@ export default function NewObituary() {
         {/* Form Section */}
         <div>
           <Tabs defaultValue="pessoais" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsList className="grid w-full grid-cols-5 mb-8">
               <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
               <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
               <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
               <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
+              <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
             </TabsList>
 
             {/* Tab: Informações Pessoais */}
@@ -1408,6 +1410,35 @@ export default function NewObituary() {
                     </div>
                   </div>
                 </div>
+              </Card>
+            </TabsContent>
+
+            {/* Tab: Anúncios */}
+            <TabsContent value="anuncios" className="space-y-8">
+              <Card className="p-6">
+                <h2 className="text-xl font-archivo font-semibold mb-2">
+                  Anúncios dos Óbitos
+                </h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Gere automaticamente anúncios para impressão e redes sociais a partir dos dados do óbito.
+                </p>
+                <AnnouncementGenerator 
+                  obituaryData={{
+                    displayName: formData.displayName,
+                    birthDate: formData.birthDate,
+                    deathDate: formData.deathDate,
+                    publicMessage: formData.publicMessage,
+                    velorioDate: formData.velorioDate,
+                    velorioTime: formData.velorioTime,
+                    velorioLocation: formData.velorioLocation,
+                    cerimoniaDate: formData.cerimoniaDate,
+                    cerimoniaTime: formData.cerimoniaTime,
+                    cerimoniaChurch: formData.cerimoniaChurch,
+                    funeralDate: formData.funeralDate,
+                    funeralTime: formData.funeralTime,
+                    funeralCemetery: formData.funeralCemetery,
+                  }}
+                />
               </Card>
             </TabsContent>
           </Tabs>
