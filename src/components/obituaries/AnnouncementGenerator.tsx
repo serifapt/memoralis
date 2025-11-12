@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileDown, Image as ImageIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { TemplateThumbnail } from "./TemplateThumbnail";
+import { type TemplateType } from "./types";
 
 interface AnnouncementGeneratorProps {
   obituaryData: {
@@ -25,8 +26,6 @@ interface AnnouncementGeneratorProps {
     funeralCemetery?: string;
   };
 }
-
-type TemplateType = "profissional" | "elegante" | "classico";
 
 export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>("profissional");
@@ -360,10 +359,10 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
     }
   };
 
-  const templates: Array<{ type: TemplateType; name: string }> = [
-    { type: "profissional", name: "Profissional (Memoralis)" },
-    { type: "elegante", name: "Elegante" },
-    { type: "classico", name: "Clássico" },
+  const templates = [
+    { type: "profissional" as const, name: "Profissional", description: "Layout moderno com foto e detalhes" },
+    { type: "elegante" as const, name: "Elegante", description: "Fundo escuro com elementos dourados" },
+    { type: "classico" as const, name: "Clássico", description: "Design tradicional e sóbrio" },
   ];
 
   return (
@@ -374,26 +373,14 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
             <Label>Selecionar Template</Label>
             <div className="grid grid-cols-3 gap-4 mt-3">
               {templates.map((template) => (
-                <button
+                <TemplateThumbnail
                   key={template.type}
+                  type={template.type}
+                  name={template.name}
+                  description={template.description}
+                  isSelected={selectedTemplate === template.type}
                   onClick={() => setSelectedTemplate(template.type)}
-                  className={`relative rounded-lg border-2 overflow-hidden transition-all hover:scale-[1.02] ${
-                    selectedTemplate === template.type
-                      ? "border-primary shadow-lg"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  <div className="aspect-[3/4] bg-muted flex items-center justify-center text-xs scale-[0.25] origin-top-left w-[400%] h-[400%]">
-                    {renderPreview()}
-                  </div>
-                  <div className={`absolute bottom-0 left-0 right-0 p-2 text-xs font-medium text-center ${
-                    selectedTemplate === template.type
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-background/90"
-                  }`}>
-                    {template.name}
-                  </div>
-                </button>
+                />
               ))}
             </div>
             <p className="text-sm text-muted-foreground mt-2">
