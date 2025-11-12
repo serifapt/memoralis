@@ -360,25 +360,42 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
     }
   };
 
+  const templates: Array<{ type: TemplateType; name: string }> = [
+    { type: "profissional", name: "Profissional (Memoralis)" },
+    { type: "elegante", name: "Elegante" },
+    { type: "classico", name: "Clássico" },
+  ];
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="template">Selecionar Template</Label>
-            <Select 
-              value={selectedTemplate} 
-              onValueChange={(value) => setSelectedTemplate(value as TemplateType)}
-            >
-              <SelectTrigger id="template">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="profissional">Profissional (Memoralis)</SelectItem>
-                <SelectItem value="elegante">Elegante</SelectItem>
-                <SelectItem value="classico">Clássico</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Selecionar Template</Label>
+            <div className="grid grid-cols-3 gap-4 mt-3">
+              {templates.map((template) => (
+                <button
+                  key={template.type}
+                  onClick={() => setSelectedTemplate(template.type)}
+                  className={`relative rounded-lg border-2 overflow-hidden transition-all hover:scale-[1.02] ${
+                    selectedTemplate === template.type
+                      ? "border-primary shadow-lg"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="aspect-[3/4] bg-muted flex items-center justify-center text-xs scale-[0.25] origin-top-left w-[400%] h-[400%]">
+                    {renderPreview()}
+                  </div>
+                  <div className={`absolute bottom-0 left-0 right-0 p-2 text-xs font-medium text-center ${
+                    selectedTemplate === template.type
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background/90"
+                  }`}>
+                    {template.name}
+                  </div>
+                </button>
+              ))}
+            </div>
             <p className="text-sm text-muted-foreground mt-2">
               Escolha um dos 3 templates predefinidos. Templates personalizados disponíveis com subscrição Pro.
             </p>
@@ -431,7 +448,9 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Preview do Anúncio</h3>
-        {renderPreview()}
+        <div className="max-w-2xl mx-auto">
+          {renderPreview()}
+        </div>
       </Card>
     </div>
   );
