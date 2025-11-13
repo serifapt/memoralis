@@ -550,7 +550,7 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           </div>
 
           <Label htmlFor="file-upload" className="cursor-pointer">
-            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors">
+            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors mt-6">
               <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-sm font-medium mb-1">
                 Arraste ficheiros ou clique para fazer upload
