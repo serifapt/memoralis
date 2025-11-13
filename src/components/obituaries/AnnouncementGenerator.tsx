@@ -6,8 +6,9 @@ import { FileDown, Image as ImageIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { TemplateThumbnail } from "./TemplateThumbnail";
-import { type TemplateType } from "./types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+type TemplateType = "profissional" | "elegante" | "classico";
 
 interface AnnouncementGeneratorProps {
   obituaryData: {
@@ -312,7 +313,7 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
     }
   };
 
-  const generateImage = async (format: "story" | "post") => {
+  const generateImage = async () => {
     setIsGenerating(true);
     try {
       const element = document.getElementById("announcement-preview");
@@ -320,16 +321,9 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
         throw new Error("Preview element not found");
       }
 
-      // Aspect ratios: 9:16 for stories, 3:4 for posts
-      const aspectRatio = format === "story" ? 9 / 16 : 3 / 4;
-      const width = format === "story" ? 1080 : 1080;
-      const height = Math.round(width / aspectRatio);
-
       const canvas = await html2canvas(element, {
         scale: 2,
         backgroundColor: null,
-        width: width,
-        height: height,
       });
 
       canvas.toBlob((blob) => {
@@ -337,13 +331,13 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
-          link.download = `anuncio-${obituaryData.displayName || 'obituario'}-${format}.jpg`;
+          link.download = `anuncio-${obituaryData.displayName || 'obituario'}.jpg`;
           link.click();
           URL.revokeObjectURL(url);
 
           toast({
             title: "Imagem gerada com sucesso",
-            description: `Formato ${format === "story" ? "9:16 (Stories)" : "3:4 (Post)"} exportado`,
+            description: "O anúncio foi exportado como imagem",
           });
         }
       }, "image/jpeg", 0.95);
@@ -359,86 +353,57 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
     }
   };
 
-  const templates = [
-    { type: "profissional" as const, name: "Profissional", description: "Layout moderno com foto e detalhes" },
-    { type: "elegante" as const, name: "Elegante", description: "Fundo escuro com elementos dourados" },
-    { type: "classico" as const, name: "Clássico", description: "Design tradicional e sóbrio" },
-  ];
-
   return (
     <div className="space-y-6">
       <Card className="p-6">
         <div className="space-y-4">
-          <div>
-            <Label>Selecionar Template</Label>
-            <div className="grid grid-cols-3 gap-4 mt-3">
-              {templates.map((template) => (
-                <TemplateThumbnail
-                  key={template.type}
-                  type={template.type}
-                  name={template.name}
-                  description={template.description}
-                  isSelected={selectedTemplate === template.type}
-                  onClick={() => setSelectedTemplate(template.type)}
-                />
-              ))}
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Escolha um dos 3 templates predefinidos. Templates personalizados disponíveis com subscrição Pro.
-            </p>
+          <div className="space-y-2">
+            <Label>Template</Label>
+            <Select value={selectedTemplate} onValueChange={(value: TemplateType) => setSelectedTemplate(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um template" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="profissional">Profissional (Memoralis)</SelectItem>
+                <SelectItem value="elegante">Elegante</SelectItem>
+                <SelectItem value="classico">Clássico</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex gap-2">
             <Button 
               onClick={generatePDF} 
               disabled={isGenerating}
-              className="gap-2"
+              className="flex-1"
             >
               {isGenerating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <FileDown className="w-4 h-4" />
+                <FileDown className="mr-2 h-4 w-4" />
               )}
-              Gerar PDF (A4)
+              Exportar PDF
             </Button>
-            
             <Button 
-              onClick={() => generateImage("story")} 
+              onClick={generateImage} 
               disabled={isGenerating}
-              variant="secondary"
-              className="gap-2"
+              variant="outline"
+              className="flex-1"
             >
               {isGenerating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <ImageIcon className="w-4 h-4" />
+                <ImageIcon className="mr-2 h-4 w-4" />
               )}
-              Gerar Story (9:16)
-            </Button>
-            
-            <Button 
-              onClick={() => generateImage("post")} 
-              disabled={isGenerating}
-              variant="secondary"
-              className="gap-2"
-            >
-              {isGenerating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <ImageIcon className="w-4 h-4" />
-              )}
-              Gerar Post (3:4)
+              Exportar Imagem
             </Button>
           </div>
         </div>
       </Card>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Preview do Anúncio</h3>
-        <div className="max-w-2xl mx-auto">
-          {renderPreview()}
-        </div>
-      </Card>
+      <div className="max-w-4xl mx-auto">
+        {renderPreview()}
+      </div>
     </div>
   );
 };

@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { DocumentsTab } from "@/components/obituaries/DocumentsTab";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -253,13 +255,16 @@ export default function NewObituary() {
         {/* Form Section */}
         <div>
           <Tabs defaultValue="pessoais" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
-              <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
-              <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
-              <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
-              <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
-              <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
-            </TabsList>
+            <ScrollArea className="w-full">
+              <TabsList className="grid w-full grid-cols-6 mb-8 min-w-max">
+                <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
+                <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
+                <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
+                <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
+                <TabsTrigger value="documentos">Documentos</TabsTrigger>
+                <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
+              </TabsList>
+            </ScrollArea>
 
             {/* Tab: Informações Pessoais */}
             <TabsContent value="pessoais" className="space-y-8">
@@ -1411,6 +1416,18 @@ export default function NewObituary() {
                   </div>
                 </div>
               </Card>
+            </TabsContent>
+
+            {/* Tab: Documentos */}
+            <TabsContent value="documentos" className="space-y-8">
+              {id && <DocumentsTab obituaryId={id} />}
+              {!id && (
+                <Card className="p-6">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Guarde o obituário primeiro para poder adicionar documentos.
+                  </p>
+                </Card>
+              )}
             </TabsContent>
 
             {/* Tab: Anúncios */}
