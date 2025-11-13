@@ -519,9 +519,9 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 md:space-y-8 max-w-full">
       {/* Secção: Uploads de Documentos */}
-      <Card className="p-6">
+      <Card className="p-4 md:p-6 max-w-full overflow-hidden">
         <h2 className="text-xl font-archivo font-semibold mb-6">
           Uploads de Documentos
         </h2>
@@ -694,7 +694,7 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
       </Card>
 
       {/* Secção: Certidões e Documentos Automáticos */}
-      <Card className="p-6">
+      <Card className="p-4 md:p-6 max-w-full overflow-hidden">
         <h2 className="text-xl font-archivo font-semibold mb-6">
           Certidões e Documentos Automáticos
         </h2>
