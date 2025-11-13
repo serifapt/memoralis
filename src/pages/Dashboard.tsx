@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin } from "lucide-react";
+import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ChatButton } from "@/components/chat/ChatButton";
 
@@ -121,8 +122,179 @@ const recentObituaries = [
   },
 ];
 
+const activeProcesses = [
+  {
+    id: 1,
+    name: "Maria Silva Santos",
+    startDate: "15/01/2025",
+    stage: "Documentação",
+    progress: 65,
+  },
+  {
+    id: 2,
+    name: "João Pedro Costa",
+    startDate: "14/01/2025",
+    stage: "Preparação",
+    progress: 45,
+  },
+  {
+    id: 3,
+    name: "Ana Beatriz Oliveira",
+    startDate: "13/01/2025",
+    stage: "Cerimónia",
+    progress: 85,
+  },
+];
+
+type DashboardCard = {
+  id: string;
+  title: string;
+  icon: any;
+  component: React.ReactNode;
+};
+
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [draggedCard, setDraggedCard] = useState<string | null>(null);
+  
+  const [cardOrder, setCardOrder] = useState<string[]>([
+    "obituarios",
+    "processos-ativos",
+    "processos-concluidos",
+  ]);
+
+  const handleDragStart = (e: React.DragEvent, cardId: string) => {
+    setDraggedCard(cardId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent, targetCardId: string) => {
+    e.preventDefault();
+    if (!draggedCard || draggedCard === targetCardId) return;
+
+    const newOrder = [...cardOrder];
+    const draggedIndex = newOrder.indexOf(draggedCard);
+    const targetIndex = newOrder.indexOf(targetCardId);
+
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedCard);
+
+    setCardOrder(newOrder);
+    setDraggedCard(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+  };
+
+  const cards: Record<string, DashboardCard> = {
+    "obituarios": {
+      id: "obituarios",
+      title: "Obituários Recentes",
+      icon: FileText,
+      component: (
+        <div className="space-y-4">
+          {recentObituaries.map((obituary) => (
+            <div
+              key={obituary.id}
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+            >
+              <div>
+                <h3 className="font-medium text-foreground">{obituary.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Falecimento: {obituary.date}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-foreground">
+                  Cerimónia: {obituary.ceremony}
+                </p>
+                <span
+                  className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
+                    obituary.status === "active"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {obituary.status === "active" ? "Ativo" : "Concluído"}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    "processos-ativos": {
+      id: "processos-ativos",
+      title: "Processos Ativos",
+      icon: Clock,
+      component: (
+        <div className="space-y-4">
+          {activeProcesses.map((process) => (
+            <div
+              key={process.id}
+              className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-medium text-foreground">{process.name}</h3>
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  {process.stage}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                Início: {process.startDate}
+              </p>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Progresso</span>
+                  <span>{process.progress}%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all"
+                    style={{ width: `${process.progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    "processos-concluidos": {
+      id: "processos-concluidos",
+      title: "Processos Concluídos",
+      icon: CheckCircle2,
+      component: (
+        <div className="space-y-4">
+          {completedProcesses.map((process) => (
+            <div
+              key={process.id}
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+            >
+              <div>
+                <h3 className="font-medium text-foreground">{process.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Concluído: {process.date}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-semibold text-foreground">{process.amount}</p>
+                <p className="text-xs text-muted-foreground">
+                  Pago: {process.paymentDate}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+  };
   
   return (
     <div className="p-8 space-y-8">
@@ -184,94 +356,41 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Two Column Layout for Recent Obituaries and Completed Processes */}
+      {/* Draggable Cards Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Obituaries */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-archivo font-semibold text-foreground">
-                Obituários Recentes
-              </h2>
-            </div>
-            <Button variant="ghost" size="sm">
-              Ver Todos
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {recentObituaries.map((obituary) => (
-              <div
-                key={obituary.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-              >
-                <div>
-                  <h3 className="font-medium text-foreground">{obituary.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Falecimento: {obituary.date}
-                  </p>
+        {cardOrder.map((cardId) => {
+          const card = cards[cardId];
+          const IconComponent = card.icon;
+          
+          return (
+            <Card
+              key={card.id}
+              className="p-6 cursor-move transition-all hover:shadow-lg"
+              draggable
+              onDragStart={(e) => handleDragStart(e, card.id)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, card.id)}
+              onDragEnd={handleDragEnd}
+              style={{
+                opacity: draggedCard === card.id ? 0.5 : 1,
+              }}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-2">
+                  <GripVertical className="w-4 h-4 text-muted-foreground" />
+                  <IconComponent className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-archivo font-semibold text-foreground">
+                    {card.title}
+                  </h2>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-foreground">
-                    Cerimónia: {obituary.ceremony}
-                  </p>
-                  <span
-                    className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
-                      obituary.status === "active"
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {obituary.status === "active" ? "Ativo" : "Concluído"}
-                  </span>
-                </div>
+                <Button variant="ghost" size="sm">
+                  Ver Todos
+                </Button>
               </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Completed Processes */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-archivo font-semibold text-foreground">
-                Processos Concluídos
-              </h2>
-            </div>
-            <Button variant="ghost" size="sm">
-              Ver Todos
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {completedProcesses.map((process) => (
-              <div
-                key={process.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-foreground">{process.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Falecimento: {process.date}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-foreground">
-                    {process.amount}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Pago em: {process.paymentDate}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+              {card.component}
+            </Card>
+          );
+        })}
       </div>
 
       {/* Upcoming Ceremonies - Left Column Only */}
