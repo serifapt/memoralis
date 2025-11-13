@@ -250,11 +250,11 @@ export default function NewObituary() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_280px] gap-8">
+      <div className="grid lg:grid-cols-[1fr_280px] gap-4 lg:gap-8 max-w-full">
         {/* Form Section */}
-        <div>
+        <div className="min-w-0 overflow-hidden">
           <Tabs defaultValue="pessoais" className="w-full">
-            <TabsList className="w-full mb-8 justify-start">
+            <TabsList className="w-full mb-4 md:mb-8 justify-start max-w-full">
               <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
               <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
               <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
@@ -264,7 +264,7 @@ export default function NewObituary() {
             </TabsList>
 
             {/* Tab: Informações Pessoais */}
-            <TabsContent value="pessoais" className="space-y-8">
+            <TabsContent value="pessoais" className="space-y-4 md:space-y-8 max-w-full">
               {/* Informações Obituário */}
               <Card className="p-6">
                 <h2 className="text-xl font-archivo font-semibold mb-6">
@@ -542,7 +542,7 @@ export default function NewObituary() {
             </TabsContent>
 
             {/* Tab: Informações Fúnebres */}
-            <TabsContent value="funebres" className="space-y-8">
+            <TabsContent value="funebres" className="space-y-4 md:space-y-8 max-w-full">
               {/* Informações Fúnebres */}
               <Card className="p-6">
                 <h2 className="text-xl font-archivo font-semibold mb-6">
@@ -1127,7 +1127,7 @@ export default function NewObituary() {
             </TabsContent>
 
             {/* Tab: Informação Família / Responsável */}
-            <TabsContent value="familia" className="space-y-8">
+            <TabsContent value="familia" className="space-y-4 md:space-y-8 max-w-full">
               {/* Informação Família / Responsável */}
               <Card className="p-6">
                 <h2 className="text-xl font-archivo font-semibold mb-6">
@@ -1344,7 +1344,7 @@ export default function NewObituary() {
             </TabsContent>
 
             {/* Tab: Informação do Serviço */}
-            <TabsContent value="servico" className="space-y-8">
+            <TabsContent value="servico" className="space-y-4 md:space-y-8 max-w-full">
               <Card className="p-6">
                 <h2 className="text-xl font-archivo font-semibold mb-6">
                   Informação do Serviço
@@ -1416,7 +1416,7 @@ export default function NewObituary() {
             </TabsContent>
 
             {/* Tab: Documentos */}
-            <TabsContent value="documentos" className="space-y-8">
+            <TabsContent value="documentos" className="space-y-4 md:space-y-8 max-w-full">
               <DocumentsTab 
                 obituaryId={id || ""}
                 obituaryData={formData}
@@ -1424,7 +1424,7 @@ export default function NewObituary() {
             </TabsContent>
 
             {/* Tab: Anúncios */}
-            <TabsContent value="anuncios" className="space-y-8">
+            <TabsContent value="anuncios" className="space-y-4 md:space-y-8 max-w-full">
               <Card className="p-6">
                 <h2 className="text-xl font-archivo font-semibold mb-2">
                   Anúncios dos Óbitos
