@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AddRelationshipDialog } from "@/components/obituaries/AddRelationshipDialog";
 import { AnnouncementGenerator } from "@/components/obituaries/AnnouncementGenerator";
+import { DocumentsTab } from "@/components/obituaries/DocumentsTab";
 
 export default function NewObituary() {
   const { id } = useParams();
@@ -258,6 +259,7 @@ export default function NewObituary() {
               <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
               <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
               <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
+              <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
             </TabsList>
 
@@ -1411,6 +1413,14 @@ export default function NewObituary() {
                   </div>
                 </div>
               </Card>
+            </TabsContent>
+
+            {/* Tab: Documentos */}
+            <TabsContent value="documentos" className="space-y-8">
+              <DocumentsTab 
+                obituaryId={id || ""}
+                obituaryData={formData}
+              />
             </TabsContent>
 
             {/* Tab: Anúncios */}
