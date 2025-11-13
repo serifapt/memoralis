@@ -164,27 +164,37 @@ export default function Dashboard() {
   ]);
 
   const handleDragStart = (e: React.DragEvent, cardId: string) => {
+    e.stopPropagation();
     setDraggedCard(cardId);
     e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", cardId);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
   };
 
   const handleDrop = (e: React.DragEvent, targetCardId: string) => {
     e.preventDefault();
-    if (!draggedCard || draggedCard === targetCardId) return;
+    e.stopPropagation();
+    
+    if (!draggedCard || draggedCard === targetCardId) {
+      setDraggedCard(null);
+      return;
+    }
 
     const newOrder = [...cardOrder];
     const draggedIndex = newOrder.indexOf(draggedCard);
     const targetIndex = newOrder.indexOf(targetCardId);
 
-    newOrder.splice(draggedIndex, 1);
-    newOrder.splice(targetIndex, 0, draggedCard);
-
-    setCardOrder(newOrder);
+    if (draggedIndex !== -1 && targetIndex !== -1) {
+      newOrder.splice(draggedIndex, 1);
+      newOrder.splice(targetIndex, 0, draggedCard);
+      setCardOrder(newOrder);
+    }
+    
     setDraggedCard(null);
   };
 
@@ -361,33 +371,44 @@ export default function Dashboard() {
         {cardOrder.map((cardId) => {
           const card = cards[cardId];
           const IconComponent = card.icon;
+          const isDragging = draggedCard === card.id;
+          const isDropTarget = draggedCard && draggedCard !== card.id;
           
           return (
             <Card
               key={card.id}
-              className="p-6 cursor-move transition-all hover:shadow-lg"
-              draggable
-              onDragStart={(e) => handleDragStart(e, card.id)}
+              className={`p-6 transition-all ${
+                isDragging ? 'opacity-50 scale-95' : ''
+              } ${
+                isDropTarget ? 'ring-2 ring-primary ring-offset-2' : ''
+              }`}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, card.id)}
-              onDragEnd={handleDragEnd}
-              style={{
-                opacity: draggedCard === card.id ? 0.5 : 1,
-              }}
             >
-              <div className="flex justify-between items-center mb-6">
+              <div 
+                className="flex justify-between items-center mb-6 cursor-move"
+                draggable
+                onDragStart={(e) => handleDragStart(e, card.id)}
+                onDragEnd={handleDragEnd}
+              >
                 <div className="flex items-center gap-2">
-                  <GripVertical className="w-4 h-4 text-muted-foreground" />
+                  <GripVertical className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
                   <IconComponent className="w-5 h-5 text-primary" />
                   <h2 className="text-xl font-archivo font-semibold text-foreground">
                     {card.title}
                   </h2>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
                   Ver Todos
                 </Button>
               </div>
-              {card.component}
+              <div className="pointer-events-none">
+                {card.component}
+              </div>
             </Card>
           );
         })}
