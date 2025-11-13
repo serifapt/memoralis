@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Download, Trash2, FileText, Edit2, Check, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -170,10 +171,24 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     setAutoDocs(docs);
   };
 
+  // Estados para o upload com título e notas
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadNotes, setUploadNotes] = useState("");
+
   // Upload de ficheiro
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
+
+    // Validar se o título está preenchido
+    if (!uploadTitle.trim()) {
+      toast({
+        title: "Título obrigatório",
+        description: "Por favor, insira um título para o documento",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsUploading(true);
 
@@ -225,16 +240,17 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
       // Obter ID do utilizador atual
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Guardar registo na base de dados
+      // Guardar registo na base de dados com título e notas
       const { error: dbError } = await (supabase as any)
         .from("obituary_documents")
         .insert({
           obituary_id: obituaryId,
-          document_name: file.name,
+          document_name: uploadTitle.trim(),
           document_type: "uploaded",
           file_path: filePath,
           file_size: file.size,
           uploaded_by: user?.id || "",
+          notes: uploadNotes.trim() || null,
           is_required: false,
         });
 
@@ -252,6 +268,10 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
 
     setIsUploading(false);
     loadUploadedDocuments();
+    
+    // Limpar campos
+    setUploadTitle("");
+    setUploadNotes("");
     toast({
       title: "Upload concluído",
       description: "Documentos carregados com sucesso",
@@ -506,8 +526,29 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           Uploads de Documentos
         </h2>
 
-        {/* Área de Upload */}
-        <div className="mb-6">
+        {/* Formulário de Upload */}
+        <div className="mb-6 space-y-4">
+          <div>
+            <Label htmlFor="upload-title">Título do Documento*</Label>
+            <Input
+              id="upload-title"
+              placeholder="Ex: Bilhete de Identidade, Certidão de Nascimento..."
+              value={uploadTitle}
+              onChange={(e) => setUploadTitle(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="upload-notes">Notas (opcional)</Label>
+            <Textarea
+              id="upload-notes"
+              placeholder="Adicione observações sobre este documento..."
+              value={uploadNotes}
+              onChange={(e) => setUploadNotes(e.target.value)}
+              rows={3}
+            />
+          </div>
+
           <Label htmlFor="file-upload" className="cursor-pointer">
             <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors">
               <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
@@ -526,32 +567,26 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
             className="hidden"
             onChange={handleFileUpload}
-            disabled={isUploading}
+            disabled={isUploading || !uploadTitle.trim()}
           />
         </div>
 
-        {/* Lista de Documentos Uploadados */}
-        {uploadedDocs.length > 0 ? (
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Título</TableHead>
-                  <TableHead>Data de Upload</TableHead>
-                  <TableHead>Tamanho</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {uploadedDocs.map((doc) => (
-                  <TableRow key={doc.id}>
-                    <TableCell>
+        {/* Lista de Documentos Adicionados */}
+        {uploadedDocs.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Documentos Adicionados</h3>
+            <div className="space-y-3">
+              {uploadedDocs.map((doc) => (
+                <Card key={doc.id} className="p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-2">
                       {editingDocId === doc.id ? (
                         <div className="flex items-center gap-2">
                           <Input
                             value={editingTitle}
                             onChange={(e) => setEditingTitle(e.target.value)}
                             className="h-8"
+                            placeholder="Título do documento"
                           />
                           <Button
                             size="sm"
@@ -570,75 +605,90 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-muted-foreground" />
-                          <span>{doc.document_name}</span>
+                          <FileText className="w-5 h-5 text-primary" />
+                          <h4 className="font-semibold">{doc.document_name}</h4>
                         </div>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(doc.uploaded_at).toLocaleDateString("pt-PT")}
-                    </TableCell>
-                    <TableCell>
-                      {(doc.file_size / 1024).toFixed(2)} KB
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() =>
-                            handleEditTitle(doc.id, doc.document_name)
-                          }
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() =>
-                            handleDownload(doc.file_path, doc.document_name)
-                          }
-                        >
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="ghost">
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Remover documento?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta ação não pode ser revertida. O documento
-                                será permanentemente eliminado.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() =>
-                                  handleDelete(doc.id, doc.file_path)
-                                }
-                              >
-                                Remover
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                      
+                      {doc.notes && (
+                        <p className="text-sm text-muted-foreground pl-7">
+                          {doc.notes}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground pl-7">
+                        <span>
+                          {new Date(doc.uploaded_at).toLocaleDateString("pt-PT")} às{" "}
+                          {new Date(doc.uploaded_at).toLocaleTimeString("pt-PT", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        <span>•</span>
+                        <span>{(doc.file_size / 1024).toFixed(2)} KB</span>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() =>
+                          handleEditTitle(doc.id, doc.document_name)
+                        }
+                        title="Editar título"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() =>
+                          handleDownload(doc.file_path, doc.document_name)
+                        }
+                        title="Download"
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="ghost" title="Remover">
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Remover documento?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Esta ação não pode ser revertida. O documento
+                              será permanentemente eliminado.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() =>
+                                handleDelete(doc.id, doc.file_path)
+                              }
+                            >
+                              Remover
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
-        ) : (
+        )}
+
+        {uploadedDocs.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">
-            Nenhum documento carregado ainda
+            Nenhum documento carregado ainda. Preencha o título e faça upload do primeiro documento.
           </p>
         )}
       </Card>
