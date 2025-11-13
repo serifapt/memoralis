@@ -695,9 +695,16 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
 
       {/* Secção: Certidões e Documentos Automáticos */}
       <Card className="p-4 md:p-6 max-w-full overflow-hidden">
-        <h2 className="text-xl font-archivo font-semibold mb-6">
+        <h2 className="text-xl font-archivo font-semibold mb-2">
           Certidões e Documentos Automáticos
         </h2>
+        <p className="text-sm text-muted-foreground mb-6">
+          Para gerar os documentos abaixo, certifique-se de que preencheu todos os campos obrigatórios (*) nos outros tabs:
+          <br />
+          <strong>Tab Informações Pessoais:</strong> Nome Completo, Data Nascimento, Naturalidade, Nacionalidade, NIF, Segurança Social, Local/Data Falecimento, Médico Declarante
+          <br />
+          <strong>Tab Informações Fúnebres:</strong> Nome do Cemitério (para documentos de inumação)
+        </p>
         <p className="text-sm text-muted-foreground mb-6">
           Gere automaticamente documentos oficiais com base nos dados do óbito
         </p>
