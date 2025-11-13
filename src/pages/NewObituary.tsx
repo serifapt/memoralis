@@ -253,7 +253,7 @@ export default function NewObituary() {
         {/* Form Section */}
         <div>
           <Tabs defaultValue="pessoais" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
+            <TabsList className="w-full mb-8 justify-start">
               <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
               <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
               <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
