@@ -159,6 +159,7 @@ export default function Dashboard() {
   
   const [cardOrder, setCardOrder] = useState<string[]>([
     "obituarios",
+    "proximas-cerimonias",
     "processos-ativos",
     "processos-concluidos",
   ]);
@@ -270,6 +271,60 @@ export default function Dashboard() {
                     style={{ width: `${process.progress}%` }}
                   />
                 </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    "proximas-cerimonias": {
+      id: "proximas-cerimonias",
+      title: "Próximas Cerimónias",
+      icon: Calendar,
+      component: (
+        <div className="space-y-4">
+          {upcomingCeremonies.map((ceremony) => (
+            <div
+              key={ceremony.id}
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center justify-center w-14 h-14 rounded-lg bg-primary/10">
+                  <span className="text-2xl font-archivo font-bold text-primary">
+                    {ceremony.day}
+                  </span>
+                  <span className="text-xs text-primary font-medium">
+                    {ceremony.month}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-foreground mb-1">{ceremony.name}</h3>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {ceremony.time}
+                    </div>
+                    <Badge className={ceremony.typeColor}>
+                      {ceremony.type}
+                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {ceremony.location}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {ceremony.participants} participantes
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  Detalhes
+                </Button>
               </div>
             </div>
           ))}
@@ -412,66 +467,6 @@ export default function Dashboard() {
             </Card>
           );
         })}
-      </div>
-
-      {/* Upcoming Ceremonies - Left Column Only */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-archivo font-semibold text-foreground">
-                Próximas Cerimónias
-              </h2>
-            </div>
-            <Button variant="ghost" size="sm">
-              Ver Todos
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {upcomingCeremonies.map((ceremony) => (
-              <div
-                key={ceremony.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col items-center justify-center w-14 h-14 rounded-lg bg-primary/10">
-                    <span className="text-2xl font-archivo font-bold text-primary">
-                      {ceremony.day}
-                    </span>
-                    <span className="text-xs text-primary font-medium">
-                      {ceremony.month}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-foreground mb-1">{ceremony.name}</h3>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {ceremony.time}
-                      </div>
-                      <Badge className={ceremony.typeColor}>
-                        {ceremony.type}
-                      </Badge>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {ceremony.location}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {ceremony.participants} participantes
-                  </span>
-                  <Button variant="outline" size="sm">
-                    Detalhes
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
       </div>
 
       <ChatButton userType="funeraria" />
