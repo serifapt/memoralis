@@ -253,13 +253,12 @@ export default function NewObituary() {
         {/* Form Section */}
         <div>
           <Tabs defaultValue="pessoais" className="w-full">
-            <TabsList className="inline-flex w-full overflow-x-auto scrollbar-hide gap-2 mb-8">
-              <TabsTrigger value="pessoais" className="whitespace-nowrap">Informações Pessoais</TabsTrigger>
-              <TabsTrigger value="funebres" className="whitespace-nowrap">Informações Fúnebres</TabsTrigger>
-              <TabsTrigger value="familia" className="whitespace-nowrap">Família / Responsável</TabsTrigger>
-              <TabsTrigger value="servico" className="whitespace-nowrap">Informação do Serviço</TabsTrigger>
-              <TabsTrigger value="anuncios" className="whitespace-nowrap">Anúncios</TabsTrigger>
-              <TabsTrigger value="documentos" className="whitespace-nowrap">Documentos</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5 mb-8">
+              <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
+              <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
+              <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
+              <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
+              <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
             </TabsList>
 
             {/* Tab: Informações Pessoais */}
@@ -1440,21 +1439,6 @@ export default function NewObituary() {
                     funeralCemetery: formData.funeralCemetery,
                   }}
                 />
-              </Card>
-            </TabsContent>
-
-            {/* Tab: Documentos */}
-            <TabsContent value="documentos" className="space-y-8">
-              <Card className="p-6">
-                <h2 className="text-xl font-archivo font-semibold mb-2">
-                  Documentos
-                </h2>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Gestão de documentos relacionados com o processo.
-                </p>
-                <div className="text-center py-8 text-muted-foreground">
-                  Secção em desenvolvimento
-                </div>
               </Card>
             </TabsContent>
           </Tabs>
