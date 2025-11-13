@@ -253,13 +253,16 @@ export default function NewObituary() {
         {/* Form Section */}
         <div>
           <Tabs defaultValue="pessoais" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
-              <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
-              <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
-              <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
-              <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
-              <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
-            </TabsList>
+            <div className="mb-8 overflow-x-auto scrollbar-hide">
+              <TabsList className="inline-flex w-auto min-w-full">
+                <TabsTrigger value="pessoais" className="whitespace-nowrap">Informações Pessoais</TabsTrigger>
+                <TabsTrigger value="funebres" className="whitespace-nowrap">Informações Fúnebres</TabsTrigger>
+                <TabsTrigger value="familia" className="whitespace-nowrap">Família / Responsável</TabsTrigger>
+                <TabsTrigger value="servico" className="whitespace-nowrap">Informação do Serviço</TabsTrigger>
+                <TabsTrigger value="documentos" className="whitespace-nowrap">Documentos</TabsTrigger>
+                <TabsTrigger value="anuncios" className="whitespace-nowrap">Anúncios</TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Tab: Informações Pessoais */}
             <TabsContent value="pessoais" className="space-y-8">
@@ -1410,6 +1413,18 @@ export default function NewObituary() {
                     </div>
                   </div>
                 </div>
+              </Card>
+            </TabsContent>
+
+            {/* Tab: Documentos */}
+            <TabsContent value="documentos" className="space-y-8">
+              <Card className="p-6">
+                <h2 className="text-xl font-archivo font-semibold mb-6">
+                  Documentos do Óbito
+                </h2>
+                <p className="text-muted-foreground mb-4">
+                  Funcionalidade em desenvolvimento
+                </p>
               </Card>
             </TabsContent>
 
