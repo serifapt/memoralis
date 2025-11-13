@@ -267,9 +267,12 @@ export default function NewObituary() {
             <TabsContent value="pessoais" className="space-y-4 md:space-y-8 max-w-full">
               {/* Informações Obituário */}
               <Card className="p-6">
-                <h2 className="text-xl font-archivo font-semibold mb-6">
+                <h2 className="text-xl font-archivo font-semibold mb-2">
                   Informações Obituário
                 </h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Os campos marcados com * são obrigatórios para a geração automática de certificados e documentos oficiais no tab Documentos.
+                </p>
 
                 <div className="space-y-6">
                   {/* Nome */}
@@ -351,7 +354,7 @@ export default function NewObituary() {
                   {/* Nacionalidade, Estado Civil, Profissão */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="nationality">Nacionalidade*</Label>
+                      <Label htmlFor="nationality">Nacionalidade* (para documentos consulares)</Label>
                       <Input
                         id="nationality"
                         placeholder="Arcos de Valdevez"
@@ -399,7 +402,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="taxId">Identificação Fiscal*</Label>
+                      <Label htmlFor="taxId">NIF* (necessário para documentos fiscais)</Label>
                       <Input
                         id="taxId"
                         placeholder="Inserir Número"
@@ -410,7 +413,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="socialSecurity">Segurança Social*</Label>
+                      <Label htmlFor="socialSecurity">Segurança Social* (necessário para subsídio funeral)</Label>
                       <Input
                         id="socialSecurity"
                         placeholder="Inserir Número"
@@ -436,7 +439,7 @@ export default function NewObituary() {
                   {/* Death Information */}
                   <div className="grid md:grid-cols-4 gap-4">
                     <div>
-                      <Label htmlFor="deathLocation">Local Falecimento</Label>
+                      <Label htmlFor="deathLocation">Local Falecimento*</Label>
                       <Input
                         id="deathLocation"
                         placeholder="Hospital, domicílio..."
@@ -447,7 +450,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="deathDate">Data Falecimento</Label>
+                      <Label htmlFor="deathDate">Data Falecimento*</Label>
                       <Input
                         id="deathDate"
                         type="date"
@@ -484,7 +487,7 @@ export default function NewObituary() {
                   {/* Medical Information */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="doctor">Médico Declarante</Label>
+                      <Label htmlFor="doctor">Médico Declarante*</Label>
                       <Input
                         id="doctor"
                         placeholder="Nome Médico"
@@ -748,7 +751,7 @@ export default function NewObituary() {
                           <div>
                             <Label htmlFor="funeralCemetery" className="flex items-center gap-2">
                               <MapPin className="w-4 h-4" />
-                              Nome do Cemitério
+                              Nome do Cemitério* (necessário para documentos oficiais)
                             </Label>
                             <Input
                               id="funeralCemetery"
