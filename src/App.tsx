@@ -31,6 +31,7 @@ import AdminFunerariaDetail from "./pages/AdminFunerariaDetail";
 import AdminUsers from "./pages/AdminUsers";
 import AdminChat from "./pages/AdminChat";
 import Support from "./pages/Support";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/obituario/:id" element={<ObituaryDetail />} />
           <Route path="/funerarias" element={<FunerariaArchive />} />
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
