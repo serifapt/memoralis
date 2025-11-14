@@ -126,6 +126,36 @@ export type Database = {
           },
         ]
       }
+      document_templates: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          template_category: string
+          template_fields: Json
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          template_category: string
+          template_fields?: Json
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          template_category?: string
+          template_fields?: Json
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       funeraria_docs: {
         Row: {
           codigo_acesso: string | null
@@ -411,6 +441,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      obituary_documents: {
+        Row: {
+          document_name: string
+          document_type: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_required: boolean
+          notes: string | null
+          obituary_id: string
+          uploaded_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          document_name: string
+          document_type: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_required?: boolean
+          notes?: string | null
+          obituary_id: string
+          uploaded_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          document_name?: string
+          document_type?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_required?: boolean
+          notes?: string | null
+          obituary_id?: string
+          uploaded_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obituary_documents_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       obituary_relationships: {
         Row: {
