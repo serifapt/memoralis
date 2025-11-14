@@ -172,40 +172,40 @@ export default function Blog() {
       <section className="container mx-auto px-4 pb-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.map((article) => (
-            <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-              <div className="aspect-[16/10] overflow-hidden">
-                <img 
-                  src={article.image}
-                  alt={article.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <CardContent className="p-6">
-                <Badge className="mb-3">{article.category}</Badge>
-                <h3 className="text-xl font-archivo font-bold text-foreground mb-3 line-clamp-2">
-                  {article.title}
-                </h3>
-                <p className="text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
-                  {article.excerpt}
-                </p>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{article.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{article.readTime}</span>
-                  </div>
+            <Link key={article.id} to="/blog/como-preparar-cerimonia-memorial">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow group h-full">
+                <div className="aspect-[16/10] overflow-hidden">
+                  <img 
+                    src={article.image}
+                    alt={article.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
-                <Link to="/blog/como-preparar-cerimonia-memorial">
-                  <Button variant="ghost" className="p-0 h-auto group/btn">
+                <CardContent className="p-6">
+                  <Badge className="mb-3">{article.category}</Badge>
+                  <h3 className="text-xl font-archivo font-bold text-foreground mb-3 line-clamp-2">
+                    {article.title}
+                  </h3>
+                  <p className="text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
+                    {article.excerpt}
+                  </p>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{article.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{article.readTime}</span>
+                    </div>
+                  </div>
+                  <div className="text-primary font-medium group-hover:gap-3 flex items-center gap-2 transition-all">
                     Ler mais
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>
