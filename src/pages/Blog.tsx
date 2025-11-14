@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Calendar, User, ArrowRight, Clock } from "lucide-react";
+import { Search, Calendar, User, ArrowRight, Clock, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import logo from "@/assets/logo-memoralis.png";
 
 const featuredArticle = {
   title: "Como Preparar uma Cerimónia Memorial Significativa",
@@ -242,10 +243,53 @@ export default function Blog() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted/30 py-12">
+      <footer className="bg-[hsl(var(--footer-bg))] text-[hsl(var(--footer-foreground))] py-12">
         <div className="container mx-auto px-4">
-          <div className="text-center text-muted-foreground">
-            <p>&copy; 2025 Memoralis. Todos os direitos reservados.</p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="mb-4">
+                <img src={logo} alt="Memoralis" className="h-8" />
+              </div>
+              <p className="text-sm opacity-80">
+                Homenagens que eternizam memórias e sentimentos.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-archivo font-semibold mb-4">Links Rápidos</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/" className="opacity-80 hover:opacity-100">Início</Link></li>
+                <li><Link to="/sobre" className="opacity-80 hover:opacity-100">Sobre</Link></li>
+                <li><Link to="/blog" className="opacity-80 hover:opacity-100">Blog</Link></li>
+                <li><Link to="/contactos" className="opacity-80 hover:opacity-100">Contactos</Link></li>
+                <li><Link to="/admin/auth" className="opacity-60 hover:opacity-80 text-xs">Admin</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-archivo font-semibold mb-4">Recursos</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/ajuda" className="opacity-80 hover:opacity-100">Ajuda</Link></li>
+                <li><Link to="/privacidade" className="opacity-80 hover:opacity-100">Privacidade</Link></li>
+                <li><Link to="/termos" className="opacity-80 hover:opacity-100">Termos</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-archivo font-semibold mb-4">Newsletter</h4>
+              <p className="text-sm opacity-80 mb-4">
+                Receba as últimas notícias e atualizações
+              </p>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Email" 
+                  className="bg-background/10 border-background/20 text-foreground placeholder:text-muted-foreground"
+                />
+                <Button className="bg-primary hover:bg-primary/90">
+                  <Heart className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-background/20 pt-8 text-center text-sm opacity-80">
+            © 2025 Memoralis. Todos os direitos reservados.
           </div>
         </div>
       </footer>
