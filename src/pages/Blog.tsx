@@ -142,10 +142,12 @@ export default function Blog() {
                   <span>{featuredArticle.readTime}</span>
                 </div>
               </div>
-              <Button className="w-fit group">
-                Ler Artigo
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <Link to="/blog/como-preparar-cerimonia-memorial">
+                <Button className="w-fit group">
+                  Ler Artigo
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </CardContent>
           </div>
         </Card>
@@ -196,10 +198,12 @@ export default function Blog() {
                     <span>{article.readTime}</span>
                   </div>
                 </div>
-                <Button variant="ghost" className="p-0 h-auto group/btn">
-                  Ler mais
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
+                <Link to="/blog/como-preparar-cerimonia-memorial">
+                  <Button variant="ghost" className="p-0 h-auto group/btn">
+                    Ler mais
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}
