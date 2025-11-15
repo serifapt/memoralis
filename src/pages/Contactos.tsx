@@ -54,24 +54,8 @@ const Contactos = () => {
   return <div className="min-h-screen bg-background">
       <PublicHeader />
       
-      {/* Hero Section */}
-      <section className="relative px-4 bg-gradient-to-br from-background via-muted/30 to-primary/10 my-0 py-[39px]">
-        <div className="container mx-auto max-w-4xl text-center py-[56px]">
-          <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-4">
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Entre em Contacto</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-            Estamos Aqui para Ajudar
-          </h1>
-          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-            Tem alguma dúvida ou precisa de mais informações? A nossa equipa está disponível 
-            para responder a todas as suas questões.
-          </p>
-        </div>
-      </section>
-
       {/* Contact Info Cards */}
-      <section className="px-4 -mt-8 py-0">
+      <section className="px-4 pt-20 pb-0">
         <div className="container mx-auto max-w-6xl my-0 py-0">
           <div className="grid md:grid-cols-4 gap-4">
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
@@ -118,6 +102,22 @@ const Contactos = () => {
               </p>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Hero Section */}
+      <section className="relative px-4 bg-gradient-to-br from-background via-muted/30 to-primary/10 my-0 py-[39px]">
+        <div className="container mx-auto max-w-4xl text-center py-[56px]">
+          <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-4">
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Entre em Contacto</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
+            Estamos Aqui para Ajudar
+          </h1>
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+            Tem alguma dúvida ou precisa de mais informações? A nossa equipa está disponível 
+            para responder a todas as suas questões.
+          </p>
         </div>
       </section>
 
