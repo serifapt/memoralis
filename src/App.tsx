@@ -33,6 +33,7 @@ import AdminChat from "./pages/AdminChat";
 import Support from "./pages/Support";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Sobre from "./pages/Sobre";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/sobre" element={<Sobre />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
