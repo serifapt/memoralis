@@ -11,55 +11,52 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import logo from "@/assets/logo-memoralis.png";
-
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório").max(100, "Nome muito longo"),
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
   phone: z.string().trim().min(9, "Telefone inválido").max(20, "Telefone muito longo").optional().or(z.literal("")),
   subject: z.string().trim().min(1, "Assunto é obrigatório").max(200, "Assunto muito longo"),
-  message: z.string().trim().min(10, "Mensagem deve ter pelo menos 10 caracteres").max(1000, "Mensagem muito longa"),
+  message: z.string().trim().min(10, "Mensagem deve ter pelo menos 10 caracteres").max(1000, "Mensagem muito longa")
 });
-
 type ContactFormData = z.infer<typeof contactSchema>;
-
 const Contactos = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: {
+      errors,
+      isSubmitting
+    }
   } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
+    resolver: zodResolver(contactSchema)
   });
-
   const onSubmit = async (data: ContactFormData) => {
     try {
       // Aqui será implementado o envio do email quando necessário
       console.log("Form data:", data);
-      
       toast({
         title: "Mensagem enviada!",
-        description: "Entraremos em contacto em breve.",
+        description: "Entraremos em contacto em breve."
       });
-      
       reset();
     } catch (error) {
       toast({
         title: "Erro ao enviar mensagem",
         description: "Por favor, tente novamente mais tarde.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <PublicHeader />
       
       {/* Hero Section */}
-      <section className="relative py-16 px-4 bg-gradient-to-br from-background via-muted/30 to-primary/10">
-        <div className="container mx-auto max-w-4xl text-center">
+      <section className="relative px-4 bg-gradient-to-br from-background via-muted/30 to-primary/10 my-0 py-[39px]">
+        <div className="container mx-auto max-w-4xl text-center py-[56px]">
           <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-4">
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">Entre em Contacto</span>
           </div>
@@ -74,8 +71,8 @@ const Contactos = () => {
       </section>
 
       {/* Contact Info Cards */}
-      <section className="py-12 px-4 -mt-8">
-        <div className="container mx-auto max-w-6xl">
+      <section className="px-4 -mt-8 py-0">
+        <div className="container mx-auto max-w-6xl my-0 py-0">
           <div className="grid md:grid-cols-4 gap-4">
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -181,87 +178,41 @@ const Contactos = () => {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Nome Completo *</Label>
-                  <Input
-                    id="name"
-                    {...register("name")}
-                    placeholder="O seu nome"
-                    className="mt-1"
-                  />
-                  {errors.name && (
-                    <p className="text-xs text-destructive mt-1">{errors.name.message}</p>
-                  )}
+                  <Input id="name" {...register("name")} placeholder="O seu nome" className="mt-1" />
+                  {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      {...register("email")}
-                      placeholder="seu@email.com"
-                      className="mt-1"
-                    />
-                    {errors.email && (
-                      <p className="text-xs text-destructive mt-1">{errors.email.message}</p>
-                    )}
+                    <Input id="email" type="email" {...register("email")} placeholder="seu@email.com" className="mt-1" />
+                    {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
                   </div>
 
                   <div>
                     <Label htmlFor="phone">Telefone</Label>
-                    <Input
-                      id="phone"
-                      {...register("phone")}
-                      placeholder="+351 123 456 789"
-                      className="mt-1"
-                    />
-                    {errors.phone && (
-                      <p className="text-xs text-destructive mt-1">{errors.phone.message}</p>
-                    )}
+                    <Input id="phone" {...register("phone")} placeholder="+351 123 456 789" className="mt-1" />
+                    {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone.message}</p>}
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="subject">Assunto *</Label>
-                  <Input
-                    id="subject"
-                    {...register("subject")}
-                    placeholder="Qual é o motivo do contacto?"
-                    className="mt-1"
-                  />
-                  {errors.subject && (
-                    <p className="text-xs text-destructive mt-1">{errors.subject.message}</p>
-                  )}
+                  <Input id="subject" {...register("subject")} placeholder="Qual é o motivo do contacto?" className="mt-1" />
+                  {errors.subject && <p className="text-xs text-destructive mt-1">{errors.subject.message}</p>}
                 </div>
 
                 <div>
                   <Label htmlFor="message">Mensagem *</Label>
-                  <Textarea
-                    id="message"
-                    {...register("message")}
-                    placeholder="Escreva a sua mensagem aqui..."
-                    rows={6}
-                    className="mt-1 resize-none"
-                  />
-                  {errors.message && (
-                    <p className="text-xs text-destructive mt-1">{errors.message.message}</p>
-                  )}
+                  <Textarea id="message" {...register("message")} placeholder="Escreva a sua mensagem aqui..." rows={6} className="mt-1 resize-none" />
+                  {errors.message && <p className="text-xs text-destructive mt-1">{errors.message.message}</p>}
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  size="lg"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    "A enviar..."
-                  ) : (
-                    <>
+                <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                  {isSubmitting ? "A enviar..." : <>
                       Enviar Mensagem
                       <Send className="ml-2 w-4 h-4" />
-                    </>
-                  )}
+                    </>}
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center">
@@ -325,10 +276,7 @@ const Contactos = () => {
                 Receba as últimas notícias e atualizações
               </p>
               <div className="flex gap-2">
-                <Input 
-                  placeholder="Email" 
-                  className="bg-background/10 border-background/20 text-foreground placeholder:text-muted-foreground"
-                />
+                <Input placeholder="Email" className="bg-background/10 border-background/20 text-foreground placeholder:text-muted-foreground" />
                 <Button className="bg-primary hover:bg-primary/90">
                   <Heart className="w-4 h-4" />
                 </Button>
@@ -340,8 +288,6 @@ const Contactos = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Contactos;
