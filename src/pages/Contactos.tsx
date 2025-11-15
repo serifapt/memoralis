@@ -71,7 +71,7 @@ const Contactos = () => {
       </section>
 
       {/* Contact Info Cards */}
-      <section className="px-4 -mt-8 py-0">
+      <section className="relative z-[99] px-4 -mt-8 py-0">
         <div className="container mx-auto max-w-6xl my-0 py-0">
           <div className="grid md:grid-cols-4 gap-4">
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
