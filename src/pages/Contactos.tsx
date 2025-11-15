@@ -55,7 +55,7 @@ const Contactos = () => {
       <PublicHeader />
       
       {/* Hero Section */}
-      <section className="relative px-4 bg-gradient-to-br from-background via-muted/30 to-primary/10 my-0 py-[39px]">
+      <section className="relative z-0 px-4 bg-gradient-to-br from-background via-muted/30 to-primary/10 my-0 py-[39px]">
         <div className="container mx-auto max-w-4xl text-center py-[56px]">
           <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-4">
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">Entre em Contacto</span>
