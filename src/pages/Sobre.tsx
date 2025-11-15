@@ -19,8 +19,7 @@ const Sobre = () => {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-primary/30 to-black/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-primary/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/70 to-primary/40" />
         </div>
         
         {/* Floating Elements */}
