@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
+import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 
 const obituaries = Array(12).fill({
@@ -17,7 +18,7 @@ const obituaries = Array(12).fill({
   views: 378,
   messages: 17,
   candles: 42,
-  image: "/placeholder.svg"
+  image: obituaryPlaceholder
 });
 
 const funeralHomes = Array(6).fill({
