@@ -110,7 +110,7 @@ export default function ObituaryDetail() {
                 <div className="grid md:grid-cols-[200px_1fr] gap-6">
                   {/* Photo */}
                   <div>
-                    <img src="/placeholder.svg" alt="José Manuel Osório" className="w-full aspect-[3/4] object-cover rounded-lg" />
+                    <img alt="José Manuel Osório" className="w-full aspect-[3/4] object-cover rounded-lg" src="/lovable-uploads/1f80b693-978d-41b3-8b79-c8e9ebcf34a8.jpg" />
                   </div>
 
                   {/* Info */}
@@ -343,8 +343,7 @@ export default function ObituaryDetail() {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedObituaries.map((obit, index) => (
-              <Link key={index} to={`/obituario/${index + 1}`}>
+            {relatedObituaries.map((obit, index) => <Link key={index} to={`/obituario/${index + 1}`}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="relative">
                     <img src={obit.image} alt={obit.name} className="w-full aspect-[3/4] object-cover" />
@@ -370,17 +369,10 @@ export default function ObituaryDetail() {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                      >
+                      <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-colors">
                         Condolências
                       </Button>
-                      <Button 
-                        size="sm" 
-                        className="bg-primary hover:bg-primary/90"
-                      >
+                      <Button size="sm" className="bg-primary hover:bg-primary/90">
                         Enviar Flores
                       </Button>
                     </div>
@@ -401,8 +393,7 @@ export default function ObituaryDetail() {
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              </Link>)}
           </div>
         </section>
       </div>
