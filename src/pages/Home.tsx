@@ -6,6 +6,7 @@ import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame } from
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
+import heroImage from "@/assets/hero-memorial.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 
 const obituaries = Array(12).fill({
@@ -99,7 +100,7 @@ export default function Home() {
           </div>
           <div className="relative">
             <img 
-              src="/placeholder.svg" 
+              src={heroImage} 
               alt="Memorial ceremony" 
               className="rounded-lg shadow-lg w-full aspect-[4/5] object-cover"
             />
