@@ -13,6 +13,7 @@ import { Search, MapPin, Eye, MessageSquare, Flame, Home, ChevronRight } from "l
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import logo from "@/assets/logo-memoralis.png";
+import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 
 const mockObituaries = Array(8).fill(null).map((_, index) => ({
@@ -27,7 +28,7 @@ const mockObituaries = Array(8).fill(null).map((_, index) => ({
   views: 678,
   messages: 5,
   candles: 1,
-  image: "/placeholder.svg"
+  image: obituaryPlaceholder
 }));
 
 const periodFilters = [
