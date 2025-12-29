@@ -3,9 +3,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Palette, Users, Bell } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Building2, Palette, Users, Bell, Flower } from "lucide-react";
+import { useFlowerService } from "@/hooks/useFlowerService";
+import { toast } from "sonner";
 
 export default function Settings() {
+  const { isFlowerServiceActive, funerariaId, toggleFlowerService } = useFlowerService();
+
+  const handleToggleFlowerService = async () => {
+    const success = await toggleFlowerService();
+    if (success) {
+      toast.success(isFlowerServiceActive 
+        ? "Serviço de flores desativado" 
+        : "Serviço de flores ativado"
+      );
+    }
+  };
+
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
@@ -20,7 +35,7 @@ export default function Settings() {
 
       {/* Settings Tabs */}
       <Tabs defaultValue="company" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="company">
             <Building2 className="w-4 h-4 mr-2" />
             Empresa
@@ -28,6 +43,10 @@ export default function Settings() {
           <TabsTrigger value="branding">
             <Palette className="w-4 h-4 mr-2" />
             Marca
+          </TabsTrigger>
+          <TabsTrigger value="services">
+            <Flower className="w-4 h-4 mr-2" />
+            Serviços
           </TabsTrigger>
           <TabsTrigger value="users">
             <Users className="w-4 h-4 mr-2" />
@@ -107,6 +126,48 @@ export default function Settings() {
               <Button className="bg-primary hover:bg-primary/90">
                 Guardar Alterações
               </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="services">
+          <Card className="p-6">
+            <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">
+              Serviços Opcionais
+            </h3>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 rounded-lg border border-border">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Flower className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Catálogo de Flores</p>
+                    <p className="text-sm text-muted-foreground">
+                      Permita que visitantes enviem flores para os funerais
+                    </p>
+                  </div>
+                </div>
+                <Switch 
+                  checked={isFlowerServiceActive} 
+                  onCheckedChange={handleToggleFlowerService}
+                  disabled={!funerariaId}
+                />
+              </div>
+              {isFlowerServiceActive && (
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    O serviço de flores está ativo. Aceda ao <strong>Catálogo de Flores</strong> no menu lateral para gerir os seus produtos.
+                  </p>
+                </div>
+              )}
+              {!funerariaId && (
+                <div className="bg-destructive/10 p-4 rounded-lg">
+                  <p className="text-sm text-destructive">
+                    Não foi possível carregar os dados da funerária. Por favor, recarregue a página.
+                  </p>
+                </div>
+              )}
             </div>
           </Card>
         </TabsContent>

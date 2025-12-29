@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCallback } from "react";
 
 export interface Funeraria {
   id: string;
@@ -68,6 +69,8 @@ export const ORDER_STATUSES = {
 } as const;
 
 export function useFlowerService() {
+  const queryClient = useQueryClient();
+
   const { data: funeraria, isLoading: isLoadingFuneraria } = useQuery({
     queryKey: ["funeraria-flower-service"],
     queryFn: async () => {
@@ -87,11 +90,31 @@ export function useFlowerService() {
 
   const isFlowerServiceActive = funeraria?.servico_flores_ativo ?? false;
 
+  const toggleFlowerService = useCallback(async () => {
+    if (!funeraria?.id) return false;
+
+    const newValue = !funeraria.servico_flores_ativo;
+    const { error } = await supabase
+      .from("funerarias")
+      .update({ servico_flores_ativo: newValue })
+      .eq("id", funeraria.id);
+
+    if (error) {
+      console.error("Error toggling flower service:", error);
+      return false;
+    }
+
+    // Invalidate queries to refresh data
+    queryClient.invalidateQueries({ queryKey: ["funeraria-flower-service"] });
+    return true;
+  }, [funeraria, queryClient]);
+
   return {
     funeraria,
     isLoadingFuneraria,
     isFlowerServiceActive,
-    funerariaId: funeraria?.id
+    funerariaId: funeraria?.id,
+    toggleFlowerService
   };
 }
 
