@@ -107,6 +107,9 @@ export default function NewObituary() {
     familyEmail: "",
     familyPhone: "",
     familyNif: "",
+    familyNiss: "",
+    familyNaturalidade: "",
+    familyIban: "",
     familyAddress: "",
     familyLocality: "",
     familyPostalCode: "",
@@ -1174,8 +1177,8 @@ export default function NewObituary() {
                     </div>
                   </div>
 
-                  {/* Email, Phone, NIF */}
-                  <div className="grid md:grid-cols-3 gap-4">
+                  {/* Email, Phone */}
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="familyEmail">Email*</Label>
                       <Input
@@ -1200,6 +1203,10 @@ export default function NewObituary() {
                         }
                       />
                     </div>
+                  </div>
+
+                  {/* NIF, NISS, Naturalidade */}
+                  <div className="grid md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="familyNif">NIF *</Label>
                       <Input
@@ -1211,6 +1218,41 @@ export default function NewObituary() {
                         }
                       />
                     </div>
+                    <div>
+                      <Label htmlFor="familyNiss">NISS *</Label>
+                      <Input
+                        id="familyNiss"
+                        placeholder="00000000000"
+                        value={formData.familyNiss}
+                        onChange={(e) =>
+                          handleInputChange("familyNiss", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="familyNaturalidade">Naturalidade *</Label>
+                      <Input
+                        id="familyNaturalidade"
+                        placeholder="Local de nascimento"
+                        value={formData.familyNaturalidade}
+                        onChange={(e) =>
+                          handleInputChange("familyNaturalidade", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* IBAN */}
+                  <div>
+                    <Label htmlFor="familyIban">IBAN *</Label>
+                    <Input
+                      id="familyIban"
+                      placeholder="PT50 0000 0000 0000 0000 0000 0"
+                      value={formData.familyIban}
+                      onChange={(e) =>
+                        handleInputChange("familyIban", e.target.value)
+                      }
+                    />
                   </div>
 
                   {/* Morada, Localidade, Código Postal */}
