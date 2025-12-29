@@ -36,6 +36,8 @@ import BlogPost from "./pages/BlogPost";
 import Sobre from "./pages/Sobre";
 import Contactos from "./pages/Contactos";
 import NotFound from "./pages/NotFound";
+import FlowerCatalog from "./pages/FlowerCatalog";
+import FlowerOrders from "./pages/FlowerOrders";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +98,8 @@ const App = () => (
             <Route path="/ceremonies" element={<Ceremonies />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/documents" element={<Documents />} />
+            <Route path="/flowers/catalog" element={<FlowerCatalog />} />
+            <Route path="/flowers/orders" element={<FlowerOrders />} />
             <Route path="/support" element={<Support />} />
             <Route path="/settings" element={<Settings />} />
           </Route>

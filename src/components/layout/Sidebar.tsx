@@ -7,25 +7,37 @@ import {
   FolderOpen, 
   Settings,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Flower2,
+  ShoppingBag
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useFlowerService } from "@/hooks/useFlowerService";
 
-const funerariaNavigation = [
+const baseNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Obituários", href: "/obituaries", icon: FileText },
   { name: "Cerimónias", href: "/ceremonies", icon: Calendar },
   { name: "Clientes", href: "/clients", icon: Users },
   { name: "Documentos", href: "/documents", icon: FolderOpen },
+];
+
+const flowerNavigation = [
+  { name: "Catálogo de Flores", href: "/flowers/catalog", icon: Flower2 },
+  { name: "Pedidos de Flores", href: "/flowers/orders", icon: ShoppingBag },
+];
+
+const bottomNavigation = [
   { name: "Chat de Suporte", href: "/support", icon: MessageSquare },
   { name: "Configurações", href: "/settings", icon: Settings },
 ];
 
 export const Sidebar = () => {
   const navigate = useNavigate();
+  const { isFlowerServiceActive } = useFlowerService();
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -36,6 +48,12 @@ export const Sidebar = () => {
       navigate("/");
     }
   };
+
+  const navItems = [
+    ...baseNavigation,
+    ...(isFlowerServiceActive ? flowerNavigation : []),
+    ...bottomNavigation,
+  ];
 
   return (
     <aside className="w-64 border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col">
@@ -50,7 +68,7 @@ export const Sidebar = () => {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-4">
         <div className="space-y-1">
-          {funerariaNavigation.map((item) => (
+          {navItems.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
