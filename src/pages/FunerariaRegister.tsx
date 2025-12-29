@@ -91,7 +91,7 @@ export default function FunerariaRegister() {
           .from("funeraria_docs")
           .insert({
             funeraria_id: funerariaData.id,
-            tipo: "certidao_permanente",
+            tipo: "certidao_permanente_upload",
             ficheiro_path: fileName,
             entidade_emissora: "Conservatória do Registo Comercial",
           });
@@ -103,7 +103,7 @@ export default function FunerariaRegister() {
           .from("funeraria_docs")
           .insert({
             funeraria_id: funerariaData.id,
-            tipo: "certidao_permanente",
+            tipo: "certidao_permanente_codigo",
             codigo_acesso: certidaoData.codigo_acesso,
             entidade_emissora: "Conservatória do Registo Comercial",
           });
