@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
 const events = [{
   type: "Velório",
   date: "15/10/2025",
@@ -78,9 +80,16 @@ const relatedObituaries = Array(4).fill({
   image: "/placeholder.svg"
 });
 export default function ObituaryDetail() {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
+  const [isFlowersModalOpen, setIsFlowersModalOpen] = useState(false);
+
+  // TODO: Replace with real data from database
+  const mockObituaryData = {
+    id: id || "1",
+    displayName: "José Manuel Osório",
+    funerariaId: "mock-funeraria-id" // This would come from real obituary data
+  };
+
   return <div className="min-h-screen bg-background font-titillium">
       <PublicHeader />
 
@@ -148,7 +157,10 @@ export default function ObituaryDetail() {
 
                     <div className="flex gap-3">
                       <Button variant="outline">Condolências</Button>
-                      <Button className="bg-primary hover:bg-primary/90">
+                      <Button 
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => setIsFlowersModalOpen(true)}
+                      >
                         Enviar Flores
                       </Button>
                     </div>
@@ -449,5 +461,13 @@ export default function ObituaryDetail() {
           </div>
         </div>
       </footer>
+
+      <SendFlowersModal
+        open={isFlowersModalOpen}
+        onOpenChange={setIsFlowersModalOpen}
+        obituaryId={mockObituaryData.id}
+        obituaryName={mockObituaryData.displayName}
+        funerariaId={mockObituaryData.funerariaId}
+      />
     </div>;
 }
