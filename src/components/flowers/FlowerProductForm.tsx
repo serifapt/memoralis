@@ -249,7 +249,7 @@ export function FlowerProductForm({
                 type="number"
                 step="0.01"
                 min="0.01"
-                {...form.register("price")}
+                {...form.register("price", { valueAsNumber: true })}
                 placeholder="0.00"
               />
               {form.formState.errors.price && (
@@ -287,7 +287,7 @@ export function FlowerProductForm({
                 id="display_order"
                 type="number"
                 min="0"
-                {...form.register("display_order")}
+                {...form.register("display_order", { valueAsNumber: true })}
                 placeholder="0"
               />
             </div>
