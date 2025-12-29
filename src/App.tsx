@@ -38,6 +38,8 @@ import Contactos from "./pages/Contactos";
 import NotFound from "./pages/NotFound";
 import FlowerCatalog from "./pages/FlowerCatalog";
 import FlowerOrders from "./pages/FlowerOrders";
+import BudgetQuotes from "./pages/BudgetQuotes";
+import BudgetQuoteDetail from "./pages/BudgetQuoteDetail";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +102,9 @@ const App = () => (
             <Route path="/documents" element={<Documents />} />
             <Route path="/flowers/catalog" element={<FlowerCatalog />} />
             <Route path="/flowers/orders" element={<FlowerOrders />} />
+            <Route path="/budgets" element={<BudgetQuotes />} />
+            <Route path="/budgets/new" element={<BudgetQuoteDetail />} />
+            <Route path="/budgets/:id" element={<BudgetQuoteDetail />} />
             <Route path="/support" element={<Support />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
