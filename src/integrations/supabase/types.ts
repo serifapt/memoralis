@@ -44,6 +44,232 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_quote_lines: {
+        Row: {
+          created_at: string
+          description: string
+          discount_percent: number | null
+          id: string
+          line_total: number
+          quantity: number
+          section_id: string
+          sort_order: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          discount_percent?: number | null
+          id?: string
+          line_total?: number
+          quantity?: number
+          section_id: string
+          sort_order?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          discount_percent?: number | null
+          id?: string
+          line_total?: number
+          quantity?: number
+          section_id?: string
+          sort_order?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_quote_lines_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "budget_quote_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_quote_sections: {
+        Row: {
+          created_at: string
+          id: string
+          quote_id: string
+          sort_order: number
+          subtotal: number | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quote_id: string
+          sort_order?: number
+          subtotal?: number | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quote_id?: string
+          sort_order?: number
+          subtotal?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_quote_sections_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "budget_quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_quote_settings: {
+        Row: {
+          created_at: string
+          default_footer_text: string | null
+          default_validity_days: number | null
+          default_vat_exempt: boolean | null
+          default_vat_reason_text: string | null
+          funeraria_id: string
+          id: string
+          next_quote_number: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_footer_text?: string | null
+          default_validity_days?: number | null
+          default_vat_exempt?: boolean | null
+          default_vat_reason_text?: string | null
+          funeraria_id: string
+          id?: string
+          next_quote_number?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_footer_text?: string | null
+          default_validity_days?: number | null
+          default_vat_exempt?: boolean | null
+          default_vat_reason_text?: string | null
+          funeraria_id?: string
+          id?: string
+          next_quote_number?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_quote_settings_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: true
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_quotes: {
+        Row: {
+          accepted_at: string | null
+          archived_at: string | null
+          cemetery: string | null
+          client_id: string
+          created_at: string
+          death_date: string | null
+          deceased_name: string | null
+          footer_text: string | null
+          funeral_date: string | null
+          funeraria_id: string
+          id: string
+          issue_date: string
+          last_sent_to_email: string | null
+          obituary_id: string | null
+          pdf_url: string | null
+          place_of_death: string | null
+          quote_number: number
+          sent_at: string | null
+          status: Database["public"]["Enums"]["budget_quote_status"]
+          subtotal: number | null
+          total_quote: number | null
+          updated_at: string
+          vat_exempt: boolean | null
+          vat_exempt_reason_text: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          archived_at?: string | null
+          cemetery?: string | null
+          client_id: string
+          created_at?: string
+          death_date?: string | null
+          deceased_name?: string | null
+          footer_text?: string | null
+          funeral_date?: string | null
+          funeraria_id: string
+          id?: string
+          issue_date?: string
+          last_sent_to_email?: string | null
+          obituary_id?: string | null
+          pdf_url?: string | null
+          place_of_death?: string | null
+          quote_number: number
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["budget_quote_status"]
+          subtotal?: number | null
+          total_quote?: number | null
+          updated_at?: string
+          vat_exempt?: boolean | null
+          vat_exempt_reason_text?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          archived_at?: string | null
+          cemetery?: string | null
+          client_id?: string
+          created_at?: string
+          death_date?: string | null
+          deceased_name?: string | null
+          footer_text?: string | null
+          funeral_date?: string | null
+          funeraria_id?: string
+          id?: string
+          issue_date?: string
+          last_sent_to_email?: string | null
+          obituary_id?: string | null
+          pdf_url?: string | null
+          place_of_death?: string | null
+          quote_number?: number
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["budget_quote_status"]
+          subtotal?: number | null
+          total_quote?: number | null
+          updated_at?: string
+          vat_exempt?: boolean | null
+          vat_exempt_reason_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_quotes_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_quotes_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ceremony_events: {
         Row: {
           created_at: string
@@ -87,6 +313,74 @@ export type Database = {
             columns: ["obituary_id"]
             isOneToOne: false
             referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          dedupe_key: string | null
+          email: string | null
+          full_name: string
+          funeraria_id: string
+          iban: string | null
+          id: string
+          nationality_place: string | null
+          nif: string | null
+          niss: string | null
+          notes: string | null
+          phone: string | null
+          postal_code: string | null
+          relationship_degree: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          email?: string | null
+          full_name: string
+          funeraria_id: string
+          iban?: string | null
+          id?: string
+          nationality_place?: string | null
+          nif?: string | null
+          niss?: string | null
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          relationship_degree?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          email?: string | null
+          full_name?: string
+          funeraria_id?: string
+          iban?: string | null
+          id?: string
+          nationality_place?: string | null
+          nif?: string | null
+          niss?: string | null
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          relationship_degree?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
             referencedColumns: ["id"]
           },
         ]
@@ -557,6 +851,7 @@ export type Database = {
           photo_url: string | null
           profession: string | null
           public_message: string | null
+          responsible_client_id: string | null
           service_price: number | null
           service_type: string | null
           social_security: string | null
@@ -601,6 +896,7 @@ export type Database = {
           photo_url?: string | null
           profession?: string | null
           public_message?: string | null
+          responsible_client_id?: string | null
           service_price?: number | null
           service_type?: string | null
           social_security?: string | null
@@ -645,13 +941,22 @@ export type Database = {
           photo_url?: string | null
           profession?: string | null
           public_message?: string | null
+          responsible_client_id?: string | null
           service_price?: number | null
           service_type?: string | null
           social_security?: string | null
           tax_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "obituaries_responsible_client_id_fkey"
+            columns: ["responsible_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       obituary_documents: {
         Row: {
@@ -818,6 +1123,14 @@ export type Database = {
         }
         Returns: string
       }
+      generate_client_dedupe_key: {
+        Args: { p_email: string; p_nif: string; p_phone: string }
+        Returns: string
+      }
+      get_next_quote_number: {
+        Args: { p_funeraria_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -833,6 +1146,10 @@ export type Database = {
         }
         Returns: string
       }
+      recalculate_quote_totals: {
+        Args: { p_quote_id: string }
+        Returns: undefined
+      }
       resolve_conversation_admin: {
         Args: { p_admin_id: string; p_conversation_id: string }
         Returns: string
@@ -840,6 +1157,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "funeraria"
+      budget_quote_status: "DRAFT" | "SENT" | "ACCEPTED" | "ARCHIVED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -968,6 +1286,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "funeraria"],
+      budget_quote_status: ["DRAFT", "SENT", "ACCEPTED", "ARCHIVED"],
     },
   },
 } as const
