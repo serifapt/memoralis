@@ -156,6 +156,173 @@ export type Database = {
         }
         Relationships: []
       }
+      flower_order_items: {
+        Row: {
+          id: string
+          line_total: number
+          order_id: string
+          product_id: string | null
+          product_name_snapshot: string
+          product_price_snapshot: number
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          line_total: number
+          order_id: string
+          product_id?: string | null
+          product_name_snapshot: string
+          product_price_snapshot: number
+          quantity?: number
+        }
+        Update: {
+          id?: string
+          line_total?: number
+          order_id?: string
+          product_id?: string | null
+          product_name_snapshot?: string
+          product_price_snapshot?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flower_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "flower_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flower_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "flower_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flower_orders: {
+        Row: {
+          commission_percent: number
+          commission_value: number
+          created_at: string
+          funeraria_id: string
+          id: string
+          message: string | null
+          obituary_id: string
+          observations: string | null
+          sender_email: string | null
+          sender_name: string
+          sender_phone: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          commission_percent?: number
+          commission_value?: number
+          created_at?: string
+          funeraria_id: string
+          id?: string
+          message?: string | null
+          obituary_id: string
+          observations?: string | null
+          sender_email?: string | null
+          sender_name: string
+          sender_phone?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          commission_percent?: number
+          commission_value?: number
+          created_at?: string
+          funeraria_id?: string
+          id?: string
+          message?: string | null
+          obituary_id?: string
+          observations?: string | null
+          sender_email?: string | null
+          sender_name?: string
+          sender_phone?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flower_orders_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flower_orders_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flower_products: {
+        Row: {
+          category: string | null
+          created_at: string
+          display_order: number
+          full_description: string | null
+          funeraria_id: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          price: number
+          short_description: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          display_order?: number
+          full_description?: string | null
+          funeraria_id: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          price: number
+          short_description?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          display_order?: number
+          full_description?: string | null
+          funeraria_id?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          price?: number
+          short_description?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flower_products_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funeraria_docs: {
         Row: {
           codigo_acesso: string | null
@@ -263,6 +430,7 @@ export type Database = {
           nif: string
           nome_comercial: string
           responsavel_nome: string
+          servico_flores_ativo: boolean
           status: string
           telefone: string
           updated_at: string
@@ -277,6 +445,7 @@ export type Database = {
           nif: string
           nome_comercial: string
           responsavel_nome: string
+          servico_flores_ativo?: boolean
           status?: string
           telefone: string
           updated_at?: string
@@ -291,6 +460,7 @@ export type Database = {
           nif?: string
           nome_comercial?: string
           responsavel_nome?: string
+          servico_flores_ativo?: boolean
           status?: string
           telefone?: string
           updated_at?: string
@@ -568,6 +738,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_config: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
