@@ -212,6 +212,47 @@ export type Database = {
           },
         ]
       }
+      funeraria_general_docs: {
+        Row: {
+          document_name: string
+          file_path: string
+          file_size: number | null
+          funeraria_id: string
+          id: string
+          notes: string | null
+          updated_at: string
+          uploaded_at: string
+        }
+        Insert: {
+          document_name: string
+          file_path: string
+          file_size?: number | null
+          funeraria_id: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          uploaded_at?: string
+        }
+        Update: {
+          document_name?: string
+          file_path?: string
+          file_size?: number | null
+          funeraria_id?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funeraria_general_docs_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funerarias: {
         Row: {
           aceito_termos: boolean
