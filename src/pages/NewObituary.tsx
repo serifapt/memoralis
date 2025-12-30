@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X } from "lucide-react";
+import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X, Receipt } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -15,17 +15,21 @@ import { useToast } from "@/hooks/use-toast";
 import { AddRelationshipDialog } from "@/components/obituaries/AddRelationshipDialog";
 import { AnnouncementGenerator } from "@/components/obituaries/AnnouncementGenerator";
 import { DocumentsTab } from "@/components/obituaries/DocumentsTab";
+import { useClients } from "@/hooks/useClients";
 
 export default function NewObituary() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { findOrCreateClient } = useClients();
   const isEditing = !!id;
   const [isPublic, setIsPublic] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
   const [funerariaId, setFunerariaId] = useState<string>("");
+  const [responsibleClientId, setResponsibleClientId] = useState<string | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<any[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
@@ -235,11 +239,418 @@ export default function NewObituary() {
     return labels[type] || type;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load obituary data when editing
+  useEffect(() => {
+    const loadObituaryData = async () => {
+      if (!isEditing || !id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('obituaries')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (error) throw error;
+        if (!data) return;
+
+        setIsPublic(data.is_public);
+        setIsCompleted(data.is_completed);
+        setResponsibleClientId(data.responsible_client_id);
+        
+        setFormData({
+          displayName: data.display_name || "",
+          fullName: data.full_name || "",
+          birthDate: data.birth_date || "",
+          freguesia: data.freguesia || "",
+          locality: data.locality || "",
+          birthPlace: data.birth_place || "",
+          nationality: data.nationality || "",
+          civilStatus: data.civil_status || "",
+          profession: data.profession || "",
+          idCard: data.id_card || "",
+          taxId: data.tax_id || "",
+          socialSecurity: data.social_security || "",
+          beneficiary: data.beneficiary || "",
+          deathLocation: data.death_location || "",
+          deathDate: data.death_date || "",
+          deathTime: data.death_time || "",
+          cause: data.cause || "",
+          doctor: data.doctor || "",
+          medicalCertificate: data.medical_certificate || "",
+          publicMessage: data.public_message || "",
+          velorioDate: "",
+          velorioTime: "",
+          velorioLocation: "",
+          velorioMapLink: "",
+          cerimoniaDate: "",
+          cerimoniaTime: "",
+          cerimoniaChurch: "",
+          cerimoniaMapLink: "",
+          cerimoniaResponsible: "",
+          cerimoniaPhone: "",
+          funeralDate: "",
+          funeralTime: "",
+          funeralCemetery: "",
+          funeralMapLink: "",
+          funeralResponsible: "",
+          funeralPhone: "",
+          cremacaoDate: "",
+          cremacaoTime: "",
+          cremacaoCemetery: "",
+          cremacaoMapLink: "",
+          cremacaoResponsible: "",
+          cremacaoPhone: "",
+          missa7Date: "",
+          missa7Time: "",
+          missa7Location: "",
+          missa7MapLink: "",
+          missa30Date: "",
+          missa30Time: "",
+          missa30Location: "",
+          missa30MapLink: "",
+          missa1anoDate: "",
+          missa1anoTime: "",
+          missa1anoLocation: "",
+          missa1anoMapLink: "",
+          observations: data.observations || "",
+          hideCondolences: data.hide_condolences || false,
+          familyName: "",
+          familyRelationship: "",
+          familyEmail: "",
+          familyPhone: "",
+          familyNif: "",
+          familyNiss: "",
+          familyNaturalidade: "",
+          familyIban: "",
+          familyAddress: "",
+          familyLocality: "",
+          familyPostalCode: "",
+          familyObservations: "",
+          serviceType: data.service_type || "",
+          coffinBrand: data.coffin_brand || "",
+          coffinRef: data.coffin_ref || "",
+          servicePrice: data.service_price?.toString() || "",
+        });
+
+        // Load responsible client data
+        if (data.responsible_client_id) {
+          const { data: clientData } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('id', data.responsible_client_id)
+            .maybeSingle();
+
+          if (clientData) {
+            setFormData(prev => ({
+              ...prev,
+              familyName: clientData.full_name || "",
+              familyRelationship: clientData.relationship_degree || "",
+              familyEmail: clientData.email || "",
+              familyPhone: clientData.phone || "",
+              familyNif: clientData.nif || "",
+              familyNiss: clientData.niss || "",
+              familyNaturalidade: clientData.nationality_place || "",
+              familyIban: clientData.iban || "",
+              familyAddress: clientData.address || "",
+              familyLocality: clientData.city || "",
+              familyPostalCode: clientData.postal_code || "",
+              familyObservations: clientData.notes || "",
+            }));
+          }
+        }
+
+        // Load ceremony events
+        const { data: events } = await supabase
+          .from('ceremony_events')
+          .select('*')
+          .eq('obituary_id', id);
+
+        if (events) {
+          events.forEach(event => {
+            if (event.event_type === 'velorio') {
+              setVelorio(true);
+              setFormData(prev => ({
+                ...prev,
+                velorioDate: event.event_date || "",
+                velorioTime: event.event_time || "",
+                velorioLocation: event.location || "",
+                velorioMapLink: event.map_link || "",
+              }));
+            } else if (event.event_type === 'cerimonia') {
+              setCerimonia(true);
+              setFormData(prev => ({
+                ...prev,
+                cerimoniaDate: event.event_date || "",
+                cerimoniaTime: event.event_time || "",
+                cerimoniaChurch: event.location || "",
+                cerimoniaMapLink: event.map_link || "",
+                cerimoniaResponsible: event.responsible_name || "",
+                cerimoniaPhone: event.responsible_phone || "",
+              }));
+            } else if (event.event_type === 'funeral') {
+              setFuneral(true);
+              setFormData(prev => ({
+                ...prev,
+                funeralDate: event.event_date || "",
+                funeralTime: event.event_time || "",
+                funeralCemetery: event.location || "",
+                funeralMapLink: event.map_link || "",
+                funeralResponsible: event.responsible_name || "",
+                funeralPhone: event.responsible_phone || "",
+              }));
+            } else if (event.event_type === 'cremacao') {
+              setCremacao(true);
+              setFormData(prev => ({
+                ...prev,
+                cremacaoDate: event.event_date || "",
+                cremacaoTime: event.event_time || "",
+                cremacaoCemetery: event.location || "",
+                cremacaoMapLink: event.map_link || "",
+                cremacaoResponsible: event.responsible_name || "",
+                cremacaoPhone: event.responsible_phone || "",
+              }));
+            } else if (event.event_type === 'missa7') {
+              setMissa7(true);
+              setFormData(prev => ({
+                ...prev,
+                missa7Date: event.event_date || "",
+                missa7Time: event.event_time || "",
+                missa7Location: event.location || "",
+                missa7MapLink: event.map_link || "",
+              }));
+            } else if (event.event_type === 'missa30') {
+              setMissa30(true);
+              setFormData(prev => ({
+                ...prev,
+                missa30Date: event.event_date || "",
+                missa30Time: event.event_time || "",
+                missa30Location: event.location || "",
+                missa30MapLink: event.map_link || "",
+              }));
+            } else if (event.event_type === 'missa1ano') {
+              setMissa1ano(true);
+              setFormData(prev => ({
+                ...prev,
+                missa1anoDate: event.event_date || "",
+                missa1anoTime: event.event_time || "",
+                missa1anoLocation: event.location || "",
+                missa1anoMapLink: event.map_link || "",
+              }));
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error loading obituary:', error);
+      }
+    };
+
+    loadObituaryData();
+  }, [id, isEditing]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // TODO: Save to backend
-    navigate("/obituaries");
+    if (isSaving) return;
+    setIsSaving(true);
+
+    try {
+      // 1. First, sync client if family data is provided
+      let clientId = responsibleClientId;
+      if (formData.familyName && formData.familyName.trim() !== "") {
+        const client = await findOrCreateClient({
+          full_name: formData.familyName,
+          relationship_degree: formData.familyRelationship || undefined,
+          email: formData.familyEmail || undefined,
+          phone: formData.familyPhone || undefined,
+          nif: formData.familyNif || undefined,
+          niss: formData.familyNiss || undefined,
+          nationality_place: formData.familyNaturalidade || undefined,
+          iban: formData.familyIban || undefined,
+          address: formData.familyAddress || undefined,
+          city: formData.familyLocality || undefined,
+          postal_code: formData.familyPostalCode || undefined,
+          notes: formData.familyObservations || undefined,
+        });
+        if (client) {
+          clientId = client.id;
+          setResponsibleClientId(client.id);
+        }
+      }
+
+      // 2. Prepare obituary data
+      const obituaryData = {
+        funeraria_id: funerariaId,
+        display_name: formData.displayName,
+        full_name: formData.fullName,
+        birth_date: formData.birthDate || null,
+        freguesia: formData.freguesia || null,
+        locality: formData.locality || null,
+        birth_place: formData.birthPlace || null,
+        nationality: formData.nationality || null,
+        civil_status: formData.civilStatus || null,
+        profession: formData.profession || null,
+        id_card: formData.idCard || null,
+        tax_id: formData.taxId || null,
+        social_security: formData.socialSecurity || null,
+        beneficiary: formData.beneficiary || null,
+        death_location: formData.deathLocation || null,
+        death_date: formData.deathDate || null,
+        death_time: formData.deathTime || null,
+        cause: formData.cause || null,
+        doctor: formData.doctor || null,
+        medical_certificate: formData.medicalCertificate || null,
+        public_message: formData.publicMessage || null,
+        observations: formData.observations || null,
+        hide_condolences: formData.hideCondolences,
+        is_public: isPublic,
+        is_completed: isCompleted,
+        service_type: formData.serviceType || null,
+        coffin_brand: formData.coffinBrand || null,
+        coffin_ref: formData.coffinRef || null,
+        service_price: formData.servicePrice ? parseFloat(formData.servicePrice) : null,
+        responsible_client_id: clientId,
+      };
+
+      let obituaryId = id;
+
+      if (isEditing && id) {
+        // Update existing obituary
+        const { error } = await supabase
+          .from('obituaries')
+          .update(obituaryData)
+          .eq('id', id);
+
+        if (error) throw error;
+      } else {
+        // Create new obituary
+        const { data, error } = await supabase
+          .from('obituaries')
+          .insert(obituaryData)
+          .select()
+          .single();
+
+        if (error) throw error;
+        obituaryId = data.id;
+      }
+
+      // 3. Save ceremony events
+      if (obituaryId) {
+        // Delete existing events
+        await supabase.from('ceremony_events').delete().eq('obituary_id', obituaryId);
+
+        const eventsToInsert = [];
+
+        if (velorio) {
+          eventsToInsert.push({
+            obituary_id: obituaryId,
+            event_type: 'velorio',
+            event_date: formData.velorioDate || null,
+            event_time: formData.velorioTime || null,
+            location: formData.velorioLocation || null,
+            map_link: formData.velorioMapLink || null,
+          });
+        }
+
+        if (cerimonia) {
+          eventsToInsert.push({
+            obituary_id: obituaryId,
+            event_type: 'cerimonia',
+            event_date: formData.cerimoniaDate || null,
+            event_time: formData.cerimoniaTime || null,
+            location: formData.cerimoniaChurch || null,
+            map_link: formData.cerimoniaMapLink || null,
+            responsible_name: formData.cerimoniaResponsible || null,
+            responsible_phone: formData.cerimoniaPhone || null,
+          });
+        }
+
+        if (funeral) {
+          eventsToInsert.push({
+            obituary_id: obituaryId,
+            event_type: 'funeral',
+            event_date: formData.funeralDate || null,
+            event_time: formData.funeralTime || null,
+            location: formData.funeralCemetery || null,
+            map_link: formData.funeralMapLink || null,
+            responsible_name: formData.funeralResponsible || null,
+            responsible_phone: formData.funeralPhone || null,
+          });
+        }
+
+        if (cremacao) {
+          eventsToInsert.push({
+            obituary_id: obituaryId,
+            event_type: 'cremacao',
+            event_date: formData.cremacaoDate || null,
+            event_time: formData.cremacaoTime || null,
+            location: formData.cremacaoCemetery || null,
+            map_link: formData.cremacaoMapLink || null,
+            responsible_name: formData.cremacaoResponsible || null,
+            responsible_phone: formData.cremacaoPhone || null,
+          });
+        }
+
+        if (missa7) {
+          eventsToInsert.push({
+            obituary_id: obituaryId,
+            event_type: 'missa7',
+            event_date: formData.missa7Date || null,
+            event_time: formData.missa7Time || null,
+            location: formData.missa7Location || null,
+            map_link: formData.missa7MapLink || null,
+          });
+        }
+
+        if (missa30) {
+          eventsToInsert.push({
+            obituary_id: obituaryId,
+            event_type: 'missa30',
+            event_date: formData.missa30Date || null,
+            event_time: formData.missa30Time || null,
+            location: formData.missa30Location || null,
+            map_link: formData.missa30MapLink || null,
+          });
+        }
+
+        if (missa1ano) {
+          eventsToInsert.push({
+            obituary_id: obituaryId,
+            event_type: 'missa1ano',
+            event_date: formData.missa1anoDate || null,
+            event_time: formData.missa1anoTime || null,
+            location: formData.missa1anoLocation || null,
+            map_link: formData.missa1anoMapLink || null,
+          });
+        }
+
+        if (eventsToInsert.length > 0) {
+          await supabase.from('ceremony_events').insert(eventsToInsert);
+        }
+      }
+
+      toast({
+        title: isEditing ? "Obituário atualizado" : "Obituário criado",
+        description: isEditing ? "Os dados foram atualizados com sucesso" : "O obituário foi criado com sucesso",
+      });
+
+      if (!isEditing && obituaryId) {
+        navigate(`/obituaries/${obituaryId}/edit`);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível guardar o obituário",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCreateBudget = () => {
+    if (id) {
+      navigate(`/budgets/new?obituaryId=${id}`);
+    }
   };
 
   return (
@@ -1536,13 +1947,19 @@ export default function NewObituary() {
 
             {/* Action Buttons */}
             <div className="space-y-3">
+              {isEditing && id && (
+                <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
+                  <Receipt className="w-4 h-4" />
+                  Criar Orçamento
+                </Button>
+              )}
               <Button variant="outline" className="w-full gap-2">
                 <Eye className="w-4 h-4" />
                 Ver Perfil Público
               </Button>
-              <Button className="w-full gap-2" onClick={handleSubmit}>
+              <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
                 <Upload className="w-4 h-4" />
-                Guardar
+                {isSaving ? "A guardar..." : "Guardar"}
               </Button>
             </div>
           </Card>

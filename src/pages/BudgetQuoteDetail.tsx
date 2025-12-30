@@ -31,6 +31,7 @@ import { ClientSelector } from "@/components/clients/ClientSelector";
 import { useClients, Client } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { BudgetQuotePDF } from "@/components/budgets/BudgetQuotePDF";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,6 +77,7 @@ export default function BudgetQuoteDetail() {
   const [quote, setQuote] = useState<BudgetQuote | null>(null);
   const [sections, setSections] = useState<BudgetQuoteSection[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [funerariaData, setFunerariaData] = useState<{ nome_comercial: string; nif: string; telefone: string } | null>(null);
   const [formData, setFormData] = useState({
     deceased_name: "",
     death_date: "",
@@ -87,6 +89,24 @@ export default function BudgetQuoteDetail() {
     footer_text: "Este orçamento é válido como contrato após assinatura.",
   });
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+
+  // Fetch funeraria data for PDF
+  useEffect(() => {
+    const fetchFunerariaData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("funerarias")
+          .select("nome_comercial, nif, telefone")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (data) {
+          setFunerariaData(data);
+        }
+      }
+    };
+    fetchFunerariaData();
+  }, []);
 
   // Load quote data
   useEffect(() => {
@@ -311,8 +331,15 @@ export default function BudgetQuoteDetail() {
         </div>
 
         <div className="flex gap-2">
-          {!isNew && !isArchived && (
+          {!isNew && !isArchived && quote && (
             <>
+              <BudgetQuotePDF 
+                quote={quote} 
+                sections={sections} 
+                funerariaName={funerariaData?.nome_comercial}
+                funerariaNif={funerariaData?.nif}
+                funerariaPhone={funerariaData?.telefone}
+              />
               <Button variant="outline" onClick={handlePrint}>
                 <Printer className="w-4 h-4 mr-2" />
                 Imprimir
