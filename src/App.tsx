@@ -20,7 +20,6 @@ import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import AdminAuth from "./pages/AdminAuth";
-import AdminSetup from "./pages/AdminSetup";
 import FunerariaRegister from "./pages/FunerariaRegister";
 import FunerariaStatus from "./pages/FunerariaStatus";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -63,7 +62,6 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
-          <Route path="/admin/setup" element={<AdminSetup />} />
           <Route path="/funeraria/register" element={<FunerariaRegister />} />
           <Route 
             path="/funeraria/status" 

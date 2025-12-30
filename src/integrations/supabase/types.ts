@@ -1115,6 +1115,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_admin_role: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       create_admin_user: {
         Args: {
           admin_email: string

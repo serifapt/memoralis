@@ -7,9 +7,8 @@ const corsHeaders = {
 };
 
 interface ResetPasswordRequest {
-  email: string;
+  targetEmail: string;
   newPassword: string;
-  setupKey: string;
 }
 
 serve(async (req: Request) => {
@@ -19,16 +18,14 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { email, newPassword, setupKey }: ResetPasswordRequest = await req.json();
-
-    // Simple validation key to prevent abuse (you should change this to something more secure)
-    const validSetupKey = "memoralis-setup-2025";
-    
-    if (setupKey !== validSetupKey) {
+    // Verify JWT authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("No authorization header provided");
       return new Response(
-        JSON.stringify({ error: "Setup key inválida" }),
+        JSON.stringify({ error: "Não autorizado" }),
         {
-          status: 403,
+          status: 401,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
@@ -46,6 +43,62 @@ serve(async (req: Request) => {
       }
     );
 
+    // Verify the caller's token and get user
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user: callerUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !callerUser) {
+      console.error("Invalid token:", authError);
+      return new Response(
+        JSON.stringify({ error: "Token inválido" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Verify caller is an admin
+    const { data: roleData, error: roleError } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', callerUser.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    if (roleError || !roleData) {
+      console.error("User is not an admin:", callerUser.id);
+      return new Response(
+        JSON.stringify({ error: "Acesso negado. Apenas administradores podem efetuar esta operação." }),
+        {
+          status: 403,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const { targetEmail, newPassword }: ResetPasswordRequest = await req.json();
+
+    if (!targetEmail || !newPassword) {
+      return new Response(
+        JSON.stringify({ error: "Email e nova password são obrigatórios" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    if (newPassword.length < 8) {
+      return new Response(
+        JSON.stringify({ error: "A password deve ter pelo menos 8 caracteres" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     // Get user by email
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.listUsers();
     
@@ -54,9 +107,9 @@ serve(async (req: Request) => {
       throw userError;
     }
 
-    const user = userData.users.find(u => u.email === email);
+    const targetUser = userData.users.find(u => u.email === targetEmail);
     
-    if (!user) {
+    if (!targetUser) {
       return new Response(
         JSON.stringify({ error: "Utilizador não encontrado" }),
         {
@@ -68,7 +121,7 @@ serve(async (req: Request) => {
 
     // Update user password
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      user.id,
+      targetUser.id,
       { password: newPassword }
     );
 
@@ -77,7 +130,16 @@ serve(async (req: Request) => {
       throw updateError;
     }
 
-    console.log(`Password reset successfully for user: ${email}`);
+    // Log the action for audit
+    await supabaseAdmin.from('audit_logs').insert({
+      actor_id: callerUser.id,
+      entidade: 'user',
+      entidade_id: targetUser.id,
+      acao: 'password_reset_by_admin',
+      detalhes: { target_email: targetEmail }
+    });
+
+    console.log(`Password reset by admin ${callerUser.email} for user: ${targetEmail}`);
 
     return new Response(
       JSON.stringify({ message: "Password atualizada com sucesso" }),

@@ -14,6 +14,19 @@ Deno.serve(async (req) => {
   try {
     console.log('Starting test funeraria creation...');
 
+    // Verify JWT authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("No authorization header provided");
+      return new Response(
+        JSON.stringify({ success: false, error: 'Não autorizado' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
     // Create Supabase admin client
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -25,6 +38,40 @@ Deno.serve(async (req) => {
         }
       }
     );
+
+    // Verify the caller's token and get user
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user: callerUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !callerUser) {
+      console.error("Invalid token:", authError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Token inválido' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
+    // Verify caller is an admin
+    const { data: roleData, error: roleError } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', callerUser.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    if (roleError || !roleData) {
+      console.error("User is not an admin:", callerUser.id);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Acesso negado. Apenas administradores podem criar dados de teste.' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 403,
+        }
+      );
+    }
 
     const testEmail = 'funeraria.teste@memoralis.pt';
     const testPassword = 'Teste123!';
@@ -154,6 +201,15 @@ Deno.serve(async (req) => {
         console.log('Sample documents created successfully');
       }
     }
+
+    // Log the action for audit
+    await supabaseAdmin.from('audit_logs').insert({
+      actor_id: callerUser.id,
+      entidade: 'funeraria',
+      entidade_id: funerariaId,
+      acao: 'create_test_funeraria',
+      detalhes: { test_email: testEmail }
+    });
 
     const response = {
       success: true,
