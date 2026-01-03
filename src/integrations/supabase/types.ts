@@ -270,6 +270,232 @@ export type Database = {
           },
         ]
       }
+      care_plan_prices: {
+        Row: {
+          active: boolean
+          amount: number
+          billing_period: string
+          care_plan_id: string
+          created_at: string
+          currency: string
+          id: string
+          stripe_price_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          billing_period: string
+          care_plan_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          stripe_price_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          billing_period?: string
+          care_plan_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          stripe_price_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_plan_prices_care_plan_id_fkey"
+            columns: ["care_plan_id"]
+            isOneToOne: false
+            referencedRelation: "care_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_plans: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          includes_json: Json
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          includes_json?: Json
+          name: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          includes_json?: Json
+          name?: string
+        }
+        Relationships: []
+      }
+      care_subscriptions: {
+        Row: {
+          billing_period: string
+          cancel_at_period_end: boolean | null
+          care_plan_id: string
+          created_at: string
+          current_period_end: string | null
+          customer_id: string
+          id: string
+          memorial_location_id: string
+          operational_pause: boolean | null
+          status: string
+          stripe_subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_period: string
+          cancel_at_period_end?: boolean | null
+          care_plan_id: string
+          created_at?: string
+          current_period_end?: string | null
+          customer_id: string
+          id?: string
+          memorial_location_id: string
+          operational_pause?: boolean | null
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_period?: string
+          cancel_at_period_end?: boolean | null
+          care_plan_id?: string
+          created_at?: string
+          current_period_end?: string | null
+          customer_id?: string
+          id?: string
+          memorial_location_id?: string
+          operational_pause?: boolean | null
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_subscriptions_care_plan_id_fkey"
+            columns: ["care_plan_id"]
+            isOneToOne: false
+            referencedRelation: "care_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_subscriptions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_subscriptions_memorial_location_id_fkey"
+            columns: ["memorial_location_id"]
+            isOneToOne: false
+            referencedRelation: "memorial_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_support_tickets: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          memorial_location_id: string | null
+          message: string
+          status: string
+          subject: string
+          subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          memorial_location_id?: string | null
+          message: string
+          status?: string
+          subject: string
+          subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          memorial_location_id?: string | null
+          message?: string
+          status?: string
+          subject?: string
+          subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_support_tickets_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_support_tickets_memorial_location_id_fkey"
+            columns: ["memorial_location_id"]
+            isOneToOne: false
+            referencedRelation: "memorial_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_support_tickets_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "care_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_webhook_events: {
+        Row: {
+          id: string
+          payload_json: Json
+          processed_at: string
+          stripe_event_id: string
+          type: string
+        }
+        Insert: {
+          id?: string
+          payload_json: Json
+          processed_at?: string
+          stripe_event_id: string
+          type: string
+        }
+        Update: {
+          id?: string
+          payload_json?: Json
+          processed_at?: string
+          stripe_event_id?: string
+          type?: string
+        }
+        Relationships: []
+      }
       ceremony_events: {
         Row: {
           created_at: string
@@ -419,6 +645,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      customers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notification_preferences: Json | null
+          phone: string | null
+          stripe_customer_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          notification_preferences?: Json | null
+          phone?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notification_preferences?: Json | null
+          phone?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       document_templates: {
         Row: {
@@ -762,6 +1024,66 @@ export type Database = {
         }
         Relationships: []
       }
+      memorial_locations: {
+        Row: {
+          cemetery_address: string | null
+          cemetery_name: string
+          created_at: string
+          customer_id: string
+          grave_number: string | null
+          id: string
+          notes: string | null
+          obituary_id: string | null
+          reference_photos: string[] | null
+          section: string | null
+          special_dates: Json | null
+          updated_at: string
+        }
+        Insert: {
+          cemetery_address?: string | null
+          cemetery_name: string
+          created_at?: string
+          customer_id: string
+          grave_number?: string | null
+          id?: string
+          notes?: string | null
+          obituary_id?: string | null
+          reference_photos?: string[] | null
+          section?: string | null
+          special_dates?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          cemetery_address?: string | null
+          cemetery_name?: string
+          created_at?: string
+          customer_id?: string
+          grave_number?: string | null
+          id?: string
+          notes?: string | null
+          obituary_id?: string | null
+          reference_photos?: string[] | null
+          section?: string | null
+          special_dates?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memorial_locations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memorial_locations_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachment_name: string | null
@@ -1086,6 +1408,165 @@ export type Database = {
           id?: string
           phone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      service_task_extras: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          qty: number
+          service_task_id: string
+          sku: string | null
+          stripe_payment_intent_id: string | null
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          qty?: number
+          service_task_id: string
+          sku?: string | null
+          stripe_payment_intent_id?: string | null
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          qty?: number
+          service_task_id?: string
+          sku?: string | null
+          stripe_payment_intent_id?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_task_extras_service_task_id_fkey"
+            columns: ["service_task_id"]
+            isOneToOne: false
+            referencedRelation: "service_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_task_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          file_url: string
+          id: string
+          service_task_id: string
+          type: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          file_url: string
+          id?: string
+          service_task_id: string
+          type: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          file_url?: string
+          id?: string
+          service_task_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_task_media_service_task_id_fkey"
+            columns: ["service_task_id"]
+            isOneToOne: false
+            referencedRelation: "service_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_tasks: {
+        Row: {
+          assigned_to: string | null
+          checklist_json: Json | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          scheduled_for: string
+          status: string
+          subscription_id: string
+          technician_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          checklist_json?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          scheduled_for: string
+          status?: string
+          subscription_id: string
+          technician_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          checklist_json?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          scheduled_for?: string
+          status?: string
+          subscription_id?: string
+          technician_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_tasks_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "care_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technicians: {
+        Row: {
+          active: boolean
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          regions: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          regions?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          regions?: string[] | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
