@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Shield, Flower2, Calendar, Check, Loader2 } from "lucide-react";
 import { useCarePlans, CarePlanWithPrices } from "@/hooks/useCareService";
+import { CareHeader } from "@/components/layout/CareHeader";
 
 export default function CareLanding() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
@@ -40,6 +41,7 @@ export default function CareLanding() {
 
   return (
     <div className="min-h-screen bg-background">
+      <CareHeader />
       {/* Hero Section */}
       <section className="relative py-20 px-4 bg-gradient-to-b from-primary/5 to-background">
         <div className="max-w-6xl mx-auto text-center">
