@@ -29,14 +29,14 @@ export default function TechnicianDashboard() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
       if (!session) {
-        navigate('/auth');
+        navigate('/technician/auth');
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setIsAuthenticated(!!session);
       if (!session) {
-        navigate('/auth');
+        navigate('/technician/auth');
       }
     });
 
@@ -45,7 +45,7 @@ export default function TechnicianDashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate('/auth');
+    navigate('/technician/auth');
   };
 
   const handleStartTask = async (taskId: string) => {

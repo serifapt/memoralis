@@ -49,6 +49,7 @@ import AdminCareSubscriptions from "./pages/AdminCareSubscriptions";
 import AdminCareTasks from "./pages/AdminCareTasks";
 import AdminCareTechnicians from "./pages/AdminCareTechnicians";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
+import TechnicianAuth from "./pages/TechnicianAuth";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
           <Route path="/care/checkout" element={<CareCheckout />} />
           <Route path="/care/auth" element={<CareAuth />} />
           <Route path="/account/care" element={<CustomerDashboard />} />
+          <Route path="/technician/auth" element={<TechnicianAuth />} />
           <Route path="/field/tasks" element={<TechnicianDashboard />} />
           <Route 
             path="/funeraria/status" 
