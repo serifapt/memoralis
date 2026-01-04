@@ -16,31 +16,82 @@ export default function Auth() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkSession = async () => {
+    // Check if user is already logged in and redirect based on role
+    const checkSessionAndRedirect = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/dashboard");
+        // Check user role and redirect accordingly
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id);
+
+        if (roles && roles.length > 0) {
+          const isAdmin = roles.some(r => r.role === "admin");
+          const isFuneraria = roles.some(r => r.role === "funeraria");
+          const isTechnician = roles.some(r => r.role === "technician");
+
+          if (isAdmin) {
+            navigate("/admin");
+          } else if (isFuneraria) {
+            navigate("/dashboard");
+          } else if (isTechnician) {
+            navigate("/field/tasks");
+          } else {
+            navigate("/dashboard");
+          }
+        } else {
+          navigate("/dashboard");
+        }
       }
     };
-    checkSession();
+    checkSessionAndRedirect();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && event === "SIGNED_IN") {
-        navigate("/dashboard");
+        // Use setTimeout to avoid Supabase deadlock
+        setTimeout(() => {
+          checkSessionAndRedirect();
+        }, 0);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Helper function to redirect based on role
+  const redirectBasedOnRole = async (userId: string) => {
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    if (roles && roles.length > 0) {
+      const isAdmin = roles.some(r => r.role === "admin");
+      const isFuneraria = roles.some(r => r.role === "funeraria");
+      const isTechnician = roles.some(r => r.role === "technician");
+
+      if (isAdmin) {
+        navigate("/admin");
+      } else if (isFuneraria) {
+        navigate("/dashboard");
+      } else if (isTechnician) {
+        navigate("/field/tasks");
+      } else {
+        navigate("/dashboard");
+      }
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -51,6 +102,11 @@ export default function Auth() {
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta.",
       });
+
+      // Redirect based on user role
+      if (data.user) {
+        await redirectBasedOnRole(data.user.id);
+      }
     } catch (error: any) {
       console.error("Erro de autenticação:", error);
       toast({
