@@ -4,7 +4,8 @@ import {
   Building2,
   Users, 
   MessageSquare,
-  LogOut
+  LogOut,
+  Wrench
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
@@ -16,6 +17,7 @@ const adminNavigation = [
   { name: "Funerárias", href: "/admin/funerarias", icon: Building2 },
   { name: "Utilizadores", href: "/admin/users", icon: Users },
   { name: "Chat Suporte", href: "/admin/chat", icon: MessageSquare },
+  { name: "Técnicos", href: "/admin/care/technicians", icon: Wrench },
 ];
 
 export const AdminSidebar = () => {
