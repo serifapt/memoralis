@@ -5,18 +5,26 @@ import {
   Users, 
   MessageSquare,
   LogOut,
-  Wrench
+  Wrench,
+  CreditCard,
+  ClipboardList,
+  Heart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const adminNavigation = [
+const mainNavigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Funerárias", href: "/admin/funerarias", icon: Building2 },
   { name: "Utilizadores", href: "/admin/users", icon: Users },
   { name: "Chat Suporte", href: "/admin/chat", icon: MessageSquare },
+];
+
+const careNavigation = [
+  { name: "Subscrições", href: "/admin/care/subscriptions", icon: CreditCard },
+  { name: "Tarefas", href: "/admin/care/tasks", icon: ClipboardList },
   { name: "Técnicos", href: "/admin/care/technicians", icon: Wrench },
 ];
 
@@ -44,13 +52,40 @@ export const AdminSidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-4">
+      <nav className="flex-1 p-4 space-y-6">
+        {/* Main Section */}
         <div className="space-y-1">
-          {adminNavigation.map((item) => (
+          {mainNavigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
               end={item.href === "/admin/dashboard"}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                  "hover:bg-[hsl(var(--sidebar-hover))]",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground"
+                )
+              }
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-sm font-medium">{item.name}</span>
+            </NavLink>
+          ))}
+        </div>
+
+        {/* Care Section */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <Heart className="w-4 h-4" />
+            <span>Cuidado & Homenagem</span>
+          </div>
+          {careNavigation.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
