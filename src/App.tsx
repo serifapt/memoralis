@@ -41,7 +41,7 @@ import BudgetQuotes from "./pages/BudgetQuotes";
 import BudgetQuoteDetail from "./pages/BudgetQuoteDetail";
 // Care & Homenagem B2C Module
 import CareLanding from "./pages/CareLanding";
-import CarePlans from "./pages/CarePlans";
+
 import CareCheckout from "./pages/CareCheckout";
 import CareAuth from "./pages/CareAuth";
 import CustomerDashboard from "./pages/CustomerDashboard";
@@ -75,7 +75,7 @@ const App = () => (
           <Route path="/funeraria/register" element={<FunerariaRegister />} />
           {/* Care & Homenagem B2C Routes */}
           <Route path="/care" element={<CareLanding />} />
-          <Route path="/care/plans" element={<CarePlans />} />
+          
           <Route path="/care/checkout" element={<CareCheckout />} />
           <Route path="/care/auth" element={<CareAuth />} />
           <Route path="/account/care" element={<CustomerDashboard />} />
