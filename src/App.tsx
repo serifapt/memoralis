@@ -39,6 +39,16 @@ import FlowerCatalog from "./pages/FlowerCatalog";
 import FlowerOrders from "./pages/FlowerOrders";
 import BudgetQuotes from "./pages/BudgetQuotes";
 import BudgetQuoteDetail from "./pages/BudgetQuoteDetail";
+// Care & Homenagem B2C Module
+import CareLanding from "./pages/CareLanding";
+import CarePlans from "./pages/CarePlans";
+import CareCheckout from "./pages/CareCheckout";
+import CareAuth from "./pages/CareAuth";
+import CustomerDashboard from "./pages/CustomerDashboard";
+import AdminCareSubscriptions from "./pages/AdminCareSubscriptions";
+import AdminCareTasks from "./pages/AdminCareTasks";
+import AdminCareTechnicians from "./pages/AdminCareTechnicians";
+import TechnicianDashboard from "./pages/TechnicianDashboard";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +73,13 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           <Route path="/funeraria/register" element={<FunerariaRegister />} />
+          {/* Care & Homenagem B2C Routes */}
+          <Route path="/care" element={<CareLanding />} />
+          <Route path="/care/plans" element={<CarePlans />} />
+          <Route path="/care/checkout" element={<CareCheckout />} />
+          <Route path="/care/auth" element={<CareAuth />} />
+          <Route path="/account/care" element={<CustomerDashboard />} />
+          <Route path="/field/tasks" element={<TechnicianDashboard />} />
           <Route 
             path="/funeraria/status" 
             element={
@@ -83,6 +100,9 @@ const App = () => (
             <Route path="/admin/funerarias/:id" element={<AdminFunerariaDetail />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/chat" element={<AdminChat />} />
+            <Route path="/admin/care/subscriptions" element={<AdminCareSubscriptions />} />
+            <Route path="/admin/care/tasks" element={<AdminCareTasks />} />
+            <Route path="/admin/care/technicians" element={<AdminCareTechnicians />} />
           </Route>
           <Route
             element={

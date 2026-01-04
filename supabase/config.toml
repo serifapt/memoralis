@@ -5,3 +5,18 @@ verify_jwt = true
 
 [functions.create-test-funeraria]
 verify_jwt = true
+
+[functions.create-care-checkout]
+verify_jwt = true
+
+[functions.care-customer-portal]
+verify_jwt = true
+
+[functions.care-stripe-webhook]
+verify_jwt = false
+
+[functions.check-care-subscription]
+verify_jwt = true
+
+[functions.create-technician]
+verify_jwt = true
