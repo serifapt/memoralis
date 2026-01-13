@@ -46,6 +46,8 @@ export default function AdminFunerariaDetail() {
     loadData();
   }, [id]);
 
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
   const loadData = async () => {
     try {
       const { data: funerariaData, error: funerariaError } = await supabase
@@ -56,6 +58,18 @@ export default function AdminFunerariaDetail() {
 
       if (funerariaError) throw funerariaError;
       setFuneraria(funerariaData);
+
+      // Fetch user email from profiles
+      if (funerariaData?.user_id) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", funerariaData.user_id)
+          .maybeSingle();
+        
+        // Get email from auth (via edge function or stored separately)
+        // For now we'll show user_id info
+      }
 
       const { data: docsData, error: docsError } = await supabase
         .from("funeraria_docs")
@@ -269,7 +283,11 @@ export default function AdminFunerariaDetail() {
 
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Dados Básicos</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Nome Comercial</p>
+              <p className="font-medium">{funeraria.nome_comercial}</p>
+            </div>
             <div>
               <p className="text-sm text-muted-foreground">NIF</p>
               <p className="font-medium">{funeraria.nif}</p>
@@ -288,7 +306,47 @@ export default function AdminFunerariaDetail() {
                 {new Date(funeraria.created_at).toLocaleDateString("pt-PT")}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Última Atualização</p>
+              <p className="font-medium">
+                {new Date(funeraria.updated_at).toLocaleDateString("pt-PT")}
+              </p>
+            </div>
           </div>
+
+          <Separator className="my-4" />
+
+          <h3 className="text-lg font-semibold mb-3">Declarações e Confirmações</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Representação Legal</p>
+              <Badge variant={funeraria.declaro_representacao_legal ? "default" : "secondary"}>
+                {funeraria.declaro_representacao_legal ? "Confirmado" : "Não confirmado"}
+              </Badge>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Termos e Condições</p>
+              <Badge variant={funeraria.aceito_termos ? "default" : "secondary"}>
+                {funeraria.aceito_termos ? "Aceites" : "Não aceites"}
+              </Badge>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Serviço de Flores</p>
+              <Badge variant={funeraria.servico_flores_ativo ? "default" : "outline"}>
+                {funeraria.servico_flores_ativo ? "Ativo" : "Inativo"}
+              </Badge>
+            </div>
+          </div>
+
+          {funeraria.motivo_rejeicao && (
+            <>
+              <Separator className="my-4" />
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Motivo de Rejeição</p>
+                <p className="text-destructive font-medium">{funeraria.motivo_rejeicao}</p>
+              </div>
+            </>
+          )}
         </Card>
 
         <Card className="p-6">
