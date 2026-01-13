@@ -7,6 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Shield } from "lucide-react";
 
+function withTimeout<T>(promise: PromiseLike<T>, ms: number, label = "Pedido"): Promise<T> {
+  return Promise.race<T>([
+    Promise.resolve(promise),
+    new Promise<T>((_resolve, reject) =>
+      setTimeout(() => reject(new Error(`${label} sem resposta. Tente novamente.`)), ms)
+    ),
+  ]);
+}
+
 export default function AdminAuth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,14 +28,18 @@ export default function AdminAuth() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         // Check if user is admin
-        const { data: roleData } = await supabase
+        const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .eq("role", "admin")
-          .maybeSingle();
+          .eq("user_id", session.user.id);
 
-        if (roleData) {
+        if (rolesError) {
+          console.error("Erro ao verificar permissões (admin):", rolesError);
+          return;
+        }
+
+        const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+        if (isAdmin) {
           navigate("/admin/funerarias");
         }
       }
@@ -36,14 +49,18 @@ export default function AdminAuth() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
-        const { data: roleData } = await supabase
+        const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .eq("role", "admin")
-          .maybeSingle();
+          .eq("user_id", session.user.id);
 
-        if (roleData) {
+        if (rolesError) {
+          console.error("Erro ao verificar permissões (admin):", rolesError);
+          return;
+        }
+
+        const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+        if (isAdmin) {
           navigate("/admin/funerarias");
         }
       }
@@ -57,22 +74,33 @@ export default function AdminAuth() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        }),
+        15000,
+        "Login",
+      );
 
       if (error) throw error;
+      if (!data.user) throw new Error("Não foi possível obter o utilizador autenticado.");
 
       // Check if user is admin
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id)
-        .eq("role", "admin")
-        .maybeSingle();
+      const { data: roles, error: rolesError } = await withTimeout(
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id),
+        15000,
+        "Verificação de permissões",
+      );
 
-      if (!roleData) {
+      if (rolesError) throw rolesError;
+
+      const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+
+      if (!isAdmin) {
         await supabase.auth.signOut();
         toast({
           title: "Acesso Negado",
@@ -86,12 +114,12 @@ export default function AdminAuth() {
         title: "Login efetuado com sucesso",
         description: "Bem-vindo ao painel de administração",
       });
-      
+
       navigate("/admin/funerarias");
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
-        description: error.message,
+        description: error?.message || "Ocorreu um erro. Tente novamente.",
         variant: "destructive",
       });
     } finally {
