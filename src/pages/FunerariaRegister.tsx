@@ -23,93 +23,70 @@ export default function FunerariaRegister() {
     setIsSubmitting(true);
     
     try {
-      // 1. Criar conta de autenticação
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
+      // Use the atomic edge function for registration
+      const response = await supabase.functions.invoke("register-funeraria", {
+        body: {
+          email: data.email,
+          password: data.password,
+          nome_comercial: data.nome_comercial,
+          nif: data.nif,
+          telefone: data.telefone,
+          responsavel_nome: data.responsavel_nome,
+          declaro_representacao_legal: data.declaro_representacao_legal,
+          aceito_termos: data.aceito_termos,
+          certidao: {
+            tipo: certidaoData.tipo,
+            codigo_acesso: certidaoData.codigo_acesso,
+          },
         },
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Erro ao criar utilizador");
+      if (response.error) {
+        throw new Error(response.error.message || "Erro no registo");
+      }
 
-      // 2. Criar perfil
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert({
-          id: authData.user.id,
-          full_name: data.responsavel_nome,
-          phone: data.telefone,
-        });
+      const result = response.data;
 
-      if (profileError) throw profileError;
+      if (!result.success) {
+        throw new Error(result.error || "Erro no registo");
+      }
 
-      // 3. Atribuir role de funeraria
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: authData.user.id,
-          role: "funeraria",
-        });
+      const funerariaId = result.funeraria_id;
 
-      if (roleError) throw roleError;
-
-      // 4. Criar registo de funerária
-      const { data: funerariaData, error: funerariaError } = await supabase
-        .from("funerarias")
-        .insert({
-          user_id: authData.user.id,
-          nome_comercial: data.nome_comercial,
-          nif: data.nif,
-          responsavel_nome: data.responsavel_nome,
-          telefone: data.telefone,
-          declaro_representacao_legal: data.declaro_representacao_legal,
-          aceito_termos: data.aceito_termos,
-          status: "pendente",
-        })
-        .select()
-        .single();
-
-      if (funerariaError) throw funerariaError;
-
-      // 5. Criar registo da certidão permanente
-      if (certidaoData.tipo === "upload" && certidaoData.file) {
-        // Upload do ficheiro
+      // Handle file upload separately if needed
+      if (certidaoData.tipo === "upload" && certidaoData.file && funerariaId) {
         const fileExt = certidaoData.file.name.split(".").pop();
-        const fileName = `${funerariaData.id}/certidao_permanente_${Date.now()}.${fileExt}`;
+        const fileName = `${funerariaId}/certidao_permanente_${Date.now()}.${fileExt}`;
         
         const { error: uploadError } = await supabase.storage
           .from("funeraria-docs")
           .upload(fileName, certidaoData.file);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Erro no upload da certidão:", uploadError);
+          // Don't fail the registration, just log the error
+        } else {
+          // Create the document record
+          const { error: docError } = await supabase
+            .from("funeraria_docs")
+            .insert({
+              funeraria_id: funerariaId,
+              tipo: "certidao_permanente_upload",
+              ficheiro_path: fileName,
+              entidade_emissora: "Conservatória do Registo Comercial",
+            });
 
-        // Criar registo do documento
-        const { error: docError } = await supabase
-          .from("funeraria_docs")
-          .insert({
-            funeraria_id: funerariaData.id,
-            tipo: "certidao_permanente_upload",
-            ficheiro_path: fileName,
-            entidade_emissora: "Conservatória do Registo Comercial",
-          });
-
-        if (docError) throw docError;
-      } else if (certidaoData.tipo === "codigo" && certidaoData.codigo_acesso) {
-        // Criar registo com código de acesso
-        const { error: docError } = await supabase
-          .from("funeraria_docs")
-          .insert({
-            funeraria_id: funerariaData.id,
-            tipo: "certidao_permanente_codigo",
-            codigo_acesso: certidaoData.codigo_acesso,
-            entidade_emissora: "Conservatória do Registo Comercial",
-          });
-
-        if (docError) throw docError;
+          if (docError) {
+            console.error("Erro ao criar registo do documento:", docError);
+          }
+        }
       }
+
+      // Sign in the user after successful registration
+      await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
 
       toast({
         title: "Registo enviado com sucesso!",
