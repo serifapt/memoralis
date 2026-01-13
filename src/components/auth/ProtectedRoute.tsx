@@ -39,8 +39,11 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
             setHasRole(true);
           }
         } else {
+          // User has no roles - orphan user, force logout
+          console.warn("User has no roles in ProtectedRoute, signing out");
+          await supabase.auth.signOut();
           setUserRole(null);
-          setHasRole(!requireRole);
+          setHasRole(false);
         }
       }
 
