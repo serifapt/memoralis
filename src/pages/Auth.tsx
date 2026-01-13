@@ -23,34 +23,42 @@ export default function Auth() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           // Check user role and redirect accordingly
-          const { data: roles } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", session.user.id);
+          const [adminRes, funerariaRes, technicianRes] = await Promise.all([
+            supabase.rpc("has_role", { _user_id: session.user.id, _role: "admin" }),
+            supabase.rpc("has_role", { _user_id: session.user.id, _role: "funeraria" }),
+            supabase.rpc("has_role", { _user_id: session.user.id, _role: "technician" }),
+          ]);
 
-          if (roles && roles.length > 0) {
-            const isAdmin = roles.some(r => r.role === "admin");
-            const isFuneraria = roles.some(r => r.role === "funeraria");
-            const isTechnician = roles.some(r => r.role === "technician");
+          const roleError = adminRes.error || funerariaRes.error || technicianRes.error;
+          if (roleError) {
+            console.error("Erro ao verificar permissões:", roleError);
+            // Fail closed
+            await supabase.auth.signOut();
+            toast({
+              title: "Sessão inválida",
+              description: "Não foi possível validar as permissões. Tente novamente.",
+              variant: "destructive",
+            });
+            return;
+          }
 
-            if (isAdmin) {
-              navigate("/admin/funerarias");
-            } else if (isFuneraria) {
-              navigate("/dashboard");
-            } else if (isTechnician) {
-              navigate("/field/tasks");
-            } else {
-              // User has roles but not recognized - logout
-              console.warn("User has unrecognized roles, signing out");
-              await supabase.auth.signOut();
-            }
+          const isAdmin = Boolean(adminRes.data);
+          const isFuneraria = Boolean(funerariaRes.data);
+          const isTechnician = Boolean(technicianRes.data);
+
+          if (isAdmin) {
+            navigate("/admin/funerarias");
+          } else if (isFuneraria) {
+            navigate("/dashboard");
+          } else if (isTechnician) {
+            navigate("/field/tasks");
           } else {
-            // User has no roles - this is an orphan user, logout
+            // User has no roles - orphan user, logout
             console.warn("User has no roles, signing out orphan session");
             await supabase.auth.signOut();
             toast({
               title: "Sessão inválida",
-              description: "A sua conta não está correctamente configurada. Por favor, registe-se novamente.",
+              description: "A sua conta não está correctamente configurada. Por favor, contacte o suporte.",
               variant: "destructive",
             });
           }
@@ -78,25 +86,34 @@ export default function Auth() {
 
   // Helper function to redirect based on role
   const redirectBasedOnRole = async (userId: string) => {
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
+    const [adminRes, funerariaRes, technicianRes] = await Promise.all([
+      supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
+      supabase.rpc("has_role", { _user_id: userId, _role: "funeraria" }),
+      supabase.rpc("has_role", { _user_id: userId, _role: "technician" }),
+    ]);
 
-    if (roles && roles.length > 0) {
-      const isAdmin = roles.some(r => r.role === "admin");
-      const isFuneraria = roles.some(r => r.role === "funeraria");
-      const isTechnician = roles.some(r => r.role === "technician");
+    const roleError = adminRes.error || funerariaRes.error || technicianRes.error;
+    if (roleError) {
+      console.error("Erro ao verificar permissões:", roleError);
+      await supabase.auth.signOut();
+      toast({
+        title: "Conta sem permissões",
+        description: "Não foi possível validar as permissões. Contacte o suporte.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-      if (isAdmin) {
-        navigate("/admin/funerarias");
-      } else if (isFuneraria) {
-        navigate("/dashboard");
-      } else if (isTechnician) {
-        navigate("/field/tasks");
-      } else {
-        navigate("/dashboard");
-      }
+    const isAdmin = Boolean(adminRes.data);
+    const isFuneraria = Boolean(funerariaRes.data);
+    const isTechnician = Boolean(technicianRes.data);
+
+    if (isAdmin) {
+      navigate("/admin/funerarias");
+    } else if (isFuneraria) {
+      navigate("/dashboard");
+    } else if (isTechnician) {
+      navigate("/field/tasks");
     } else {
       // No valid role, sign out
       console.warn("User logged in but has no valid role");

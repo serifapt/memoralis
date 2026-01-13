@@ -27,18 +27,16 @@ export default function AdminAuth() {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        // Check if user is admin
-        const { data: roles, error: rolesError } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id);
+        const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+          _user_id: session.user.id,
+          _role: "admin",
+        });
 
-        if (rolesError) {
-          console.error("Erro ao verificar permissões (admin):", rolesError);
+        if (roleError) {
+          console.error("Erro ao verificar permissões (admin):", roleError);
           return;
         }
 
-        const isAdmin = (roles ?? []).some((r) => r.role === "admin");
         if (isAdmin) {
           navigate("/admin/funerarias");
         }
@@ -49,17 +47,16 @@ export default function AdminAuth() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
-        const { data: roles, error: rolesError } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id);
+        const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+          _user_id: session.user.id,
+          _role: "admin",
+        });
 
-        if (rolesError) {
-          console.error("Erro ao verificar permissões (admin):", rolesError);
+        if (roleError) {
+          console.error("Erro ao verificar permissões (admin):", roleError);
           return;
         }
 
-        const isAdmin = (roles ?? []).some((r) => r.role === "admin");
         if (isAdmin) {
           navigate("/admin/funerarias");
         }
@@ -86,19 +83,16 @@ export default function AdminAuth() {
       if (error) throw error;
       if (!data.user) throw new Error("Não foi possível obter o utilizador autenticado.");
 
-      // Check if user is admin
-      const { data: roles, error: rolesError } = await withTimeout(
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.user.id),
+      const { data: isAdmin, error: rolesError } = await withTimeout(
+        supabase.rpc("has_role", {
+          _user_id: data.user.id,
+          _role: "admin",
+        }),
         15000,
         "Verificação de permissões",
       );
 
       if (rolesError) throw rolesError;
-
-      const isAdmin = (roles ?? []).some((r) => r.role === "admin");
 
       if (!isAdmin) {
         await supabase.auth.signOut();
