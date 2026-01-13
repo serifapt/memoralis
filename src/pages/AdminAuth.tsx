@@ -45,21 +45,24 @@ export default function AdminAuth() {
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
-        const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-          _user_id: session.user.id,
-          _role: "admin",
-        });
+        // Defer to avoid auth timing/deadlock issues
+        setTimeout(async () => {
+          const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+            _user_id: session.user.id,
+            _role: "admin",
+          });
 
-        if (roleError) {
-          console.error("Erro ao verificar permissões (admin):", roleError);
-          return;
-        }
+          if (roleError) {
+            console.error("Erro ao verificar permissões (admin):", roleError);
+            return;
+          }
 
-        if (isAdmin) {
-          navigate("/admin/funerarias");
-        }
+          if (isAdmin) {
+            navigate("/admin/funerarias");
+          }
+        }, 0);
       }
     });
 
@@ -71,6 +74,9 @@ export default function AdminAuth() {
     setLoading(true);
 
     try {
+      // Ensure we start clean (avoids edge cases when switching accounts)
+      await supabase.auth.signOut();
+
       const { data, error } = await withTimeout(
         supabase.auth.signInWithPassword({
           email,
@@ -111,6 +117,35 @@ export default function AdminAuth() {
 
       navigate("/admin/funerarias");
     } catch (error: any) {
+      // If the login request timed out, check if the session was created anyway.
+      if (typeof error?.message === "string" && error.message.includes("Login sem resposta")) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+
+          if (session) {
+            const { data: isAdmin, error: rolesError } = await withTimeout(
+              supabase.rpc("has_role", {
+                _user_id: session.user.id,
+                _role: "admin",
+              }),
+              15000,
+              "Verificação de permissões",
+            );
+
+            if (!rolesError && isAdmin) {
+              toast({
+                title: "Login efetuado com sucesso",
+                description: "Bem-vindo ao painel de administração",
+              });
+              navigate("/admin/funerarias");
+              return;
+            }
+          }
+        } catch {
+          // Ignore and show original error toast below
+        }
+      }
+
       toast({
         title: "Erro ao fazer login",
         description: error?.message || "Ocorreu um erro. Tente novamente.",
