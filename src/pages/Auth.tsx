@@ -12,37 +12,53 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in and redirect based on role
     const checkSessionAndRedirect = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // Check user role and redirect accordingly
-        const { data: roles } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          // Check user role and redirect accordingly
+          const { data: roles } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", session.user.id);
 
-        if (roles && roles.length > 0) {
-          const isAdmin = roles.some(r => r.role === "admin");
-          const isFuneraria = roles.some(r => r.role === "funeraria");
-          const isTechnician = roles.some(r => r.role === "technician");
+          if (roles && roles.length > 0) {
+            const isAdmin = roles.some(r => r.role === "admin");
+            const isFuneraria = roles.some(r => r.role === "funeraria");
+            const isTechnician = roles.some(r => r.role === "technician");
 
-          if (isAdmin) {
-            navigate("/admin");
-          } else if (isFuneraria) {
-            navigate("/dashboard");
-          } else if (isTechnician) {
-            navigate("/field/tasks");
+            if (isAdmin) {
+              navigate("/admin");
+            } else if (isFuneraria) {
+              navigate("/dashboard");
+            } else if (isTechnician) {
+              navigate("/field/tasks");
+            } else {
+              // User has roles but not recognized - logout
+              console.warn("User has unrecognized roles, signing out");
+              await supabase.auth.signOut();
+            }
           } else {
-            navigate("/dashboard");
+            // User has no roles - this is an orphan user, logout
+            console.warn("User has no roles, signing out orphan session");
+            await supabase.auth.signOut();
+            toast({
+              title: "Sessão inválida",
+              description: "A sua conta não está correctamente configurada. Por favor, registe-se novamente.",
+              variant: "destructive",
+            });
           }
-        } else {
-          navigate("/dashboard");
         }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      } finally {
+        setCheckingSession(false);
       }
     };
     checkSessionAndRedirect();
@@ -58,7 +74,7 @@ export default function Auth() {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   // Helper function to redirect based on role
   const redirectBasedOnRole = async (userId: string) => {
@@ -82,7 +98,14 @@ export default function Auth() {
         navigate("/dashboard");
       }
     } else {
-      navigate("/dashboard");
+      // No valid role, sign out
+      console.warn("User logged in but has no valid role");
+      await supabase.auth.signOut();
+      toast({
+        title: "Conta sem permissões",
+        description: "A sua conta não tem permissões válidas. Contacte o suporte.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,6 +141,15 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  // Show loading while checking session
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">A verificar sessão...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
