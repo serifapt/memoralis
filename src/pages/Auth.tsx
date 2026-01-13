@@ -34,7 +34,7 @@ export default function Auth() {
             const isTechnician = roles.some(r => r.role === "technician");
 
             if (isAdmin) {
-              navigate("/admin");
+              navigate("/admin/funerarias");
             } else if (isFuneraria) {
               navigate("/dashboard");
             } else if (isTechnician) {
@@ -89,7 +89,7 @@ export default function Auth() {
       const isTechnician = roles.some(r => r.role === "technician");
 
       if (isAdmin) {
-        navigate("/admin");
+        navigate("/admin/funerarias");
       } else if (isFuneraria) {
         navigate("/dashboard");
       } else if (isTechnician) {
