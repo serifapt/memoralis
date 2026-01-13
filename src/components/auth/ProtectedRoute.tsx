@@ -15,52 +15,81 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   const [userRole, setUserRole] = useState<"admin" | "funeraria" | null>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      setSession(currentSession);
+    let isMounted = true;
 
-      if (currentSession) {
-        // Get all user roles
-        const { data: rolesData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", currentSession.user.id);
+    const fetchRolesForSession = async (nextSession: Session | null) => {
+      if (!isMounted) return;
 
-        if (rolesData && rolesData.length > 0) {
-          // Check if user is admin
-          const isAdmin = rolesData.some((r) => r.role === "admin");
-          const isFuneraria = rolesData.some((r) => r.role === "funeraria");
-          
-          setUserRole(isAdmin ? "admin" : isFuneraria ? "funeraria" : null);
+      setSession(nextSession);
 
-          if (requireRole) {
-            setHasRole(rolesData.some((r) => r.role === requireRole));
-          } else {
-            setHasRole(true);
-          }
-        } else {
-          // User has no roles - orphan user, force logout
-          console.warn("User has no roles in ProtectedRoute, signing out");
-          await supabase.auth.signOut();
-          setUserRole(null);
-          setHasRole(false);
-        }
+      if (!nextSession) {
+        setHasRole(false);
+        setUserRole(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      const [adminRes, funerariaRes] = await Promise.all([
+        supabase.rpc("has_role", { _user_id: nextSession.user.id, _role: "admin" }),
+        supabase.rpc("has_role", { _user_id: nextSession.user.id, _role: "funeraria" }),
+      ]);
+
+      if (adminRes.error || funerariaRes.error) {
+        console.error("Erro ao verificar permissões (ProtectedRoute):", adminRes.error || funerariaRes.error);
+        // Fail closed
+        setHasRole(false);
+        setUserRole(null);
+        setLoading(false);
+        return;
+      }
+
+      const isAdmin = Boolean(adminRes.data);
+      const isFuneraria = Boolean(funerariaRes.data);
+
+      if (!isAdmin && !isFuneraria) {
+        // User has no roles - orphan user, force logout
+        console.warn("User has no roles in ProtectedRoute, signing out");
+        await supabase.auth.signOut();
+        setUserRole(null);
+        setHasRole(false);
+        setLoading(false);
+        return;
+      }
+
+      setUserRole(isAdmin ? "admin" : isFuneraria ? "funeraria" : null);
+
+      if (requireRole) {
+        setHasRole(requireRole === "admin" ? isAdmin : isFuneraria);
+      } else {
+        setHasRole(true);
       }
 
       setLoading(false);
     };
 
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        setHasRole(false);
-        setUserRole(null);
-      }
+    // Subscribe first to avoid missing a fast SIGNED_IN event
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      // Defer to avoid potential auth state timing issues
+      setTimeout(() => {
+        fetchRolesForSession(nextSession);
+      }, 0);
     });
 
-    return () => subscription.unsubscribe();
+    // Initial load
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: currentSession } }) => fetchRolesForSession(currentSession))
+      .catch((err) => {
+        console.error("Erro ao obter sessão (ProtectedRoute):", err);
+        setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [requireRole]);
 
   if (loading) {
