@@ -101,7 +101,8 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   }
 
   if (!session) {
-    return <Navigate to="/auth" replace />;
+    const loginPath = requireRole === "admin" ? "/admin/auth" : "/auth";
+    return <Navigate to={loginPath} replace />;
   }
 
   // Admins can access everything
