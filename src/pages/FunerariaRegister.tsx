@@ -23,8 +23,8 @@ export default function FunerariaRegister() {
     setIsSubmitting(true);
     
     try {
-      // Use the atomic edge function for registration
-      const response = await supabase.functions.invoke("register-funeraria", {
+      // Use the atomic backend function for registration
+      const fnResult = await supabase.functions.invoke("register-funeraria", {
         body: {
           email: data.email,
           password: data.password,
@@ -41,14 +41,41 @@ export default function FunerariaRegister() {
         },
       });
 
-      if (response.error) {
-        throw new Error(response.error.message || "Erro no registo");
+      if (fnResult.error) {
+        // Supabase returns a generic message for non-2xx; try to extract the real error from the response body.
+        let message = fnResult.error.message || "Erro no registo";
+
+        try {
+          const res = fnResult.response;
+          if (res) {
+            const contentType = (res.headers.get("Content-Type") || "").split(";")[0].trim();
+            const parsed =
+              contentType === "application/json"
+                ? await res.clone().json()
+                : await res.clone().text();
+
+            if (typeof parsed === "string" && parsed.trim()) {
+              message = parsed;
+            } else if (
+              parsed &&
+              typeof parsed === "object" &&
+              "error" in parsed &&
+              typeof (parsed as any).error === "string"
+            ) {
+              message = (parsed as any).error;
+            }
+          }
+        } catch {
+          // ignore parsing errors and fallback to generic message
+        }
+
+        throw new Error(message);
       }
 
-      const result = response.data;
+      const result = fnResult.data as any;
 
-      if (!result.success) {
-        throw new Error(result.error || "Erro no registo");
+      if (!result?.success) {
+        throw new Error(result?.error || "Erro no registo");
       }
 
       const funerariaId = result.funeraria_id;
