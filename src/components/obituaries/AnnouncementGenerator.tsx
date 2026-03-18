@@ -71,144 +71,21 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
     
     if (selectedTemplate === "profissional") {
       return (
-        <div 
-          id="announcement-preview"
-          className="bg-white p-8 rounded-lg min-h-[800px] relative"
-          style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
-        >
-          {/* Header - Logo memoralis */}
-          <div className="absolute top-6 right-8 text-gray-400 text-sm font-light tracking-wider">
-            ||| memoralis
-          </div>
-
-          <div className="grid grid-cols-2 gap-8 mt-12">
-            {/* Left Column */}
-            <div className="space-y-8">
-              {/* Photo placeholder */}
-              <div className="w-64 h-64 bg-gray-300 rounded-3xl mx-auto"></div>
-
-              {/* FALECEU text */}
-              <div className="text-left">
-                <h2 className="text-5xl font-bold text-gray-500 leading-tight mb-4">
-                  FALECEU<br />EM FRANÇA
-                </h2>
-                
-                {obituaryData.publicMessage && (
-                  <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                    {obituaryData.publicMessage}
-                  </p>
-                )}
-                
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Antecipadamente, a Família<br />reconhecida agradece!
-                </p>
-              </div>
-
-              {/* QR Code and message */}
-              <div className="mt-auto">
-                <p className="text-sm text-gray-600 mb-2">
-                  Deixe uma mensagem<br />de condolências.
-                </p>
-                <div className="w-24 h-24 bg-gray-300"></div>
-              </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Name and details */}
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  {obituaryData.displayName || "Nome do Falecido"}
-                </h1>
-                {obituaryData.birthDate && obituaryData.deathDate && (
-                  <p className="text-2xl text-gray-500 mb-2">
-                    55 anos · {new Date(obituaryData.birthDate).getFullYear()} - {new Date(obituaryData.deathDate).getFullYear()}
-                  </p>
-                )}
-                <p className="text-lg text-gray-600">
-                  Couto · Arcos de Valdevez
-                </p>
-              </div>
-
-              {/* Ceremonies */}
-              <div className="space-y-6 mt-8">
-                {obituaryData.velorioDate && obituaryData.velorioLocation && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Câmara Ardente</h3>
-                    <div className="space-y-1 text-gray-600">
-                      <p className="flex items-center gap-2">
-                        <span>📅</span> {formatDate(obituaryData.velorioDate)}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span>🕐</span> {obituaryData.velorioTime}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span>📍</span> {obituaryData.velorioLocation}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {obituaryData.funeralDate && obituaryData.funeralCemetery && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Funeral</h3>
-                    <div className="space-y-1 text-gray-600">
-                      <p className="flex items-center gap-2">
-                        <span>📅</span> {formatDate(obituaryData.funeralDate)}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span>🕐</span> {obituaryData.funeralTime}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span>📍</span> {obituaryData.funeralCemetery}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {obituaryData.cerimoniaChurch && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Cemitério</h3>
-                    <div className="space-y-1 text-gray-600">
-                      <p className="flex items-center gap-2">
-                        <span>📍</span> {obituaryData.cerimoniaChurch}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="absolute bottom-8 left-8 right-8 flex items-end justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-black"></div>
-                <div>
-                  <p className="text-2xl font-bold">FUNERÁRIA</p>
-                  <p className="text-2xl font-light">S. JOÃO</p>
-                </div>
-              </div>
-              <div className="text-xs text-gray-600">
-                <p>962 766 625 | 258 515 233</p>
-                <p>funeraria.s.joao@gmail.com</p>
-                <p>funerariasjoao.pt</p>
-              </div>
-            </div>
-            
-            {/* Decorative flower */}
-            <div className="w-32 h-32 opacity-50">
-              <svg viewBox="0 0 100 100" fill="none">
-                <circle cx="50" cy="30" r="8" fill="#666" />
-                <circle cx="35" cy="40" r="8" fill="#666" />
-                <circle cx="65" cy="40" r="8" fill="#666" />
-                <circle cx="50" cy="50" r="8" fill="#666" />
-                <rect x="48" y="50" width="4" height="40" fill="#333" />
-              </svg>
-            </div>
-          </div>
-        </div>
+        <ObituaryTemplateA4
+          data={{
+            displayName: obituaryData.displayName,
+            birthDate: obituaryData.birthDate,
+            deathDate: obituaryData.deathDate,
+            velorioDate: obituaryData.velorioDate,
+            velorioTime: obituaryData.velorioTime,
+            velorioLocation: obituaryData.velorioLocation,
+            funeralDate: obituaryData.funeralDate,
+            funeralTime: obituaryData.funeralTime,
+            funeralLocation: obituaryData.funeralCemetery,
+            cemeteryName: obituaryData.cerimoniaChurch,
+            publicMessage: obituaryData.publicMessage,
+          }}
+        />
       );
     }
     
