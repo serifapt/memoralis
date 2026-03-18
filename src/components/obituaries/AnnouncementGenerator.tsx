@@ -194,7 +194,8 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
   const generateImage = async (format: "story" | "post") => {
     setIsGenerating(true);
     try {
-      const element = document.getElementById("announcement-preview");
+      const elementId = selectedTemplate === "profissional" ? "obituary-template-a4" : "announcement-preview";
+      const element = document.getElementById(elementId);
       if (!element) {
         throw new Error("Preview element not found");
       }
