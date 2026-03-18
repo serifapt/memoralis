@@ -2050,8 +2050,12 @@ export default function NewObituary() {
             {/* Preview Card - Matching ObituaryArchive Style */}
             <Card className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative">
-                <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center">
-                  <Camera className="w-16 h-16 text-muted-foreground" />
+                <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center overflow-hidden">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Foto destaque" className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="w-16 h-16 text-muted-foreground" />
+                  )}
                 </div>
                 <div className="absolute top-3 left-3 bg-background/90 text-foreground border border-border rounded-md px-2 py-1 text-xs font-medium">
                   Funeral
