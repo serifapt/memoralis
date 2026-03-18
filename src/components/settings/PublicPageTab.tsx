@@ -108,10 +108,12 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
   };
 
   const handleAddService = () => {
-    const trimmed = newService.trim();
-    if (!trimmed) return;
-    if (data.servicos.includes(trimmed)) { toast.error("Serviço já existe"); return; }
-    setData(prev => ({ ...prev, servicos: [...prev.servicos, trimmed] }));
+    const raw = newService.trim();
+    if (!raw) return;
+    const items = raw.split(",").map(s => s.trim()).filter(Boolean);
+    const unique = items.filter(s => !data.servicos.includes(s));
+    if (unique.length === 0) { toast.error("Serviço(s) já existe(m)"); return; }
+    setData(prev => ({ ...prev, servicos: [...prev.servicos, ...unique] }));
     setNewService("");
   };
 

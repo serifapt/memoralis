@@ -82,7 +82,7 @@ export default function FunerariaDetail() {
         query = query.eq("slug", id!);
       }
 
-      const { data, error } = await query.single();
+      const { data, error } = await query.maybeSingle();
 
       if (error || !data) {
         setNotFound(true);
