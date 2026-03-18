@@ -44,6 +44,7 @@ interface Funeraria {
   telefone: string;
   email: string | null;
   morada: string | null;
+  logo_url: string | null;
 }
 
 interface RelatedObituary {
