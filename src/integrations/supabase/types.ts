@@ -981,7 +981,9 @@ export type Database = {
           aceito_termos: boolean
           created_at: string
           declaro_representacao_legal: boolean
+          email: string | null
           id: string
+          morada: string | null
           motivo_rejeicao: string | null
           nif: string
           nome_comercial: string
@@ -996,7 +998,9 @@ export type Database = {
           aceito_termos?: boolean
           created_at?: string
           declaro_representacao_legal?: boolean
+          email?: string | null
           id?: string
+          morada?: string | null
           motivo_rejeicao?: string | null
           nif: string
           nome_comercial: string
@@ -1011,7 +1015,9 @@ export type Database = {
           aceito_termos?: boolean
           created_at?: string
           declaro_representacao_legal?: boolean
+          email?: string | null
           id?: string
+          morada?: string | null
           motivo_rejeicao?: string | null
           nif?: string
           nome_comercial?: string
