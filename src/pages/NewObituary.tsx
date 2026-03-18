@@ -496,8 +496,8 @@ export default function NewObituary() {
       // 2. Prepare obituary data
       const obituaryData = {
         funeraria_id: funerariaId,
-        display_name: formData.displayName,
-        full_name: formData.fullName,
+        display_name: formData.displayName.trim(),
+        full_name: formData.fullName.trim() || formData.displayName.trim(),
         birth_date: formData.birthDate || null,
         freguesia: formData.freguesia || null,
         locality: formData.locality || null,
