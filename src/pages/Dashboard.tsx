@@ -477,10 +477,13 @@ export default function Dashboard() {
             Bem-vindo ao Sistema de Gestão Funerária da Memoralis
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate("/obituaries/new")}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Obituário
-        </Button>
+        <div className="flex items-center gap-3">
+          {funerariaId && <NotificationBell funerariaId={funerariaId} />}
+          <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate("/obituaries/new")}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Obituário
+          </Button>
+        </div>
       </div>
 
       {/* Quick Search */}
