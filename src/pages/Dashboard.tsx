@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,145 +6,63 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ChatButton } from "@/components/chat/ChatButton";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { pt } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const stats = [
-  {
-    name: "Processos Ativos",
-    value: "24",
-    icon: FileText,
-    change: "+3 este mês",
-    changeType: "positive",
-  },
-  {
-    name: "Cerimónias Agendadas",
-    value: "8",
-    icon: Calendar,
-    change: "Próximos 7 dias",
-    changeType: "neutral",
-  },
-  {
-    name: "Processos Concluídos",
-    value: "156",
-    icon: Users,
-    change: "+12 este mês",
-    changeType: "positive",
-  },
-  {
-    name: "Novos Processos",
-    value: "98%",
-    icon: TrendingUp,
-    change: "+2% vs. anterior",
-    changeType: "positive",
-  },
-];
+interface DashboardStats {
+  activeProcesses: number;
+  scheduledCeremonies: number;
+  completedProcesses: number;
+  thisMonthNew: number;
+}
 
-const upcomingCeremonies = [
-  {
-    id: 1,
-    name: "Maria Silva Santos",
-    day: "17",
-    month: "JAN",
-    time: "10:00",
-    type: "Velório",
-    typeColor: "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
-    location: "Capela São João",
-    participants: 45,
-  },
-  {
-    id: 2,
-    name: "João Pedro Costa",
-    day: "16",
-    month: "JAN",
-    time: "15:00",
-    type: "Missa",
-    typeColor: "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400",
-    location: "Igreja Nossa Senhora",
-    participants: 32,
-  },
-  {
-    id: 3,
-    name: "Ana Beatriz Oliveira",
-    day: "15",
-    month: "JAN",
-    time: "11:00",
-    type: "Sepultamento",
-    typeColor: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400",
-    location: "Cemitério Municipal",
-    participants: 28,
-  },
-];
+interface RecentObituary {
+  id: string;
+  display_name: string;
+  death_date: string | null;
+  is_completed: boolean;
+  created_at: string;
+  nextCeremony?: { event_date: string; event_time: string; event_type: string } | null;
+}
 
-const completedProcesses = [
-  {
-    id: 1,
-    name: "António Manuel Ferreira",
-    date: "10/01/2025",
-    paymentDate: "12/01/2025",
-    amount: "3.500€",
-  },
-  {
-    id: 2,
-    name: "Rosa Maria Gonçalves",
-    date: "08/01/2025",
-    paymentDate: "10/01/2025",
-    amount: "4.200€",
-  },
-  {
-    id: 3,
-    name: "Carlos Alberto Sousa",
-    date: "05/01/2025",
-    paymentDate: "07/01/2025",
-    amount: "3.800€",
-  },
-];
+interface UpcomingCeremony {
+  id: string;
+  event_type: string;
+  event_date: string;
+  event_time: string | null;
+  location: string | null;
+  obituary: { display_name: string; id: string } | null;
+}
 
-const recentObituaries = [
-  {
-    id: 1,
-    name: "Maria Silva Santos",
-    date: "15/01/2025",
-    ceremony: "17/01/2025 - 10:00",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "João Pedro Costa",
-    date: "14/01/2025",
-    ceremony: "16/01/2025 - 15:00",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Ana Beatriz Oliveira",
-    date: "13/01/2025",
-    ceremony: "15/01/2025 - 11:00",
-    status: "active",
-  },
-];
+interface ActiveProcess {
+  id: string;
+  display_name: string;
+  created_at: string;
+  progress: number;
+  stage: string;
+}
 
-const activeProcesses = [
-  {
-    id: 1,
-    name: "Maria Silva Santos",
-    startDate: "15/01/2025",
-    stage: "Documentação",
-    progress: 65,
-  },
-  {
-    id: 2,
-    name: "João Pedro Costa",
-    startDate: "14/01/2025",
-    stage: "Preparação",
-    progress: 45,
-  },
-  {
-    id: 3,
-    name: "Ana Beatriz Oliveira",
-    startDate: "13/01/2025",
-    stage: "Cerimónia",
-    progress: 85,
-  },
-];
+interface CompletedProcess {
+  id: string;
+  display_name: string;
+  updated_at: string;
+  service_price: number | null;
+}
+
+function calculateProgress(obit: any): { progress: number; stage: string } {
+  const fields = [
+    obit.full_name, obit.birth_date, obit.death_date, obit.locality,
+    obit.photo_url, obit.public_message, obit.family_name, obit.service_type
+  ];
+  const filled = fields.filter(f => f != null && f !== "").length;
+  const pct = Math.round((filled / fields.length) * 100);
+  if (pct < 30) return { progress: pct, stage: "Início" };
+  if (pct < 60) return { progress: pct, stage: "Documentação" };
+  if (pct < 85) return { progress: pct, stage: "Preparação" };
+  return { progress: pct, stage: "Cerimónia" };
+}
 
 type DashboardCard = {
   id: string;
@@ -155,14 +73,142 @@ type DashboardCard = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [funerariaName, setFunerariaName] = useState("");
+  const [funerariaId, setFunerariaId] = useState<string | null>(null);
+  const [stats, setStats] = useState<DashboardStats>({ activeProcesses: 0, scheduledCeremonies: 0, completedProcesses: 0, thisMonthNew: 0 });
+  const [recentObituaries, setRecentObituaries] = useState<RecentObituary[]>([]);
+  const [upcomingCeremonies, setUpcomingCeremonies] = useState<UpcomingCeremony[]>([]);
+  const [activeProcesses, setActiveProcesses] = useState<ActiveProcess[]>([]);
+  const [completedProcesses, setCompletedProcesses] = useState<CompletedProcess[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
-  
-  const [cardOrder, setCardOrder] = useState<string[]>([
-    "obituarios",
-    "proximas-cerimonias",
-    "processos-ativos",
-    "processos-concluidos",
-  ]);
+  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos"]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get funeraria
+      const { data: funeraria } = await supabase
+        .from("funerarias")
+        .select("id, nome_comercial")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!funeraria) return;
+      setFunerariaName(funeraria.nome_comercial);
+      setFunerariaId(funeraria.id);
+
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const today = now.toISOString().split("T")[0];
+      const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+      // Parallel queries
+      const [
+        { count: activeCount },
+        { count: completedCount },
+        { count: thisMonthCount },
+        { data: ceremoniesNext7 },
+        { data: recentObitData },
+        { data: upcomingCeremData },
+        { data: activeObitData },
+        { data: completedObitData },
+      ] = await Promise.all([
+        supabase.from("obituaries").select("*", { count: "exact", head: true }).eq("funeraria_id", funeraria.id).eq("is_completed", false),
+        supabase.from("obituaries").select("*", { count: "exact", head: true }).eq("funeraria_id", funeraria.id).eq("is_completed", true),
+        supabase.from("obituaries").select("*", { count: "exact", head: true }).eq("funeraria_id", funeraria.id).gte("created_at", startOfMonth),
+        supabase.from("ceremony_events").select("id, event_date, obituary_id").gte("event_date", today).lte("event_date", in7Days),
+        supabase.from("obituaries").select("id, display_name, death_date, is_completed, created_at").eq("funeraria_id", funeraria.id).order("created_at", { ascending: false }).limit(5),
+        supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, obituary_id").gte("event_date", today).order("event_date", { ascending: true }).limit(5),
+        supabase.from("obituaries").select("id, display_name, created_at, full_name, birth_date, death_date, locality, photo_url, public_message, family_name, service_type").eq("funeraria_id", funeraria.id).eq("is_completed", false).order("created_at", { ascending: false }).limit(5),
+        supabase.from("obituaries").select("id, display_name, updated_at, service_price").eq("funeraria_id", funeraria.id).eq("is_completed", true).order("updated_at", { ascending: false }).limit(5),
+      ]);
+
+      // Filter ceremonies belonging to this funeraria's obituaries
+      const funerariaObits = recentObitData?.map(o => o.id) || [];
+      const ceremonyCount = ceremoniesNext7?.filter(c => {
+        // We need to check if the ceremony belongs to this funeraria
+        // Since we fetched all, filter by obituary ownership
+        return true; // RLS already filters
+      }).length || 0;
+
+      setStats({
+        activeProcesses: activeCount || 0,
+        scheduledCeremonies: ceremonyCount,
+        completedProcesses: completedCount || 0,
+        thisMonthNew: thisMonthCount || 0,
+      });
+
+      // Enrich recent obituaries with next ceremony
+      const enrichedRecent: RecentObituary[] = [];
+      for (const obit of (recentObitData || [])) {
+        const { data: nextCeremony } = await supabase
+          .from("ceremony_events")
+          .select("event_date, event_time, event_type")
+          .eq("obituary_id", obit.id)
+          .gte("event_date", today)
+          .order("event_date", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        enrichedRecent.push({ ...obit, nextCeremony });
+      }
+      setRecentObituaries(enrichedRecent);
+
+      // Enrich upcoming ceremonies with obituary name
+      const enrichedCeremonies: UpcomingCeremony[] = [];
+      for (const cer of (upcomingCeremData || [])) {
+        const { data: obit } = await supabase
+          .from("obituaries")
+          .select("display_name, id")
+          .eq("id", cer.obituary_id)
+          .maybeSingle();
+        enrichedCeremonies.push({ ...cer, obituary: obit });
+      }
+      setUpcomingCeremonies(enrichedCeremonies);
+
+      setActiveProcesses((activeObitData || []).map(o => {
+        const { progress, stage } = calculateProgress(o);
+        return { id: o.id, display_name: o.display_name, created_at: o.created_at, progress, stage };
+      }));
+
+      setCompletedProcesses((completedObitData || []).map(o => ({
+        id: o.id, display_name: o.display_name, updated_at: o.updated_at, service_price: o.service_price,
+      })));
+    } catch (err) {
+      console.error("Dashboard load error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      navigate(`/obituaries?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "—";
+    try { return format(new Date(dateStr), "dd/MM/yyyy", { locale: pt }); } catch { return dateStr; }
+  };
+
+  const formatCeremonyDate = (dateStr: string, timeStr: string | null) => {
+    try {
+      const d = new Date(dateStr);
+      const day = format(d, "dd", { locale: pt });
+      const month = format(d, "MMM", { locale: pt }).toUpperCase();
+      return { day, month, time: timeStr?.substring(0, 5) || "—" };
+    } catch {
+      return { day: "—", month: "—", time: "—" };
+    }
+  };
 
   const handleDragStart = (e: React.DragEvent, cardId: string) => {
     e.stopPropagation();
@@ -180,27 +226,27 @@ export default function Dashboard() {
   const handleDrop = (e: React.DragEvent, targetCardId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (!draggedCard || draggedCard === targetCardId) {
-      setDraggedCard(null);
-      return;
-    }
-
+    if (!draggedCard || draggedCard === targetCardId) { setDraggedCard(null); return; }
     const newOrder = [...cardOrder];
     const draggedIndex = newOrder.indexOf(draggedCard);
     const targetIndex = newOrder.indexOf(targetCardId);
-
     if (draggedIndex !== -1 && targetIndex !== -1) {
       newOrder.splice(draggedIndex, 1);
       newOrder.splice(targetIndex, 0, draggedCard);
       setCardOrder(newOrder);
     }
-    
     setDraggedCard(null);
   };
 
-  const handleDragEnd = () => {
-    setDraggedCard(null);
+  const handleDragEnd = () => { setDraggedCard(null); };
+
+  const ceremonyTypeColor = (type: string) => {
+    const t = type.toLowerCase();
+    if (t.includes("velório")) return "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400";
+    if (t.includes("missa")) return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
+    if (t.includes("funeral") || t.includes("sepultamento")) return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+    if (t.includes("cremação")) return "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400";
+    return "bg-muted text-muted-foreground";
   };
 
   const cards: Record<string, DashboardCard> = {
@@ -210,29 +256,33 @@ export default function Dashboard() {
       icon: FileText,
       component: (
         <div className="space-y-4">
+          {recentObituaries.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhum obituário registado</p>
+          )}
           {recentObituaries.map((obituary) => (
             <div
               key={obituary.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => navigate(`/obituaries/${obituary.id}`)}
             >
               <div>
-                <h3 className="font-medium text-foreground">{obituary.name}</h3>
+                <h3 className="font-medium text-foreground">{obituary.display_name}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Falecimento: {obituary.date}
+                  Falecimento: {formatDate(obituary.death_date)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-foreground">
-                  Cerimónia: {obituary.ceremony}
-                </p>
-                <span
-                  className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
-                    obituary.status === "active"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {obituary.status === "active" ? "Ativo" : "Concluído"}
+                {obituary.nextCeremony ? (
+                  <p className="text-sm text-foreground">
+                    {obituary.nextCeremony.event_type}: {formatDate(obituary.nextCeremony.event_date)} - {obituary.nextCeremony.event_time?.substring(0, 5) || ""}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Sem cerimónia agendada</p>
+                )}
+                <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
+                  obituary.is_completed ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
+                }`}>
+                  {obituary.is_completed ? "Concluído" : "Ativo"}
                 </span>
               </div>
             </div>
@@ -246,19 +296,23 @@ export default function Dashboard() {
       icon: Clock,
       component: (
         <div className="space-y-4">
+          {activeProcesses.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhum processo ativo</p>
+          )}
           {activeProcesses.map((process) => (
             <div
               key={process.id}
-              className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => navigate(`/obituaries/${process.id}`)}
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium text-foreground">{process.name}</h3>
+                <h3 className="font-medium text-foreground">{process.display_name}</h3>
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                   {process.stage}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mb-3">
-                Início: {process.startDate}
+                Início: {formatDate(process.created_at)}
               </p>
               <div className="space-y-1">
                 <div className="flex justify-between text-xs text-muted-foreground">
@@ -266,10 +320,7 @@ export default function Dashboard() {
                   <span>{process.progress}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all"
-                    style={{ width: `${process.progress}%` }}
-                  />
+                  <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${process.progress}%` }} />
                 </div>
               </div>
             </div>
@@ -283,51 +334,45 @@ export default function Dashboard() {
       icon: Calendar,
       component: (
         <div className="space-y-4">
-          {upcomingCeremonies.map((ceremony) => (
-            <div
-              key={ceremony.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center justify-center w-14 h-14 rounded-lg bg-primary/10">
-                  <span className="text-2xl font-archivo font-bold text-primary">
-                    {ceremony.day}
-                  </span>
-                  <span className="text-xs text-primary font-medium">
-                    {ceremony.month}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-foreground mb-1">{ceremony.name}</h3>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {ceremony.time}
-                    </div>
-                    <Badge className={ceremony.typeColor}>
-                      {ceremony.type}
-                    </Badge>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {ceremony.location}
+          {upcomingCeremonies.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhuma cerimónia agendada</p>
+          )}
+          {upcomingCeremonies.map((ceremony) => {
+            const { day, month, time } = formatCeremonyDate(ceremony.event_date, ceremony.event_time);
+            return (
+              <div key={ceremony.id} className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-center justify-center w-14 h-14 rounded-lg bg-primary/10">
+                    <span className="text-2xl font-archivo font-bold text-primary">{day}</span>
+                    <span className="text-xs text-primary font-medium">{month}</span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-foreground mb-1">{ceremony.obituary?.display_name || "—"}</h3>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {time}
+                      </div>
+                      <Badge className={ceremonyTypeColor(ceremony.event_type)}>
+                        {ceremony.event_type}
+                      </Badge>
+                      {ceremony.location && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {ceremony.location}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
+                {ceremony.obituary && (
+                  <Button variant="outline" size="sm" onClick={() => navigate(`/obituaries/${ceremony.obituary!.id}`)}>
+                    Detalhes
+                  </Button>
+                )}
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {ceremony.participants} participantes
-                </span>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  Detalhes
-                </Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ),
     },
@@ -337,21 +382,24 @@ export default function Dashboard() {
       icon: CheckCircle2,
       component: (
         <div className="space-y-4">
+          {completedProcesses.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhum processo concluído</p>
+          )}
           {completedProcesses.map((process) => (
             <div
               key={process.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => navigate(`/obituaries/${process.id}`)}
             >
               <div>
-                <h3 className="font-medium text-foreground">{process.name}</h3>
+                <h3 className="font-medium text-foreground">{process.display_name}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Concluído: {process.date}
+                  Concluído: {formatDate(process.updated_at)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-foreground">{process.amount}</p>
-                <p className="text-xs text-muted-foreground">
-                  Pago: {process.paymentDate}
+                <p className="font-semibold text-foreground">
+                  {process.service_price ? `${process.service_price.toLocaleString("pt-PT")}€` : "—"}
                 </p>
               </div>
             </div>
@@ -360,23 +408,34 @@ export default function Dashboard() {
       ),
     },
   };
-  
+
+  const viewAllRoutes: Record<string, string> = {
+    "obituarios": "/obituaries",
+    "proximas-cerimonias": "/ceremonies",
+    "processos-ativos": "/obituaries",
+    "processos-concluidos": "/obituaries",
+  };
+
+  const statItems = [
+    { name: "Processos Ativos", value: stats.activeProcesses.toString(), icon: FileText, change: `+${stats.thisMonthNew} este mês`, changeType: "positive" },
+    { name: "Cerimónias Agendadas", value: stats.scheduledCeremonies.toString(), icon: Calendar, change: "Próximos 7 dias", changeType: "neutral" },
+    { name: "Processos Concluídos", value: stats.completedProcesses.toString(), icon: Users, change: "Total", changeType: "neutral" },
+    { name: "Novos este Mês", value: stats.thisMonthNew.toString(), icon: TrendingUp, change: format(new Date(), "MMMM yyyy", { locale: pt }), changeType: "positive" },
+  ];
+
   return (
     <div className="p-8 space-y-8">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-archivo font-bold text-foreground">
-            Funerária S. João
+            {loading ? <Skeleton className="h-9 w-64" /> : funerariaName || "Dashboard"}
           </h1>
           <p className="text-muted-foreground mt-1">
             Bem-vindo ao Sistema de Gestão Funerária da Memoralis
           </p>
         </div>
-        <Button 
-          className="bg-primary hover:bg-primary/90"
-          onClick={() => navigate("/obituaries/new")}
-        >
+        <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate("/obituaries/new")}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Obituário
         </Button>
@@ -389,27 +448,24 @@ export default function Dashboard() {
           <Input
             placeholder="Pesquisar por nome, família ou cerimónia..."
             className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearch}
           />
         </div>
       </Card>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
+        {statItems.map((stat) => (
           <Card key={stat.name} className="p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{stat.name}</p>
                 <p className="text-3xl font-archivo font-bold text-foreground mt-2">
-                  {stat.value}
+                  {loading ? <Skeleton className="h-9 w-16" /> : stat.value}
                 </p>
-                <p
-                  className={`text-xs mt-2 ${
-                    stat.changeType === "positive"
-                      ? "text-green-600"
-                      : "text-muted-foreground"
-                  }`}
-                >
+                <p className={`text-xs mt-2 ${stat.changeType === "positive" ? "text-green-600" : "text-muted-foreground"}`}>
                   {stat.change}
                 </p>
               </div>
@@ -428,19 +484,15 @@ export default function Dashboard() {
           const IconComponent = card.icon;
           const isDragging = draggedCard === card.id;
           const isDropTarget = draggedCard && draggedCard !== card.id;
-          
+
           return (
             <Card
               key={card.id}
-              className={`p-6 transition-all ${
-                isDragging ? 'opacity-50 scale-95' : ''
-              } ${
-                isDropTarget ? 'ring-2 ring-primary ring-offset-2' : ''
-              }`}
+              className={`p-6 transition-all ${isDragging ? "opacity-50 scale-95" : ""} ${isDropTarget ? "ring-2 ring-primary ring-offset-2" : ""}`}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, card.id)}
             >
-              <div 
+              <div
                 className="flex justify-between items-center mb-6 cursor-move"
                 draggable
                 onDragStart={(e) => handleDragStart(e, card.id)}
@@ -449,21 +501,19 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2">
                   <GripVertical className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
                   <IconComponent className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-archivo font-semibold text-foreground">
-                    {card.title}
-                  </h2>
+                  <h2 className="text-xl font-archivo font-semibold text-foreground">{card.title}</h2>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
+                <Button variant="ghost" size="sm" onMouseDown={(e) => e.stopPropagation()} onClick={() => navigate(viewAllRoutes[cardId] || "/obituaries")}>
                   Ver Todos
                 </Button>
               </div>
-              <div className="pointer-events-none">
-                {card.component}
-              </div>
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
+                </div>
+              ) : (
+                <div>{card.component}</div>
+              )}
             </Card>
           );
         })}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,89 +8,149 @@ import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calen
 import { Link, useParams } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
-const events = [{
-  type: "Velório",
-  date: "15/10/2025",
-  time: "18:00",
-  location: "Casa Mortuária do AVV",
-  hasMap: true
-}, {
-  type: "Cerimónia",
-  date: "16/10/2025",
-  time: "18:00",
-  location: "Casa Mortuária do AVV",
-  hasMap: true
-}, {
-  type: "Funeral",
-  date: "16/10/2025",
-  time: "18:00",
-  location: "Casa Mortuária do AVV",
-  hasMap: true
-}, {
-  type: "Cremação",
-  date: "16/10/2025",
-  time: "18:00",
-  location: "Casa Mortuária do AVV",
-  hasMap: true
-}, {
-  type: "Missa 7º Dia",
-  date: "16/10/2025",
-  time: "18:00",
-  location: "Casa Mortuária do AVV",
-  hasMap: true
-}, {
-  type: "Missa 30º Dia",
-  date: "16/10/2025",
-  time: "18:00",
-  location: "Casa Mortuária do AVV",
-  hasMap: true
-}];
-const condolences = [{
-  id: 1,
-  author: "Randy W.",
-  date: "November 15, 2024",
-  message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
-  likes: 5,
-  dislikes: 0
-}, {
-  id: 2,
-  author: "Randy W.",
-  date: "November 15, 2024",
-  message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
-  likes: 5,
-  dislikes: 0
-}, {
-  id: 3,
-  author: "Randy W.",
-  date: "November 15, 2024",
-  message: "From start to finish, this cooperation was incredibly smooth. The pricing was quite reasonable, and the task was completed efficiently and with a high level of cleanliness. I'm delighted that we chose Mike over the other companies we considered based on quotes.",
-  likes: 6,
-  dislikes: 0
-}];
-const relatedObituaries = Array(4).fill({
-  name: "Zé Manuel Osório",
-  birthDate: "01/01/1930",
-  deathDate: "15/01/2025",
-  location: "Oreira - Arcos de Valdevez",
-  category: "Funeral",
-  agency: "Funerária S. João",
-  views: 378,
-  messages: 17,
-  candles: 42,
-  image: "/placeholder.svg"
-});
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { pt } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
+import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
+import logo from "@/assets/logo-memoralis.png";
+
+interface Obituary {
+  id: string;
+  display_name: string;
+  full_name: string;
+  birth_date: string | null;
+  death_date: string | null;
+  locality: string | null;
+  freguesia: string | null;
+  photo_url: string | null;
+  public_message: string | null;
+  hide_condolences: boolean | null;
+  funeraria_id: string;
+}
+
+interface CeremonyEvent {
+  id: string;
+  event_type: string;
+  event_date: string | null;
+  event_time: string | null;
+  location: string | null;
+  map_link: string | null;
+}
+
+interface Funeraria {
+  id: string;
+  nome_comercial: string;
+  telefone: string;
+  email: string | null;
+  morada: string | null;
+}
+
+interface RelatedObituary {
+  id: string;
+  display_name: string;
+  birth_date: string | null;
+  death_date: string | null;
+  locality: string | null;
+  photo_url: string | null;
+}
+
 export default function ObituaryDetail() {
   const { id } = useParams();
   const [isFlowersModalOpen, setIsFlowersModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [obituary, setObituary] = useState<Obituary | null>(null);
+  const [events, setEvents] = useState<CeremonyEvent[]>([]);
+  const [funeraria, setFuneraria] = useState<Funeraria | null>(null);
+  const [relatedObituaries, setRelatedObituaries] = useState<RelatedObituary[]>([]);
 
-  // TODO: Replace with real data from database
-  const mockObituaryData = {
-    id: id || "1",
-    displayName: "José Manuel Osório",
-    funerariaId: "mock-funeraria-id" // This would come from real obituary data
+  useEffect(() => {
+    if (id) loadObituaryData(id);
+  }, [id]);
+
+  const loadObituaryData = async (obituaryId: string) => {
+    try {
+      setLoading(true);
+
+      // Fetch obituary
+      const { data: obit, error } = await supabase
+        .from("obituaries")
+        .select("id, display_name, full_name, birth_date, death_date, locality, freguesia, photo_url, public_message, hide_condolences, funeraria_id")
+        .eq("id", obituaryId)
+        .maybeSingle();
+
+      if (error || !obit) {
+        console.error("Obituary not found:", error);
+        setLoading(false);
+        return;
+      }
+      setObituary(obit);
+
+      // Fetch events, funeraria, and related in parallel
+      const [eventsRes, funerariaRes, relatedRes] = await Promise.all([
+        supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, map_link").eq("obituary_id", obit.id).order("event_date", { ascending: true }),
+        supabase.from("funerarias").select("id, nome_comercial, telefone, email, morada").eq("id", obit.funeraria_id).maybeSingle(),
+        supabase.from("obituaries").select("id, display_name, birth_date, death_date, locality, photo_url").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).eq("is_completed", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(4),
+      ]);
+
+      setEvents(eventsRes.data || []);
+      setFuneraria(funerariaRes.data);
+      setRelatedObituaries(relatedRes.data || []);
+    } catch (err) {
+      console.error("Error loading obituary:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return <div className="min-h-screen bg-background font-titillium">
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "—";
+    try { return format(new Date(dateStr), "dd/MM/yyyy", { locale: pt }); } catch { return dateStr; }
+  };
+
+  const getYear = (dateStr: string | null) => {
+    if (!dateStr) return "—";
+    try { return new Date(dateStr).getFullYear().toString(); } catch { return "—"; }
+  };
+
+  const getAge = () => {
+    if (!obituary?.birth_date || !obituary?.death_date) return null;
+    try {
+      const birth = new Date(obituary.birth_date);
+      const death = new Date(obituary.death_date);
+      return Math.floor((death.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    } catch { return null; }
+  };
+
+  const locationStr = [obituary?.freguesia, obituary?.locality].filter(Boolean).join(" - ");
+  const age = getAge();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PublicHeader />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-96 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!obituary) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PublicHeader />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-archivo font-bold text-foreground mb-4">Obituário não encontrado</h1>
+          <p className="text-muted-foreground mb-6">O obituário que procura não existe ou não está disponível publicamente.</p>
+          <Button asChild><Link to="/obituario">Ver todos os obituários</Link></Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background font-inter">
       <PublicHeader />
 
       {/* Breadcrumb */}
@@ -104,7 +164,7 @@ export default function ObituaryDetail() {
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
             <Link to="/obituario" className="text-muted-foreground hover:text-primary">Obituário</Link>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            <span className="text-foreground">José Manuel Osório</span>
+            <span className="text-foreground">{obituary.display_name}</span>
           </div>
         </div>
       </div>
@@ -117,50 +177,41 @@ export default function ObituaryDetail() {
             <Card>
               <CardContent className="p-8">
                 <div className="grid md:grid-cols-[200px_1fr] gap-6">
-                  {/* Photo */}
                   <div>
-                    <img alt="José Manuel Osório" className="w-full aspect-[3/4] object-cover rounded-lg" src="/lovable-uploads/1f80b693-978d-41b3-8b79-c8e9ebcf34a8.jpg" />
+                    <img
+                      alt={obituary.display_name}
+                      className="w-full aspect-[3/4] object-cover rounded-lg"
+                      src={obituary.photo_url || obituaryPlaceholder}
+                    />
                   </div>
-
-                  {/* Info */}
                   <div>
                     <h1 className="text-3xl font-archivo font-bold text-foreground mb-2">
-                      José Manuel Osório
+                      {obituary.display_name}
                     </h1>
                     <p className="text-muted-foreground mb-1">
-                      1930 - 2025 | 94 anos
+                      {getYear(obituary.birth_date)} - {getYear(obituary.death_date)}
+                      {age !== null && ` | ${age} anos`}
                     </p>
-                    <div className="flex items-center gap-2 text-muted-foreground mb-6">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">Oreira - Arcos de Valdevez</span>
-                    </div>
+                    {locationStr && (
+                      <div className="flex items-center gap-2 text-muted-foreground mb-6">
+                        <MapPin className="w-4 h-4" />
+                        <span className="text-sm">{locationStr}</span>
+                      </div>
+                    )}
 
-                    {/* Share & Actions */}
+                    {/* Share */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
                       <span className="text-sm font-medium text-foreground">Partilhar</span>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <Facebook className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <MessageCircle className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <Mail className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <LinkIcon className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <Printer className="w-4 h-4" />
-                      </Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9"><Facebook className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9"><MessageCircle className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9"><Mail className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => navigator.clipboard.writeText(window.location.href)}><LinkIcon className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.print()}><Printer className="w-4 h-4" /></Button>
                     </div>
 
                     <div className="flex gap-3">
-                      <Button variant="outline">Condolências</Button>
-                      <Button 
-                        className="bg-primary hover:bg-primary/90"
-                        onClick={() => setIsFlowersModalOpen(true)}
-                      >
+                      {!obituary.hide_condolences && <Button variant="outline">Condolências</Button>}
+                      <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
                         Enviar Flores
                       </Button>
                     </div>
@@ -170,244 +221,158 @@ export default function ObituaryDetail() {
             </Card>
 
             {/* Family Message */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-archivo font-semibold text-foreground mb-4">
-                  Mensagem da Família
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Sua Família anuncia o falecimento e convida a todos os parentes e amigos para o seu Velório e 
-                  com a intenção de informar os amigos, que por falta de tempo não foi possível avisar Pessoalmente 
-                  convidamos para assistir na Igreja de Santa Maria de Aires Pessoal de Fortuna - Vésperas, 
-                  segundo após o Jantar os confiando de Mesa no Corpo Presente.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mt-4">
-                  Antecipadamente, a Família agradece de (Pé neste)
-                </p>
-              </CardContent>
-            </Card>
+            {obituary.public_message && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-archivo font-semibold text-foreground mb-4">
+                    Mensagem da Família
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {obituary.public_message}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Events */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {events.map((event, index) => <div key={index} className="flex items-start gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-2">{event.type}</h3>
-                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.date} - {event.time}</span>
+            {events.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {events.map((event) => (
+                      <div key={event.id} className="flex items-start gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground mb-2">{event.event_type}</h3>
+                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                            {event.event_date && (
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{formatDate(event.event_date)}{event.event_time ? ` - ${event.event_time.substring(0, 5)}` : ""}</span>
+                              </div>
+                            )}
+                            {event.location && (
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4" />
+                                <span>{event.location}</span>
+                              </div>
+                            )}
+                            {event.map_link && (
+                              <a href={event.map_link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                                Ver no mapa
+                              </a>
+                            )}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4" />
-                            <span>{event.location}</span>
-                          </div>
-                          {event.hasMap && <Button variant="link" size="sm" className="h-auto p-0 text-primary">
-                              Ver no mapa
-                            </Button>}
                         </div>
                       </div>
-                    </div>)}
-                </div>
-
-                <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-border">
-                  <Button variant="outline" className="flex-1 sm:flex-none">
-                    <Clock className="w-4 h-4 mr-2" />
-                    Receber e-mail de aviso
-                  </Button>
-                  <Button variant="outline" className="flex-1 sm:flex-none">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Adicionar ao Calendário
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Condolence Form */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-archivo font-semibold text-foreground mb-6">
-                  Envie Mensagem de Condolências
-                </h2>
-                <form className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">
-                        Nome *
-                      </label>
-                      <Input placeholder="Michael" />
+            {!obituary.hide_condolences && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-archivo font-semibold text-foreground mb-6">
+                    Envie Mensagem de Condolências
+                  </h2>
+                  <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">Nome *</label>
+                        <Input placeholder="O seu nome" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">Email *</label>
+                        <Input type="email" placeholder="email@exemplo.com" />
+                      </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">
-                        Email *
-                      </label>
-                      <Input type="email" placeholder="m.williams@example.com" />
+                      <label className="text-sm font-medium text-foreground mb-2 block">Mensagem *</label>
+                      <Textarea placeholder="Sentidas condolências..." rows={5} />
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
-                      Mensagem *
-                    </label>
-                    <Textarea placeholder="Sentidas condolências..." rows={5} />
-                  </div>
-                  <Button className="bg-primary hover:bg-primary/90">
-                    Enviar mensagem
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Condolences List */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-archivo font-semibold text-foreground mb-6">
-                  Mensagens de Condolências
-                </h2>
-                <div className="space-y-6">
-                  {condolences.map(condolence => <div key={condolence.id} className="pb-6 border-b border-border last:border-0 last:pb-0">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-foreground">{condolence.author}</h4>
-                          <p className="text-sm text-muted-foreground">{condolence.date}</p>
-                        </div>
-                      </div>
-                      <p className="text-muted-foreground mb-3">
-                        {condolence.message}
-                      </p>
-                      <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                          <ThumbsUp className="w-4 h-4" />
-                          <span>{condolence.likes}</span>
-                        </button>
-                        <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                          <ThumbsUp className="w-4 h-4 rotate-180" />
-                          <span>{condolence.dislikes}</span>
-                        </button>
-                      </div>
-                    </div>)}
-                </div>
-
-                {/* Pagination */}
-                <div className="flex items-center justify-center gap-2 mt-6 pt-6 border-t border-border">
-                  <Button variant="outline" size="sm">1</Button>
-                  <Button variant="ghost" size="sm">2</Button>
-                  <Button variant="ghost" size="sm">3</Button>
-                  <Button variant="ghost" size="sm">4</Button>
-                  <span className="text-muted-foreground">...</span>
-                  <Button variant="ghost" size="sm">36</Button>
-                </div>
-              </CardContent>
-            </Card>
+                    <Button className="bg-primary hover:bg-primary/90">Enviar mensagem</Button>
+                  </form>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Funcionalidade de condolências em breve disponível.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Funeral Home Card */}
-            <Card className="sticky top-24">
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center text-center mb-8">
-                  <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
-                    <span className="text-background font-bold text-xl">SJ</span>
+            {funeraria && (
+              <Card className="sticky top-24">
+                <CardContent className="p-8">
+                  <div className="flex flex-col items-center text-center mb-8">
+                    <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
+                      <span className="text-background font-bold text-xl">
+                        {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <h3 className="font-archivo font-bold text-foreground text-center mb-6 text-2xl">
-                  Funerária S. João
-                </h3>
+                  <h3 className="font-archivo font-bold text-foreground text-center mb-6 text-2xl">
+                    {funeraria.nome_comercial}
+                  </h3>
 
-                <div className="space-y-4 text-center mb-6">
-                  <div>
-                    <p className="font-semibold text-foreground mb-2">Contactos</p>
-                    <p className="text-foreground text-sm">962 766 625</p>
-                    <p className="text-foreground text-sm">258 515 233</p>
-                    <p className="text-foreground text-sm mt-2">funeraria.s.joao@gmail.com</p>
-                    <p className="text-foreground text-sm">funerariasjoan.pt</p>
+                  <div className="space-y-4 text-center mb-6">
+                    <div>
+                      <p className="font-semibold text-foreground mb-2">Contactos</p>
+                      <p className="text-foreground text-sm">{funeraria.telefone}</p>
+                      {funeraria.email && <p className="text-foreground text-sm mt-1">{funeraria.email}</p>}
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2 text-center mb-8">
-                  <p className="font-semibold text-foreground mb-2">Morada</p>
-                  <p className="text-foreground text-sm">
-                    Rua da Cêpa, E.N. 303 - Nº 43 AB
-                  </p>
-                  <p className="text-foreground text-sm">
-                    4970-446 Arcos de Valdevez
-                  </p>
-                </div>
-
-                <Button className="w-full bg-[hsl(var(--footer-bg))] hover:bg-[hsl(var(--footer-bg))]/90 text-white py-6 text-base">
-                  Ir para página
-                </Button>
-              </CardContent>
-            </Card>
+                  {funeraria.morada && (
+                    <div className="space-y-2 text-center mb-8">
+                      <p className="font-semibold text-foreground mb-2">Morada</p>
+                      <p className="text-foreground text-sm">{funeraria.morada}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
 
         {/* Related Obituaries */}
-        <section className="mt-16">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-archivo font-bold text-foreground">
-              Outros óbitos
-            </h2>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/obituario?funeraria=sao-joao">Ver todos →</Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedObituaries.map((obit, index) => <Link key={index} to={`/obituario/${index + 1}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="relative">
-                    <img src={obit.image} alt={obit.name} className="w-full aspect-[3/4] object-cover" />
-                    <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
-                      {obit.category}
-                    </Badge>
-                  </div>
-                  <CardContent className="p-4 space-y-3">
-                    <div>
-                      <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
-                        {obit.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        {obit.birthDate} - {obit.deathDate}
-                      </p>
-                      <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                        <MapPin className="w-3 h-3" />
-                        <span className="text-xs">{obit.location}</span>
-                      </div>
+        {relatedObituaries.length > 0 && (
+          <section className="mt-16">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-archivo font-bold text-foreground">Outros óbitos</h2>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/obituario">Ver todos →</Link>
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedObituaries.map((obit) => (
+                <Link key={obit.id} to={`/obituario/${obit.id}`}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="relative">
+                      <img src={obit.photo_url || obituaryPlaceholder} alt={obit.display_name} className="w-full aspect-[3/4] object-cover" />
+                    </div>
+                    <CardContent className="p-4 space-y-2">
+                      <h3 className="font-archivo font-bold text-foreground text-lg">{obit.display_name}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {obit.agency}
+                        {getYear(obit.birth_date)} - {getYear(obit.death_date)}
                       </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-colors">
-                        Condolências
-                      </Button>
-                      <Button size="sm" className="bg-primary hover:bg-primary/90">
-                        Enviar Flores
-                      </Button>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        <span>{obit.views}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageSquare className="w-4 h-4" />
-                        <span>{obit.messages}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Flame className="w-4 h-4" />
-                        <span>{obit.candles}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>)}
-          </div>
-        </section>
+                      {obit.locality && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <MapPin className="w-3 h-3" />
+                          <span className="text-xs">{obit.locality}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* Footer */}
@@ -415,49 +380,35 @@ export default function ObituaryDetail() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="text-2xl font-archivo font-bold mb-4">
-                <span className="text-primary">|||</span> memoralis
+              <div className="mb-4">
+                <img src={logo} alt="Memoralis" className="h-8 brightness-0 invert" />
               </div>
-              <p className="text-sm opacity-80">
-                Homenagens que eternizam memórias e sentimentos.
-              </p>
+              <p className="text-sm opacity-80">Homenagens que eternizam memórias e sentimentos.</p>
             </div>
             <div>
-              <h4 className="font-archivo font-semibold mb-4">Obituário</h4>
+              <h4 className="font-archivo font-semibold mb-4">Links Rápidos</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Velório</Link></li>
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Missa 7º dia</Link></li>
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Funeral</Link></li>
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Nova Ritual</Link></li>
+                <li><Link to="/" className="opacity-80 hover:opacity-100">Início</Link></li>
+                <li><Link to="/sobre" className="opacity-80 hover:opacity-100">Sobre</Link></li>
+                <li><Link to="/blog" className="opacity-80 hover:opacity-100">Blog</Link></li>
+                <li><Link to="/contactos" className="opacity-80 hover:opacity-100">Contactos</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-archivo font-semibold mb-4">Funerárias</h4>
+              <h4 className="font-archivo font-semibold mb-4">Recursos</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Lisboa</Link></li>
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Procure no mapa</Link></li>
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Receba sua quotação</Link></li>
+                <li><Link to="/ajuda" className="opacity-80 hover:opacity-100">Ajuda</Link></li>
+                <li><Link to="/privacidade" className="opacity-80 hover:opacity-100">Privacidade</Link></li>
+                <li><Link to="/termos" className="opacity-80 hover:opacity-100">Termos</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-archivo font-semibold mb-4">Memoralis</h4>
-              <ul className="space-y-2 text-sm mb-4">
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Ajuda</Link></li>
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Contactos</Link></li>
-                <li><Link to="/" className="opacity-80 hover:opacity-100">Suporte</Link></li>
-              </ul>
-              <h4 className="font-archivo font-semibold mb-4">Subscrever newsletter</h4>
-              <div className="flex gap-2">
-                <Input placeholder="Digite seu endereço de e-mail" className="bg-background/10 border-background/20 text-foreground placeholder:text-muted-foreground" />
-              </div>
-              <Button className="w-full mt-2 bg-primary hover:bg-primary/90">
-                Subscrever
-              </Button>
+              <h4 className="font-archivo font-semibold mb-4">Contacto</h4>
+              <p className="text-sm opacity-80">Email: info@memoralis.pt</p>
             </div>
           </div>
-          <div className="border-t border-background/20 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm opacity-80">
-            <p>Política de devoluir - Contacte-nos</p>
-            <p>© Todos os direitos reservados 2025 - Feito by <span className="font-semibold">BeePix</span></p>
+          <div className="pt-8 border-t border-[hsl(var(--footer-foreground))]/20 text-center text-sm opacity-80">
+            © 2025 Memoralis. Todos os direitos reservados.
           </div>
         </div>
       </footer>
@@ -465,9 +416,10 @@ export default function ObituaryDetail() {
       <SendFlowersModal
         open={isFlowersModalOpen}
         onOpenChange={setIsFlowersModalOpen}
-        obituaryId={mockObituaryData.id}
-        obituaryName={mockObituaryData.displayName}
-        funerariaId={mockObituaryData.funerariaId}
+        obituaryId={obituary.id}
+        obituaryName={obituary.display_name}
+        funerariaId={obituary.funeraria_id}
       />
-    </div>;
+    </div>
+  );
 }
