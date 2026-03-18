@@ -175,10 +175,10 @@ export default function FunerariaDetail() {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
+            <a href={`tel:${funeraria.telefone}`} className="flex items-center gap-2 hover:text-primary transition-colors">
               <Phone className="w-4 h-4" />
               <span>{funeraria.telefone}</span>
-            </div>
+            </a>
             {funeraria.website && (
               <a href={funeraria.website.startsWith("http") ? funeraria.website : `https://${funeraria.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                 <Globe className="w-4 h-4" />
