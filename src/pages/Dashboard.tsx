@@ -82,9 +82,10 @@ export default function Dashboard() {
   const [upcomingCeremonies, setUpcomingCeremonies] = useState<UpcomingCeremony[]>([]);
   const [activeProcesses, setActiveProcesses] = useState<ActiveProcess[]>([]);
   const [completedProcesses, setCompletedProcesses] = useState<CompletedProcess[]>([]);
+  const [recentContacts, setRecentContacts] = useState<{ id: string; name: string; email: string; message: string; is_read: boolean; created_at: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
-  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos"]);
+  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos", "contactos-recentes"]);
 
   useEffect(() => {
     loadDashboardData();
