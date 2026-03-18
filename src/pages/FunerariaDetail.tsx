@@ -63,6 +63,8 @@ export default function FunerariaDetail() {
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (id) loadFuneraria();
