@@ -283,6 +283,10 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="public-page">
+          <PublicPageTab funerariaId={funerariaId} />
+        </TabsContent>
+
         <TabsContent value="services">
           <Card className="p-6">
             <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Serviços Opcionais</h3>
