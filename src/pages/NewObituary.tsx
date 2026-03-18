@@ -262,6 +262,7 @@ export default function NewObituary() {
         setIsPublic(data.is_public);
         setIsCompleted(data.is_completed);
         setResponsibleClientId(data.responsible_client_id);
+        if (data.photo_url) setPhotoPreview(data.photo_url);
         
         setFormData({
           displayName: data.display_name || "",
