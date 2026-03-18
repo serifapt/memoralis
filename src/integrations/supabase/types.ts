@@ -879,6 +879,47 @@ export type Database = {
           },
         ]
       }
+      funeraria_contacts: {
+        Row: {
+          created_at: string
+          email: string
+          funeraria_id: string
+          id: string
+          is_read: boolean
+          message: string
+          name: string
+          phone: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          funeraria_id: string
+          id?: string
+          is_read?: boolean
+          message: string
+          name: string
+          phone: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          funeraria_id?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          name?: string
+          phone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funeraria_contacts_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funeraria_docs: {
         Row: {
           codigo_acesso: string | null
