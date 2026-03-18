@@ -376,24 +376,47 @@ export default function FunerariaDetail() {
                 <p className="text-sm text-muted-foreground mb-6">
                   Preencha o formulário com a sua mensagem.
                 </p>
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <form className="space-y-4" onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!contactForm.name.trim() || !contactForm.phone.trim() || !contactForm.email.trim() || !contactForm.message.trim()) {
+                    toast.error("Preencha todos os campos obrigatórios.");
+                    return;
+                  }
+                  setSubmitting(true);
+                  const { error } = await supabase.from("funeraria_contacts").insert({
+                    funeraria_id: funeraria.id,
+                    name: contactForm.name.trim(),
+                    phone: contactForm.phone.trim(),
+                    email: contactForm.email.trim(),
+                    message: contactForm.message.trim(),
+                  });
+                  setSubmitting(false);
+                  if (error) {
+                    toast.error("Erro ao enviar mensagem. Tente novamente.");
+                  } else {
+                    toast.success("Mensagem enviada com sucesso!");
+                    setContactForm({ name: "", phone: "", email: "", message: "" });
+                  }
+                }}>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">Nome *</label>
-                    <Input placeholder="Nome" />
+                    <Input placeholder="Nome" value={contactForm.name} onChange={(e) => setContactForm(p => ({ ...p, name: e.target.value }))} />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">Contacto *</label>
-                    <Input placeholder="Contacto" />
+                    <Input placeholder="Contacto" value={contactForm.phone} onChange={(e) => setContactForm(p => ({ ...p, phone: e.target.value }))} />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">Email *</label>
-                    <Input type="email" placeholder="Email" />
+                    <Input type="email" placeholder="Email" value={contactForm.email} onChange={(e) => setContactForm(p => ({ ...p, email: e.target.value }))} />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">Mensagem *</label>
-                    <Textarea placeholder="Mensagem" rows={5} />
+                    <Textarea placeholder="Mensagem" rows={5} value={contactForm.message} onChange={(e) => setContactForm(p => ({ ...p, message: e.target.value }))} />
                   </div>
-                  <Button className="w-full bg-primary hover:bg-primary/90">Enviar mensagem</Button>
+                  <Button className="w-full bg-primary hover:bg-primary/90" disabled={submitting}>
+                    {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />A enviar...</> : "Enviar mensagem"}
+                  </Button>
                 </form>
               </CardContent>
             </Card>
