@@ -8,23 +8,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Star, Eye, Home, ChevronRight } from "lucide-react";
+import { Search, MapPin, Star, Eye, Home, ChevronRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
+import { getFunerariaImage } from "@/lib/funeraria-utils";
 
-const mockFuneralHomes = Array(9).fill(null).map((_, index) => ({
-  id: index + 1,
-  name: "Funerária S. João",
-  rating: 5.0,
-  reviewCount: 146,
-  location: "Arcos de Valdevez",
-  views: 392,
-  image: "/placeholder.svg",
-  isBookmarked: false
-}));
+interface FunerariaListItem {
+  id: string;
+  nome_comercial: string;
+  localidade: string | null;
+  logo_url: string | null;
+  cover_image_url: string | null;
+  slug: string | null;
+}
 
 export default function FunerariaArchive() {
+  const [funerarias, setFunerarias] = useState<FunerariaListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    loadFunerarias();
+  }, []);
+
+  const loadFunerarias = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("funerarias")
+        .select("id, nome_comercial, localidade, logo_url, cover_image_url, slug")
+        .eq("pagina_publica_visivel", true)
+        .order("nome_comercial");
+
+      if (!error && data) {
+        setFunerarias(data);
+      }
+    } catch (err) {
+      console.error("Error loading funerarias:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filtered = funerarias.filter((f) =>
+    f.nome_comercial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (f.localidade && f.localidade.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="min-h-screen bg-background font-inter">
       <PublicHeader />
@@ -45,136 +77,65 @@ export default function FunerariaArchive() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-
-        {/* Title */}
         <h1 className="text-4xl font-archivo font-bold text-foreground mb-8">
           Funerárias
         </h1>
 
-        {/* Filters Section */}
-        <div className="space-y-6 mb-12">
-          {/* Top Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
-              <Input
-                placeholder="Nome"
-                className="pl-10"
-              />
-            </div>
-            
-            <Select>
-              <SelectTrigger>
-                <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Localidade" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="arcos">Arcos de Valdevez</SelectItem>
-                <SelectItem value="ponte-lima">Ponte de Lima</SelectItem>
-                <SelectItem value="viana">Viana do Castelo</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select>
-              <SelectTrigger>
-                <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Distrito" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="viana">Viana do Castelo</SelectItem>
-                <SelectItem value="braga">Braga</SelectItem>
-                <SelectItem value="porto">Porto</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select>
-              <SelectTrigger>
-                <Star className="w-4 h-4 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Avaliação" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5 Estrelas</SelectItem>
-                <SelectItem value="4">4+ Estrelas</SelectItem>
-                <SelectItem value="3">3+ Estrelas</SelectItem>
-                <SelectItem value="all">Todas</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* Search */}
+        <div className="mb-8">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
+            <Input
+              placeholder="Pesquisar por nome ou localidade..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-
-          {/* Results Count and Sort */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              96 resultados
-            </p>
-            <Select defaultValue="recent">
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Mais recentes</SelectItem>
-                <SelectItem value="rating">Melhor avaliação</SelectItem>
-                <SelectItem value="popular">Mais populares</SelectItem>
-                <SelectItem value="name">Nome A-Z</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <p className="text-sm text-muted-foreground mt-3">
+            {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
+          </p>
         </div>
 
-        {/* Funeral Homes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {mockFuneralHomes.map((home) => (
-            <Link key={home.id} to={`/funerarias/${home.id}`}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative">
-                <img
-                  src={home.image}
-                  alt={home.name}
-                  className="w-full aspect-[4/3] object-cover"
-                />
-                {/* Carousel dots */}
-                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <div className="w-2 h-2 rounded-full bg-muted"></div>
-                  <div className="w-2 h-2 rounded-full bg-muted"></div>
-                  <div className="w-2 h-2 rounded-full bg-muted"></div>
-                </div>
-              </div>
-              <CardContent className="p-4 space-y-2">
-                <h3 className="font-archivo font-bold text-foreground text-lg">
-                  {home.name}
-                </h3>
-                
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-primary text-primary" />
-                    <span className="text-sm font-semibold">{home.rating}</span>
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-muted-foreground">Nenhuma funerária encontrada.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {filtered.map((home) => (
+              <Link key={home.id} to={`/funerarias/${home.slug || home.id}`}>
+                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative">
+                    <img
+                      src={getFunerariaImage(home.cover_image_url, home.logo_url)}
+                      alt={home.nome_comercial}
+                      className="w-full aspect-[4/3] object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      }}
+                    />
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    ({home.reviewCount})
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="w-4 h-4" />
-                  <span className="text-sm">{home.location}</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-muted-foreground pt-2">
-                  <Eye className="w-4 h-4" />
-                  <span className="text-sm">{home.views}</span>
-                </div>
-              </CardContent>
-            </Card>
-            </Link>
-          ))}
-        </div>
-
-        {/* Load More Button */}
-        <div className="flex justify-center">
-          <Button variant="outline" size="lg">
-            Carregar mais
-          </Button>
-        </div>
+                  <CardContent className="p-4 space-y-2">
+                    <h3 className="font-archivo font-bold text-foreground text-lg">
+                      {home.nome_comercial}
+                    </h3>
+                    {home.localidade && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="w-4 h-4" />
+                        <span className="text-sm">{home.localidade}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
 
       {/* Footer */}

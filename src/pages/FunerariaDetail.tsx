@@ -200,7 +200,7 @@ export default function FunerariaDetail() {
             {/* Logo */}
             <div className="bg-muted rounded-lg flex items-center justify-center p-6 h-[400px] w-full md:w-[400px]">
               {funeraria.logo_url ? (
-                <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="max-h-full max-w-full object-contain" />
+                <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="max-h-full max-w-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               ) : (
                 <div className="text-center">
                   <div className="text-6xl font-archivo font-bold mb-2">{getInitials(funeraria.nome_comercial)}</div>
@@ -212,7 +212,7 @@ export default function FunerariaDetail() {
             {/* Cover Image */}
             <div className="relative">
               {funeraria.cover_image_url ? (
-                <img src={funeraria.cover_image_url} alt={funeraria.nome_comercial} className="w-full h-[400px] object-cover rounded-lg" />
+                <img src={funeraria.cover_image_url} alt={funeraria.nome_comercial} className="w-full h-[400px] object-cover rounded-lg" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
               ) : (
                 <div className="w-full h-[400px] bg-muted rounded-lg flex items-center justify-center">
                   <p className="text-muted-foreground">Sem imagem de capa</p>
