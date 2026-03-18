@@ -979,57 +979,96 @@ export type Database = {
       funerarias: {
         Row: {
           aceito_termos: boolean
+          codigo_postal: string | null
+          cover_image_url: string | null
           created_at: string
           declaro_representacao_legal: boolean
+          descricao: string | null
           email: string | null
+          facebook_url: string | null
+          horario: string | null
           id: string
+          instagram_url: string | null
+          linkedin_url: string | null
+          localidade: string | null
           logo_url: string | null
           morada: string | null
           motivo_rejeicao: string | null
           nif: string
           nome_comercial: string
+          pagina_publica_visivel: boolean | null
           responsavel_nome: string
           servico_flores_ativo: boolean
+          servicos: string[] | null
+          slug: string | null
           status: string
           telefone: string
+          telefone_secundario: string | null
           updated_at: string
           user_id: string
+          website: string | null
         }
         Insert: {
           aceito_termos?: boolean
+          codigo_postal?: string | null
+          cover_image_url?: string | null
           created_at?: string
           declaro_representacao_legal?: boolean
+          descricao?: string | null
           email?: string | null
+          facebook_url?: string | null
+          horario?: string | null
           id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          localidade?: string | null
           logo_url?: string | null
           morada?: string | null
           motivo_rejeicao?: string | null
           nif: string
           nome_comercial: string
+          pagina_publica_visivel?: boolean | null
           responsavel_nome: string
           servico_flores_ativo?: boolean
+          servicos?: string[] | null
+          slug?: string | null
           status?: string
           telefone: string
+          telefone_secundario?: string | null
           updated_at?: string
           user_id: string
+          website?: string | null
         }
         Update: {
           aceito_termos?: boolean
+          codigo_postal?: string | null
+          cover_image_url?: string | null
           created_at?: string
           declaro_representacao_legal?: boolean
+          descricao?: string | null
           email?: string | null
+          facebook_url?: string | null
+          horario?: string | null
           id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          localidade?: string | null
           logo_url?: string | null
           morada?: string | null
           motivo_rejeicao?: string | null
           nif?: string
           nome_comercial?: string
+          pagina_publica_visivel?: boolean | null
           responsavel_nome?: string
           servico_flores_ativo?: boolean
+          servicos?: string[] | null
+          slug?: string | null
           status?: string
           telefone?: string
+          telefone_secundario?: string | null
           updated_at?: string
           user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
