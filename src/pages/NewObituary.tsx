@@ -949,14 +949,54 @@ export default function NewObituary() {
               {/* Photo Upload */}
               <Card className="p-6">
                 <h3 className="font-medium mb-4">Adicionar foto destaque óbito</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <Input type="text" placeholder="Selecionar ficheiro..." />
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setPhotoFile(file);
+                      setPhotoPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+                {photoPreview ? (
+                  <div className="relative w-40 h-40">
+                    <img
+                      src={photoPreview}
+                      alt="Foto destaque"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhotoFile(null);
+                        setPhotoPreview("");
+                        if (photoInputRef.current) photoInputRef.current.value = "";
+                      }}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                  <Button variant="default" className="gap-2">
-                    <Camera className="w-4 h-4" />
-                  </Button>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        placeholder="Selecionar ficheiro..."
+                        readOnly
+                        onClick={() => photoInputRef.current?.click()}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                    <Button type="button" variant="default" className="gap-2" onClick={() => photoInputRef.current?.click()}>
+                      <Camera className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </Card>
 
               {/* Public Message */}
