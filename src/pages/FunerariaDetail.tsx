@@ -168,17 +168,17 @@ export default function FunerariaDetail() {
           <h1 className="text-4xl font-archivo font-bold text-foreground mb-4">{funeraria.nome_comercial}</h1>
           <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
             {fullAddress && (
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                 <MapPin className="w-4 h-4" />
                 <span>{fullAddress}</span>
-              </div>
+              </a>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
+            <a href={`tel:${funeraria.telefone}`} className="flex items-center gap-2 hover:text-primary transition-colors">
               <Phone className="w-4 h-4" />
               <span>{funeraria.telefone}</span>
-            </div>
+            </a>
             {funeraria.website && (
               <a href={funeraria.website.startsWith("http") ? funeraria.website : `https://${funeraria.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                 <Globe className="w-4 h-4" />
@@ -262,19 +262,19 @@ export default function FunerariaDetail() {
                   {fullAddress && (
                     <div>
                       <h3 className="font-semibold text-foreground mb-3">Morada</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors block">
                         {funeraria.morada && <>{funeraria.morada}<br /></>}
                         {[funeraria.codigo_postal, funeraria.localidade].filter(Boolean).join(" ")}
-                      </p>
+                      </a>
                     </div>
                   )}
                   <div>
                     <h3 className="font-semibold text-foreground mb-3">Contactos</h3>
                     <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>{funeraria.telefone}</p>
-                      {funeraria.telefone_secundario && <p>{funeraria.telefone_secundario}</p>}
-                      {funeraria.email && <p>{funeraria.email}</p>}
-                      {funeraria.website && <p>{funeraria.website}</p>}
+                      <a href={`tel:${funeraria.telefone}`} className="block hover:text-primary transition-colors">{funeraria.telefone}</a>
+                      {funeraria.telefone_secundario && <a href={`tel:${funeraria.telefone_secundario}`} className="block hover:text-primary transition-colors">{funeraria.telefone_secundario}</a>}
+                      {funeraria.email && <a href={`mailto:${funeraria.email}`} className="block hover:text-primary transition-colors">{funeraria.email}</a>}
+                      {funeraria.website && <a href={funeraria.website.startsWith("http") ? funeraria.website : `https://${funeraria.website}`} target="_blank" rel="noopener noreferrer" className="block hover:text-primary transition-colors">{funeraria.website}</a>}
                     </div>
                   </div>
                   {funeraria.horario && (
