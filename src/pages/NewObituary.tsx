@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,9 @@ export default function NewObituary() {
   const [responsibleClientId, setResponsibleClientId] = useState<string | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>("");
+  const photoInputRef = useRef<HTMLInputElement>(null);
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
@@ -259,6 +262,7 @@ export default function NewObituary() {
         setIsPublic(data.is_public);
         setIsCompleted(data.is_completed);
         setResponsibleClientId(data.responsible_client_id);
+        if (data.photo_url) setPhotoPreview(data.photo_url);
         
         setFormData({
           displayName: data.display_name || "",
@@ -493,7 +497,22 @@ export default function NewObituary() {
         }
       }
 
-      // 2. Prepare obituary data
+      // 2. Upload photo if selected
+      let photoUrl: string | null = photoPreview && !photoFile ? photoPreview : null;
+      if (photoFile) {
+        const fileExt = photoFile.name.split('.').pop();
+        const fileName = `${funerariaId}/${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('obituary-photos')
+          .upload(fileName, photoFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from('obituary-photos')
+          .getPublicUrl(fileName);
+        photoUrl = urlData.publicUrl;
+      }
+
+      // 3. Prepare obituary data
       const obituaryData = {
         funeraria_id: funerariaId,
         display_name: formData.displayName.trim(),
@@ -525,6 +544,7 @@ export default function NewObituary() {
         coffin_ref: formData.coffinRef || null,
         service_price: formData.servicePrice ? parseFloat(formData.servicePrice) : null,
         responsible_client_id: clientId,
+        photo_url: photoUrl,
       };
 
       let obituaryId = id;
@@ -945,14 +965,54 @@ export default function NewObituary() {
               {/* Photo Upload */}
               <Card className="p-6">
                 <h3 className="font-medium mb-4">Adicionar foto destaque óbito</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <Input type="text" placeholder="Selecionar ficheiro..." />
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setPhotoFile(file);
+                      setPhotoPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+                {photoPreview ? (
+                  <div className="relative w-40 h-40">
+                    <img
+                      src={photoPreview}
+                      alt="Foto destaque"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhotoFile(null);
+                        setPhotoPreview("");
+                        if (photoInputRef.current) photoInputRef.current.value = "";
+                      }}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                  <Button variant="default" className="gap-2">
-                    <Camera className="w-4 h-4" />
-                  </Button>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        placeholder="Selecionar ficheiro..."
+                        readOnly
+                        onClick={() => photoInputRef.current?.click()}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                    <Button type="button" variant="default" className="gap-2" onClick={() => photoInputRef.current?.click()}>
+                      <Camera className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </Card>
 
               {/* Public Message */}
@@ -1990,8 +2050,12 @@ export default function NewObituary() {
             {/* Preview Card - Matching ObituaryArchive Style */}
             <Card className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative">
-                <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center">
-                  <Camera className="w-16 h-16 text-muted-foreground" />
+                <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center overflow-hidden">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Foto destaque" className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="w-16 h-16 text-muted-foreground" />
+                  )}
                 </div>
                 <div className="absolute top-3 left-3 bg-background/90 text-foreground border border-border rounded-md px-2 py-1 text-xs font-medium">
                   Funeral
