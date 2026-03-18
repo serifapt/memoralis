@@ -309,11 +309,15 @@ export default function ObituaryDetail() {
               <Card className="sticky top-24">
                 <CardContent className="p-8">
                   <div className="flex flex-col items-center text-center mb-8">
-                    <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
-                      <span className="text-background font-bold text-xl">
-                        {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
-                      </span>
-                    </div>
+                    {funeraria.logo_url ? (
+                      <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="w-20 h-20 object-contain rounded mb-4" />
+                    ) : (
+                      <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
+                        <span className="text-background font-bold text-xl">
+                          {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <h3 className="font-archivo font-bold text-foreground text-center mb-6 text-2xl">
