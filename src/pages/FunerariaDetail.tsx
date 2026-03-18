@@ -358,6 +358,9 @@ export default function FunerariaDetail() {
                 </div>
               </div>
             )}
+
+            {/* Testimonials */}
+            <TestimonialsSection funerariaId={funeraria.id} funerariaName={funeraria.nome_comercial} />
           </div>
 
           {/* Sidebar */}
