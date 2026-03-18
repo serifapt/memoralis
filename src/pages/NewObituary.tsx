@@ -23,7 +23,9 @@ export default function NewObituary() {
   const location = useLocation();
   const { toast } = useToast();
   const { findOrCreateClient } = useClients();
-  const isEditing = !!id;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isValidUuid = id ? uuidRegex.test(id) : false;
+  const isEditing = !!id && isValidUuid;
   const [isPublic, setIsPublic] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
   const [funerariaId, setFunerariaId] = useState<string>("");
@@ -454,6 +456,20 @@ export default function NewObituary() {
     setIsSaving(true);
 
     try {
+      // Validate funerariaId
+      if (!funerariaId) {
+        toast({ title: "Erro", description: "Funerária não encontrada. Tente recarregar a página.", variant: "destructive" });
+        setIsSaving(false);
+        return;
+      }
+
+      // Validate required fields
+      if (!formData.displayName.trim()) {
+        toast({ title: "Erro", description: "O nome do falecido é obrigatório.", variant: "destructive" });
+        setIsSaving(false);
+        return;
+      }
+
       // 1. First, sync client if family data is provided
       let clientId = responsibleClientId;
       if (formData.familyName && formData.familyName.trim() !== "") {
@@ -480,8 +496,8 @@ export default function NewObituary() {
       // 2. Prepare obituary data
       const obituaryData = {
         funeraria_id: funerariaId,
-        display_name: formData.displayName,
-        full_name: formData.fullName,
+        display_name: formData.displayName.trim(),
+        full_name: formData.fullName.trim() || formData.displayName.trim(),
         birth_date: formData.birthDate || null,
         freguesia: formData.freguesia || null,
         locality: formData.locality || null,
