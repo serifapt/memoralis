@@ -168,10 +168,10 @@ export default function FunerariaDetail() {
           <h1 className="text-4xl font-archivo font-bold text-foreground mb-4">{funeraria.nome_comercial}</h1>
           <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
             {fullAddress && (
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                 <MapPin className="w-4 h-4" />
                 <span>{fullAddress}</span>
-              </div>
+              </a>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
