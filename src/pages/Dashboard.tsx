@@ -418,6 +418,36 @@ export default function Dashboard() {
         </div>
       ),
     },
+    "contactos-recentes": {
+      id: "contactos-recentes",
+      title: "Contactos Recentes",
+      icon: Mail,
+      component: (
+        <div className="space-y-4">
+          {recentContacts.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhum contacto recebido</p>
+          )}
+          {recentContacts.map((contact) => (
+            <div
+              key={contact.id}
+              className={`p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors ${!contact.is_read ? "bg-primary/5 border-primary/20" : ""}`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-foreground">{contact.name}</h3>
+                  {!contact.is_read && <Badge className="bg-primary text-primary-foreground text-xs">Novo</Badge>}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(contact.created_at), { addSuffix: true, locale: pt })}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-1">{contact.email}</p>
+              <p className="text-sm text-muted-foreground line-clamp-2">{contact.message}</p>
+            </div>
+          ))}
+        </div>
+      ),
+    },
   };
 
   const viewAllRoutes: Record<string, string> = {
@@ -425,6 +455,7 @@ export default function Dashboard() {
     "proximas-cerimonias": "/ceremonies",
     "processos-ativos": "/obituaries",
     "processos-concluidos": "/obituaries",
+    "contactos-recentes": "/dashboard",
   };
 
   const statItems = [
