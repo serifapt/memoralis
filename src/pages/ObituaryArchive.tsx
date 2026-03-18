@@ -137,7 +137,7 @@ export default function ObituaryArchive() {
   const hasMore = obituaries.length < totalCount;
 
   // Debounce search
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
   const handleSearchChange = (value: string) => {
     if (searchTimeout) clearTimeout(searchTimeout);
     const timeout = setTimeout(() => setSearchName(value), 400);
