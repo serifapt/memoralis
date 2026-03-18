@@ -456,6 +456,20 @@ export default function NewObituary() {
     setIsSaving(true);
 
     try {
+      // Validate funerariaId
+      if (!funerariaId) {
+        toast({ title: "Erro", description: "Funerária não encontrada. Tente recarregar a página.", variant: "destructive" });
+        setIsSaving(false);
+        return;
+      }
+
+      // Validate required fields
+      if (!formData.displayName.trim()) {
+        toast({ title: "Erro", description: "O nome do falecido é obrigatório.", variant: "destructive" });
+        setIsSaving(false);
+        return;
+      }
+
       // 1. First, sync client if family data is provided
       let clientId = responsibleClientId;
       if (formData.familyName && formData.familyName.trim() !== "") {
