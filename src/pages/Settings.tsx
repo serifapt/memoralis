@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Building2, Palette, Users, Bell, Flower, Loader2 } from "lucide-react";
+import { Building2, Palette, Users, Bell, Flower, Loader2, Upload, X } from "lucide-react";
 import { useFlowerService } from "@/hooks/useFlowerService";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +26,13 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [loadingCompany, setLoadingCompany] = useState(true);
 
+  // Logo state
+  const [logoUrl, setLogoUrl] = useState<string>("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>("");
+  const [savingLogo, setSavingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     loadCompanyData();
   }, []);
@@ -37,7 +44,7 @@ export default function Settings() {
 
       const { data } = await supabase
         .from("funerarias")
-        .select("nome_comercial, nif, telefone, email, morada")
+        .select("nome_comercial, nif, telefone, email, morada, logo_url")
         .eq("user_id", user.id)
         .single();
 
@@ -49,6 +56,10 @@ export default function Settings() {
           email: data.email || "",
           morada: data.morada || "",
         });
+        if (data.logo_url) {
+          setLogoUrl(data.logo_url);
+          setLogoPreview(data.logo_url);
+        }
       }
     } catch (err) {
       console.error("Error loading company data:", err);
@@ -85,6 +96,78 @@ export default function Settings() {
     }
   };
 
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor selecione um ficheiro de imagem");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("O ficheiro não pode exceder 5MB");
+      return;
+    }
+
+    setLogoFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setLogoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    setLogoPreview("");
+    if (logoInputRef.current) logoInputRef.current.value = "";
+  };
+
+  const handleSaveLogo = async () => {
+    if (!funerariaId) {
+      toast.error("Funerária não encontrada");
+      return;
+    }
+    setSavingLogo(true);
+    try {
+      let newLogoUrl = logoPreview;
+
+      if (logoFile) {
+        const ext = logoFile.name.split(".").pop() || "png";
+        const fileName = `${funerariaId}/logo_${Date.now()}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("funeraria-logos")
+          .upload(fileName, logoFile, { contentType: logoFile.type, upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("funeraria-logos")
+          .getPublicUrl(fileName);
+
+        newLogoUrl = urlData.publicUrl;
+      }
+
+      // If removed (no preview and no file), set to null
+      const urlToSave = newLogoUrl || null;
+
+      const { error } = await supabase
+        .from("funerarias")
+        .update({ logo_url: urlToSave })
+        .eq("id", funerariaId);
+
+      if (error) throw error;
+
+      setLogoUrl(urlToSave || "");
+      setLogoFile(null);
+      toast.success("Logótipo guardado com sucesso");
+    } catch (err) {
+      console.error("Error saving logo:", err);
+      toast.error("Erro ao guardar o logótipo");
+    } finally {
+      setSavingLogo(false);
+    }
+  };
+
   const handleToggleFlowerService = async () => {
     const success = await toggleFlowerService();
     if (success) {
@@ -115,56 +198,25 @@ export default function Settings() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="company-name">Nome da Empresa</Label>
-                  <Input
-                    id="company-name"
-                    value={companyData.nome_comercial}
-                    onChange={(e) => setCompanyData(prev => ({ ...prev, nome_comercial: e.target.value }))}
-                    placeholder="Casa Funerária..."
-                    disabled={loadingCompany}
-                  />
+                  <Input id="company-name" value={companyData.nome_comercial} onChange={(e) => setCompanyData(prev => ({ ...prev, nome_comercial: e.target.value }))} placeholder="Casa Funerária..." disabled={loadingCompany} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="nif">NIF</Label>
-                  <Input
-                    id="nif"
-                    value={companyData.nif}
-                    onChange={(e) => setCompanyData(prev => ({ ...prev, nif: e.target.value }))}
-                    placeholder="000000000"
-                    disabled={loadingCompany}
-                  />
+                  <Input id="nif" value={companyData.nif} onChange={(e) => setCompanyData(prev => ({ ...prev, nif: e.target.value }))} placeholder="000000000" disabled={loadingCompany} />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Morada</Label>
-                <Input
-                  id="address"
-                  value={companyData.morada}
-                  onChange={(e) => setCompanyData(prev => ({ ...prev, morada: e.target.value }))}
-                  placeholder="Rua..."
-                  disabled={loadingCompany}
-                />
+                <Input id="address" value={companyData.morada} onChange={(e) => setCompanyData(prev => ({ ...prev, morada: e.target.value }))} placeholder="Rua..." disabled={loadingCompany} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefone</Label>
-                  <Input
-                    id="phone"
-                    value={companyData.telefone}
-                    onChange={(e) => setCompanyData(prev => ({ ...prev, telefone: e.target.value }))}
-                    placeholder="+351..."
-                    disabled={loadingCompany}
-                  />
+                  <Input id="phone" value={companyData.telefone} onChange={(e) => setCompanyData(prev => ({ ...prev, telefone: e.target.value }))} placeholder="+351..." disabled={loadingCompany} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={companyData.email}
-                    onChange={(e) => setCompanyData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="contacto@..."
-                    disabled={loadingCompany}
-                  />
+                  <Input id="email" type="email" value={companyData.email} onChange={(e) => setCompanyData(prev => ({ ...prev, email: e.target.value }))} placeholder="contacto@..." disabled={loadingCompany} />
                 </div>
               </div>
               <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveCompany} disabled={saving || loadingCompany}>
@@ -178,22 +230,53 @@ export default function Settings() {
         <TabsContent value="branding">
           <Card className="p-6">
             <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Personalização da Marca</h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="space-y-2">
                 <Label>Logótipo</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                  <p className="text-sm text-muted-foreground">Arraste o logótipo ou clique para selecionar</p>
-                  <Button variant="outline" className="mt-4">Selecionar Ficheiro</Button>
-                </div>
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoFileChange}
+                />
+
+                {logoPreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={logoPreview}
+                      alt="Logótipo"
+                      className="h-32 w-auto object-contain rounded-lg border border-border p-2 bg-background"
+                    />
+                    <button
+                      onClick={handleRemoveLogo}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => logoInputRef.current?.click()}
+                    className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                  >
+                    <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">Arraste o logótipo ou clique para selecionar</p>
+                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou SVG até 5MB</p>
+                  </div>
+                )}
+
+                {logoPreview && (
+                  <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()}>
+                    Alterar imagem
+                  </Button>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label>Cor Principal</Label>
-                <div className="flex gap-4 items-center">
-                  <Input type="color" defaultValue="#968550" className="w-20 h-10" />
-                  <span className="text-sm text-muted-foreground">#968550</span>
-                </div>
-              </div>
-              <Button className="bg-primary hover:bg-primary/90">Guardar Alterações</Button>
+
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveLogo} disabled={savingLogo || loadingCompany}>
+                {savingLogo && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Guardar Logótipo
+              </Button>
             </div>
           </Card>
         </TabsContent>

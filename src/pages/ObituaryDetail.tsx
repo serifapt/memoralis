@@ -44,6 +44,7 @@ interface Funeraria {
   telefone: string;
   email: string | null;
   morada: string | null;
+  logo_url: string | null;
 }
 
 interface RelatedObituary {
@@ -89,7 +90,7 @@ export default function ObituaryDetail() {
       // Fetch events, funeraria, and related in parallel
       const [eventsRes, funerariaRes, relatedRes] = await Promise.all([
         supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, map_link").eq("obituary_id", obit.id).order("event_date", { ascending: true }),
-        supabase.from("funerarias").select("id, nome_comercial, telefone, email, morada").eq("id", obit.funeraria_id).maybeSingle(),
+        supabase.from("funerarias").select("id, nome_comercial, telefone, email, morada, logo_url").eq("id", obit.funeraria_id).maybeSingle(),
         supabase.from("obituaries").select("id, display_name, birth_date, death_date, locality, photo_url").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).eq("is_completed", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(4),
       ]);
 
@@ -308,11 +309,15 @@ export default function ObituaryDetail() {
               <Card className="sticky top-24">
                 <CardContent className="p-8">
                   <div className="flex flex-col items-center text-center mb-8">
-                    <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
-                      <span className="text-background font-bold text-xl">
-                        {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
-                      </span>
-                    </div>
+                    {funeraria.logo_url ? (
+                      <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="w-20 h-20 object-contain rounded mb-4" />
+                    ) : (
+                      <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
+                        <span className="text-background font-bold text-xl">
+                          {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <h3 className="font-archivo font-bold text-foreground text-center mb-6 text-2xl">
