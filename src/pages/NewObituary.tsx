@@ -23,7 +23,9 @@ export default function NewObituary() {
   const location = useLocation();
   const { toast } = useToast();
   const { findOrCreateClient } = useClients();
-  const isEditing = !!id;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isValidUuid = id ? uuidRegex.test(id) : false;
+  const isEditing = !!id && isValidUuid;
   const [isPublic, setIsPublic] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
   const [funerariaId, setFunerariaId] = useState<string>("");
