@@ -48,7 +48,7 @@ export function EnhancedChatWindow({ conversationId, userType }: ChatWindowProps
   const [statusChanges, setStatusChanges] = useState<StatusChange[]>([]);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
