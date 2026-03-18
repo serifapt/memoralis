@@ -262,10 +262,10 @@ export default function FunerariaDetail() {
                   {fullAddress && (
                     <div>
                       <h3 className="font-semibold text-foreground mb-3">Morada</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors block">
                         {funeraria.morada && <>{funeraria.morada}<br /></>}
                         {[funeraria.codigo_postal, funeraria.localidade].filter(Boolean).join(" ")}
-                      </p>
+                      </a>
                     </div>
                   )}
                   <div>
