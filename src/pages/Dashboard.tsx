@@ -3,13 +3,14 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical } from "lucide-react";
+import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ChatButton } from "@/components/chat/ChatButton";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 
 interface DashboardStats {
   activeProcesses: number;
@@ -81,9 +82,10 @@ export default function Dashboard() {
   const [upcomingCeremonies, setUpcomingCeremonies] = useState<UpcomingCeremony[]>([]);
   const [activeProcesses, setActiveProcesses] = useState<ActiveProcess[]>([]);
   const [completedProcesses, setCompletedProcesses] = useState<CompletedProcess[]>([]);
+  const [recentContacts, setRecentContacts] = useState<{ id: string; name: string; email: string; message: string; is_read: boolean; created_at: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
-  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos"]);
+  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos", "contactos-recentes"]);
 
   useEffect(() => {
     loadDashboardData();
@@ -181,6 +183,15 @@ export default function Dashboard() {
       setCompletedProcesses((completedObitData || []).map(o => ({
         id: o.id, display_name: o.display_name, updated_at: o.updated_at, service_price: o.service_price,
       })));
+
+      // Load recent contacts
+      const { data: contactsData } = await supabase
+        .from("funeraria_contacts")
+        .select("id, name, email, message, is_read, created_at")
+        .eq("funeraria_id", funeraria.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setRecentContacts(contactsData || []);
     } catch (err) {
       console.error("Dashboard load error:", err);
     } finally {
@@ -407,6 +418,36 @@ export default function Dashboard() {
         </div>
       ),
     },
+    "contactos-recentes": {
+      id: "contactos-recentes",
+      title: "Contactos Recentes",
+      icon: Mail,
+      component: (
+        <div className="space-y-4">
+          {recentContacts.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhum contacto recebido</p>
+          )}
+          {recentContacts.map((contact) => (
+            <div
+              key={contact.id}
+              className={`p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors ${!contact.is_read ? "bg-primary/5 border-primary/20" : ""}`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-foreground">{contact.name}</h3>
+                  {!contact.is_read && <Badge className="bg-primary text-primary-foreground text-xs">Novo</Badge>}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(contact.created_at), { addSuffix: true, locale: pt })}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-1">{contact.email}</p>
+              <p className="text-sm text-muted-foreground line-clamp-2">{contact.message}</p>
+            </div>
+          ))}
+        </div>
+      ),
+    },
   };
 
   const viewAllRoutes: Record<string, string> = {
@@ -414,6 +455,7 @@ export default function Dashboard() {
     "proximas-cerimonias": "/ceremonies",
     "processos-ativos": "/obituaries",
     "processos-concluidos": "/obituaries",
+    "contactos-recentes": "/dashboard",
   };
 
   const statItems = [
@@ -435,10 +477,13 @@ export default function Dashboard() {
             Bem-vindo ao Sistema de Gestão Funerária da Memoralis
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate("/obituaries/new")}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Obituário
-        </Button>
+        <div className="flex items-center gap-3">
+          {funerariaId && <NotificationBell funerariaId={funerariaId} />}
+          <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate("/obituaries/new")}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Obituário
+          </Button>
+        </div>
       </div>
 
       {/* Quick Search */}
