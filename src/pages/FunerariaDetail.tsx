@@ -24,6 +24,7 @@ import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { TestimonialsSection } from "@/components/funeraria/TestimonialsSection";
 
 interface FunerariaData {
   id: string;
@@ -357,6 +358,9 @@ export default function FunerariaDetail() {
                 </div>
               </div>
             )}
+
+            {/* Testimonials */}
+            <TestimonialsSection funerariaId={funeraria.id} funerariaName={funeraria.nome_comercial} />
           </div>
 
           {/* Sidebar */}

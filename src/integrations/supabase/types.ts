@@ -976,6 +976,47 @@ export type Database = {
           },
         ]
       }
+      funeraria_testimonials: {
+        Row: {
+          author_email: string | null
+          author_name: string
+          created_at: string
+          funeraria_id: string
+          id: string
+          message: string
+          rating: number
+          status: string
+        }
+        Insert: {
+          author_email?: string | null
+          author_name: string
+          created_at?: string
+          funeraria_id: string
+          id?: string
+          message: string
+          rating: number
+          status?: string
+        }
+        Update: {
+          author_email?: string | null
+          author_name?: string
+          created_at?: string
+          funeraria_id?: string
+          id?: string
+          message?: string
+          rating?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funeraria_testimonials_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funerarias: {
         Row: {
           aceito_termos: boolean
