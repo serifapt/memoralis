@@ -497,7 +497,22 @@ export default function NewObituary() {
         }
       }
 
-      // 2. Prepare obituary data
+      // 2. Upload photo if selected
+      let photoUrl: string | null = photoPreview && !photoFile ? photoPreview : null;
+      if (photoFile) {
+        const fileExt = photoFile.name.split('.').pop();
+        const fileName = `${funerariaId}/${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('obituary-photos')
+          .upload(fileName, photoFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from('obituary-photos')
+          .getPublicUrl(fileName);
+        photoUrl = urlData.publicUrl;
+      }
+
+      // 3. Prepare obituary data
       const obituaryData = {
         funeraria_id: funerariaId,
         display_name: formData.displayName.trim(),
@@ -529,6 +544,7 @@ export default function NewObituary() {
         coffin_ref: formData.coffinRef || null,
         service_price: formData.servicePrice ? parseFloat(formData.servicePrice) : null,
         responsible_client_id: clientId,
+        photo_url: photoUrl,
       };
 
       let obituaryId = id;
