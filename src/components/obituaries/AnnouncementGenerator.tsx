@@ -8,6 +8,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { TemplateThumbnail } from "./TemplateThumbnail";
 import { type TemplateType } from "./types";
+import { ObituaryTemplateA4 } from "./ObituaryTemplateA4";
 
 interface AnnouncementGeneratorProps {
   obituaryData: {
