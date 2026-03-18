@@ -183,6 +183,15 @@ export default function Dashboard() {
       setCompletedProcesses((completedObitData || []).map(o => ({
         id: o.id, display_name: o.display_name, updated_at: o.updated_at, service_price: o.service_price,
       })));
+
+      // Load recent contacts
+      const { data: contactsData } = await supabase
+        .from("funeraria_contacts")
+        .select("id, name, email, message, is_read, created_at")
+        .eq("funeraria_id", funeraria.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setRecentContacts(contactsData || []);
     } catch (err) {
       console.error("Dashboard load error:", err);
     } finally {
