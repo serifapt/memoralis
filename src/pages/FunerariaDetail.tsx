@@ -271,10 +271,10 @@ export default function FunerariaDetail() {
                   <div>
                     <h3 className="font-semibold text-foreground mb-3">Contactos</h3>
                     <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>{funeraria.telefone}</p>
-                      {funeraria.telefone_secundario && <p>{funeraria.telefone_secundario}</p>}
-                      {funeraria.email && <p>{funeraria.email}</p>}
-                      {funeraria.website && <p>{funeraria.website}</p>}
+                      <a href={`tel:${funeraria.telefone}`} className="block hover:text-primary transition-colors">{funeraria.telefone}</a>
+                      {funeraria.telefone_secundario && <a href={`tel:${funeraria.telefone_secundario}`} className="block hover:text-primary transition-colors">{funeraria.telefone_secundario}</a>}
+                      {funeraria.email && <a href={`mailto:${funeraria.email}`} className="block hover:text-primary transition-colors">{funeraria.email}</a>}
+                      {funeraria.website && <a href={funeraria.website.startsWith("http") ? funeraria.website : `https://${funeraria.website}`} target="_blank" rel="noopener noreferrer" className="block hover:text-primary transition-colors">{funeraria.website}</a>}
                     </div>
                   </div>
                   {funeraria.horario && (
