@@ -24,6 +24,7 @@ import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { TestimonialsSection } from "@/components/funeraria/TestimonialsSection";
 
 interface FunerariaData {
   id: string;
