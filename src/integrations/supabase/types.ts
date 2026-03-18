@@ -983,6 +983,7 @@ export type Database = {
           declaro_representacao_legal: boolean
           email: string | null
           id: string
+          logo_url: string | null
           morada: string | null
           motivo_rejeicao: string | null
           nif: string
@@ -1000,6 +1001,7 @@ export type Database = {
           declaro_representacao_legal?: boolean
           email?: string | null
           id?: string
+          logo_url?: string | null
           morada?: string | null
           motivo_rejeicao?: string | null
           nif: string
@@ -1017,6 +1019,7 @@ export type Database = {
           declaro_representacao_legal?: boolean
           email?: string | null
           id?: string
+          logo_url?: string | null
           morada?: string | null
           motivo_rejeicao?: string | null
           nif?: string
