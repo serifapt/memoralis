@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import logo from "@/assets/logo-memoralis.png";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
+import { withCacheBust } from "@/lib/funeraria-utils";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { TestimonialsSection } from "@/components/funeraria/TestimonialsSection";
