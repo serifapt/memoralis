@@ -26,6 +26,7 @@ const baseNavigation = [
   { name: "Cerimónias", href: "/ceremonies", icon: Calendar },
   { name: "Clientes", href: "/clients", icon: Users },
   { name: "Contactos", href: "/contacts", icon: Mail },
+  { name: "Testemunhos", href: "/testimonials", icon: MessageSquareQuote },
   { name: "Orçamentos", href: "/budgets", icon: Receipt },
   { name: "Documentos", href: "/documents", icon: FolderOpen },
 ];
