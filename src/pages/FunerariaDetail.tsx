@@ -65,6 +65,8 @@ export default function FunerariaDetail() {
   const [notFound, setNotFound] = useState(false);
   const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+  const [coverError, setCoverError] = useState(false);
 
   useEffect(() => {
     if (id) loadFuneraria();
@@ -202,8 +204,8 @@ export default function FunerariaDetail() {
           <div className="grid md:grid-cols-[400px_1fr] gap-4 p-4">
             {/* Logo */}
             <div className="bg-muted rounded-lg flex items-center justify-center p-6 h-[400px] w-full md:w-[400px]">
-              {funeraria.logo_url ? (
-                <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="max-h-full max-w-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              {funeraria.logo_url && !logoError ? (
+                <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="max-h-full max-w-full object-contain" onError={() => setLogoError(true)} />
               ) : (
                 <div className="text-center">
                   <div className="text-6xl font-archivo font-bold mb-2">{getInitials(funeraria.nome_comercial)}</div>
@@ -214,8 +216,8 @@ export default function FunerariaDetail() {
             
             {/* Cover Image */}
             <div className="relative">
-              {funeraria.cover_image_url ? (
-                <img src={funeraria.cover_image_url} alt={funeraria.nome_comercial} className="w-full h-[400px] object-cover rounded-lg" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
+              {funeraria.cover_image_url && !coverError ? (
+                <img src={funeraria.cover_image_url} alt={funeraria.nome_comercial} className="w-full h-[400px] object-cover rounded-lg" onError={() => setCoverError(true)} />
               ) : (
                 <div className="w-full h-[400px] bg-muted rounded-lg flex items-center justify-center">
                   <p className="text-muted-foreground">Sem imagem de capa</p>

@@ -1,0 +1,1 @@
+ALTER TABLE public.funeraria_testimonials ADD COLUMN response TEXT;

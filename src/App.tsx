@@ -40,6 +40,7 @@ import FlowerOrders from "./pages/FlowerOrders";
 import BudgetQuotes from "./pages/BudgetQuotes";
 import BudgetQuoteDetail from "./pages/BudgetQuoteDetail";
 import FunerariaContacts from "./pages/FunerariaContacts";
+import TestimonialsManagement from "./pages/TestimonialsManagement";
 // Care & Homenagem B2C Module
 import CareLanding from "./pages/CareLanding";
 
@@ -121,6 +122,7 @@ const App = () => (
             <Route path="/ceremonies" element={<Ceremonies />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/contacts" element={<FunerariaContacts />} />
+            <Route path="/testimonials" element={<TestimonialsManagement />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/flowers/catalog" element={<FlowerCatalog />} />
             <Route path="/flowers/orders" element={<FlowerOrders />} />
