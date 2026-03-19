@@ -39,6 +39,7 @@ import FlowerCatalog from "./pages/FlowerCatalog";
 import FlowerOrders from "./pages/FlowerOrders";
 import BudgetQuotes from "./pages/BudgetQuotes";
 import BudgetQuoteDetail from "./pages/BudgetQuoteDetail";
+import FunerariaContacts from "./pages/FunerariaContacts";
 // Care & Homenagem B2C Module
 import CareLanding from "./pages/CareLanding";
 
