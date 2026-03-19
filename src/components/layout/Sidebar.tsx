@@ -10,7 +10,8 @@ import {
   MessageSquare,
   Flower2,
   ShoppingBag,
-  Receipt
+  Receipt,
+  Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
