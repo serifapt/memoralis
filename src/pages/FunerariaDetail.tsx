@@ -204,8 +204,8 @@ export default function FunerariaDetail() {
           <div className="grid md:grid-cols-[400px_1fr] gap-4 p-4">
             {/* Logo */}
             <div className="bg-muted rounded-lg flex items-center justify-center p-6 h-[400px] w-full md:w-[400px]">
-              {funeraria.logo_url ? (
-                <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="max-h-full max-w-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              {funeraria.logo_url && !logoError ? (
+                <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="max-h-full max-w-full object-contain" onError={() => setLogoError(true)} />
               ) : (
                 <div className="text-center">
                   <div className="text-6xl font-archivo font-bold mb-2">{getInitials(funeraria.nome_comercial)}</div>
