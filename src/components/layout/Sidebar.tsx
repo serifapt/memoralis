@@ -11,7 +11,8 @@ import {
   Flower2,
   ShoppingBag,
   Receipt,
-  Mail
+  Mail,
+  MessageSquareQuote
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
