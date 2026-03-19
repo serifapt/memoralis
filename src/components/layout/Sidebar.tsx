@@ -10,7 +10,8 @@ import {
   MessageSquare,
   Flower2,
   ShoppingBag,
-  Receipt
+  Receipt,
+  Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
@@ -23,6 +24,7 @@ const baseNavigation = [
   { name: "Obituários", href: "/obituaries", icon: FileText },
   { name: "Cerimónias", href: "/ceremonies", icon: Calendar },
   { name: "Clientes", href: "/clients", icon: Users },
+  { name: "Contactos", href: "/contacts", icon: Mail },
   { name: "Orçamentos", href: "/budgets", icon: Receipt },
   { name: "Documentos", href: "/documents", icon: FolderOpen },
 ];
