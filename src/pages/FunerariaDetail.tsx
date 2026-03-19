@@ -65,6 +65,8 @@ export default function FunerariaDetail() {
   const [notFound, setNotFound] = useState(false);
   const [contactForm, setContactForm] = useState({ name: "", phone: "", email: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+  const [coverError, setCoverError] = useState(false);
 
   useEffect(() => {
     if (id) loadFuneraria();
