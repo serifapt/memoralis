@@ -120,6 +120,7 @@ const App = () => (
             <Route path="/obituaries/:id/edit" element={<NewObituary />} />
             <Route path="/ceremonies" element={<Ceremonies />} />
             <Route path="/clients" element={<Clients />} />
+            <Route path="/contacts" element={<FunerariaContacts />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/flowers/catalog" element={<FlowerCatalog />} />
             <Route path="/flowers/orders" element={<FlowerOrders />} />
