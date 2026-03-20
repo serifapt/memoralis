@@ -376,13 +376,7 @@ export default function NewObituary() {
           events.forEach(event => {
             if (event.event_type === 'velorio') {
               setVelorio(true);
-              setFormData(prev => ({
-                ...prev,
-                velorioDate: event.event_date || "",
-                velorioTime: event.event_time || "",
-                velorioLocation: event.location || "",
-                velorioMapLink: event.map_link || "",
-              }));
+              // velorio entries are collected below
             } else if (event.event_type === 'funeral') {
               setFuneral(true);
               setFormData(prev => ({
