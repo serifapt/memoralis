@@ -1,25 +1,41 @@
 
+Objetivo: fazer com que os cards de obituário da página inicial usem exatamente o mesmo visual e os mesmos dados do Arquivo de Obituários.
 
-## Plano: Forçar exibição do nome da funerária nos cards
+Plano
 
-### Diagnóstico
-O código e os dados estão correctos. O problema mais provável é um erro de tipagem TypeScript que impede a compilação — o tipo retornado pelo cliente Supabase tipado para `funerarias(nome_comercial, slug)` pode não corresponder exactamente à interface `PublicObituary`, causando falha silenciosa no build.
+1. Unificar o layout do card público
+- Extrair o card que já está correto em `src/pages/ObituaryArchive.tsx` para um componente reutilizável, por exemplo `src/components/obituaries/PublicObituaryCard.tsx`.
+- Esse componente passa a ser a fonte única do layout dos cards públicos, evitando diferenças entre Home e Arquivo.
 
-### Alterações
+2. Levar para a Home os mesmos dados do Arquivo
+- Atualizar a query da Home em `src/pages/Home.tsx` para incluir também `freguesia` e manter a funerária associada.
+- Alinhar a interface `PublicObituary` da Home com a do Arquivo, para suportar:
+  - nome
+  - foto
+  - datas
+  - idade
+  - `freguesia + locality`
+  - funerária com link público
 
-#### 1. Home.tsx (linha 62)
-Adicionar cast explícito no resultado da query:
-```typescript
-setObituaries((data as unknown as PublicObituary[]) || []);
-```
+3. Replicar exatamente a apresentação do Arquivo
+- Na Home, usar o mesmo componente do Arquivo para mostrar:
+  - nome em destaque
+  - anos de nascimento e falecimento
+  - idade
+  - localização no formato `Freguesia - Localidade`
+  - funerária com ícone e link para a página pública
+  - botões “Condolências” e “Enviar Flores”
+- Manter o `stopPropagation()` no link da funerária para não quebrar o clique principal do card.
 
-#### 2. ObituaryArchive.tsx (resultado da query, ~linha 100)
-Mesmo cast explícito:
-```typescript
-setObituaries((data as unknown as PublicObituary[]) || []);
-// e no append:
-setObituaries(prev => [...prev, ...((data as unknown as PublicObituary[]) || [])]);
-```
+4. Preservar comportamento e consistência
+- Manter a navegação do card para o detalhe do obituário.
+- Garantir que, se faltar `freguesia`, `locality` ou funerária, o card continua estável sem quebrar o layout.
+- Validar que Home e Arquivo ficam visualmente iguais para o mesmo obituário.
 
-Isto garante que mesmo que o tipo inferido pelo Supabase não coincida exactamente com a interface, o código compila e os dados são correctamente passados ao template.
-
+Detalhes técnicos
+- Ficheiros principais:
+  - `src/pages/Home.tsx`
+  - `src/pages/ObituaryArchive.tsx`
+  - novo componente partilhado em `src/components/obituaries/`
+- Não são necessárias alterações na base de dados.
+- A abordagem mais segura é reutilizar o mesmo componente em vez de duplicar markup, porque elimina divergências futuras entre as duas páginas.
