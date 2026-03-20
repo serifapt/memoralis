@@ -1135,9 +1135,17 @@ export default function NewObituary() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="funeralCemetery" className="flex items-center gap-2">
+                            <Label htmlFor="funeralCemetery" className="flex items-center gap-1.5">
                               <MapPin className="w-4 h-4" />
-                              Nome do Cemitério* (necessário para documentos oficiais)
+                              Nome do Cemitério*
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Necessário para documentos oficiais</p></TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </Label>
                             <Input
                               id="funeralCemetery"
