@@ -224,7 +224,7 @@ export function useBudgetQuotes() {
       });
       return null;
     }
-  };
+  }, [toast]);
 
   const createQuote = async (data: BudgetQuoteFormData, applyDefaultTemplate = true): Promise<string | null> => {
     try {
