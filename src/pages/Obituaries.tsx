@@ -32,6 +32,8 @@ export default function Obituaries() {
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed">("all");
+  const [visibilityFilter, setVisibilityFilter] = useState<"all" | "public" | "private">("all");
 
   const fetchObituaries = useCallback(async () => {
     setLoading(true);
@@ -64,9 +66,19 @@ export default function Obituaries() {
 
   useEffect(() => { fetchObituaries(); }, [fetchObituaries]);
 
-  const filtered = obituaries.filter((o) =>
-    o.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const counts = {
+    active: obituaries.filter(o => !o.is_completed).length,
+    completed: obituaries.filter(o => o.is_completed).length,
+    public: obituaries.filter(o => o.is_public).length,
+    private: obituaries.filter(o => !o.is_public).length,
+  };
+
+  const filtered = obituaries.filter((o) => {
+    const matchesName = o.display_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? !o.is_completed : o.is_completed);
+    const matchesVisibility = visibilityFilter === "all" || (visibilityFilter === "public" ? o.is_public : !o.is_public);
+    return matchesName && matchesStatus && matchesVisibility;
+  });
 
   const formatDate = (date: string | null) => {
     if (!date) return "—";
@@ -94,7 +106,7 @@ export default function Obituaries() {
         </Button>
       </div>
 
-      <Card className="p-4">
+      <Card className="p-4 space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
           <Input
@@ -103,6 +115,36 @@ export default function Obituaries() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground mr-1">Processo:</span>
+            {([["all", "Todos", obituaries.length], ["active", `Em curso (${counts.active})`, counts.active], ["completed", `Terminado (${counts.completed})`, counts.completed]] as const).map(([value, label]) => (
+              <Button
+                key={value}
+                variant={statusFilter === value ? "default" : "outline"}
+                size="sm"
+                className="h-7 text-xs px-2.5"
+                onClick={() => setStatusFilter(value as typeof statusFilter)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground mr-1">Visibilidade:</span>
+            {([["all", "Todos", obituaries.length], ["public", `Público (${counts.public})`, counts.public], ["private", `Privado (${counts.private})`, counts.private]] as const).map(([value, label]) => (
+              <Button
+                key={value}
+                variant={visibilityFilter === value ? "default" : "outline"}
+                size="sm"
+                className="h-7 text-xs px-2.5"
+                onClick={() => setVisibilityFilter(value as typeof visibilityFilter)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
         </div>
       </Card>
 
@@ -135,7 +177,6 @@ export default function Obituaries() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filtered.map((obituary) => {
             const ceremony = getFirstCeremony(obituary);
-            const isPublished = obituary.is_public && obituary.is_completed;
 
             return (
               <Card key={obituary.id} className="overflow-hidden">
@@ -149,12 +190,15 @@ export default function Obituaries() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-lg font-archivo font-semibold text-foreground">
                           {obituary.display_name}
                         </h3>
-                        <Badge variant={isPublished ? "default" : "secondary"}>
-                          {isPublished ? "Publicado" : "Rascunho"}
+                        <Badge variant={obituary.is_completed ? "default" : "outline"} className={obituary.is_completed ? "bg-emerald-600 hover:bg-emerald-600" : "border-amber-500 text-amber-600"}>
+                          {obituary.is_completed ? "Terminado" : "Em curso"}
+                        </Badge>
+                        <Badge variant={obituary.is_public ? "default" : "secondary"}>
+                          {obituary.is_public ? "Público" : "Privado"}
                         </Badge>
                       </div>
                       <div className="mt-2 space-y-1 text-sm text-muted-foreground">
