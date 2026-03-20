@@ -1066,61 +1066,84 @@ export default function NewObituary() {
                       <Label className="font-medium">Velório</Label>
                     </div>
                     {velorio && (
-                      <div className="grid md:grid-cols-4 gap-4 pl-8">
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioDate" className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
-                            Data
-                          </Label>
-                          <Input
-                            id="velorioDate"
-                            type="date"
-                            value={formData.velorioDate}
-                            onChange={(e) =>
-                              handleInputChange("velorioDate", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioTime" className="flex items-center gap-1.5">
-                            <Clock className="w-4 h-4" />
-                            Hora
-                          </Label>
-                          <Input
-                            id="velorioTime"
-                            type="time"
-                            value={formData.velorioTime}
-                            onChange={(e) =>
-                              handleInputChange("velorioTime", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioLocation" className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4" />
-                            Nome do Local
-                          </Label>
-                          <Input
-                            id="velorioLocation"
-                            value={formData.velorioLocation}
-                            onChange={(e) =>
-                              handleInputChange("velorioLocation", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioMapLink" className="flex items-center gap-1.5">
-                            <Map className="w-4 h-4" />
-                            Link do mapa
-                          </Label>
-                          <Input
-                            id="velorioMapLink"
-                            value={formData.velorioMapLink}
-                            onChange={(e) =>
-                              handleInputChange("velorioMapLink", e.target.value)
-                            }
-                          />
-                        </div>
+                      <div className="space-y-3 pl-8">
+                        {velorioEntries.map((entry, index) => (
+                          <div key={index} className="flex items-end gap-2">
+                            <div className="grid md:grid-cols-4 gap-4 flex-1">
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Calendar className="w-4 h-4" />
+                                    Data
+                                  </Label>
+                                )}
+                                <Input
+                                  type="date"
+                                  value={entry.date}
+                                  onChange={(e) => updateVelorioEntry(index, "date", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Clock className="w-4 h-4" />
+                                    Hora
+                                  </Label>
+                                )}
+                                <Input
+                                  type="time"
+                                  value={entry.time}
+                                  onChange={(e) => updateVelorioEntry(index, "time", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <MapPin className="w-4 h-4" />
+                                    Nome do Local
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.location}
+                                  onChange={(e) => updateVelorioEntry(index, "location", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Map className="w-4 h-4" />
+                                    Link do mapa
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.mapLink}
+                                  onChange={(e) => updateVelorioEntry(index, "mapLink", e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {velorioEntries.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 text-muted-foreground hover:text-destructive"
+                                onClick={() => removeVelorioEntry(index)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-0 text-muted-foreground"
+                          onClick={addVelorioEntry}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Adicionar horário/local
+                        </Button>
                       </div>
                     )}
                   </div>
