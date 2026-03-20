@@ -16,18 +16,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 
-interface PublicObituary {
-  id: string;
-  display_name: string;
-  birth_date: string | null;
-  death_date: string | null;
-  locality: string | null;
-  freguesia: string | null;
-  photo_url: string | null;
-  funeraria_id: string;
-  funerarias: { nome_comercial: string; slug: string | null } | null;
-}
-
 const PAGE_SIZE = 12;
 
 export default function ObituaryArchive() {
