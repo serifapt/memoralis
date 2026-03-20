@@ -399,7 +399,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 {ceremony.obituary && (
-                  <Button variant="outline" size="sm" onClick={() => navigate(`/obituaries/${ceremony.obituary!.id}`)}>
+                  <Button variant="outline" size="sm" onClick={() => navigate(`/obituaries/${ceremony.obituary!.id}/edit`)}>
                     Detalhes
                   </Button>
                 )}
