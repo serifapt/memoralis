@@ -193,6 +193,15 @@ export default function Dashboard() {
         .order("created_at", { ascending: false })
         .limit(5);
       setRecentContacts(contactsData || []);
+
+      // Load recent testimonials
+      const { data: testimonialsData } = await supabase
+        .from("funeraria_testimonials")
+        .select("id, author_name, rating, message, status, created_at")
+        .eq("funeraria_id", funeraria.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setRecentTestimonials(testimonialsData || []);
     } catch (err) {
       console.error("Dashboard load error:", err);
     } finally {
