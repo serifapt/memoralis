@@ -841,7 +841,17 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="socialSecurity">Segurança Social* (necessário para subsídio funeral)</Label>
+                      <Label htmlFor="socialSecurity" className="flex items-center gap-1.5">
+                        Segurança Social*
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>Necessário para subsídio funeral</p></TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </Label>
                       <Input
                         id="socialSecurity"
                         placeholder="Inserir Número"
