@@ -985,7 +985,7 @@ export default function NewObituary() {
                 <div className="space-y-6">
                   {/* Nome Completo */}
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Nome Completo*</Label>
+                    <Label htmlFor="fullName">Nome Completo</Label>
                     <Input
                       id="fullName"
                       placeholder="Nome completo do óbito"
@@ -1059,7 +1059,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="birthPlace">Naturalidade*</Label>
+                      <Label htmlFor="birthPlace">Naturalidade</Label>
                       <Input
                         id="birthPlace"
                         placeholder="Couto"
@@ -1075,7 +1075,7 @@ export default function NewObituary() {
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="nationality" className="flex items-center gap-1.5">
-                        Nacionalidade*
+                        Nacionalidade
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1095,7 +1095,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="civilStatus">Estado Civil*</Label>
+                      <Label htmlFor="civilStatus">Estado Civil</Label>
                       <Input
                         id="civilStatus"
                         placeholder="Arcos de Valdevez"
@@ -1121,7 +1121,7 @@ export default function NewObituary() {
                   {/* Documents */}
                   <div className="grid md:grid-cols-4 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="idCard">Cartão Cidadão*</Label>
+                      <Label htmlFor="idCard">Cartão Cidadão</Label>
                       <Input
                         id="idCard"
                         placeholder="Inserir Número"
@@ -1133,7 +1133,7 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="taxId" className="flex items-center gap-1.5">
-                        NIF*
+                        NIF
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1154,7 +1154,7 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="socialSecurity" className="flex items-center gap-1.5">
-                        Segurança Social*
+                        Segurança Social
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1175,7 +1175,7 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="beneficiary" className="flex items-center gap-1.5">
-                        Beneficiário*
+                        Beneficiário
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1247,7 +1247,7 @@ export default function NewObituary() {
                   {/* Medical Information */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="doctor">Médico Declarante*</Label>
+                      <Label htmlFor="doctor">Médico Declarante</Label>
                       <Input
                         id="doctor"
                         placeholder="Nome Médico"
@@ -1329,7 +1329,7 @@ export default function NewObituary() {
               <Card className="p-6">
                 <div className="space-y-2">
                   <div>
-                    <Label htmlFor="publicMessage">Mensagem Pública*</Label>
+                    <Label htmlFor="publicMessage">Mensagem Pública</Label>
                     <p className="text-sm text-muted-foreground">Mensagem da família</p>
                   </div>
                   <Textarea
@@ -1916,7 +1916,7 @@ export default function NewObituary() {
                   {/* Email, Phone */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="familyEmail">Email*</Label>
+                      <Label htmlFor="familyEmail">Email</Label>
                       <Input
                         id="familyEmail"
                         type="email"
@@ -1955,7 +1955,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="familyNiss">NISS*</Label>
+                      <Label htmlFor="familyNiss">NISS</Label>
                       <Input
                         id="familyNiss"
                         placeholder="00000000000"
@@ -1966,7 +1966,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="familyNaturalidade">Naturalidade*</Label>
+                      <Label htmlFor="familyNaturalidade">Naturalidade</Label>
                       <Input
                         id="familyNaturalidade"
                         placeholder="Local de nascimento"
@@ -1980,7 +1980,7 @@ export default function NewObituary() {
 
                   {/* IBAN */}
                   <div className="space-y-2">
-                    <Label htmlFor="familyIban">IBAN*</Label>
+                    <Label htmlFor="familyIban">IBAN</Label>
                     <Input
                       id="familyIban"
                       placeholder="PT50 0000 0000 0000 0000 0000 0"
@@ -2135,7 +2135,7 @@ export default function NewObituary() {
                   {/* Tipo de Serviço, Marca Caixão, Caixão Ref. */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="serviceType">Tipo de Serviço*</Label>
+                      <Label htmlFor="serviceType">Tipo de Serviço</Label>
                       <Select
                         value={formData.serviceType}
                         onValueChange={(value) =>
