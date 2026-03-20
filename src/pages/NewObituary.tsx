@@ -701,9 +701,234 @@ export default function NewObituary() {
     }
   };
 
+  // === Auto-save logic ===
+  const saveObituary = useCallback(async (silent = false) => {
+    if (isSaving) return;
+    if (!funerariaId) return;
+    if (!formData.displayName.trim()) return;
+
+    // For new obituaries, require minimum fields before first save
+    if (!savedObituaryIdRef.current && !hasMinimumFields()) return;
+
+    if (silent) {
+      setAutoSaveStatus("saving");
+    } else {
+      setIsSaving(true);
+    }
+
+    try {
+      // Sync client if family data provided
+      let clientId = responsibleClientId;
+      if (formData.familyName && formData.familyName.trim() !== "") {
+        const client = await findOrCreateClient({
+          full_name: formData.familyName,
+          relationship_degree: formData.familyRelationship || undefined,
+          email: formData.familyEmail || undefined,
+          phone: formData.familyPhone || undefined,
+          nif: formData.familyNif || undefined,
+          niss: formData.familyNiss || undefined,
+          nationality_place: formData.familyNaturalidade || undefined,
+          iban: formData.familyIban || undefined,
+          address: formData.familyAddress || undefined,
+          city: formData.familyLocality || undefined,
+          postal_code: formData.familyPostalCode || undefined,
+          notes: formData.familyObservations || undefined,
+        });
+        if (client) {
+          clientId = client.id;
+          setResponsibleClientId(client.id);
+        }
+      }
+
+      // Upload photo if pending
+      let photoUrl: string | null = photoPreview && !photoFile ? photoPreview : null;
+      if (photoFile) {
+        const fileExt = photoFile.name.split('.').pop();
+        const fileName = `${funerariaId}/${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('obituary-photos')
+          .upload(fileName, photoFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from('obituary-photos')
+          .getPublicUrl(fileName);
+        photoUrl = urlData.publicUrl;
+        setPhotoFile(null); // Clear after upload
+      }
+
+      const obituaryData = {
+        funeraria_id: funerariaId,
+        display_name: formData.displayName.trim(),
+        full_name: formData.fullName.trim() || formData.displayName.trim(),
+        birth_date: formData.birthDate || null,
+        freguesia: formData.freguesia || null,
+        locality: formData.locality || null,
+        birth_place: formData.birthPlace || null,
+        nationality: formData.nationality || null,
+        civil_status: formData.civilStatus || null,
+        profession: formData.profession || null,
+        id_card: formData.idCard || null,
+        tax_id: formData.taxId || null,
+        social_security: formData.socialSecurity || null,
+        beneficiary: formData.beneficiary || null,
+        death_location: formData.deathLocation || null,
+        death_date: formData.deathDate || null,
+        death_time: formData.deathTime || null,
+        cause: formData.cause || null,
+        doctor: formData.doctor || null,
+        medical_certificate: formData.medicalCertificate || null,
+        public_message: formData.publicMessage || null,
+        observations: formData.observations || null,
+        hide_condolences: formData.hideCondolences,
+        is_public: isPublic,
+        is_completed: isCompleted,
+        service_type: formData.serviceType || null,
+        coffin_brand: formData.coffinBrand || null,
+        coffin_ref: formData.coffinRef || null,
+        service_price: formData.servicePrice ? parseFloat(formData.servicePrice) : null,
+        responsible_client_id: clientId,
+        photo_url: photoUrl,
+      };
+
+      let currentId = savedObituaryIdRef.current;
+
+      if (currentId) {
+        const { error } = await supabase
+          .from('obituaries')
+          .update(obituaryData)
+          .eq('id', currentId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from('obituaries')
+          .insert(obituaryData)
+          .select()
+          .single();
+        if (error) throw error;
+        currentId = data.id;
+        savedObituaryIdRef.current = currentId;
+        // Navigate to edit URL without reload
+        navigate(`/obituaries/${currentId}/edit`, { replace: true });
+      }
+
+      // Save ceremony events
+      if (currentId) {
+        await supabase.from('ceremony_events').delete().eq('obituary_id', currentId);
+        const eventsToInsert: any[] = [];
+
+        if (velorio) {
+          velorioEntries.forEach(entry => {
+            eventsToInsert.push({
+              obituary_id: currentId,
+              event_type: 'velorio',
+              event_date: entry.date || null,
+              event_time: entry.time || null,
+              location: entry.location || null,
+              map_link: entry.mapLink || null,
+            });
+          });
+        }
+        if (funeral) {
+          eventsToInsert.push({
+            obituary_id: currentId, event_type: 'funeral',
+            event_date: formData.funeralDate || null, event_time: formData.funeralTime || null,
+            location: formData.funeralCemetery || null, map_link: formData.funeralMapLink || null,
+            responsible_name: formData.funeralResponsible || null, responsible_phone: formData.funeralPhone || null,
+          });
+        }
+        if (cremacao) {
+          eventsToInsert.push({
+            obituary_id: currentId, event_type: 'cremacao',
+            event_date: formData.cremacaoDate || null, event_time: formData.cremacaoTime || null,
+            location: formData.cremacaoCemetery || null, map_link: formData.cremacaoMapLink || null,
+            responsible_name: formData.cremacaoResponsible || null, responsible_phone: formData.cremacaoPhone || null,
+          });
+        }
+        if (missa7) {
+          eventsToInsert.push({
+            obituary_id: currentId, event_type: 'missa7',
+            event_date: formData.missa7Date || null, event_time: formData.missa7Time || null,
+            location: formData.missa7Location || null, map_link: formData.missa7MapLink || null,
+          });
+        }
+        if (missa30) {
+          eventsToInsert.push({
+            obituary_id: currentId, event_type: 'missa30',
+            event_date: formData.missa30Date || null, event_time: formData.missa30Time || null,
+            location: formData.missa30Location || null, map_link: formData.missa30MapLink || null,
+          });
+        }
+        if (missa1ano) {
+          eventsToInsert.push({
+            obituary_id: currentId, event_type: 'missa1ano',
+            event_date: formData.missa1anoDate || null, event_time: formData.missa1anoTime || null,
+            location: formData.missa1anoLocation || null, map_link: formData.missa1anoMapLink || null,
+          });
+        }
+
+        if (eventsToInsert.length > 0) {
+          await supabase.from('ceremony_events').insert(eventsToInsert);
+        }
+      }
+
+      setHasUnsavedChanges(false);
+      setAutoSaveStatus("saved");
+
+      if (!silent) {
+        toast({
+          title: "Guardado",
+          description: "Os dados foram guardados com sucesso",
+        });
+      }
+
+      // Reset "saved" indicator after 3s
+      setTimeout(() => {
+        setAutoSaveStatus(prev => prev === "saved" ? "idle" : prev);
+      }, 3000);
+
+    } catch (error: any) {
+      setAutoSaveStatus("error");
+      if (!silent) {
+        toast({
+          title: "Erro",
+          description: error.message || "Não foi possível guardar o obituário",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }, [funerariaId, formData, isPublic, isCompleted, responsibleClientId, photoFile, photoPreview, velorio, velorioEntries, funeral, cremacao, missa7, missa30, missa1ano, hasMinimumFields, findOrCreateClient, navigate, toast, isSaving]);
+
+  // Debounced auto-save effect
+  useEffect(() => {
+    // Skip auto-save during initial data load
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false;
+      return;
+    }
+
+    if (!hasUnsavedChanges) return;
+    if (!funerariaId) return;
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveObituary(true);
+    }, 1500);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [formData, isPublic, isCompleted, velorio, velorioEntries, funeral, cremacao, missa7, missa30, missa1ano, hasUnsavedChanges, funerariaId]);
+
   const handleCreateBudget = () => {
-    if (id) {
-      navigate(`/budgets/new?obituaryId=${id}`);
+    if (savedObituaryIdRef.current || id) {
+      navigate(`/budgets/new?obituaryId=${savedObituaryIdRef.current || id}`);
     }
   };
 
