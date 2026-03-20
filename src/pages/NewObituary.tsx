@@ -2038,10 +2038,13 @@ export default function NewObituary() {
                 <Eye className="w-4 h-4" />
                 Ver Perfil Público
               </Button>
-              <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
+               <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
                 <Upload className="w-4 h-4" />
                 {isSaving ? "A guardar..." : "Guardar"}
               </Button>
+              {hasUnsavedChanges && (
+                <p className="text-xs text-amber-600 text-center mt-1">⚠ Alterações não guardadas</p>
+              )}
             </div>
           </Card>
 
