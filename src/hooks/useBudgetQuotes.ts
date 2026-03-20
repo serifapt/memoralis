@@ -176,7 +176,7 @@ export function useBudgetQuotes() {
     }
   }, [funerariaId, fetchFunerariaId, toast]);
 
-  const getQuoteById = async (id: string): Promise<{ quote: BudgetQuote; sections: BudgetQuoteSection[] } | null> => {
+  const getQuoteById = useCallback(async (id: string): Promise<{ quote: BudgetQuote; sections: BudgetQuoteSection[] } | null> => {
     try {
       const { data: quote, error: quoteError } = await supabase
         .from("budget_quotes")
@@ -224,7 +224,7 @@ export function useBudgetQuotes() {
       });
       return null;
     }
-  };
+  }, [toast]);
 
   const createQuote = async (data: BudgetQuoteFormData, applyDefaultTemplate = true): Promise<string | null> => {
     try {
