@@ -1075,7 +1075,7 @@ export default function NewObituary() {
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="nationality" className="flex items-center gap-1.5">
-                        Nacionalidade*
+                        Nacionalidade
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
