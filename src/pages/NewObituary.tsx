@@ -2043,7 +2043,7 @@ export default function NewObituary() {
                 {isSaving ? "A guardar..." : "Guardar"}
               </Button>
               {hasUnsavedChanges && (
-                <p className="text-xs text-amber-600 text-center mt-1">⚠ Alterações não guardadas</p>
+                <p className="text-xs text-destructive text-center mt-1">⚠ Alterações não guardadas</p>
               )}
             </div>
           </Card>
