@@ -1,22 +1,19 @@
 
 
-## Plano: Mostrar funerária nos cards de obituário com link para página pública
+## Plano: Corrigir FK em falta entre obituaries e funerarias
 
 ### Problema
-Os cards de obituário (Home e ObituaryArchive) não mostram a funerária associada.
+A tabela `obituaries` não tem uma constraint de foreign key de `funeraria_id` para `funerarias(id)`. Sem esta FK, o PostgREST não consegue resolver o join `funerarias(nome_comercial, slug)` nas queries da Home e do ObituaryArchive, retornando erro 400 — o que faz `data` ser `null` e os obituários não aparecerem.
 
-### Alterações
+### Solução
+Criar uma migração SQL para adicionar a FK em falta:
 
-#### 1. Home (`src/pages/Home.tsx`)
-- Expandir a query para incluir a funerária: `.select("id, display_name, birth_date, death_date, locality, photo_url, funeraria_id, funerarias(nome_comercial, slug)")`
-- Atualizar a interface `PublicObituary` para incluir `funeraria_id` e `funerarias: { nome_comercial: string; slug: string | null } | null`
-- Adicionar abaixo da localidade uma linha com ícone `Home` (ou `Building`) e o nome da funerária, envolvido num `Link` para `/funerarias/{slug}` (com `e.stopPropagation()` para não navegar para o obituário)
+```sql
+ALTER TABLE public.obituaries
+  ADD CONSTRAINT obituaries_funeraria_id_fkey
+  FOREIGN KEY (funeraria_id)
+  REFERENCES public.funerarias(id);
+```
 
-#### 2. ObituaryArchive (`src/pages/ObituaryArchive.tsx`)
-- Expandir a query (linha 77) para incluir `funerarias(nome_comercial, slug)` via join
-- Atualizar a interface `PublicObituary` para incluir `funerarias`
-- Adicionar a mesma linha de funerária nos cards, antes dos botões
-
-#### Resultado
-Cada card de obituário mostra o nome da funerária com link clicável para a sua página pública (`/funerarias/{slug}`).
+Nenhuma alteração de código é necessária — as queries já estão corretas, apenas precisam da FK para funcionar.
 
