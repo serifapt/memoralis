@@ -672,6 +672,8 @@ export default function NewObituary() {
         description: isEditing ? "Os dados foram atualizados com sucesso" : "O obituário foi criado com sucesso",
       });
 
+      setHasUnsavedChanges(false);
+
       if (!isEditing && obituaryId) {
         navigate(`/obituaries/${obituaryId}/edit`);
       }
