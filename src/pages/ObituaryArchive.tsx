@@ -29,6 +29,7 @@ interface PublicObituary {
   freguesia: string | null;
   photo_url: string | null;
   funeraria_id: string;
+  funerarias: { nome_comercial: string; slug: string | null } | null;
 }
 
 const PAGE_SIZE = 12;
