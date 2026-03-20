@@ -117,9 +117,11 @@ export default function ObituaryDetail() {
   const getAge = () => {
     if (!obituary?.birth_date || !obituary?.death_date) return null;
     try {
-      const birth = new Date(obituary.birth_date);
-      const death = new Date(obituary.death_date);
-      return Math.floor((death.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      const [bY, bM, bD] = obituary.birth_date.split("-").map(Number);
+      const [dY, dM, dD] = obituary.death_date.split("-").map(Number);
+      let age = dY - bY;
+      if (dM < bM || (dM === bM && dD < bD)) age--;
+      return age;
     } catch { return null; }
   };
 

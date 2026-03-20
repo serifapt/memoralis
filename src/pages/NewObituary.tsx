@@ -2067,8 +2067,16 @@ export default function NewObituary() {
                     {formData.displayName || "Nome do Óbito"}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-1">
-                    {formData.birthDate ? new Date(formData.birthDate).getFullYear() : "1970"} -{" "}
-                    {formData.deathDate ? new Date(formData.deathDate).getFullYear() : "2025"} | 55 Anos
+                    {formData.birthDate ? formData.birthDate.split("-")[0] : "—"} -{" "}
+                    {formData.deathDate ? formData.deathDate.split("-")[0] : "—"}
+                    {(() => {
+                      if (!formData.birthDate || !formData.deathDate) return "";
+                      const [bY, bM, bD] = formData.birthDate.split("-").map(Number);
+                      const [dY, dM, dD] = formData.deathDate.split("-").map(Number);
+                      let age = dY - bY;
+                      if (dM < bM || (dM === bM && dD < bD)) age--;
+                      return ` | ${age} Anos`;
+                    })()}
                   </p>
                   <div className="flex items-center gap-2 text-muted-foreground mb-1">
                     <span className="text-xs">📍</span>
