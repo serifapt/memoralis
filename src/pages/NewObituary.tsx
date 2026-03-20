@@ -1619,7 +1619,7 @@ export default function NewObituary() {
                   {/* NIF, NISS, Naturalidade */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="familyNif">NIF *</Label>
+                      <Label htmlFor="familyNif">NIF*</Label>
                       <Input
                         id="familyNif"
                         placeholder="000 000 000"
