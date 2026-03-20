@@ -820,7 +820,17 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="taxId">NIF* (necessário para documentos fiscais)</Label>
+                      <Label htmlFor="taxId" className="flex items-center gap-1.5">
+                        NIF*
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>Necessário para documentos fiscais</p></TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </Label>
                       <Input
                         id="taxId"
                         placeholder="Inserir Número"
