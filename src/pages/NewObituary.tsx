@@ -1247,7 +1247,7 @@ export default function NewObituary() {
                   {/* Medical Information */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="doctor">Médico Declarante*</Label>
+                      <Label htmlFor="doctor">Médico Declarante</Label>
                       <Input
                         id="doctor"
                         placeholder="Nome Médico"
