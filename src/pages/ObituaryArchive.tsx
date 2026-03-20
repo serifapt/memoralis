@@ -54,7 +54,6 @@ export default function ObituaryArchive() {
       .from("obituaries")
       .select("locality")
       .eq("is_public", true)
-      .eq("is_completed", true)
       .not("locality", "is", null);
     
     if (data) {
@@ -76,8 +75,7 @@ export default function ObituaryArchive() {
       let query = supabase
         .from("obituaries")
         .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id", { count: "exact" })
-        .eq("is_public", true)
-        .eq("is_completed", true);
+        .eq("is_public", true);
 
       if (searchName.trim()) {
         query = query.ilike("display_name", `%${searchName.trim()}%`);
