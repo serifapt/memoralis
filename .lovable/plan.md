@@ -1,35 +1,49 @@
 
 
-## Plano: Corrigir exibição de obituários no Dashboard, Home e Arquivo
+## Plano: Auto-save e campos obrigatórios mínimos
 
-### Problemas identificados
+### 1. Auto-save com debounce
 
-1. **Dashboard crashing** — O componente `Dashboard` está a dar erro de runtime (visível nos logs da consola). Provavelmente causado pelas alterações recentes (testemunhos/cerimónias). Preciso investigar a causa exacta do crash para corrigir.
+Implementar gravação automática no editor de obituários (`src/pages/NewObituary.tsx`):
 
-2. **Home page usa dados mock** — `src/pages/Home.tsx` (linha 12) tem `const obituaries = Array(12).fill({...})` com dados falsos hardcoded. Não busca dados reais da base de dados.
+- **Novo fluxo de criação**: Quando o utilizador preenche os campos obrigatórios mínimos e sai do primeiro campo (ou após debounce), o obituário é criado automaticamente na BD. A partir desse momento, a URL muda para `/obituaries/:id/edit` e todas as alterações subsequentes são updates.
+- **Debounce de 1.5s**: Usar `useRef` com `setTimeout` — cada alteração em `formData`, `isPublic`, `isCompleted`, toggles de cerimónias ou `velorioEntries` reinicia o timer. Quando o timer dispara, executa o save silenciosamente.
+- **Indicador visual**: Substituir o botão "Guardar" por um indicador de estado: "A guardar...", "Guardado ✓", ou "Erro ao guardar".
+- **Criar primeiro, editar sempre**: Na criação, só grava quando os campos obrigatórios estão preenchidos. Após a primeira gravação, navega para `/obituaries/:id/edit` sem recarregar a página (usando `navigate(..., { replace: true })`).
+- **Photo upload**: Mantém o upload de foto como acção separada (não faz parte do debounce auto-save, pois envolve upload de ficheiro). Após upload, dispara save.
 
-3. **Arquivo público filtra por `is_completed = true`** — `src/pages/ObituaryArchive.tsx` (linha 80) só mostra obituários públicos E concluídos. Se o obituário ainda está "Em curso" (`is_completed = false`), não aparece no arquivo público, mesmo que esteja marcado como público.
+### 2. Campos obrigatórios mínimos (novo processo)
 
-### Alterações propostas
+Reduzir a validação obrigatória para criar um obituário:
 
-#### 1. Corrigir crash do Dashboard (`src/pages/Dashboard.tsx`)
-- Investigar e corrigir o erro de runtime que impede o Dashboard de carregar
-- Adicionar tratamento de erros defensivo nas queries
+**Dados do Falecido:**
+- `displayName` (Nome do falecido) — obrigatório
+- `deathDate` (Data de falecimento) — obrigatório
+- `birthDate` (Data de nascimento) — obrigatório
+- `freguesia` — obrigatório
+- `locality` (Localidade) — obrigatório
 
-#### 2. Home page com dados reais (`src/pages/Home.tsx`)
-- Remover o array mock `const obituaries = Array(12).fill({...})`
-- Adicionar `useState` + `useEffect` para buscar os últimos obituários públicos do Supabase
-- Query: `obituaries` onde `is_public = true`, ordenados por `death_date DESC`, limit 12
-- **Não** filtrar por `is_completed` para que obituários em curso mas públicos também apareçam
-- Renderizar os cards com dados reais (nome, datas, localidade, foto)
+**Família/Responsável (Cliente):**
+- `familyName` (Nome) — obrigatório
+- `familyPhone` (Telefone) — obrigatório
+- `familyNif` (NIF) — obrigatório
+- `familyRelationship` (Parentesco) — obrigatório
+- `familyAddress` (Endereço) — obrigatório
+- `familyLocality` (Localidade) — obrigatório
+- `familyPostalCode` (Código Postal) — obrigatório
 
-#### 3. Arquivo público — incluir obituários em curso (`src/pages/ObituaryArchive.tsx`)
-- Remover o filtro `.eq("is_completed", true)` da query principal (linha 80) e da query de localidades (linha 57)
-- Manter apenas o filtro `is_public = true`
-- Assim, obituários públicos aparecem independentemente de estarem em curso ou concluídos
+Todos os restantes campos permanecem opcionais e podem ser preenchidos a qualquer momento (com auto-save).
 
-### Detalhes técnicos
-- Home page: usar `supabase.from("obituaries").select("id, display_name, birth_date, death_date, locality, photo_url").eq("is_public", true).order("death_date", { ascending: false }).limit(12)`
-- Cards na Home devem ter link para `/obituario/${id}`
-- Manter o placeholder visual quando `photo_url` é null
+### 3. Detalhes técnicos
+
+**Ficheiro**: `src/pages/NewObituary.tsx`
+
+- Extrair a lógica de save do `handleSubmit` para uma função `saveObituary()` reutilizável
+- Adicionar `useEffect` com debounce que observa `formData`, `isPublic`, `isCompleted`, `velorio`, `funeral`, etc.
+- Estado `autoSaveStatus`: `"idle" | "saving" | "saved" | "error"`
+- Na sidebar direita, substituir o botão "Guardar" pelo indicador de status
+- Manter um botão "Guardar Agora" discreto para forçar save imediato
+- Usar `useCallback` + `useRef` para o timer de debounce
+- Marcar campos obrigatórios com asterisco (*) no UI
+- Validação mínima antes do primeiro auto-save (campos obrigatórios preenchidos)
 
