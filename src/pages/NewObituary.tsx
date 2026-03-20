@@ -1691,7 +1691,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="familyPostalCode">Código Postal *</Label>
+                      <Label htmlFor="familyPostalCode">Código Postal*</Label>
                       <Input
                         id="familyPostalCode"
                         placeholder="0000-000"
