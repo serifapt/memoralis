@@ -2260,8 +2260,8 @@ export default function NewObituary() {
               )}
               {autoSaveStatus === "saved" && (
                 <>
-                  <Check className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-green-600">Guardado ✓</span>
+                  <Check className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-primary">Guardado ✓</span>
                 </>
               )}
               {autoSaveStatus === "error" && (
