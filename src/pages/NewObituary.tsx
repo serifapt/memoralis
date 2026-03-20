@@ -1175,7 +1175,7 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="beneficiary" className="flex items-center gap-1.5">
-                        Beneficiário*
+                        Beneficiário
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
