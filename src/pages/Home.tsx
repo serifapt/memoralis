@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,19 +9,17 @@ import logo from "@/assets/logo-memoralis.png";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import heroImage from "@/assets/hero-memorial.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const obituaries = Array(12).fill({
-  name: "Zé Manuel Chelo",
-  birthDate: "01/01/1950",
-  deathDate: "15/01/2025",
-  location: "Oreira - Arcos de Valdevez",
-  category: "Funeral",
-  agency: "Funerária S. João",
-  views: 378,
-  messages: 17,
-  candles: 42,
-  image: obituaryPlaceholder
-});
+interface PublicObituary {
+  id: string;
+  display_name: string;
+  birth_date: string | null;
+  death_date: string | null;
+  locality: string | null;
+  photo_url: string | null;
+}
 
 const funeralHomes = Array(6).fill({
   name: "Funerária S. João",
