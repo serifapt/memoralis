@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, ChevronRight } from "lucide-react";
+import { Search, MapPin, Home, ChevronRight, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
