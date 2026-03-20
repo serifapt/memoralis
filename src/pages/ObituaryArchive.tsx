@@ -103,21 +103,7 @@ export default function ObituaryArchive() {
     loadObituaries(false);
   };
 
-  const getYear = (dateStr: string | null) => {
-    if (!dateStr) return "—";
-    try { return new Date(dateStr).getFullYear().toString(); } catch { return "—"; }
-  };
 
-  const getAge = (birth: string | null, death: string | null) => {
-    if (!birth || !death) return null;
-    try {
-      const [bY, bM, bD] = birth.split("-").map(Number);
-      const [dY, dM, dD] = death.split("-").map(Number);
-      let age = dY - bY;
-      if (dM < bM || (dM === bM && dD < bD)) age--;
-      return age;
-    } catch { return null; }
-  };
 
   const hasMore = obituaries.length < totalCount;
 
