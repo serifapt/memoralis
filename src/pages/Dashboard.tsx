@@ -251,12 +251,24 @@ export default function Dashboard() {
 
   const handleDragEnd = () => { setDraggedCard(null); };
 
+  const formatCeremonyType = (type: string) => {
+    const map: Record<string, string> = {
+      velorio: "Velório",
+      funeral: "Funeral",
+      cremacao: "Cremação",
+      missa_7: "Missa 7º Dia",
+      missa_30: "Missa 30º Dia",
+    };
+    return map[type] || type;
+  };
+
   const ceremonyTypeColor = (type: string) => {
     const t = type.toLowerCase();
-    if (t.includes("velório")) return "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400";
-    if (t.includes("missa")) return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
-    if (t.includes("funeral") || t.includes("sepultamento")) return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
-    if (t.includes("cremação")) return "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400";
+    if (t === "velorio") return "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400";
+    if (t === "missa_7") return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
+    if (t === "missa_30") return "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400";
+    if (t === "funeral") return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+    if (t === "cremacao") return "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400";
     return "bg-muted text-muted-foreground";
   };
 
