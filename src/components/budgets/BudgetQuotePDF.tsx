@@ -11,6 +11,10 @@ interface BudgetQuotePDFProps {
   funerariaName?: string;
   funerariaNif?: string;
   funerariaPhone?: string;
+  funerariaAddress?: string;
+  funerariaEmail?: string;
+  funerariaLocality?: string;
+  funerariaPostalCode?: string;
 }
 
 export function BudgetQuotePDF({ 
@@ -18,7 +22,11 @@ export function BudgetQuotePDF({
   sections, 
   funerariaName = "Funerária", 
   funerariaNif = "",
-  funerariaPhone = ""
+  funerariaPhone = "",
+  funerariaAddress = "",
+  funerariaEmail = "",
+  funerariaLocality = "",
+  funerariaPostalCode = "",
 }: BudgetQuotePDFProps) {
   const pdfRef = useRef<HTMLDivElement>(null);
 
@@ -56,13 +64,13 @@ export function BudgetQuotePDF({
     const imgHeight = canvas.height;
     const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
     const imgX = (pdfWidth - imgWidth * ratio) / 2;
-    const imgY = 0;
 
-    pdf.addImage(imgData, "PNG", imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+    pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
     pdf.save(`orcamento-${quote.quote_number}.pdf`);
   };
 
   const total = sections.reduce((sum, s) => sum + s.subtotal, 0);
+  const funerariaFullAddress = [funerariaAddress, funerariaLocality, funerariaPostalCode].filter(Boolean).join(", ");
 
   return (
     <>
@@ -79,63 +87,66 @@ export function BudgetQuotePDF({
           style={{ fontFamily: "Arial, sans-serif" }}
         >
           {/* Header */}
-          <div className="flex justify-between items-start mb-8 border-b-2 border-gray-800 pb-4">
+          <div className="flex justify-between items-start mb-6 border-b-2 border-black pb-4">
             <div>
-              <h1 className="text-2xl font-bold mb-1">{funerariaName}</h1>
-              {funerariaNif && <p className="text-sm">NIF: {funerariaNif}</p>}
-              {funerariaPhone && <p className="text-sm">Tel: {funerariaPhone}</p>}
+              <h1 className="text-xl font-bold mb-1">{funerariaName}</h1>
+              {funerariaFullAddress && <p className="text-[10px]">{funerariaFullAddress}</p>}
+              {funerariaEmail && <p className="text-[10px]">Email: {funerariaEmail}</p>}
+              {funerariaPhone && <p className="text-[10px]">Tel: {funerariaPhone}</p>}
+              {funerariaNif && <p className="text-[10px]">NIF: {funerariaNif}</p>}
             </div>
             <div className="text-right">
-              <div className="border-2 border-gray-800 px-4 py-2 inline-block">
-                <p className="text-lg font-bold">ORÇAMENTO</p>
-                <p className="text-2xl font-bold">Nº {quote.quote_number}</p>
+              <div className="border-2 border-black px-4 py-2 inline-block">
+                <p className="text-sm font-bold">ORÇAMENTO</p>
+                <p className="text-xl font-bold">Nº {quote.quote_number}</p>
               </div>
-              <p className="mt-2 text-sm">Data: {formatDate(quote.issue_date)}</p>
+              <p className="mt-2 text-[10px]">Data: {formatDate(quote.issue_date)}</p>
             </div>
           </div>
 
-          {/* Client Info */}
-          <div className="mb-6 border border-gray-400 p-4">
-            <h2 className="font-bold mb-2 text-sm border-b border-gray-300 pb-1">CLIENTE</h2>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-              <div><span className="font-semibold">Nome:</span> {quote.client?.full_name || "-"}</div>
-              <div><span className="font-semibold">NIF:</span> {quote.client?.nif || "-"}</div>
-              <div><span className="font-semibold">Morada:</span> {quote.client?.address || "-"}</div>
-              <div><span className="font-semibold">Telefone:</span> {quote.client?.phone || "-"}</div>
-              <div><span className="font-semibold">Localidade:</span> {quote.client?.city || "-"} {quote.client?.postal_code || ""}</div>
-              <div><span className="font-semibold">Email:</span> {quote.client?.email || "-"}</div>
+          {/* Client + Deceased side by side */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="border border-gray-400 p-3">
+              <h2 className="font-bold text-[11px] border-b border-gray-300 pb-1 mb-2">CLIENTE</h2>
+              <div className="space-y-0.5 text-[10px]">
+                <p><span className="font-semibold">Nome:</span> {quote.client?.full_name || "-"}</p>
+                <p><span className="font-semibold">Endereço:</span> {quote.client?.address || "-"}</p>
+                <p><span className="font-semibold">Localidade:</span> {quote.client?.city || "-"}</p>
+                <p><span className="font-semibold">C.P.:</span> {quote.client?.postal_code || "-"}</p>
+                <p><span className="font-semibold">Parentesco:</span> {quote.client?.relationship_degree || "-"}</p>
+                <p><span className="font-semibold">Telefone:</span> {quote.client?.phone || "-"}</p>
+                <p><span className="font-semibold">NIF:</span> {quote.client?.nif || "-"}</p>
+              </div>
+            </div>
+            <div className="border border-gray-400 p-3">
+              <h2 className="font-bold text-[11px] border-b border-gray-300 pb-1 mb-2">DADOS DO FALECIDO</h2>
+              <div className="space-y-0.5 text-[10px]">
+                <p><span className="font-semibold">Nome:</span> {quote.deceased_name || "-"}</p>
+                <p><span className="font-semibold">Data Falecimento:</span> {formatDate(quote.death_date)}</p>
+                <p><span className="font-semibold">Data Funeral:</span> {formatDate(quote.funeral_date)}</p>
+                <p><span className="font-semibold">Cemitério:</span> {quote.cemetery || "-"}</p>
+                <p><span className="font-semibold">Local Falecimento:</span> {quote.place_of_death || "-"}</p>
+              </div>
             </div>
           </div>
 
-          {/* Deceased Info */}
-          <div className="mb-6 border border-gray-400 p-4">
-            <h2 className="font-bold mb-2 text-sm border-b border-gray-300 pb-1">DADOS DO FALECIDO</h2>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-              <div><span className="font-semibold">Nome:</span> {quote.deceased_name || "-"}</div>
-              <div><span className="font-semibold">Data Falecimento:</span> {formatDate(quote.death_date)}</div>
-              <div><span className="font-semibold">Local Falecimento:</span> {quote.place_of_death || "-"}</div>
-              <div><span className="font-semibold">Data Funeral:</span> {formatDate(quote.funeral_date)}</div>
-              <div className="col-span-2"><span className="font-semibold">Cemitério:</span> {quote.cemetery || "-"}</div>
-            </div>
-          </div>
-
-          {/* Sections */}
+          {/* Sections / Services */}
           {sections.map((section) => (
             <div key={section.id} className="mb-4">
-              <h3 className="font-bold bg-gray-200 px-2 py-1 text-sm">{section.title}</h3>
+              <h3 className="font-bold bg-gray-200 px-2 py-1 text-[11px]">{section.title}</h3>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-400 text-xs">
-                    <th className="text-center py-1 w-12">Qtd</th>
+                  <tr className="border-b border-gray-400 text-[10px]">
+                    <th className="text-center py-1 w-10">Qtd</th>
                     <th className="text-left py-1">Descrição</th>
                     <th className="text-right py-1 w-20">Preço Unit.</th>
-                    <th className="text-right py-1 w-16">Desc.</th>
-                    <th className="text-right py-1 w-20">Total</th>
+                    <th className="text-right py-1 w-16">Desc. (%)</th>
+                    <th className="text-right py-1 w-20">TOTAL</th>
                   </tr>
                 </thead>
                 <tbody>
                   {section.lines.map((line) => (
-                    <tr key={line.id} className="border-b border-gray-200">
+                    <tr key={line.id} className="border-b border-gray-200 text-[10px]">
                       <td className="text-center py-1">{line.quantity}</td>
                       <td className="py-1">{line.description}</td>
                       <td className="text-right py-1">{formatCurrency(line.unit_price)}</td>
@@ -144,8 +155,8 @@ export function BudgetQuotePDF({
                     </tr>
                   ))}
                   <tr className="bg-gray-100">
-                    <td colSpan={4} className="text-right py-1 font-semibold">Total {section.title}:</td>
-                    <td className="text-right py-1 font-bold">{formatCurrency(section.subtotal)}</td>
+                    <td colSpan={4} className="text-right py-1 font-semibold text-[10px]">Total {section.title}:</td>
+                    <td className="text-right py-1 font-bold text-[10px]">{formatCurrency(section.subtotal)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -154,9 +165,9 @@ export function BudgetQuotePDF({
 
           {/* Total */}
           <div className="mt-6 flex justify-end">
-            <div className="border-2 border-gray-800 p-4 bg-gray-100 w-64">
-              <div className="flex justify-between text-lg font-bold">
-                <span>TOTAL DO ORÇAMENTO:</span>
+            <div className="border-2 border-black p-3 bg-gray-100 w-60">
+              <div className="flex justify-between text-sm font-bold">
+                <span>TOTAL:</span>
                 <span>{formatCurrency(total)}</span>
               </div>
             </div>
@@ -164,35 +175,35 @@ export function BudgetQuotePDF({
 
           {/* VAT Exemption */}
           {quote.vat_exempt && (
-            <p className="mt-4 text-xs italic text-gray-600">
+            <p className="mt-3 text-[9px] italic text-gray-600">
               {quote.vat_exempt_reason_text || "Isento de IVA de acordo com o Art. 9º, nº 26 do Código do IVA"}
             </p>
           )}
 
           {/* Footer */}
-          <div className="mt-8 text-xs">
-            <p className="text-center mb-4">Nesta firma existe Livro de Reclamações</p>
+          <div className="mt-6 text-[10px]">
+            <p className="text-center mb-3">Nesta firma existe Livro de Reclamações</p>
             
             {quote.footer_text && (
-              <p className="mb-6 text-center italic">{quote.footer_text}</p>
+              <p className="mb-4 text-center italic">{quote.footer_text}</p>
             )}
 
             {/* Signatures */}
-            <div className="grid grid-cols-2 gap-8 mt-12">
+            <div className="grid grid-cols-2 gap-8 mt-10">
               <div className="text-center">
-                <div className="border-t border-gray-800 pt-2 mx-8">
+                <div className="border-t border-black pt-2 mx-8">
                   <p className="font-semibold">A Gerência</p>
                 </div>
               </div>
               <div className="text-center">
-                <div className="border-t border-gray-800 pt-2 mx-8">
+                <div className="border-t border-black pt-2 mx-8">
                   <p className="font-semibold">Adjudicante do Serviço</p>
-                  <p className="text-xs mt-1">Declaro que li e aceito o presente orçamento</p>
+                  <p className="text-[9px] mt-1">Declaro que li e aceito o presente orçamento</p>
                 </div>
               </div>
             </div>
 
-            <p className="text-center mt-8 text-xs font-medium">
+            <p className="text-center mt-6 text-[9px] font-medium">
               Este orçamento é válido como contrato após assinatura
             </p>
           </div>

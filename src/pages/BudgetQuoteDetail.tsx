@@ -349,6 +349,10 @@ export default function BudgetQuoteDetail() {
                 funerariaName={funerariaData?.nome_comercial}
                 funerariaNif={funerariaData?.nif}
                 funerariaPhone={funerariaData?.telefone}
+                funerariaAddress={funerariaData?.morada}
+                funerariaEmail={funerariaData?.email}
+                funerariaLocality={funerariaData?.localidade}
+                funerariaPostalCode={funerariaData?.codigo_postal}
               />
               <Button variant="outline" onClick={handlePrint}>
                 <Printer className="w-4 h-4 mr-2" />
