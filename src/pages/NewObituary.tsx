@@ -1095,7 +1095,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="civilStatus">Estado Civil*</Label>
+                      <Label htmlFor="civilStatus">Estado Civil</Label>
                       <Input
                         id="civilStatus"
                         placeholder="Arcos de Valdevez"
