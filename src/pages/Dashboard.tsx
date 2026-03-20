@@ -297,7 +297,7 @@ export default function Dashboard() {
               <div className="text-right">
                 {obituary.nextCeremony ? (
                   <p className="text-sm text-foreground">
-                    {obituary.nextCeremony.event_type}: {formatDate(obituary.nextCeremony.event_date)} - {obituary.nextCeremony.event_time?.substring(0, 5) || ""}
+                    {formatCeremonyType(obituary.nextCeremony.event_type)}: {formatDate(obituary.nextCeremony.event_date)} - {obituary.nextCeremony.event_time?.substring(0, 5) || ""}
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground">Sem cerimónia agendada</p>
