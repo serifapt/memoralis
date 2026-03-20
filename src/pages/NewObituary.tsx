@@ -1680,7 +1680,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="familyLocality">Localidade *</Label>
+                      <Label htmlFor="familyLocality">Localidade*</Label>
                       <Input
                         id="familyLocality"
                         placeholder="Localidade"
