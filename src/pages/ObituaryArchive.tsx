@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -10,15 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, ChevronRight, Building2 } from "lucide-react";
+import { Search, MapPin, Home, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
-import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { pt } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 
 interface PublicObituary {
   id: string;
