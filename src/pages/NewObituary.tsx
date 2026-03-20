@@ -1630,7 +1630,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="familyNiss">NISS *</Label>
+                      <Label htmlFor="familyNiss">NISS*</Label>
                       <Input
                         id="familyNiss"
                         placeholder="00000000000"
