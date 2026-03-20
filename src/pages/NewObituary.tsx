@@ -1916,7 +1916,7 @@ export default function NewObituary() {
                   {/* Email, Phone */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="familyEmail">Email*</Label>
+                      <Label htmlFor="familyEmail">Email</Label>
                       <Input
                         id="familyEmail"
                         type="email"
