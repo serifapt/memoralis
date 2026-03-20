@@ -1,20 +1,22 @@
 
 
-## Plano: Corrigir auto-preenchimento dos dados do óbito no orçamento
+## Plano: Mostrar funerária nos cards de obituário com link para página pública
 
 ### Problema
-O `useEffect` em `BudgetQuoteDetail.tsx` (linha 172) tem `getQuoteById` como dependência, mas esta função não está envolvida em `useCallback` no hook `useBudgetQuotes.ts` (linha 179). Isto causa re-execuções infinitas do efeito — cada render cria uma nova referência de `getQuoteById`, o efeito dispara novamente, e os dados preenchidos são potencialmente sobrepostos ou o componente re-renderiza antes de os mostrar.
+Os cards de obituário (Home e ObituaryArchive) não mostram a funerária associada.
 
 ### Alterações
 
-#### 1. Memoizar `getQuoteById` em `useBudgetQuotes.ts`
-Envolver a função `getQuoteById` (linha 179) com `useCallback` e dependência em `[toast]`, tal como já é feito com `fetchQuotes`.
+#### 1. Home (`src/pages/Home.tsx`)
+- Expandir a query para incluir a funerária: `.select("id, display_name, birth_date, death_date, locality, photo_url, funeraria_id, funerarias(nome_comercial, slug)")`
+- Atualizar a interface `PublicObituary` para incluir `funeraria_id` e `funerarias: { nome_comercial: string; slug: string | null } | null`
+- Adicionar abaixo da localidade uma linha com ícone `Home` (ou `Building`) e o nome da funerária, envolvido num `Link` para `/funerarias/{slug}` (com `e.stopPropagation()` para não navegar para o obituário)
 
-#### 2. Remover `getQuoteById` das dependências do useEffect em `BudgetQuoteDetail.tsx`
-Alternativamente (e mais seguro), remover `getQuoteById` da lista de dependências do `useEffect` na linha 172, uma vez que para o caso `isNew` esta função nem é usada, e para o caso de edição basta depender de `id`. Usar uma ref ou importar directamente.
+#### 2. ObituaryArchive (`src/pages/ObituaryArchive.tsx`)
+- Expandir a query (linha 77) para incluir `funerarias(nome_comercial, slug)` via join
+- Atualizar a interface `PublicObituary` para incluir `funerarias`
+- Adicionar a mesma linha de funerária nos cards, antes dos botões
 
-**Abordagem escolhida**: Memoizar `getQuoteById` com `useCallback` no hook (solução limpa que corrige o problema na origem).
-
-### Resultado
-Os campos Nome do Falecido, Data Falecimento, Local Falecimento, Data Funeral e Cemitério serão correctamente preenchidos ao abrir `/budgets/new?obituaryId=X`, e o cliente será auto-seleccionado.
+#### Resultado
+Cada card de obituário mostra o nome da funerária com link clicável para a sua página pública (`/funerarias/{slug}`).
 
