@@ -286,7 +286,7 @@ export default function Dashboard() {
             <div
               key={obituary.id}
               className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/obituaries/${obituary.id}`)}
+              onClick={() => navigate(`/obituaries/${obituary.id}/edit`)}
             >
               <div>
                 <h3 className="font-medium text-foreground">{obituary.display_name}</h3>
