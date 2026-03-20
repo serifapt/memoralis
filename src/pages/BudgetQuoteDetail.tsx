@@ -97,7 +97,7 @@ export default function BudgetQuoteDetail() {
       if (user) {
         const { data } = await supabase
           .from("funerarias")
-          .select("nome_comercial, nif, telefone")
+          .select("nome_comercial, nif, telefone, morada, email, localidade, codigo_postal")
           .eq("user_id", user.id)
           .maybeSingle();
         if (data) {
