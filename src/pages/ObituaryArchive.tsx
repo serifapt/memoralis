@@ -128,9 +128,11 @@ export default function ObituaryArchive() {
   const getAge = (birth: string | null, death: string | null) => {
     if (!birth || !death) return null;
     try {
-      const b = new Date(birth);
-      const d = new Date(death);
-      return Math.floor((d.getTime() - b.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      const [bY, bM, bD] = birth.split("-").map(Number);
+      const [dY, dM, dD] = death.split("-").map(Number);
+      let age = dY - bY;
+      if (dM < bM || (dM === bM && dD < bD)) age--;
+      return age;
     } catch { return null; }
   };
 

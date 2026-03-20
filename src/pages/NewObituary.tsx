@@ -32,6 +32,8 @@ export default function NewObituary() {
   const [responsibleClientId, setResponsibleClientId] = useState<string | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedData, setLastSavedData] = useState<string>("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -141,6 +143,7 @@ export default function NewObituary() {
     value: string | boolean
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setHasUnsavedChanges(true);
   };
 
   useEffect(() => {
@@ -668,6 +671,8 @@ export default function NewObituary() {
         title: isEditing ? "Obituário atualizado" : "Obituário criado",
         description: isEditing ? "Os dados foram atualizados com sucesso" : "O obituário foi criado com sucesso",
       });
+
+      setHasUnsavedChanges(false);
 
       if (!isEditing && obituaryId) {
         navigate(`/obituaries/${obituaryId}/edit`);
@@ -2033,10 +2038,13 @@ export default function NewObituary() {
                 <Eye className="w-4 h-4" />
                 Ver Perfil Público
               </Button>
-              <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
+               <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
                 <Upload className="w-4 h-4" />
                 {isSaving ? "A guardar..." : "Guardar"}
               </Button>
+              {hasUnsavedChanges && (
+                <p className="text-xs text-destructive text-center mt-1">⚠ Alterações não guardadas</p>
+              )}
             </div>
           </Card>
 
@@ -2067,8 +2075,16 @@ export default function NewObituary() {
                     {formData.displayName || "Nome do Óbito"}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-1">
-                    {formData.birthDate ? new Date(formData.birthDate).getFullYear() : "1970"} -{" "}
-                    {formData.deathDate ? new Date(formData.deathDate).getFullYear() : "2025"} | 55 Anos
+                    {formData.birthDate ? formData.birthDate.split("-")[0] : "—"} -{" "}
+                    {formData.deathDate ? formData.deathDate.split("-")[0] : "—"}
+                    {(() => {
+                      if (!formData.birthDate || !formData.deathDate) return "";
+                      const [bY, bM, bD] = formData.birthDate.split("-").map(Number);
+                      const [dY, dM, dD] = formData.deathDate.split("-").map(Number);
+                      let age = dY - bY;
+                      if (dM < bM || (dM === bM && dD < bD)) age--;
+                      return ` | ${age} Anos`;
+                    })()}
                   </p>
                   <div className="flex items-center gap-2 text-muted-foreground mb-1">
                     <span className="text-xs">📍</span>

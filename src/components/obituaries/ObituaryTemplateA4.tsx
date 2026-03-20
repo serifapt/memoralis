@@ -41,12 +41,13 @@ const formatDatePT = (dateStr: string) => {
 
 const calculateAge = (birthDate: string, deathDate: string): number | null => {
   if (!birthDate || !deathDate) return null;
-  const birth = new Date(birthDate);
-  const death = new Date(deathDate);
-  let age = death.getFullYear() - birth.getFullYear();
-  const m = death.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && death.getDate() < birth.getDate())) age--;
-  return age;
+  try {
+    const [bY, bM, bD] = birthDate.split("-").map(Number);
+    const [dY, dM, dD] = deathDate.split("-").map(Number);
+    let age = dY - bY;
+    if (dM < bM || (dM === bM && dD < bD)) age--;
+    return age;
+  } catch { return null; }
 };
 
 export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
