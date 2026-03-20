@@ -77,7 +77,7 @@ export default function BudgetQuoteDetail() {
   const [quote, setQuote] = useState<BudgetQuote | null>(null);
   const [sections, setSections] = useState<BudgetQuoteSection[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
-  const [funerariaData, setFunerariaData] = useState<{ nome_comercial: string; nif: string; telefone: string } | null>(null);
+  const [funerariaData, setFunerariaData] = useState<{ nome_comercial: string; nif: string; telefone: string; morada: string; email: string; localidade: string; codigo_postal: string } | null>(null);
   const [formData, setFormData] = useState({
     deceased_name: "",
     death_date: "",
