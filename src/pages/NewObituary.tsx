@@ -1806,7 +1806,7 @@ export default function NewObituary() {
                   Informação do Serviço
                 </h2>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {/* Tipo de Serviço, Marca Caixão, Caixão Ref. */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
