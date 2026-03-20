@@ -1128,7 +1128,7 @@ export default function NewObituary() {
                     {funeral && (
                       <div className="space-y-4 pl-8">
                         <div className="grid md:grid-cols-4 gap-4">
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="funeralDate" className="flex items-center gap-1.5">
                               <Calendar className="w-4 h-4" />
                               Data
@@ -1142,7 +1142,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="funeralTime" className="flex items-center gap-1.5">
                               <Clock className="w-4 h-4" />
                               Hora
@@ -1156,7 +1156,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="funeralCemetery" className="flex items-center gap-1.5">
                               <MapPin className="w-4 h-4" />
                               Nome do Cemitério*
@@ -1177,7 +1177,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="funeralMapLink" className="flex items-center gap-1.5">
                               <Map className="w-4 h-4" />
                               Link do mapa
@@ -1192,7 +1192,7 @@ export default function NewObituary() {
                           </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="funeralResponsible">Nome</Label>
                             <Input
                               id="funeralResponsible"
@@ -1203,7 +1203,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="funeralPhone">Contacto Telefónico</Label>
                             <Input
                               id="funeralPhone"
@@ -1228,7 +1228,7 @@ export default function NewObituary() {
                     {cremacao && (
                       <div className="space-y-4 pl-8">
                         <div className="grid md:grid-cols-4 gap-4">
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="cremacaoDate" className="flex items-center gap-1.5">
                               <Calendar className="w-4 h-4" />
                               Data
@@ -1242,7 +1242,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="cremacaoTime" className="flex items-center gap-1.5">
                               <Clock className="w-4 h-4" />
                               Hora
@@ -1256,7 +1256,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="cremacaoCemetery" className="flex items-center gap-1.5">
                               <MapPin className="w-4 h-4" />
                               Nome do Cemitério
@@ -1269,7 +1269,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="cremacaoMapLink" className="flex items-center gap-1.5">
                               <Map className="w-4 h-4" />
                               Link do mapa
@@ -1284,7 +1284,7 @@ export default function NewObituary() {
                           </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="cremacaoResponsible">Nome</Label>
                             <Input
                               id="cremacaoResponsible"
@@ -1295,7 +1295,7 @@ export default function NewObituary() {
                               }
                             />
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <Label htmlFor="cremacaoPhone">Contacto Telefónico</Label>
                             <Input
                               id="cremacaoPhone"
