@@ -68,11 +68,7 @@ export default function NewObituary() {
     doctor: "",
     medicalCertificate: "",
     publicMessage: "",
-    // Velório
-    velorioDate: "",
-    velorioTime: "",
-    velorioLocation: "",
-    velorioMapLink: "",
+    // Velório fields removed — now in velorioEntries state
     // Funeral
     funeralDate: "",
     funeralTime: "",
