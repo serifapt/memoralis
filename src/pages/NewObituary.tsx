@@ -1154,7 +1154,7 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="socialSecurity" className="flex items-center gap-1.5">
-                        Segurança Social*
+                        Segurança Social
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
