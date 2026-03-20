@@ -162,6 +162,19 @@ export default function ObituaryDetail() {
     );
   }
 
+  if (notPublished) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PublicHeader />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-archivo font-bold text-foreground mb-4">Obituário não publicado</h1>
+          <p className="text-muted-foreground mb-6">Este obituário ainda não foi publicado. Complete e publique-o no dashboard para o tornar visível ao público.</p>
+          <Button asChild><Link to="/obituario">Ver todos os obituários</Link></Button>
+        </div>
+      </div>
+    );
+  }
+
   if (!obituary) {
     return (
       <div className="min-h-screen bg-background">
