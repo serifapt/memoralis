@@ -1955,7 +1955,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="familyNiss">NISS*</Label>
+                      <Label htmlFor="familyNiss">NISS</Label>
                       <Input
                         id="familyNiss"
                         placeholder="00000000000"
