@@ -1026,7 +1026,7 @@ export default function NewObituary() {
               {/* Public Message */}
               <Card className="p-6">
                 <div className="mb-2">
-                  <Label htmlFor="publicMessage">Mensagem Pública *</Label>
+                  <Label htmlFor="publicMessage">Mensagem Pública*</Label>
                   <p className="text-sm text-muted-foreground">Mensagem da família</p>
                 </div>
                 <Textarea
