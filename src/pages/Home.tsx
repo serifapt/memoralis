@@ -3,24 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame, Building2 } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
-import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import heroImage from "@/assets/hero-memorial.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface PublicObituary {
-  id: string;
-  display_name: string;
-  birth_date: string | null;
-  death_date: string | null;
-  locality: string | null;
-  photo_url: string | null;
-  funerarias: { nome_comercial: string; slug: string | null } | null;
-}
+import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 
 const funeralHomes = Array(6).fill({
   name: "Funerária S. João",
