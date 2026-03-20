@@ -41,7 +41,6 @@ export default function NewObituary() {
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
-  const [cerimonia, setCerimonia] = useState(false);
   const [funeral, setFuneral] = useState(false);
   const [cremacao, setCremacao] = useState(false);
   const [missa7, setMissa7] = useState(false);
