@@ -55,7 +55,7 @@ export default function Home() {
     const loadObituaries = async () => {
       const { data } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, photo_url")
+        .select("id, display_name, birth_date, death_date, locality, photo_url, funerarias(nome_comercial, slug)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
