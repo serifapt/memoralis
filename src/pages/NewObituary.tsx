@@ -566,17 +566,6 @@ export default function NewObituary() {
           });
         }
 
-        if (cerimonia) {
-          eventsToInsert.push({
-            obituary_id: obituaryId,
-            event_type: 'cerimonia',
-            event_date: formData.cerimoniaDate || null,
-            event_time: formData.cerimoniaTime || null,
-            location: formData.cerimoniaChurch || null,
-            map_link: formData.cerimoniaMapLink || null,
-            responsible_name: formData.cerimoniaResponsible || null,
-            responsible_phone: formData.cerimoniaPhone || null,
-          });
         }
 
         if (funeral) {
