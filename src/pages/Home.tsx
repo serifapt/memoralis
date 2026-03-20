@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
@@ -19,6 +19,7 @@ interface PublicObituary {
   death_date: string | null;
   locality: string | null;
   photo_url: string | null;
+  funerarias: { nome_comercial: string; slug: string | null }[] | null;
 }
 
 const funeralHomes = Array(6).fill({
@@ -54,7 +55,7 @@ export default function Home() {
     const loadObituaries = async () => {
       const { data } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, photo_url")
+        .select("id, display_name, birth_date, death_date, locality, photo_url, funerarias(nome_comercial, slug)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
@@ -169,6 +170,16 @@ export default function Home() {
                             <MapPin className="w-3 h-3" />
                             <span className="text-xs">{obit.locality}</span>
                           </div>
+                        )}
+                        {obit.funerarias?.[0] && (
+                          <Link
+                            to={obit.funerarias[0].slug ? `/funerarias/${obit.funerarias[0].slug}` : "#"}
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            <Building2 className="w-3 h-3" />
+                            <span className="text-xs hover:underline">{obit.funerarias[0].nome_comercial}</span>
+                          </Link>
                         )}
                       </div>
                       <div className="grid grid-cols-2 gap-2">

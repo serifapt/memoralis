@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, ChevronRight } from "lucide-react";
+import { Search, MapPin, Home, ChevronRight, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
@@ -29,6 +29,7 @@ interface PublicObituary {
   freguesia: string | null;
   photo_url: string | null;
   funeraria_id: string;
+  funerarias: { nome_comercial: string; slug: string | null }[] | null;
 }
 
 const PAGE_SIZE = 12;
@@ -74,7 +75,7 @@ export default function ObituaryArchive() {
     try {
       let query = supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id", { count: "exact" })
+        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)", { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {
@@ -247,6 +248,16 @@ export default function ObituaryArchive() {
                             <MapPin className="w-3 h-3" />
                             <span className="text-xs">{locationStr}</span>
                           </div>
+                        )}
+                        {obit.funerarias?.[0] && (
+                          <Link
+                            to={obit.funerarias[0].slug ? `/funerarias/${obit.funerarias[0].slug}` : "#"}
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            <Building2 className="w-3 h-3" />
+                            <span className="text-xs hover:underline">{obit.funerarias[0].nome_comercial}</span>
+                          </Link>
                         )}
                       </div>
                       <div className="grid grid-cols-2 gap-2">
