@@ -2036,7 +2036,7 @@ export default function NewObituary() {
                 </Button>
               )}
               {isEditing && id && (
-                isCompleted && isPublic ? (
+                isPublic ? (
                   <Link to={`/obituario/${id}`} target="_blank">
                     <Button variant="outline" className="w-full gap-2">
                       <Eye className="w-4 h-4" />
@@ -2055,7 +2055,7 @@ export default function NewObituary() {
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Publique o obituário primeiro para ver o perfil público</p>
+                        <p>Ative o estado "Público" para ver o perfil</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

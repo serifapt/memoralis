@@ -94,11 +94,11 @@ export default function ObituaryDetail() {
           // We check if it exists for the owner (funeraria policy covers this)
           const { data: ownObit } = await supabase
             .from("obituaries")
-            .select("id, is_completed, is_public")
+            .select("id, is_public")
             .eq("id", obituaryId)
             .maybeSingle();
 
-          if (ownObit && (!ownObit.is_completed || !ownObit.is_public)) {
+          if (ownObit && !ownObit.is_public) {
             setNotPublished(true);
             setLoading(false);
             return;
