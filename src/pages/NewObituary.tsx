@@ -172,10 +172,11 @@ export default function NewObituary() {
 
   // Check if minimum required fields are filled for auto-save
   const hasMinimumFields = useCallback(() => {
-    return !!(
+    const baseValid = !!(
       formData.displayName.trim() &&
       formData.deathDate &&
       formData.birthDate &&
+      formData.deathLocation.trim() &&
       formData.freguesia.trim() &&
       formData.locality.trim() &&
       formData.familyName.trim() &&
@@ -186,7 +187,11 @@ export default function NewObituary() {
       formData.familyLocality.trim() &&
       formData.familyPostalCode.trim()
     );
-  }, [formData]);
+    if (!baseValid) return false;
+    // When funeral toggle is active, require funeralDate and funeralCemetery
+    if (funeral && (!formData.funeralDate || !formData.funeralCemetery.trim())) return false;
+    return true;
+  }, [formData, funeral]);
 
   useEffect(() => {
     fetchFunerariaId();
@@ -1451,7 +1456,7 @@ export default function NewObituary() {
                           <div className="space-y-2">
                             <Label htmlFor="funeralDate" className="flex items-center gap-1.5">
                               <Calendar className="w-4 h-4" />
-                              Data
+                              Data*
                             </Label>
                             <Input
                               id="funeralDate"
