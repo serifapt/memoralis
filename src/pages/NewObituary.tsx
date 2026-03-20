@@ -560,13 +560,15 @@ export default function NewObituary() {
         const eventsToInsert = [];
 
         if (velorio) {
-          eventsToInsert.push({
-            obituary_id: obituaryId,
-            event_type: 'velorio',
-            event_date: formData.velorioDate || null,
-            event_time: formData.velorioTime || null,
-            location: formData.velorioLocation || null,
-            map_link: formData.velorioMapLink || null,
+          velorioEntries.forEach(entry => {
+            eventsToInsert.push({
+              obituary_id: obituaryId,
+              event_type: 'velorio',
+              event_date: entry.date || null,
+              event_time: entry.time || null,
+              location: entry.location || null,
+              map_link: entry.mapLink || null,
+            });
           });
         }
 
