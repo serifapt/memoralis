@@ -83,9 +83,10 @@ export default function Dashboard() {
   const [activeProcesses, setActiveProcesses] = useState<ActiveProcess[]>([]);
   const [completedProcesses, setCompletedProcesses] = useState<CompletedProcess[]>([]);
   const [recentContacts, setRecentContacts] = useState<{ id: string; name: string; email: string; message: string; is_read: boolean; created_at: string }[]>([]);
+  const [recentTestimonials, setRecentTestimonials] = useState<{ id: string; author_name: string; rating: number; message: string; status: string; created_at: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
-  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos", "contactos-recentes"]);
+  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos", "testemunhos-recentes", "contactos-recentes"]);
 
   useEffect(() => {
     loadDashboardData();
