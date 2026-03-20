@@ -1603,7 +1603,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="familyPhone">Contacto Telefónico *</Label>
+                      <Label htmlFor="familyPhone">Contacto Telefónico*</Label>
                       <Input
                         id="familyPhone"
                         type="tel"
