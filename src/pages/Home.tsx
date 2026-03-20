@@ -171,14 +171,14 @@ export default function Home() {
                             <span className="text-xs">{obit.locality}</span>
                           </div>
                         )}
-                        {obit.funerarias?.[0] && (
+                        {obit.funerarias && (
                           <Link
-                            to={obit.funerarias[0].slug ? `/funerarias/${obit.funerarias[0].slug}` : "#"}
+                            to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
                             onClick={(e) => e.stopPropagation()}
                             className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
                           >
                             <Building2 className="w-3 h-3" />
-                            <span className="text-xs hover:underline">{obit.funerarias[0].nome_comercial}</span>
+                            <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
                           </Link>
                         )}
                       </div>
