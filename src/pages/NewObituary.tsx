@@ -1655,7 +1655,7 @@ export default function NewObituary() {
 
                   {/* IBAN */}
                   <div>
-                    <Label htmlFor="familyIban">IBAN *</Label>
+                    <Label htmlFor="familyIban">IBAN*</Label>
                     <Input
                       id="familyIban"
                       placeholder="PT50 0000 0000 0000 0000 0000 0"
