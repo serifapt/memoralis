@@ -2034,10 +2034,14 @@ export default function NewObituary() {
                   Criar Orçamento
                 </Button>
               )}
-              <Button variant="outline" className="w-full gap-2">
-                <Eye className="w-4 h-4" />
-                Ver Perfil Público
-              </Button>
+              {isEditing && id ? (
+                <Link to={`/obituario/${id}`} target="_blank">
+                  <Button variant="outline" className="w-full gap-2">
+                    <Eye className="w-4 h-4" />
+                    Ver Perfil Público
+                  </Button>
+                </Link>
+              ) : null}
                <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
                 <Upload className="w-4 h-4" />
                 {isSaving ? "A guardar..." : "Guardar"}
