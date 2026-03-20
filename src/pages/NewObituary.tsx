@@ -1923,7 +1923,7 @@ export default function NewObituary() {
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {isEditing && id && (
                 <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
                   <Receipt className="w-4 h-4" />
