@@ -985,7 +985,7 @@ export default function NewObituary() {
                 <div className="space-y-6">
                   {/* Nome Completo */}
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Nome Completo*</Label>
+                    <Label htmlFor="fullName">Nome Completo</Label>
                     <Input
                       id="fullName"
                       placeholder="Nome completo do óbito"
