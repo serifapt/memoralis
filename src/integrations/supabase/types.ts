@@ -1405,6 +1405,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "obituaries_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "obituaries_responsible_client_id_fkey"
             columns: ["responsible_client_id"]
             isOneToOne: false
