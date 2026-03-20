@@ -1133,7 +1133,7 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="taxId" className="flex items-center gap-1.5">
-                        NIF*
+                        NIF
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
