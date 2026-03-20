@@ -103,9 +103,9 @@ export default function ObituaryArchive() {
       }
 
       if (reset) {
-        setObituaries(data || []);
+        setObituaries((data as unknown as PublicObituary[]) || []);
       } else {
-        setObituaries(prev => [...prev, ...(data || [])]);
+        setObituaries(prev => [...prev, ...((data as unknown as PublicObituary[]) || [])]);
       }
       setTotalCount(count || 0);
     } finally {
