@@ -143,6 +143,7 @@ export default function NewObituary() {
     value: string | boolean
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setHasUnsavedChanges(true);
   };
 
   useEffect(() => {
