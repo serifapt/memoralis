@@ -54,7 +54,6 @@ export default function ObituaryArchive() {
       .from("obituaries")
       .select("locality")
       .eq("is_public", true)
-      .eq("is_completed", true)
       .not("locality", "is", null);
     
     if (data) {
