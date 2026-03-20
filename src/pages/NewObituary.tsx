@@ -47,6 +47,24 @@ export default function NewObituary() {
   const [missa30, setMissa30] = useState(false);
   const [missa1ano, setMissa1ano] = useState(false);
   
+  // Velório entries (multiple)
+  const [velorioEntries, setVelorioEntries] = useState([{ date: "", time: "", location: "", mapLink: "" }]);
+  
+  const addVelorioEntry = () => {
+    setVelorioEntries(prev => [...prev, { date: "", time: "", location: "", mapLink: "" }]);
+    setHasUnsavedChanges(true);
+  };
+  
+  const removeVelorioEntry = (index: number) => {
+    setVelorioEntries(prev => prev.filter((_, i) => i !== index));
+    setHasUnsavedChanges(true);
+  };
+  
+  const updateVelorioEntry = (index: number, field: string, value: string) => {
+    setVelorioEntries(prev => prev.map((entry, i) => i === index ? { ...entry, [field]: value } : entry));
+    setHasUnsavedChanges(true);
+  };
+  
   const [formData, setFormData] = useState({
     displayName: "",
     fullName: "",
@@ -68,11 +86,7 @@ export default function NewObituary() {
     doctor: "",
     medicalCertificate: "",
     publicMessage: "",
-    // Velório
-    velorioDate: "",
-    velorioTime: "",
-    velorioLocation: "",
-    velorioMapLink: "",
+    // Velório fields removed — now in velorioEntries state
     // Funeral
     funeralDate: "",
     funeralTime: "",
@@ -281,10 +295,6 @@ export default function NewObituary() {
           doctor: data.doctor || "",
           medicalCertificate: data.medical_certificate || "",
           publicMessage: data.public_message || "",
-          velorioDate: "",
-          velorioTime: "",
-          velorioLocation: "",
-          velorioMapLink: "",
           funeralDate: "",
           funeralTime: "",
           funeralCemetery: "",
@@ -363,17 +373,20 @@ export default function NewObituary() {
           .eq('obituary_id', id);
 
         if (events) {
+          // Collect velorio entries
+          const velorioEvents = events.filter(e => e.event_type === 'velorio');
+          if (velorioEvents.length > 0) {
+            setVelorio(true);
+            setVelorioEntries(velorioEvents.map(e => ({
+              date: e.event_date || "",
+              time: e.event_time || "",
+              location: e.location || "",
+              mapLink: e.map_link || "",
+            })));
+          }
+          
           events.forEach(event => {
-            if (event.event_type === 'velorio') {
-              setVelorio(true);
-              setFormData(prev => ({
-                ...prev,
-                velorioDate: event.event_date || "",
-                velorioTime: event.event_time || "",
-                velorioLocation: event.location || "",
-                velorioMapLink: event.map_link || "",
-              }));
-            } else if (event.event_type === 'funeral') {
+            if (event.event_type === 'funeral') {
               setFuneral(true);
               setFormData(prev => ({
                 ...prev,
@@ -556,13 +569,15 @@ export default function NewObituary() {
         const eventsToInsert = [];
 
         if (velorio) {
-          eventsToInsert.push({
-            obituary_id: obituaryId,
-            event_type: 'velorio',
-            event_date: formData.velorioDate || null,
-            event_time: formData.velorioTime || null,
-            location: formData.velorioLocation || null,
-            map_link: formData.velorioMapLink || null,
+          velorioEntries.forEach(entry => {
+            eventsToInsert.push({
+              obituary_id: obituaryId,
+              event_type: 'velorio',
+              event_date: entry.date || null,
+              event_time: entry.time || null,
+              location: entry.location || null,
+              map_link: entry.mapLink || null,
+            });
           });
         }
 
@@ -1060,61 +1075,84 @@ export default function NewObituary() {
                       <Label className="font-medium">Velório</Label>
                     </div>
                     {velorio && (
-                      <div className="grid md:grid-cols-4 gap-4 pl-8">
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioDate" className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
-                            Data
-                          </Label>
-                          <Input
-                            id="velorioDate"
-                            type="date"
-                            value={formData.velorioDate}
-                            onChange={(e) =>
-                              handleInputChange("velorioDate", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioTime" className="flex items-center gap-1.5">
-                            <Clock className="w-4 h-4" />
-                            Hora
-                          </Label>
-                          <Input
-                            id="velorioTime"
-                            type="time"
-                            value={formData.velorioTime}
-                            onChange={(e) =>
-                              handleInputChange("velorioTime", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioLocation" className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4" />
-                            Nome do Local
-                          </Label>
-                          <Input
-                            id="velorioLocation"
-                            value={formData.velorioLocation}
-                            onChange={(e) =>
-                              handleInputChange("velorioLocation", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="velorioMapLink" className="flex items-center gap-1.5">
-                            <Map className="w-4 h-4" />
-                            Link do mapa
-                          </Label>
-                          <Input
-                            id="velorioMapLink"
-                            value={formData.velorioMapLink}
-                            onChange={(e) =>
-                              handleInputChange("velorioMapLink", e.target.value)
-                            }
-                          />
-                        </div>
+                      <div className="space-y-3 pl-8">
+                        {velorioEntries.map((entry, index) => (
+                          <div key={index} className="flex items-end gap-2">
+                            <div className="grid md:grid-cols-4 gap-4 flex-1">
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Calendar className="w-4 h-4" />
+                                    Data
+                                  </Label>
+                                )}
+                                <Input
+                                  type="date"
+                                  value={entry.date}
+                                  onChange={(e) => updateVelorioEntry(index, "date", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Clock className="w-4 h-4" />
+                                    Hora
+                                  </Label>
+                                )}
+                                <Input
+                                  type="time"
+                                  value={entry.time}
+                                  onChange={(e) => updateVelorioEntry(index, "time", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <MapPin className="w-4 h-4" />
+                                    Nome do Local
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.location}
+                                  onChange={(e) => updateVelorioEntry(index, "location", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Map className="w-4 h-4" />
+                                    Link do mapa
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.mapLink}
+                                  onChange={(e) => updateVelorioEntry(index, "mapLink", e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {velorioEntries.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 text-muted-foreground hover:text-destructive"
+                                onClick={() => removeVelorioEntry(index)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-0 text-muted-foreground"
+                          onClick={addVelorioEntry}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Adicionar horário/local
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -1894,9 +1932,9 @@ export default function NewObituary() {
                     birthDate: formData.birthDate,
                     deathDate: formData.deathDate,
                     publicMessage: formData.publicMessage,
-                    velorioDate: formData.velorioDate,
-                    velorioTime: formData.velorioTime,
-                    velorioLocation: formData.velorioLocation,
+                    velorioDate: velorioEntries[0]?.date || "",
+                    velorioTime: velorioEntries[0]?.time || "",
+                    velorioLocation: velorioEntries[0]?.location || "",
                     funeralDate: formData.funeralDate,
                     funeralTime: formData.funeralTime,
                     funeralCemetery: formData.funeralCemetery,
