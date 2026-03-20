@@ -32,6 +32,8 @@ export default function Obituaries() {
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed">("all");
+  const [visibilityFilter, setVisibilityFilter] = useState<"all" | "public" | "private">("all");
 
   const fetchObituaries = useCallback(async () => {
     setLoading(true);
@@ -64,9 +66,19 @@ export default function Obituaries() {
 
   useEffect(() => { fetchObituaries(); }, [fetchObituaries]);
 
-  const filtered = obituaries.filter((o) =>
-    o.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const counts = {
+    active: obituaries.filter(o => !o.is_completed).length,
+    completed: obituaries.filter(o => o.is_completed).length,
+    public: obituaries.filter(o => o.is_public).length,
+    private: obituaries.filter(o => !o.is_public).length,
+  };
+
+  const filtered = obituaries.filter((o) => {
+    const matchesName = o.display_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? !o.is_completed : o.is_completed);
+    const matchesVisibility = visibilityFilter === "all" || (visibilityFilter === "public" ? o.is_public : !o.is_public);
+    return matchesName && matchesStatus && matchesVisibility;
+  });
 
   const formatDate = (date: string | null) => {
     if (!date) return "—";
