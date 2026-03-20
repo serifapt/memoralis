@@ -377,7 +377,7 @@ export default function Dashboard() {
                         {time}
                       </div>
                       <Badge className={ceremonyTypeColor(ceremony.event_type)}>
-                        {ceremony.event_type}
+                        {formatCeremonyType(ceremony.event_type)}
                       </Badge>
                       {ceremony.location && (
                         <div className="flex items-center gap-1">
