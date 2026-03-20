@@ -1060,7 +1060,7 @@ export default function NewObituary() {
                     {velorio && (
                       <div className="grid md:grid-cols-4 gap-4 pl-8">
                         <div>
-                          <Label htmlFor="velorioDate" className="flex items-center gap-2">
+                          <Label htmlFor="velorioDate" className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4" />
                             Data
                           </Label>
@@ -1074,7 +1074,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="velorioTime" className="flex items-center gap-2">
+                          <Label htmlFor="velorioTime" className="flex items-center gap-1.5">
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
@@ -1088,7 +1088,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="velorioLocation" className="flex items-center gap-2">
+                          <Label htmlFor="velorioLocation" className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
                             Nome do Local
                           </Label>
@@ -1101,7 +1101,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="velorioMapLink" className="flex items-center gap-2">
+                          <Label htmlFor="velorioMapLink" className="flex items-center gap-1.5">
                             <Map className="w-4 h-4" />
                             Link do mapa
                           </Label>
@@ -1127,7 +1127,7 @@ export default function NewObituary() {
                       <div className="space-y-4 pl-8">
                         <div className="grid md:grid-cols-4 gap-4">
                           <div>
-                            <Label htmlFor="funeralDate" className="flex items-center gap-2">
+                            <Label htmlFor="funeralDate" className="flex items-center gap-1.5">
                               <Calendar className="w-4 h-4" />
                               Data
                             </Label>
@@ -1141,7 +1141,7 @@ export default function NewObituary() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="funeralTime" className="flex items-center gap-2">
+                            <Label htmlFor="funeralTime" className="flex items-center gap-1.5">
                               <Clock className="w-4 h-4" />
                               Hora
                             </Label>
@@ -1176,7 +1176,7 @@ export default function NewObituary() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="funeralMapLink" className="flex items-center gap-2">
+                            <Label htmlFor="funeralMapLink" className="flex items-center gap-1.5">
                               <Map className="w-4 h-4" />
                               Link do mapa
                             </Label>
@@ -1227,7 +1227,7 @@ export default function NewObituary() {
                       <div className="space-y-4 pl-8">
                         <div className="grid md:grid-cols-4 gap-4">
                           <div>
-                            <Label htmlFor="cremacaoDate" className="flex items-center gap-2">
+                            <Label htmlFor="cremacaoDate" className="flex items-center gap-1.5">
                               <Calendar className="w-4 h-4" />
                               Data
                             </Label>
@@ -1241,7 +1241,7 @@ export default function NewObituary() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="cremacaoTime" className="flex items-center gap-2">
+                            <Label htmlFor="cremacaoTime" className="flex items-center gap-1.5">
                               <Clock className="w-4 h-4" />
                               Hora
                             </Label>
@@ -1255,7 +1255,7 @@ export default function NewObituary() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="cremacaoCemetery" className="flex items-center gap-2">
+                            <Label htmlFor="cremacaoCemetery" className="flex items-center gap-1.5">
                               <MapPin className="w-4 h-4" />
                               Nome do Cemitério
                             </Label>
@@ -1268,7 +1268,7 @@ export default function NewObituary() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="cremacaoMapLink" className="flex items-center gap-2">
+                            <Label htmlFor="cremacaoMapLink" className="flex items-center gap-1.5">
                               <Map className="w-4 h-4" />
                               Link do mapa
                             </Label>
@@ -1318,7 +1318,7 @@ export default function NewObituary() {
                     {missa7 && (
                       <div className="grid md:grid-cols-4 gap-4 pl-8">
                         <div>
-                          <Label htmlFor="missa7Date" className="flex items-center gap-2">
+                          <Label htmlFor="missa7Date" className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4" />
                             Data
                           </Label>
@@ -1332,7 +1332,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa7Time" className="flex items-center gap-2">
+                          <Label htmlFor="missa7Time" className="flex items-center gap-1.5">
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
@@ -1346,7 +1346,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa7Location" className="flex items-center gap-2">
+                          <Label htmlFor="missa7Location" className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
                             Nome do Local
                           </Label>
@@ -1359,7 +1359,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa7MapLink" className="flex items-center gap-2">
+                          <Label htmlFor="missa7MapLink" className="flex items-center gap-1.5">
                             <Map className="w-4 h-4" />
                             Link do mapa
                           </Label>
@@ -1384,7 +1384,7 @@ export default function NewObituary() {
                     {missa30 && (
                       <div className="grid md:grid-cols-4 gap-4 pl-8">
                         <div>
-                          <Label htmlFor="missa30Date" className="flex items-center gap-2">
+                          <Label htmlFor="missa30Date" className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4" />
                             Data
                           </Label>
@@ -1398,7 +1398,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa30Time" className="flex items-center gap-2">
+                          <Label htmlFor="missa30Time" className="flex items-center gap-1.5">
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
@@ -1412,7 +1412,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa30Location" className="flex items-center gap-2">
+                          <Label htmlFor="missa30Location" className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
                             Nome do Local
                           </Label>
@@ -1425,7 +1425,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa30MapLink" className="flex items-center gap-2">
+                          <Label htmlFor="missa30MapLink" className="flex items-center gap-1.5">
                             <Map className="w-4 h-4" />
                             Link do mapa
                           </Label>
@@ -1450,7 +1450,7 @@ export default function NewObituary() {
                     {missa1ano && (
                       <div className="grid md:grid-cols-4 gap-4 pl-8">
                         <div>
-                          <Label htmlFor="missa1anoDate" className="flex items-center gap-2">
+                          <Label htmlFor="missa1anoDate" className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4" />
                             Data
                           </Label>
@@ -1464,7 +1464,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa1anoTime" className="flex items-center gap-2">
+                          <Label htmlFor="missa1anoTime" className="flex items-center gap-1.5">
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
@@ -1478,7 +1478,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa1anoLocation" className="flex items-center gap-2">
+                          <Label htmlFor="missa1anoLocation" className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
                             Nome do Local
                           </Label>
@@ -1491,7 +1491,7 @@ export default function NewObituary() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="missa1anoMapLink" className="flex items-center gap-2">
+                          <Label htmlFor="missa1anoMapLink" className="flex items-center gap-1.5">
                             <Map className="w-4 h-4" />
                             Link do mapa
                           </Label>
