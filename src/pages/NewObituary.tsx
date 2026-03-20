@@ -373,11 +373,20 @@ export default function NewObituary() {
           .eq('obituary_id', id);
 
         if (events) {
+          // Collect velorio entries
+          const velorioEvents = events.filter(e => e.event_type === 'velorio');
+          if (velorioEvents.length > 0) {
+            setVelorio(true);
+            setVelorioEntries(velorioEvents.map(e => ({
+              date: e.event_date || "",
+              time: e.event_time || "",
+              location: e.location || "",
+              mapLink: e.map_link || "",
+            })));
+          }
+          
           events.forEach(event => {
-            if (event.event_type === 'velorio') {
-              setVelorio(true);
-              // velorio entries are collected below
-            } else if (event.event_type === 'funeral') {
+            if (event.event_type === 'funeral') {
               setFuneral(true);
               setFormData(prev => ({
                 ...prev,
