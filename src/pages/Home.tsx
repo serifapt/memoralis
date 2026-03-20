@@ -3,24 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame, Building2 } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.png";
-import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import heroImage from "@/assets/hero-memorial.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface PublicObituary {
-  id: string;
-  display_name: string;
-  birth_date: string | null;
-  death_date: string | null;
-  locality: string | null;
-  photo_url: string | null;
-  funerarias: { nome_comercial: string; slug: string | null } | null;
-}
+import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 
 const funeralHomes = Array(6).fill({
   name: "Funerária S. João",
@@ -55,7 +45,7 @@ export default function Home() {
     const loadObituaries = async () => {
       const { data } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, photo_url, funerarias(nome_comercial, slug)")
+        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funerarias(nome_comercial, slug)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
@@ -64,11 +54,6 @@ export default function Home() {
     };
     loadObituaries();
   }, []);
-
-  const getYear = (dateStr: string | null) => {
-    if (!dateStr) return "—";
-    try { return new Date(dateStr).getFullYear().toString(); } catch { return "—"; }
-  };
 
   return (
     <div className="min-h-screen bg-background font-inter">
@@ -148,60 +133,7 @@ export default function Home() {
               <p className="text-sm text-muted-foreground col-span-full text-center py-8">Nenhum obituário publicado</p>
             ) : (
               obituaries.map((obit) => (
-                <Link key={obit.id} to={`/obituario/${obit.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                    <div className="relative">
-                      <img 
-                        src={obit.photo_url || obituaryPlaceholder} 
-                        alt={obit.display_name}
-                        className="w-full aspect-[3/4] object-cover"
-                      />
-                    </div>
-                    <CardContent className="p-4 space-y-3">
-                      <div>
-                        <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
-                          {obit.display_name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-1">
-                          {getYear(obit.birth_date)} - {getYear(obit.death_date)}
-                        </p>
-                        {obit.locality && (
-                          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                            <MapPin className="w-3 h-3" />
-                            <span className="text-xs">{obit.locality}</span>
-                          </div>
-                        )}
-                        {obit.funerarias && (
-                          <Link
-                            to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            <Building2 className="w-3 h-3" />
-                            <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
-                          </Link>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Condolências
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          className="bg-primary hover:bg-primary/90"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Enviar Flores
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <PublicObituaryCard key={obit.id} obit={obit} />
               ))
             )}
           </div>

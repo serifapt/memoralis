@@ -1,0 +1,95 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MapPin, Building2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
+
+export interface PublicObituary {
+  id: string;
+  display_name: string;
+  birth_date: string | null;
+  death_date: string | null;
+  locality: string | null;
+  freguesia: string | null;
+  photo_url: string | null;
+  funeraria_id?: string;
+  funerarias: { nome_comercial: string; slug: string | null } | null;
+}
+
+function getYear(dateStr: string | null) {
+  if (!dateStr) return "—";
+  try { return new Date(dateStr).getFullYear().toString(); } catch { return "—"; }
+}
+
+function getAge(birth: string | null, death: string | null) {
+  if (!birth || !death) return null;
+  try {
+    const [bY, bM, bD] = birth.split("-").map(Number);
+    const [dY, dM, dD] = death.split("-").map(Number);
+    let age = dY - bY;
+    if (dM < bM || (dM === bM && dD < bD)) age--;
+    return age;
+  } catch { return null; }
+}
+
+export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
+  const age = getAge(obit.birth_date, obit.death_date);
+  const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
+
+  return (
+    <Link to={`/obituario/${obit.id}`}>
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+        <div className="relative">
+          <img
+            src={obit.photo_url || obituaryPlaceholder}
+            alt={obit.display_name}
+            className="w-full aspect-[3/4] object-cover"
+          />
+        </div>
+        <CardContent className="p-4 space-y-3">
+          <div>
+            <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
+              {obit.display_name}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-1">
+              {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
+            </p>
+            {locationStr && (
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <MapPin className="w-3 h-3" />
+                <span className="text-xs">{locationStr}</span>
+              </div>
+            )}
+            {obit.funerarias && (
+              <Link
+                to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Building2 className="w-3 h-3" />
+                <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
+              </Link>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="hover:bg-primary hover:text-primary-foreground transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Condolências
+            </Button>
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Enviar Flores
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
