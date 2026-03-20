@@ -73,13 +73,6 @@ export default function NewObituary() {
     velorioTime: "",
     velorioLocation: "",
     velorioMapLink: "",
-    // Cerimónia
-    cerimoniaDate: "",
-    cerimoniaTime: "",
-    cerimoniaChurch: "",
-    cerimoniaMapLink: "",
-    cerimoniaResponsible: "",
-    cerimoniaPhone: "",
     // Funeral
     funeralDate: "",
     funeralTime: "",
