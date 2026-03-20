@@ -192,66 +192,9 @@ export default function ObituaryArchive() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {obituaries.map((obit) => {
-              const age = getAge(obit.birth_date, obit.death_date);
-              const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
-              return (
-                <Link key={obit.id} to={`/obituario/${obit.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                    <div className="relative">
-                      <img
-                        src={obit.photo_url || obituaryPlaceholder}
-                        alt={obit.display_name}
-                        className="w-full aspect-[3/4] object-cover"
-                      />
-                    </div>
-                    <CardContent className="p-4 space-y-3">
-                      <div>
-                        <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
-                          {obit.display_name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-1">
-                          {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
-                        </p>
-                        {locationStr && (
-                          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                            <MapPin className="w-3 h-3" />
-                            <span className="text-xs">{locationStr}</span>
-                          </div>
-                        )}
-                        {obit.funerarias && (
-                          <Link
-                            to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            <Building2 className="w-3 h-3" />
-                            <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
-                          </Link>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Condolências
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-primary hover:bg-primary/90"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Enviar Flores
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
+            {obituaries.map((obit) => (
+              <PublicObituaryCard key={obit.id} obit={obit} />
+            ))}
           </div>
         )}
 
