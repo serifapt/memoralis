@@ -2213,7 +2213,7 @@ export default function NewObituary() {
               <div>
                 <p className="text-sm font-medium mb-2">Estado do Perfil</p>
                 <div className="flex items-center gap-2">
-                  <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+                  <Switch checked={isPublic} onCheckedChange={handlePublicChange} />
                   <span className="text-sm text-muted-foreground">Público</span>
                 </div>
               </div>
