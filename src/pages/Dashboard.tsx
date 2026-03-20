@@ -336,7 +336,7 @@ export default function Dashboard() {
             <div
               key={process.id}
               className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/obituaries/${process.id}`)}
+              onClick={() => navigate(`/obituaries/${process.id}/edit`)}
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium text-foreground">{process.display_name}</h3>
