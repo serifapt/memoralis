@@ -177,7 +177,6 @@ export default function Obituaries() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filtered.map((obituary) => {
             const ceremony = getFirstCeremony(obituary);
-            const isPublished = obituary.is_public && obituary.is_completed;
 
             return (
               <Card key={obituary.id} className="overflow-hidden">
@@ -191,12 +190,15 @@ export default function Obituaries() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-lg font-archivo font-semibold text-foreground">
                           {obituary.display_name}
                         </h3>
-                        <Badge variant={isPublished ? "default" : "secondary"}>
-                          {isPublished ? "Publicado" : "Rascunho"}
+                        <Badge variant={obituary.is_completed ? "default" : "outline"} className={obituary.is_completed ? "bg-emerald-600 hover:bg-emerald-600" : "border-amber-500 text-amber-600"}>
+                          {obituary.is_completed ? "Terminado" : "Em curso"}
+                        </Badge>
+                        <Badge variant={obituary.is_public ? "default" : "secondary"}>
+                          {obituary.is_public ? "Público" : "Privado"}
                         </Badge>
                       </div>
                       <div className="mt-2 space-y-1 text-sm text-muted-foreground">
