@@ -1,48 +1,47 @@
 
 
-## Diagnóstico: Porque os dados do dashboard não aparecem nas páginas públicas
+## Plano: Corrigir cálculo da idade + preservar dados entre tabs
 
-### Problema Principal: Versão publicada desatualizada
+### Problema 1: Idade hardcoded
 
-A página publicada em **memoralis.lovable.app** está a correr uma **versão antiga** do código com dados mock (96 funerárias fictícias, avaliações falsas, carrosséis). A versão atual do código já está ligada a dados reais, mas **ainda não foi publicada**.
+Na linha 2071 do `NewObituary.tsx`, a idade está **hardcoded como "55 Anos"** no preview card:
+```
+{formData.birthDate ? new Date(formData.birthDate).getFullYear() : "1970"} - {formData.deathDate ? new Date(formData.deathDate).getFullYear() : "2025"} | 55 Anos
+```
 
-**Solução**: Clicar em **"Publish" → "Update"** no canto superior direito do editor Lovable para publicar a versão mais recente.
+No `ObituaryDetail.tsx` (página pública), o cálculo usa `Math.floor((death - birth) / (365.25 * ...))` que pode dar resultados incorretos por problemas de timezone (datas interpretadas como UTC deslocam o dia).
 
-### Problema Secundário: Imagens (logo e capa) não carregam
+No `ObituaryTemplateA4.tsx`, o cálculo usa `new Date(dateStr)` que também sofre do mesmo problema de timezone.
 
-Confirmei que:
-- Os ficheiros existem no storage (logo: 72KB PNG, capa: 199KB JPEG)
-- O bucket `funeraria-logos` está público
-- As políticas de acesso permitem leitura anónima
-- Os URLs estão corretamente guardados na base de dados
+### Problema 2: Dados não se perdem entre tabs
 
-No entanto, o browser dispara o evento `onError` nas imagens, ativando os fallbacks (iniciais "SJ" e placeholder). Isto pode dever-se a:
-- Cache do browser com uma resposta antiga (antes do upload)
-- Headers CSP que bloqueiam imagens de domínios externos
-- Problema temporário de rede
+Os dados já estão a ser mantidos em estado React (`formData`) partilhado entre todas as tabs — mudar de tab **não** apaga dados. Se o utilizador reporta perda de dados, é provável que esteja a clicar "Guardar" numa tab e a página recarregar/navegar, perdendo o que estava noutras tabs que ainda não foi guardado. O botão "Guardar" submete **tudo de uma vez**, por isso o problema real pode ser que o utilizador não está a carregar em "Guardar" antes de mudar de tab e espera auto-save.
 
-### Plano de Correção
+**Solução**: Adicionar auto-save com debounce ou, pelo menos, um aviso visual quando há alterações não guardadas.
+
+### Correções
 
 | Ficheiro | Ação |
 |---|---|
-| `src/pages/FunerariaDetail.tsx` | Adicionar cache-busting nos URLs das imagens e melhor logging |
-| `src/pages/FunerariaArchive.tsx` | Adicionar cache-busting e melhorar fallback visual |
-| `src/lib/funeraria-utils.ts` | Adicionar função de cache-busting para URLs de storage |
+| `src/pages/NewObituary.tsx` | Calcular idade dinamicamente no preview; adicionar indicador de alterações não guardadas |
+| `src/pages/ObituaryDetail.tsx` | Corrigir cálculo da idade usando parse local de datas |
+| `src/components/obituaries/ObituaryTemplateA4.tsx` | Corrigir `calculateAge` com parse local |
 
-**Detalhes técnicos:**
+### Detalhes técnicos
 
-1. **Cache-busting**: Adicionar `?t={timestamp}` aos URLs das imagens do storage para forçar o browser a carregar a versão mais recente, evitando respostas em cache
-2. **Retry on error**: Quando a imagem falha, tentar recarregar uma vez com cache-busting antes de mostrar o fallback
-3. **Logging**: Adicionar `console.warn` no `onError` das imagens para facilitar debug futuro
-
-A função em `funeraria-utils.ts`:
-```
-export function withCacheBust(url: string | null): string | null {
-  if (!url) return null;
-  const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}t=${Date.now()}`;
+**Função corrigida de cálculo de idade** (aplicada nos 3 ficheiros):
+```typescript
+function calculateAge(birthStr: string, deathStr: string): number | null {
+  if (!birthStr || !deathStr) return null;
+  const [bY, bM, bD] = birthStr.split("-").map(Number);
+  const [dY, dM, dD] = deathStr.split("-").map(Number);
+  let age = dY - bY;
+  if (dM < bM || (dM === bM && dD < bD)) age--;
+  return age;
 }
 ```
 
-Aplicada nos componentes `FunerariaDetail` e `FunerariaArchive` nos `src` das tags `<img>`.
+**Preview card** (linha 2069-2071): substituir "55 Anos" hardcoded por cálculo dinâmico usando a função acima.
+
+**Indicador de alterações não guardadas**: Adicionar estado `hasUnsavedChanges` que fica `true` quando `formData` muda após o último save, e mostrar um badge/texto junto ao botão Guardar.
 
