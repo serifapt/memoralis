@@ -59,7 +59,7 @@ export default function Home() {
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
-      setObituaries(data || []);
+      setObituaries((data as unknown as PublicObituary[]) || []);
       setLoadingObits(false);
     };
     loadObituaries();
