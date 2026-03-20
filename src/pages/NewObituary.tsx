@@ -373,17 +373,6 @@ export default function NewObituary() {
                 velorioLocation: event.location || "",
                 velorioMapLink: event.map_link || "",
               }));
-            } else if (event.event_type === 'cerimonia') {
-              setCerimonia(true);
-              setFormData(prev => ({
-                ...prev,
-                cerimoniaDate: event.event_date || "",
-                cerimoniaTime: event.event_time || "",
-                cerimoniaChurch: event.location || "",
-                cerimoniaMapLink: event.map_link || "",
-                cerimoniaResponsible: event.responsible_name || "",
-                cerimoniaPhone: event.responsible_phone || "",
-              }));
             } else if (event.event_type === 'funeral') {
               setFuneral(true);
               setFormData(prev => ({
