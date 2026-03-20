@@ -155,7 +155,38 @@ export default function NewObituary() {
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setHasUnsavedChanges(true);
+    setAutoSaveStatus("idle");
   };
+
+  const handlePublicChange = (val: boolean) => {
+    setIsPublic(val);
+    setHasUnsavedChanges(true);
+    setAutoSaveStatus("idle");
+  };
+
+  const handleCompletedChange = (val: boolean) => {
+    setIsCompleted(val);
+    setHasUnsavedChanges(true);
+    setAutoSaveStatus("idle");
+  };
+
+  // Check if minimum required fields are filled for auto-save
+  const hasMinimumFields = useCallback(() => {
+    return !!(
+      formData.displayName.trim() &&
+      formData.deathDate &&
+      formData.birthDate &&
+      formData.freguesia.trim() &&
+      formData.locality.trim() &&
+      formData.familyName.trim() &&
+      formData.familyPhone.trim() &&
+      formData.familyNif.trim() &&
+      formData.familyRelationship.trim() &&
+      formData.familyAddress.trim() &&
+      formData.familyLocality.trim() &&
+      formData.familyPostalCode.trim()
+    );
+  }, [formData]);
 
   useEffect(() => {
     fetchFunerariaId();
