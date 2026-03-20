@@ -128,7 +128,7 @@ export default function Dashboard() {
         supabase.from("obituaries").select("*", { count: "exact", head: true }).eq("funeraria_id", funeraria.id).gte("created_at", startOfMonth),
         supabase.from("ceremony_events").select("id, event_date, obituary_id").gte("event_date", today).lte("event_date", in7Days),
         supabase.from("obituaries").select("id, display_name, death_date, is_completed, created_at").eq("funeraria_id", funeraria.id).order("created_at", { ascending: false }).limit(5),
-        supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, obituary_id").gte("event_date", today).order("event_date", { ascending: true }).limit(5),
+        supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, obituary_id").gte("event_date", today).order("event_date", { ascending: true }).limit(10),
         supabase.from("obituaries").select("id, display_name, created_at, full_name, birth_date, death_date, locality, photo_url, public_message, family_name, service_type").eq("funeraria_id", funeraria.id).eq("is_completed", false).order("created_at", { ascending: false }).limit(5),
         supabase.from("obituaries").select("id, display_name, updated_at, service_price").eq("funeraria_id", funeraria.id).eq("is_completed", true).order("updated_at", { ascending: false }).limit(5),
       ]);
