@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X, Receipt } from "lucide-react";
+import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X, Receipt, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
@@ -820,7 +820,17 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="taxId">NIF* (necessário para documentos fiscais)</Label>
+                      <Label htmlFor="taxId" className="flex items-center gap-1.5">
+                        NIF*
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>Necessário para documentos fiscais</p></TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </Label>
                       <Input
                         id="taxId"
                         placeholder="Inserir Número"
@@ -831,7 +841,17 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="socialSecurity">Segurança Social* (necessário para subsídio funeral)</Label>
+                      <Label htmlFor="socialSecurity" className="flex items-center gap-1.5">
+                        Segurança Social*
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>Necessário para subsídio funeral</p></TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </Label>
                       <Input
                         id="socialSecurity"
                         placeholder="Inserir Número"
@@ -1115,9 +1135,17 @@ export default function NewObituary() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="funeralCemetery" className="flex items-center gap-2">
+                            <Label htmlFor="funeralCemetery" className="flex items-center gap-1.5">
                               <MapPin className="w-4 h-4" />
-                              Nome do Cemitério* (necessário para documentos oficiais)
+                              Nome do Cemitério*
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Necessário para documentos oficiais</p></TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </Label>
                             <Input
                               id="funeralCemetery"
@@ -1895,7 +1923,7 @@ export default function NewObituary() {
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {isEditing && id && (
                 <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
                   <Receipt className="w-4 h-4" />
