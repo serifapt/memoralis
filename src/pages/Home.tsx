@@ -19,7 +19,7 @@ interface PublicObituary {
   death_date: string | null;
   locality: string | null;
   photo_url: string | null;
-  funerarias: { nome_comercial: string; slug: string | null } | null;
+  funerarias: { nome_comercial: string; slug: string | null }[] | null;
 }
 
 const funeralHomes = Array(6).fill({
