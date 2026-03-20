@@ -1966,7 +1966,7 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="familyNaturalidade">Naturalidade*</Label>
+                      <Label htmlFor="familyNaturalidade">Naturalidade</Label>
                       <Input
                         id="familyNaturalidade"
                         placeholder="Local de nascimento"
