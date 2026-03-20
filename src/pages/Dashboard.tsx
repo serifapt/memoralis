@@ -518,6 +518,7 @@ export default function Dashboard() {
     "proximas-cerimonias": "/ceremonies",
     "processos-ativos": "/obituaries",
     "processos-concluidos": "/obituaries",
+    "testemunhos-recentes": "/testimonials",
     "contactos-recentes": "/dashboard",
   };
 
