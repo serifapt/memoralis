@@ -978,29 +978,41 @@ export default function NewObituary() {
                 </p>
 
                 <div className="space-y-6">
-                  {/* Nome */}
+                  {/* Nome Completo */}
                   <div className="space-y-2">
-                    <Label htmlFor="displayName">Nome*</Label>
+                    <Label htmlFor="fullName">Nome Completo*</Label>
                     <Input
-                      id="displayName"
-                      placeholder="Nome a apresentar anúncio"
-                      value={formData.displayName}
+                      id="fullName"
+                      placeholder="Nome completo do óbito"
+                      value={formData.fullName}
                       onChange={(e) =>
-                        handleInputChange("displayName", e.target.value)
+                        handleInputChange("fullName", e.target.value)
                       }
                     />
                   </div>
 
-                  {/* Nome Completo and Data Nascimento */}
+                  {/* Nome (perfil público) and Data Nascimento */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="fullName">Nome Completo*</Label>
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="displayName">Nome*</Label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Nome para o perfil público</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                       <Input
-                        id="fullName"
-                        placeholder="Nome completo do óbito"
-                        value={formData.fullName}
+                        id="displayName"
+                        placeholder="Nome a apresentar no anúncio"
+                        value={formData.displayName}
                         onChange={(e) =>
-                          handleInputChange("fullName", e.target.value)
+                          handleInputChange("displayName", e.target.value)
                         }
                       />
                     </div>
