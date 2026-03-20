@@ -113,7 +113,7 @@ export function BudgetQuotePDF({
                 <p><span className="font-semibold">Endereço:</span> {quote.client?.address || "-"}</p>
                 <p><span className="font-semibold">Localidade:</span> {quote.client?.city || "-"}</p>
                 <p><span className="font-semibold">C.P.:</span> {quote.client?.postal_code || "-"}</p>
-                <p><span className="font-semibold">Parentesco:</span> {quote.client?.relationship_degree || "-"}</p>
+                <p><span className="font-semibold">Parentesco:</span> -</p>
                 <p><span className="font-semibold">Telefone:</span> {quote.client?.phone || "-"}</p>
                 <p><span className="font-semibold">NIF:</span> {quote.client?.nif || "-"}</p>
               </div>
