@@ -114,11 +114,19 @@ export default function BudgetQuoteDetail() {
       if (isNew) {
         // If coming from an obituary, prefill data
         if (obituaryId) {
-          const { data: obituary } = await supabase
-            .from("obituaries")
-            .select("*, client:clients(*)")
-            .eq("id", obituaryId)
-            .maybeSingle();
+          const [{ data: obituary }, { data: funeralEvent }] = await Promise.all([
+            supabase
+              .from("obituaries")
+              .select("*, client:clients(*)")
+              .eq("id", obituaryId)
+              .maybeSingle(),
+            supabase
+              .from("ceremony_events")
+              .select("event_date, location")
+              .eq("obituary_id", obituaryId)
+              .eq("event_type", "funeral")
+              .maybeSingle(),
+          ]);
 
           if (obituary) {
             setFormData(prev => ({
@@ -126,6 +134,8 @@ export default function BudgetQuoteDetail() {
               deceased_name: obituary.display_name || obituary.full_name || "",
               death_date: obituary.death_date || "",
               place_of_death: obituary.death_location || "",
+              funeral_date: funeralEvent?.event_date || "",
+              cemetery: funeralEvent?.location || "",
             }));
 
             if (obituary.responsible_client_id) {
