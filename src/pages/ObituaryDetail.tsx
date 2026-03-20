@@ -69,9 +69,12 @@ export default function ObituaryDetail() {
     if (id) loadObituaryData(id);
   }, [id]);
 
+  const [notPublished, setNotPublished] = useState(false);
+
   const loadObituaryData = async (obituaryId: string) => {
     try {
       setLoading(true);
+      setNotPublished(false);
 
       // Fetch obituary
       const { data: obit, error } = await supabase
@@ -81,6 +84,26 @@ export default function ObituaryDetail() {
         .maybeSingle();
 
       if (error || !obit) {
+        // Check if user is authenticated owner — the obituary may exist but not be published
+        const { data: session } = await supabase.auth.getSession();
+        if (session?.session) {
+          // Authenticated users can see their own obituaries via RLS
+          // If the query returned null, it means either:
+          // 1. The obituary doesn't exist at all
+          // 2. The user is not the owner AND the obituary isn't published
+          // We check if it exists for the owner (funeraria policy covers this)
+          const { data: ownObit } = await supabase
+            .from("obituaries")
+            .select("id, is_completed, is_public")
+            .eq("id", obituaryId)
+            .maybeSingle();
+
+          if (ownObit && (!ownObit.is_completed || !ownObit.is_public)) {
+            setNotPublished(true);
+            setLoading(false);
+            return;
+          }
+        }
         console.error("Obituary not found:", error);
         setLoading(false);
         return;
