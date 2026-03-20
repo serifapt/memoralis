@@ -564,9 +564,7 @@ export default function NewObituary() {
             location: formData.velorioLocation || null,
             map_link: formData.velorioMapLink || null,
           });
-        }
 
-        }
 
         if (funeral) {
           eventsToInsert.push({
