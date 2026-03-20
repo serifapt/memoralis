@@ -41,7 +41,6 @@ export default function NewObituary() {
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
-  const [cerimonia, setCerimonia] = useState(false);
   const [funeral, setFuneral] = useState(false);
   const [cremacao, setCremacao] = useState(false);
   const [missa7, setMissa7] = useState(false);
@@ -74,13 +73,6 @@ export default function NewObituary() {
     velorioTime: "",
     velorioLocation: "",
     velorioMapLink: "",
-    // Cerimónia
-    cerimoniaDate: "",
-    cerimoniaTime: "",
-    cerimoniaChurch: "",
-    cerimoniaMapLink: "",
-    cerimoniaResponsible: "",
-    cerimoniaPhone: "",
     // Funeral
     funeralDate: "",
     funeralTime: "",
@@ -293,12 +285,6 @@ export default function NewObituary() {
           velorioTime: "",
           velorioLocation: "",
           velorioMapLink: "",
-          cerimoniaDate: "",
-          cerimoniaTime: "",
-          cerimoniaChurch: "",
-          cerimoniaMapLink: "",
-          cerimoniaResponsible: "",
-          cerimoniaPhone: "",
           funeralDate: "",
           funeralTime: "",
           funeralCemetery: "",
@@ -386,17 +372,6 @@ export default function NewObituary() {
                 velorioTime: event.event_time || "",
                 velorioLocation: event.location || "",
                 velorioMapLink: event.map_link || "",
-              }));
-            } else if (event.event_type === 'cerimonia') {
-              setCerimonia(true);
-              setFormData(prev => ({
-                ...prev,
-                cerimoniaDate: event.event_date || "",
-                cerimoniaTime: event.event_time || "",
-                cerimoniaChurch: event.location || "",
-                cerimoniaMapLink: event.map_link || "",
-                cerimoniaResponsible: event.responsible_name || "",
-                cerimoniaPhone: event.responsible_phone || "",
               }));
             } else if (event.event_type === 'funeral') {
               setFuneral(true);
@@ -588,19 +563,6 @@ export default function NewObituary() {
             event_time: formData.velorioTime || null,
             location: formData.velorioLocation || null,
             map_link: formData.velorioMapLink || null,
-          });
-        }
-
-        if (cerimonia) {
-          eventsToInsert.push({
-            obituary_id: obituaryId,
-            event_type: 'cerimonia',
-            event_date: formData.cerimoniaDate || null,
-            event_time: formData.cerimoniaTime || null,
-            location: formData.cerimoniaChurch || null,
-            map_link: formData.cerimoniaMapLink || null,
-            responsible_name: formData.cerimoniaResponsible || null,
-            responsible_phone: formData.cerimoniaPhone || null,
           });
         }
 
@@ -1110,98 +1072,6 @@ export default function NewObituary() {
                               handleInputChange("velorioMapLink", e.target.value)
                             }
                           />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Cerimónia */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Switch checked={cerimonia} onCheckedChange={setCerimonia} />
-                      <Label className="font-medium">Cerimónia</Label>
-                    </div>
-                    {cerimonia && (
-                      <div className="space-y-4 pl-8">
-                        <div className="grid md:grid-cols-4 gap-4">
-                          <div>
-                            <Label htmlFor="cerimoniaDate" className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
-                              Data
-                            </Label>
-                            <Input
-                              id="cerimoniaDate"
-                              type="date"
-                              value={formData.cerimoniaDate}
-                              onChange={(e) =>
-                                handleInputChange("cerimoniaDate", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="cerimoniaTime" className="flex items-center gap-2">
-                              <Clock className="w-4 h-4" />
-                              Hora
-                            </Label>
-                            <Input
-                              id="cerimoniaTime"
-                              type="time"
-                              value={formData.cerimoniaTime}
-                              onChange={(e) =>
-                                handleInputChange("cerimoniaTime", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="cerimoniaChurch" className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4" />
-                              Nome da Igreja
-                            </Label>
-                            <Input
-                              id="cerimoniaChurch"
-                              value={formData.cerimoniaChurch}
-                              onChange={(e) =>
-                                handleInputChange("cerimoniaChurch", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="cerimoniaMapLink" className="flex items-center gap-2">
-                              <Map className="w-4 h-4" />
-                              Link do mapa
-                            </Label>
-                            <Input
-                              id="cerimoniaMapLink"
-                              value={formData.cerimoniaMapLink}
-                              onChange={(e) =>
-                                handleInputChange("cerimoniaMapLink", e.target.value)
-                              }
-                            />
-                          </div>
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="cerimoniaResponsible">Nome</Label>
-                            <Input
-                              id="cerimoniaResponsible"
-                              placeholder="Nome do(a) Responsável"
-                              value={formData.cerimoniaResponsible}
-                              onChange={(e) =>
-                                handleInputChange("cerimoniaResponsible", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="cerimoniaPhone">Contacto Telefónico</Label>
-                            <Input
-                              id="cerimoniaPhone"
-                              placeholder="+351 000 000 000"
-                              value={formData.cerimoniaPhone}
-                              onChange={(e) =>
-                                handleInputChange("cerimoniaPhone", e.target.value)
-                              }
-                            />
-                          </div>
                         </div>
                       </div>
                     )}
@@ -1979,9 +1849,6 @@ export default function NewObituary() {
                     velorioDate: formData.velorioDate,
                     velorioTime: formData.velorioTime,
                     velorioLocation: formData.velorioLocation,
-                    cerimoniaDate: formData.cerimoniaDate,
-                    cerimoniaTime: formData.cerimoniaTime,
-                    cerimoniaChurch: formData.cerimoniaChurch,
                     funeralDate: formData.funeralDate,
                     funeralTime: formData.funeralTime,
                     funeralCemetery: formData.funeralCemetery,
