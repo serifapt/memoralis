@@ -1855,7 +1855,7 @@ export default function NewObituary() {
                   {/* Preço */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="servicePrice">Preço *</Label>
+                      <Label htmlFor="servicePrice">Preço*</Label>
                       <Input
                         id="servicePrice"
                         type="number"
