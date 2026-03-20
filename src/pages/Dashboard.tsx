@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical, Mail } from "lucide-react";
+import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical, Mail, Star, MessageSquareQuote } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ChatButton } from "@/components/chat/ChatButton";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,9 +83,10 @@ export default function Dashboard() {
   const [activeProcesses, setActiveProcesses] = useState<ActiveProcess[]>([]);
   const [completedProcesses, setCompletedProcesses] = useState<CompletedProcess[]>([]);
   const [recentContacts, setRecentContacts] = useState<{ id: string; name: string; email: string; message: string; is_read: boolean; created_at: string }[]>([]);
+  const [recentTestimonials, setRecentTestimonials] = useState<{ id: string; author_name: string; rating: number; message: string; status: string; created_at: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
-  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos", "contactos-recentes"]);
+  const [cardOrder, setCardOrder] = useState<string[]>(["obituarios", "proximas-cerimonias", "processos-ativos", "processos-concluidos", "testemunhos-recentes", "contactos-recentes"]);
 
   useEffect(() => {
     loadDashboardData();
@@ -192,6 +193,15 @@ export default function Dashboard() {
         .order("created_at", { ascending: false })
         .limit(5);
       setRecentContacts(contactsData || []);
+
+      // Load recent testimonials
+      const { data: testimonialsData } = await supabase
+        .from("funeraria_testimonials")
+        .select("id, author_name, rating, message, status, created_at")
+        .eq("funeraria_id", funeraria.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setRecentTestimonials(testimonialsData || []);
     } catch (err) {
       console.error("Dashboard load error:", err);
     } finally {
@@ -326,7 +336,7 @@ export default function Dashboard() {
             <div
               key={process.id}
               className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/obituaries/${process.id}`)}
+              onClick={() => navigate(`/obituaries/${process.id}/edit`)}
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium text-foreground">{process.display_name}</h3>
@@ -389,7 +399,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 {ceremony.obituary && (
-                  <Button variant="outline" size="sm" onClick={() => navigate(`/obituaries/${ceremony.obituary!.id}`)}>
+                  <Button variant="outline" size="sm" onClick={() => navigate(`/obituaries/${ceremony.obituary!.id}/edit`)}>
                     Detalhes
                   </Button>
                 )}
@@ -412,7 +422,7 @@ export default function Dashboard() {
             <div
               key={process.id}
               className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/obituaries/${process.id}`)}
+              onClick={() => navigate(`/obituaries/${process.id}/edit`)}
             >
               <div>
                 <h3 className="font-medium text-foreground">{process.display_name}</h3>
@@ -425,6 +435,47 @@ export default function Dashboard() {
                   {process.service_price ? `${process.service_price.toLocaleString("pt-PT")}€` : "—"}
                 </p>
               </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    "testemunhos-recentes": {
+      id: "testemunhos-recentes",
+      title: "Testemunhos Recentes",
+      icon: MessageSquareQuote,
+      component: (
+        <div className="space-y-4">
+          {recentTestimonials.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhum testemunho recebido</p>
+          )}
+          {recentTestimonials.map((t) => (
+            <div
+              key={t.id}
+              className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => navigate("/testimonials")}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-foreground">{t.author_name}</h3>
+                  <Badge className={
+                    t.status === "approved" ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400" :
+                    t.status === "rejected" ? "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400" :
+                    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
+                  }>
+                    {t.status === "approved" ? "Aprovado" : t.status === "rejected" ? "Rejeitado" : "Pendente"}
+                  </Badge>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(t.created_at), { addSuffix: true, locale: pt })}
+                </span>
+              </div>
+              <div className="flex items-center gap-0.5 mb-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} className={`w-3.5 h-3.5 ${star <= t.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"}`} />
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-2">{t.message}</p>
             </div>
           ))}
         </div>
@@ -467,6 +518,7 @@ export default function Dashboard() {
     "proximas-cerimonias": "/ceremonies",
     "processos-ativos": "/obituaries",
     "processos-concluidos": "/obituaries",
+    "testemunhos-recentes": "/testimonials",
     "contactos-recentes": "/dashboard",
   };
 
