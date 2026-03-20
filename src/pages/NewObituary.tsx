@@ -2220,7 +2220,7 @@ export default function NewObituary() {
               <div>
                 <p className="text-sm font-medium mb-2">Estado do Processo</p>
                 <div className="flex items-center gap-2">
-                  <Switch checked={isCompleted} onCheckedChange={setIsCompleted} />
+                  <Switch checked={isCompleted} onCheckedChange={handleCompletedChange} />
                   <span className="text-sm text-muted-foreground">Terminado</span>
                 </div>
               </div>
