@@ -75,7 +75,7 @@ export default function ObituaryArchive() {
     try {
       let query = supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id", { count: "exact" })
+        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)", { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {
