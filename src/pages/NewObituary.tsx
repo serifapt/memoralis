@@ -2135,7 +2135,7 @@ export default function NewObituary() {
                   {/* Tipo de Serviço, Marca Caixão, Caixão Ref. */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="serviceType">Tipo de Serviço*</Label>
+                      <Label htmlFor="serviceType">Tipo de Serviço</Label>
                       <Select
                         value={formData.serviceType}
                         onValueChange={(value) =>
