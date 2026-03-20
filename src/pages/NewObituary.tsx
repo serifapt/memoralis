@@ -1669,7 +1669,7 @@ export default function NewObituary() {
                   {/* Morada, Localidade, Código Postal */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="familyAddress">Morada *</Label>
+                      <Label htmlFor="familyAddress">Morada*</Label>
                       <Input
                         id="familyAddress"
                         placeholder="Morada"
