@@ -2240,17 +2240,45 @@ export default function NewObituary() {
               </div>
             </div>
 
+            {/* Auto-save Status */}
+            <div className="flex items-center justify-center gap-2 py-2">
+              {autoSaveStatus === "saving" && (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">A guardar...</span>
+                </>
+              )}
+              {autoSaveStatus === "saved" && (
+                <>
+                  <Check className="w-4 h-4 text-green-600" />
+                  <span className="text-sm text-green-600">Guardado ✓</span>
+                </>
+              )}
+              {autoSaveStatus === "error" && (
+                <>
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <span className="text-sm text-destructive">Erro ao guardar</span>
+                </>
+              )}
+              {autoSaveStatus === "idle" && hasUnsavedChanges && (
+                <span className="text-xs text-muted-foreground">Alterações pendentes...</span>
+              )}
+              {autoSaveStatus === "idle" && !hasUnsavedChanges && savedObituaryIdRef.current && (
+                <span className="text-xs text-muted-foreground">Todas as alterações guardadas</span>
+              )}
+            </div>
+
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
-              {isEditing && id && (
+              {(isEditing || savedObituaryIdRef.current) && (
                 <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
                   <Receipt className="w-4 h-4" />
                   Criar Orçamento
                 </Button>
               )}
-              {isEditing && id && (
+              {(isEditing || savedObituaryIdRef.current) && (
                 isPublic ? (
-                  <Link to={`/obituario/${id}`} target="_blank">
+                  <Link to={`/obituario/${savedObituaryIdRef.current || id}`} target="_blank">
                     <Button variant="outline" className="w-full gap-2">
                       <Eye className="w-4 h-4" />
                       Ver Perfil Público
@@ -2274,13 +2302,10 @@ export default function NewObituary() {
                   </TooltipProvider>
                 )
               )}
-               <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
-                <Upload className="w-4 h-4" />
-                {isSaving ? "A guardar..." : "Guardar"}
+              <Button variant="outline" className="w-full gap-2" onClick={() => saveObituary(false)} disabled={isSaving}>
+                <Save className="w-4 h-4" />
+                {isSaving ? "A guardar..." : "Guardar Agora"}
               </Button>
-              {hasUnsavedChanges && (
-                <p className="text-xs text-destructive text-center mt-1">⚠ Alterações não guardadas</p>
-              )}
             </div>
           </Card>
 
