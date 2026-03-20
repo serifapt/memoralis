@@ -47,6 +47,24 @@ export default function NewObituary() {
   const [missa30, setMissa30] = useState(false);
   const [missa1ano, setMissa1ano] = useState(false);
   
+  // Velório entries (multiple)
+  const [velorioEntries, setVelorioEntries] = useState([{ date: "", time: "", location: "", mapLink: "" }]);
+  
+  const addVelorioEntry = () => {
+    setVelorioEntries(prev => [...prev, { date: "", time: "", location: "", mapLink: "" }]);
+    setHasUnsavedChanges(true);
+  };
+  
+  const removeVelorioEntry = (index: number) => {
+    setVelorioEntries(prev => prev.filter((_, i) => i !== index));
+    setHasUnsavedChanges(true);
+  };
+  
+  const updateVelorioEntry = (index: number, field: string, value: string) => {
+    setVelorioEntries(prev => prev.map((entry, i) => i === index ? { ...entry, [field]: value } : entry));
+    setHasUnsavedChanges(true);
+  };
+  
   const [formData, setFormData] = useState({
     displayName: "",
     fullName: "",
