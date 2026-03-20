@@ -1,19 +1,25 @@
 
 
-## Plano: Corrigir FK em falta entre obituaries e funerarias
+## Plano: Forçar exibição do nome da funerária nos cards
 
-### Problema
-A tabela `obituaries` não tem uma constraint de foreign key de `funeraria_id` para `funerarias(id)`. Sem esta FK, o PostgREST não consegue resolver o join `funerarias(nome_comercial, slug)` nas queries da Home e do ObituaryArchive, retornando erro 400 — o que faz `data` ser `null` e os obituários não aparecerem.
+### Diagnóstico
+O código e os dados estão correctos. O problema mais provável é um erro de tipagem TypeScript que impede a compilação — o tipo retornado pelo cliente Supabase tipado para `funerarias(nome_comercial, slug)` pode não corresponder exactamente à interface `PublicObituary`, causando falha silenciosa no build.
 
-### Solução
-Criar uma migração SQL para adicionar a FK em falta:
+### Alterações
 
-```sql
-ALTER TABLE public.obituaries
-  ADD CONSTRAINT obituaries_funeraria_id_fkey
-  FOREIGN KEY (funeraria_id)
-  REFERENCES public.funerarias(id);
+#### 1. Home.tsx (linha 62)
+Adicionar cast explícito no resultado da query:
+```typescript
+setObituaries((data as unknown as PublicObituary[]) || []);
 ```
 
-Nenhuma alteração de código é necessária — as queries já estão corretas, apenas precisam da FK para funcionar.
+#### 2. ObituaryArchive.tsx (resultado da query, ~linha 100)
+Mesmo cast explícito:
+```typescript
+setObituaries((data as unknown as PublicObituary[]) || []);
+// e no append:
+setObituaries(prev => [...prev, ...((data as unknown as PublicObituary[]) || [])]);
+```
+
+Isto garante que mesmo que o tipo inferido pelo Supabase não coincida exactamente com a interface, o código compila e os dados são correctamente passados ao template.
 
