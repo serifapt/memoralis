@@ -1,13 +1,18 @@
 
 
-## Plano: Trocar ordem Nome/Nome Completo e adicionar tooltip
+## Plano: Ajustar campos obrigatórios
 
-### Alteração em `src/pages/NewObituary.tsx` (linhas 980-1018)
+### Alterações em `src/pages/NewObituary.tsx`
 
-1. **Trocar ordem**: "Nome Completo" passa a ser o primeiro campo, "Nome" passa a ser o segundo
-2. **Tooltip no "Nome"**: Adicionar tooltip com texto "Nome para o perfil público" usando os componentes `Tooltip`, `TooltipTrigger`, `TooltipContent` já existentes, com um ícone `Info` do lucide-react
+1. **Adicionar `deathLocation` ao `hasMinimumFields`** (linha ~176): O campo "Local de Falecimento" da imagem não está na validação mínima. Adicionar `formData.deathLocation.trim()` à verificação.
 
-Resultado visual:
-- Campo 1: "Nome Completo*" (input full-width)
-- Campo 2: "Nome*" com ícone (i) e tooltip "Nome para o perfil público" (input full-width)
+2. **Validação condicional no Funeral**: Quando o toggle `funeral` está ativo, marcar `funeralDate` e `funeralCemetery` como obrigatórios — adicionar validação no `saveObituary` que impede gravação se o funeral está ativo mas estes campos estão vazios, e mostrar indicação visual (asterisco) nos labels desses campos.
+
+### Resumo dos campos obrigatórios finais
+
+**Dados do Falecido**: displayName, deathDate, birthDate, freguesia, locality, deathLocation
+
+**Cliente**: familyName, familyPhone, familyNif, familyRelationship, familyAddress, familyLocality, familyPostalCode
+
+**Cerimónias (quando Funeral ativo)**: funeralDate, funeralCemetery
 
