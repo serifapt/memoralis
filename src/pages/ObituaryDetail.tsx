@@ -94,11 +94,11 @@ export default function ObituaryDetail() {
           // We check if it exists for the owner (funeraria policy covers this)
           const { data: ownObit } = await supabase
             .from("obituaries")
-            .select("id, is_completed, is_public")
+            .select("id, is_public")
             .eq("id", obituaryId)
             .maybeSingle();
 
-          if (ownObit && (!ownObit.is_completed || !ownObit.is_public)) {
+          if (ownObit && !ownObit.is_public) {
             setNotPublished(true);
             setLoading(false);
             return;
@@ -114,7 +114,7 @@ export default function ObituaryDetail() {
       const [eventsRes, funerariaRes, relatedRes] = await Promise.all([
         supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, map_link").eq("obituary_id", obit.id).order("event_date", { ascending: true }),
         supabase.from("funerarias").select("id, nome_comercial, telefone, email, morada, logo_url").eq("id", obit.funeraria_id).maybeSingle(),
-        supabase.from("obituaries").select("id, display_name, birth_date, death_date, locality, photo_url").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).eq("is_completed", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(4),
+        supabase.from("obituaries").select("id, display_name, birth_date, death_date, locality, photo_url").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(4),
       ]);
 
       setEvents(eventsRes.data || []);
