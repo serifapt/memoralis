@@ -772,7 +772,17 @@ export default function NewObituary() {
                   {/* Nacionalidade, Estado Civil, Profissão */}
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="nationality">Nacionalidade* (para documentos consulares)</Label>
+                      <Label htmlFor="nationality" className="flex items-center gap-1.5">
+                        Nacionalidade*
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>Para documentos consulares</p></TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </Label>
                       <Input
                         id="nationality"
                         placeholder="Arcos de Valdevez"
@@ -862,7 +872,17 @@ export default function NewObituary() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="beneficiary">Beneficiário (SNS ou CGA)*</Label>
+                      <Label htmlFor="beneficiary" className="flex items-center gap-1.5">
+                        Beneficiário*
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>SNS ou CGA</p></TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </Label>
                       <Input
                         id="beneficiary"
                         placeholder="Inserir Número"
