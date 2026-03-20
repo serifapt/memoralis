@@ -1391,7 +1391,7 @@ export default function NewObituary() {
                                 {index === 0 && (
                                   <Label className="flex items-center gap-1.5">
                                     <MapPin className="w-4 h-4" />
-                                    Nome do Local
+                                    Local
                                   </Label>
                                 )}
                                 <Input
@@ -1479,7 +1479,7 @@ export default function NewObituary() {
                           <div className="space-y-2">
                             <Label htmlFor="funeralCemetery" className="flex items-center gap-1.5">
                               <MapPin className="w-4 h-4" />
-                              Nome do Cemitério*
+                              Cemitério*
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
@@ -1579,7 +1579,7 @@ export default function NewObituary() {
                           <div className="space-y-2">
                             <Label htmlFor="cremacaoCemetery" className="flex items-center gap-1.5">
                               <MapPin className="w-4 h-4" />
-                              Nome do Cemitério
+                              Cemitério
                             </Label>
                             <Input
                               id="cremacaoCemetery"
@@ -1670,7 +1670,7 @@ export default function NewObituary() {
                         <div className="space-y-2">
                           <Label htmlFor="missa7Location" className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
-                            Nome do Local
+                            Local
                           </Label>
                           <Input
                             id="missa7Location"
@@ -1736,7 +1736,7 @@ export default function NewObituary() {
                         <div className="space-y-2">
                           <Label htmlFor="missa30Location" className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
-                            Nome do Local
+                            Local
                           </Label>
                           <Input
                             id="missa30Location"
@@ -1802,7 +1802,7 @@ export default function NewObituary() {
                         <div className="space-y-2">
                           <Label htmlFor="missa1anoLocation" className="flex items-center gap-1.5">
                             <MapPin className="w-4 h-4" />
-                            Nome do Local
+                            Local
                           </Label>
                           <Input
                             id="missa1anoLocation"
