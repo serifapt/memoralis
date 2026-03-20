@@ -440,6 +440,47 @@ export default function Dashboard() {
         </div>
       ),
     },
+    "testemunhos-recentes": {
+      id: "testemunhos-recentes",
+      title: "Testemunhos Recentes",
+      icon: MessageSquareQuote,
+      component: (
+        <div className="space-y-4">
+          {recentTestimonials.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">Nenhum testemunho recebido</p>
+          )}
+          {recentTestimonials.map((t) => (
+            <div
+              key={t.id}
+              className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => navigate("/testimonials")}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-foreground">{t.author_name}</h3>
+                  <Badge className={
+                    t.status === "approved" ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400" :
+                    t.status === "rejected" ? "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400" :
+                    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
+                  }>
+                    {t.status === "approved" ? "Aprovado" : t.status === "rejected" ? "Rejeitado" : "Pendente"}
+                  </Badge>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(t.created_at), { addSuffix: true, locale: pt })}
+                </span>
+              </div>
+              <div className="flex items-center gap-0.5 mb-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} className={`w-3.5 h-3.5 ${star <= t.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"}`} />
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-2">{t.message}</p>
+            </div>
+          ))}
+        </div>
+      ),
+    },
     "contactos-recentes": {
       id: "contactos-recentes",
       title: "Contactos Recentes",
