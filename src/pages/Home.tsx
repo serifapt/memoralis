@@ -141,70 +141,58 @@ export default function Home() {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {obituaries.map((obit, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative">
-                  <img 
-                    src={obit.image} 
-                    alt={obit.name}
-                    className="w-full aspect-[3/4] object-cover"
-                  />
-                  <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
-                    {obit.category}
-                  </Badge>
-                </div>
-                <CardContent className="p-4 space-y-3">
-                  <div>
-                    <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
-                      {obit.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      {obit.birthDate} - {obit.deathDate}
-                    </p>
-                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                      <MapPin className="w-3 h-3" />
-                      <span className="text-xs">{obit.location}</span>
+            {loadingObits ? (
+              Array(4).fill(null).map((_, i) => <Skeleton key={i} className="h-96 w-full rounded-lg" />)
+            ) : obituaries.length === 0 ? (
+              <p className="text-sm text-muted-foreground col-span-full text-center py-8">Nenhum obituário publicado</p>
+            ) : (
+              obituaries.map((obit) => (
+                <Link key={obit.id} to={`/obituario/${obit.id}`}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="relative">
+                      <img 
+                        src={obit.photo_url || obituaryPlaceholder} 
+                        alt={obit.display_name}
+                        className="w-full aspect-[3/4] object-cover"
+                      />
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {obit.agency}
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                      asChild
-                    >
-                      <Link to={`/obituario/${index + 1}`}>Condolências</Link>
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      className="bg-primary hover:bg-primary/90"
-                      asChild
-                    >
-                      <Link to={`/obituario/${index + 1}`}>Enviar Flores</Link>
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      <span>{obit.views}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>{obit.messages}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Flame className="w-4 h-4" />
-                      <span>{obit.candles}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <CardContent className="p-4 space-y-3">
+                      <div>
+                        <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
+                          {obit.display_name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          {getYear(obit.birth_date)} - {getYear(obit.death_date)}
+                        </p>
+                        {obit.locality && (
+                          <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                            <MapPin className="w-3 h-3" />
+                            <span className="text-xs">{obit.locality}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Condolências
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          className="bg-primary hover:bg-primary/90"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Enviar Flores
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
+            )}
           </div>
           <div className="flex justify-center mt-8">
             <Button variant="outline" size="lg">
