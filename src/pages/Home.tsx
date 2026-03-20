@@ -55,11 +55,6 @@ export default function Home() {
     loadObituaries();
   }, []);
 
-  const getYear = (dateStr: string | null) => {
-    if (!dateStr) return "—";
-    try { return new Date(dateStr).getFullYear().toString(); } catch { return "—"; }
-  };
-
   return (
     <div className="min-h-screen bg-background font-inter">
       <PublicHeader />
