@@ -475,10 +475,20 @@ export default function NewObituary() {
         }
       } catch (error) {
         console.error('Error loading obituary:', error);
+      } finally {
+        // Defer resetting so the auto-save effect doesn't fire on load
+        setTimeout(() => {
+          isInitialLoadRef.current = false;
+          setHasUnsavedChanges(false);
+        }, 100);
       }
     };
 
-    loadObituaryData();
+    if (isEditing && id) {
+      loadObituaryData();
+    } else {
+      isInitialLoadRef.current = false;
+    }
   }, [id, isEditing]);
 
   const handleSubmit = async (e: React.FormEvent) => {
