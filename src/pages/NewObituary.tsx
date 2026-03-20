@@ -1551,7 +1551,7 @@ export default function NewObituary() {
                   Informação Família / Responsável
                 </h2>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {/* Nome and Grau Parentesco */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
