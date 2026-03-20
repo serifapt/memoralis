@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -2034,14 +2035,32 @@ export default function NewObituary() {
                   Criar Orçamento
                 </Button>
               )}
-              {isEditing && id ? (
-                <Link to={`/obituario/${id}`} target="_blank">
-                  <Button variant="outline" className="w-full gap-2">
-                    <Eye className="w-4 h-4" />
-                    Ver Perfil Público
-                  </Button>
-                </Link>
-              ) : null}
+              {isEditing && id && (
+                isCompleted && isPublic ? (
+                  <Link to={`/obituario/${id}`} target="_blank">
+                    <Button variant="outline" className="w-full gap-2">
+                      <Eye className="w-4 h-4" />
+                      Ver Perfil Público
+                    </Button>
+                  </Link>
+                ) : (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="w-full">
+                          <Button variant="outline" className="w-full gap-2" disabled>
+                            <Eye className="w-4 h-4" />
+                            Ver Perfil Público
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Publique o obituário primeiro para ver o perfil público</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )
+              )}
                <Button className="w-full gap-2" onClick={handleSubmit} disabled={isSaving}>
                 <Upload className="w-4 h-4" />
                 {isSaving ? "A guardar..." : "Guardar"}
