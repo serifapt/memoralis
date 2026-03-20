@@ -32,6 +32,8 @@ export default function NewObituary() {
   const [responsibleClientId, setResponsibleClientId] = useState<string | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedData, setLastSavedData] = useState<string>("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const photoInputRef = useRef<HTMLInputElement>(null);
