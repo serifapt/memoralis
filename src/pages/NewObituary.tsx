@@ -1121,7 +1121,7 @@ export default function NewObituary() {
                   {/* Documents */}
                   <div className="grid md:grid-cols-4 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="idCard">Cartão Cidadão*</Label>
+                      <Label htmlFor="idCard">Cartão Cidadão</Label>
                       <Input
                         id="idCard"
                         placeholder="Inserir Número"
