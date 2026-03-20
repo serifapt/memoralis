@@ -1456,7 +1456,7 @@ export default function NewObituary() {
                           <div className="space-y-2">
                             <Label htmlFor="funeralDate" className="flex items-center gap-1.5">
                               <Calendar className="w-4 h-4" />
-                              Data
+                              Data*
                             </Label>
                             <Input
                               id="funeralDate"
