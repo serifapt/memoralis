@@ -77,7 +77,7 @@ export default function BudgetQuoteDetail() {
   const [quote, setQuote] = useState<BudgetQuote | null>(null);
   const [sections, setSections] = useState<BudgetQuoteSection[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
-  const [funerariaData, setFunerariaData] = useState<{ nome_comercial: string; nif: string; telefone: string } | null>(null);
+  const [funerariaData, setFunerariaData] = useState<{ nome_comercial: string; nif: string; telefone: string; morada: string; email: string; localidade: string; codigo_postal: string } | null>(null);
   const [formData, setFormData] = useState({
     deceased_name: "",
     death_date: "",
@@ -97,7 +97,7 @@ export default function BudgetQuoteDetail() {
       if (user) {
         const { data } = await supabase
           .from("funerarias")
-          .select("nome_comercial, nif, telefone")
+          .select("nome_comercial, nif, telefone, morada, email, localidade, codigo_postal")
           .eq("user_id", user.id)
           .maybeSingle();
         if (data) {
@@ -114,11 +114,19 @@ export default function BudgetQuoteDetail() {
       if (isNew) {
         // If coming from an obituary, prefill data
         if (obituaryId) {
-          const { data: obituary } = await supabase
-            .from("obituaries")
-            .select("*, client:clients(*)")
-            .eq("id", obituaryId)
-            .maybeSingle();
+          const [{ data: obituary }, { data: funeralEvent }] = await Promise.all([
+            supabase
+              .from("obituaries")
+              .select("*, client:clients(*)")
+              .eq("id", obituaryId)
+              .maybeSingle(),
+            supabase
+              .from("ceremony_events")
+              .select("event_date, location")
+              .eq("obituary_id", obituaryId)
+              .eq("event_type", "funeral")
+              .maybeSingle(),
+          ]);
 
           if (obituary) {
             setFormData(prev => ({
@@ -126,6 +134,8 @@ export default function BudgetQuoteDetail() {
               deceased_name: obituary.display_name || obituary.full_name || "",
               death_date: obituary.death_date || "",
               place_of_death: obituary.death_location || "",
+              funeral_date: funeralEvent?.event_date || "",
+              cemetery: funeralEvent?.location || "",
             }));
 
             if (obituary.responsible_client_id) {
@@ -339,6 +349,10 @@ export default function BudgetQuoteDetail() {
                 funerariaName={funerariaData?.nome_comercial}
                 funerariaNif={funerariaData?.nif}
                 funerariaPhone={funerariaData?.telefone}
+                funerariaAddress={funerariaData?.morada}
+                funerariaEmail={funerariaData?.email}
+                funerariaLocality={funerariaData?.localidade}
+                funerariaPostalCode={funerariaData?.codigo_postal}
               />
               <Button variant="outline" onClick={handlePrint}>
                 <Printer className="w-4 h-4 mr-2" />
