@@ -47,6 +47,28 @@ const articles = [
 ];
 
 export default function Home() {
+  const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
+  const [loadingObits, setLoadingObits] = useState(true);
+
+  useEffect(() => {
+    const loadObituaries = async () => {
+      const { data } = await supabase
+        .from("obituaries")
+        .select("id, display_name, birth_date, death_date, locality, photo_url")
+        .eq("is_public", true)
+        .order("death_date", { ascending: false, nullsFirst: false })
+        .limit(12);
+      setObituaries(data || []);
+      setLoadingObits(false);
+    };
+    loadObituaries();
+  }, []);
+
+  const getYear = (dateStr: string | null) => {
+    if (!dateStr) return "—";
+    try { return new Date(dateStr).getFullYear().toString(); } catch { return "—"; }
+  };
+
   return (
     <div className="min-h-screen bg-background font-inter">
       <PublicHeader />
