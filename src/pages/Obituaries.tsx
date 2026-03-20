@@ -106,7 +106,7 @@ export default function Obituaries() {
         </Button>
       </div>
 
-      <Card className="p-4">
+      <Card className="p-4 space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
           <Input
@@ -115,6 +115,36 @@ export default function Obituaries() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground mr-1">Processo:</span>
+            {([["all", "Todos", obituaries.length], ["active", `Em curso (${counts.active})`, counts.active], ["completed", `Terminado (${counts.completed})`, counts.completed]] as const).map(([value, label]) => (
+              <Button
+                key={value}
+                variant={statusFilter === value ? "default" : "outline"}
+                size="sm"
+                className="h-7 text-xs px-2.5"
+                onClick={() => setStatusFilter(value as typeof statusFilter)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground mr-1">Visibilidade:</span>
+            {([["all", "Todos", obituaries.length], ["public", `Público (${counts.public})`, counts.public], ["private", `Privado (${counts.private})`, counts.private]] as const).map(([value, label]) => (
+              <Button
+                key={value}
+                variant={visibilityFilter === value ? "default" : "outline"}
+                size="sm"
+                className="h-7 text-xs px-2.5"
+                onClick={() => setVisibilityFilter(value as typeof visibilityFilter)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
         </div>
       </Card>
 
