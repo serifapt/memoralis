@@ -36,6 +36,8 @@ export default function Settings() {
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [savingLogo, setSavingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropSource, setCropSource] = useState<string>("");
 
   useEffect(() => {
     loadCompanyData();
