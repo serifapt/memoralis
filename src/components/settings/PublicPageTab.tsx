@@ -156,8 +156,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           cover_image_url: coverUrl || null,
           telefone_secundario: data.telefone_secundario || null,
           website: data.website || null,
-          localidade: data.localidade || null,
-          codigo_postal: data.codigo_postal || null,
           facebook_url: data.facebook_url || null,
           instagram_url: data.instagram_url || null,
           linkedin_url: data.linkedin_url || null,
