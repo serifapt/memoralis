@@ -19,6 +19,8 @@ import {
   ArrowLeft,
   CheckCircle,
   Copy,
+  FileCheck,
+  ExternalLink,
 } from "lucide-react";
 import { 
   useBudgetQuotes, 
