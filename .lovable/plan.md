@@ -1,22 +1,14 @@
 
 
-## Plano: Melhorar card da funerária na página de detalhe do obituário
+## Plano: Aumentar logo e estilizar contactos no card da funerária (ObituaryDetail)
 
-### Alterações em `src/pages/ObituaryDetail.tsx`
+### Alterações em `src/pages/ObituaryDetail.tsx` (linhas 350-396)
 
-#### 1. Expandir dados da funerária
-- Adicionar `slug`, `localidade`, `codigo_postal` à interface `Funeraria` e à query (linha 116)
-- Isto permite construir a morada completa e o link para a página pública
+1. **Aumentar logo**: Mudar `w-32 h-32` para `w-48 h-48` no logo e no fallback de iniciais
 
-#### 2. Aumentar o logo
-- Mudar de `w-20 h-20` para `w-32 h-32` (ou similar) para dar mais destaque ao logótipo
-
-#### 3. Adicionar links nos contactos e morada
-- Telefone: envolver com `<a href="tel:...">`
-- Email: envolver com `<a href="mailto:...">`
-- Morada: envolver com link para Google Maps (`https://www.google.com/maps/search/?api=1&query=...`)
-- Nome da funerária: link para `/funerarias/{slug}`
-
-#### 4. Morada completa
-- Mostrar morada + código postal + localidade formatados
+2. **Contactos em cinza sem sublinhado**: Seguir o padrão da página da funerária (`FunerariaDetail.tsx` linhas 187-203):
+   - Telefone e email: mudar de `text-primary hover:underline` para `text-muted-foreground hover:text-primary transition-colors` e adicionar ícones (`Phone`, `Mail`)
+   - Morada: mesmo estilo `text-muted-foreground hover:text-primary transition-colors` com ícone `MapPin`
+   - Layout horizontal inline com ícones, semelhante à página pública da funerária
+   - Remover `hover:underline` de todos os links
 
