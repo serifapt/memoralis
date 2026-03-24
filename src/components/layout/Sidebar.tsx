@@ -49,6 +49,9 @@ const bottomNavigation = [
   { name: "Configurações", href: "/settings", icon: Settings },
 ];
 
+// Single source of truth for ALL collapsed buttons (toggle, nav items, logout)
+const COLLAPSED_BTN = "w-10 h-10 flex items-center justify-center rounded-lg p-0 transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
+
 export const Sidebar = () => {
   const navigate = useNavigate();
   const { isFlowerServiceActive } = useFlowerService();
@@ -84,15 +87,15 @@ export const Sidebar = () => {
         to={item.href}
         end={item.href === "/dashboard"}
         className={({ isActive }) =>
-          cn(
-            "flex items-center rounded-lg transition-colors",
-            collapsed
-              ? "justify-center w-10 h-10 mx-auto p-0 hover:bg-primary hover:text-primary-foreground"
-              : "gap-3 px-4 py-3 hover:bg-[hsl(var(--sidebar-hover))]",
-            isActive
-              ? "bg-primary text-primary-foreground"
-              : "text-foreground"
-          )
+          collapsed
+            ? cn(COLLAPSED_BTN, isActive && "bg-primary text-primary-foreground")
+            : cn(
+                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                "hover:bg-[hsl(var(--sidebar-hover))]",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground"
+              )
         }
       >
         <item.icon className="w-5 h-5 shrink-0" />
@@ -112,17 +115,17 @@ export const Sidebar = () => {
     return link;
   };
 
-  const collapsedBtn = "w-10 h-10 flex items-center justify-center rounded-lg p-0 transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
-
   return (
     <aside className={cn(
       "border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col transition-all duration-300",
       collapsed ? "w-16" : "w-64"
     )}>
-      {/* Logo */}
+      {/* Header */}
       <div className={cn(
-        "border-b border-border",
-        collapsed ? "flex flex-col items-center py-3" : "p-4 flex items-center justify-between"
+        "border-b border-border flex",
+        collapsed
+          ? "flex-col items-center py-3"
+          : "items-center justify-between p-4"
       )}>
         {!collapsed && (
           <div>
@@ -133,7 +136,7 @@ export const Sidebar = () => {
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <button onClick={toggleCollapsed} className={collapsedBtn}>
+              <button onClick={toggleCollapsed} className={COLLAPSED_BTN}>
                 <PanelLeftOpen className="w-5 h-5" />
               </button>
             </TooltipTrigger>
@@ -167,7 +170,7 @@ export const Sidebar = () => {
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <button onClick={handleLogout} className={collapsedBtn}>
+              <button onClick={handleLogout} className={COLLAPSED_BTN}>
                 <LogOut className="w-5 h-5" />
               </button>
             </TooltipTrigger>
