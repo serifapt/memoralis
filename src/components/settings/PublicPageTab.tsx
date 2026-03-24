@@ -312,14 +312,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
             <Label>Website</Label>
             <Input value={data.website} onChange={(e) => setData(prev => ({ ...prev, website: e.target.value }))} placeholder="https://funerariasjoan.pt" disabled={loading} />
           </div>
-          <div className="space-y-2">
-            <Label>Localidade</Label>
-            <Input value={data.localidade} onChange={(e) => setData(prev => ({ ...prev, localidade: e.target.value }))} placeholder="Arcos de Valdevez" disabled={loading} />
-          </div>
-          <div className="space-y-2">
-            <Label>Código Postal</Label>
-            <Input value={data.codigo_postal} onChange={(e) => setData(prev => ({ ...prev, codigo_postal: e.target.value }))} placeholder="4970-446" disabled={loading} />
-          </div>
         </div>
       </Card>
 
