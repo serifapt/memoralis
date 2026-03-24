@@ -1,41 +1,22 @@
 
-Objetivo: fazer com que os cards de obituário da página inicial usem exatamente o mesmo visual e os mesmos dados do Arquivo de Obituários.
 
-Plano
+## Plano: Melhorar card da funerária na página de detalhe do obituário
 
-1. Unificar o layout do card público
-- Extrair o card que já está correto em `src/pages/ObituaryArchive.tsx` para um componente reutilizável, por exemplo `src/components/obituaries/PublicObituaryCard.tsx`.
-- Esse componente passa a ser a fonte única do layout dos cards públicos, evitando diferenças entre Home e Arquivo.
+### Alterações em `src/pages/ObituaryDetail.tsx`
 
-2. Levar para a Home os mesmos dados do Arquivo
-- Atualizar a query da Home em `src/pages/Home.tsx` para incluir também `freguesia` e manter a funerária associada.
-- Alinhar a interface `PublicObituary` da Home com a do Arquivo, para suportar:
-  - nome
-  - foto
-  - datas
-  - idade
-  - `freguesia + locality`
-  - funerária com link público
+#### 1. Expandir dados da funerária
+- Adicionar `slug`, `localidade`, `codigo_postal` à interface `Funeraria` e à query (linha 116)
+- Isto permite construir a morada completa e o link para a página pública
 
-3. Replicar exatamente a apresentação do Arquivo
-- Na Home, usar o mesmo componente do Arquivo para mostrar:
-  - nome em destaque
-  - anos de nascimento e falecimento
-  - idade
-  - localização no formato `Freguesia - Localidade`
-  - funerária com ícone e link para a página pública
-  - botões “Condolências” e “Enviar Flores”
-- Manter o `stopPropagation()` no link da funerária para não quebrar o clique principal do card.
+#### 2. Aumentar o logo
+- Mudar de `w-20 h-20` para `w-32 h-32` (ou similar) para dar mais destaque ao logótipo
 
-4. Preservar comportamento e consistência
-- Manter a navegação do card para o detalhe do obituário.
-- Garantir que, se faltar `freguesia`, `locality` ou funerária, o card continua estável sem quebrar o layout.
-- Validar que Home e Arquivo ficam visualmente iguais para o mesmo obituário.
+#### 3. Adicionar links nos contactos e morada
+- Telefone: envolver com `<a href="tel:...">`
+- Email: envolver com `<a href="mailto:...">`
+- Morada: envolver com link para Google Maps (`https://www.google.com/maps/search/?api=1&query=...`)
+- Nome da funerária: link para `/funerarias/{slug}`
 
-Detalhes técnicos
-- Ficheiros principais:
-  - `src/pages/Home.tsx`
-  - `src/pages/ObituaryArchive.tsx`
-  - novo componente partilhado em `src/components/obituaries/`
-- Não são necessárias alterações na base de dados.
-- A abordagem mais segura é reutilizar o mesmo componente em vez de duplicar markup, porque elimina divergências futuras entre as duas páginas.
+#### 4. Morada completa
+- Mostrar morada + código postal + localidade formatados
+
