@@ -117,10 +117,29 @@ export default function Settings() {
       toast.error("O ficheiro não pode exceder 5MB");
       return;
     }
-    setLogoFile(file);
     const reader = new FileReader();
-    reader.onloadend = () => setLogoPreview(reader.result as string);
+    reader.onloadend = () => {
+      const src = reader.result as string;
+      setCropSource(src);
+      setShowCropper(true);
+    };
     reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "logo_cropped.png", { type: "image/png" });
+    setLogoFile(file);
+    const url = URL.createObjectURL(croppedBlob);
+    setLogoPreview(url);
+    setShowCropper(false);
+    setCropSource("");
+  };
+
+  const handleOpenCropper = () => {
+    if (logoPreview) {
+      setCropSource(logoPreview);
+      setShowCropper(true);
+    }
   };
 
   const handleRemoveLogo = () => {
