@@ -130,7 +130,7 @@ export const Sidebar = () => {
         {collapsed ? (
           <img src={iconLogo} alt="Memoralis" className="w-6 h-8 object-contain" />
         ) : (
-          <img src={logo} alt="Memoralis" className="h-10" />
+          <img src={logo} alt="Memoralis" className="h-12" />
         )}
       </div>
 
