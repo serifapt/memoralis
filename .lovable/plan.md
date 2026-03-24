@@ -1,59 +1,67 @@
 
-## Plano: corrigir de vez o alinhamento da sidebar colapsada
+
+## Plano: uniformizar a sidebar colapsada pelo padrão do botão de expandir
 
 ### Diagnóstico
-O problema já não é só de `padding`: no estado colapsado, header, navegação e footer estão a centrar os elementos de formas diferentes. Isso faz com que:
-- o botão de colapsar/expandir fique numa coluna visual
-- os itens do menu noutra
-- o botão de sair noutra
+No ficheiro `src/components/layout/Sidebar.tsx`, o botão de expandir já define a referência visual correcta, mas:
+- os itens de navegação usam outra classe no modo colapsado
+- o botão de sair usa a classe partilhada, mas está num container diferente
+- header, nav e footer centram os elementos de formas diferentes
 
-Além disso, o hover/ativo dos itens colapsados deve usar exactamente a mesma “caixa” visual em todos os botões.
+Resultado: cada botão fica com uma “caixa” e um alinhamento ligeiramente distintos.
 
-### Alterações em `src/components/layout/Sidebar.tsx`
+### Alteração a fazer
+Manter tudo igual ao botão de expandir no modo colapsado.
 
-#### 1. Unificar a geometria dos botões colapsados
-Criar uma classe/base comum para:
-- botão de colapsar/expandir
-- itens da navegação
+### Implementação em `src/components/layout/Sidebar.tsx`
+
+#### 1. Criar uma única base visual para o modo colapsado
+Usar uma única classe/base comum para:
+- botão de expandir/colapsar
+- todos os ícones do menu
 - botão de sair
 
-Essa base deve usar sempre:
-- `w-10 h-10`
-- `flex items-center justify-center`
-- `rounded-lg`
-- `p-0`
+Essa base deve controlar sempre:
+- largura e altura
+- alinhamento interno
+- border radius
+- padding
+- transição
+- hover
 
-Assim todos passam a ocupar a mesma caixa e ficam alinhados na mesma coluna.
+Ou seja, os itens do menu deixam de ter uma versão “parecida” e passam a ter exactamente a mesma geometria do botão do topo.
 
-#### 2. Corrigir o alinhamento estrutural da coluna
-No estado colapsado:
-- o `header` continua com `p-2 justify-center`
-- a `nav` passa a usar layout centrado (`flex flex-col items-center`)
-- o `footer` também centra o botão usando a mesma lógica da nav
+#### 2. Aplicar a mesma estrutura aos 3 blocos
+Uniformizar os wrappers do:
+- header
+- navegação
+- footer
 
-Isto elimina a dependência de `mx-auto` espalhado pelos elementos e garante que toggle, ícones e logout ficam todos sobre o mesmo eixo vertical.
+No estado colapsado, os 3 devem usar a mesma lógica de coluna centrada, sem variações de `mx-auto`, offsets ou espaçamentos diferentes.
 
-#### 3. Uniformizar hover e estado ativo
-Nos itens colapsados:
-- usar `hover:bg-primary hover:text-primary-foreground`
-- manter `bg-primary text-primary-foreground` no item activo
-- aplicar o mesmo comportamento visual ao botão de sair e ao botão de colapsar
+#### 3. Ajustar o `NavItem`
+Refatorar o `NavItem` para que, quando `collapsed`:
+- reutilize a mesma base do botão de expandir
+- mantenha apenas a diferença de estado activo
+- não tenha classes próprias que alterem alinhamento ou hover
 
-Assim o hover vermelho fica consistente com o comportamento antigo dos botões.
+#### 4. Preservar estado activo sem mudar a caixa
+O item activo deve continuar destacado, mas sem alterar:
+- largura
+- altura
+- posicionamento
+- área clicável
 
-#### 4. Simplificar o `NavItem`
-Ajustar o `NavItem` para que, quando colapsado:
-- não dependa de margens automáticas para alinhamento
-- use a mesma classe-base dos restantes botões
-- mantenha os tooltips como estão
+Assim o activo continua alinhado exactamente como os restantes.
 
 ### Resultado esperado
 No modo reduzido:
-- ícone do topo, ícones do menu e ícone de sair ficam perfeitamente centrados entre si
-- o fundo vermelho no hover aparece centrado e com o mesmo tamanho em todos os botões
-- o item activo deixa de parecer deslocado
+- ícone de expandir/colapsar
+- ícones do menu
+- ícone de sair
 
-### Detalhes técnicos
-- Ficheiro a alterar: `src/components/layout/Sidebar.tsx`
-- Sem alterações de backend
-- Sem alterações a outras páginas
+ficam todos perfeitamente alinhados na mesma coluna e com comportamento visual uniforme.
+
+### Ficheiro a alterar
+- `src/components/layout/Sidebar.tsx`
+
