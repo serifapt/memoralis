@@ -47,6 +47,7 @@ const flowerNavigation = [
 
 const bottomNavigation = [
   { name: "Chat de Suporte", href: "/support", icon: MessageSquare },
+  { name: "Configurações", href: "/settings", icon: Settings },
 ];
 
 const COLLAPSED_BTN = "w-10 h-10 flex items-center justify-center rounded-lg p-0 transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
