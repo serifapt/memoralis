@@ -1,18 +1,12 @@
 
 
-## Plano: Melhorar alinhamento e hover dos ícones na sidebar colapsada
+## Plano: Centrar ícones alinhados com o botão de colapsar
 
 ### Problema
-Na screenshot, os ícones quando a sidebar está colapsada não estão bem centrados e o hover não tem o mesmo comportamento visual dos botões expandidos.
+O botão de toggle no header tem `p-4` no container, enquanto os nav items têm `p-2` no container da nav. Isto causa desalinhamento horizontal entre o ícone de colapsar e os ícones de navegação.
 
 ### Alterações em `src/components/layout/Sidebar.tsx`
 
-1. **Centrar ícones no modo colapsado**: No header, centrar o botão de toggle quando colapsado. Ajustar padding do container do logo para centrar.
-
-2. **Uniformizar hover**: Os nav items colapsados já têm `hover:bg-[hsl(var(--sidebar-hover))]`, mas o padding (`px-2`) e a falta de tamanho fixo fazem com que a área de hover seja inconsistente. Adicionar tamanho fixo (`w-12 h-12` ou `p-3`) quando colapsado para criar áreas de hover quadradas e uniformes, centradas na sidebar.
-
-3. **Ajustes específicos**:
-   - Nav items colapsados: `justify-center px-0 py-0 w-12 h-12 mx-auto` para área de clique quadrada e centrada
-   - Botão de logout colapsado: mesmo tratamento
-   - Header colapsado: centrar o botão de toggle com `justify-center`
+1. **Header colapsado**: Reduzir o padding do container do header para `p-2` quando colapsado, igualando o padding da nav
+2. **Uniformizar tamanhos**: Manter todos os ícones (toggle, nav items, logout) com `w-10 h-10 mx-auto` quando colapsado para alinhamento perfeito na mesma coluna central
 
