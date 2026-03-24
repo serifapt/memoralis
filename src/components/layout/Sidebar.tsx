@@ -121,33 +121,16 @@ export const Sidebar = () => {
     )}>
       {/* Header */}
       <div className={cn(
-        "border-b border-border flex",
-        collapsed
-          ? "flex-col items-center py-3"
-          : "items-center justify-between p-4"
+        "border-b border-border flex items-center",
+        collapsed ? "justify-center py-3" : "justify-between p-4"
       )}>
-        {!collapsed && (
+        {collapsed ? (
+          <img src={logo} alt="Memoralis" className="w-8 h-8 object-contain" />
+        ) : (
           <div>
             <img src={logo} alt="Memoralis" className="h-10 mb-1" />
             <p className="text-xs text-muted-foreground">Gestão Funerária</p>
           </div>
-        )}
-        {collapsed ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button onClick={toggleCollapsed} className={COLLAPSED_BTN}>
-                <PanelLeftOpen className="w-5 h-5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Expandir</TooltipContent>
-          </Tooltip>
-        ) : (
-          <button
-            onClick={toggleCollapsed}
-            className="p-2 rounded-lg text-muted-foreground hover:bg-[hsl(var(--sidebar-hover))] transition-colors"
-          >
-            <PanelLeftClose className="w-5 h-5" />
-          </button>
         )}
       </div>
 
