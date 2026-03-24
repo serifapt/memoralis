@@ -140,6 +140,9 @@ export default function ObituaryDetail() {
       setEvents(eventsRes.data || []);
       setFuneraria(funerariaRes.data);
       setRelatedObituaries(relatedRes.data || []);
+
+      // Load condolences
+      loadCondolences(obit.id);
     } catch (err) {
       console.error("Error loading obituary:", err);
     } finally {

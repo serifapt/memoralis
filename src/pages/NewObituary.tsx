@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AddRelationshipDialog } from "@/components/obituaries/AddRelationshipDialog";
 import { AnnouncementGenerator } from "@/components/obituaries/AnnouncementGenerator";
 import { DocumentsTab } from "@/components/obituaries/DocumentsTab";
+import { CondolencesTab } from "@/components/obituaries/CondolencesTab";
 import { useClients } from "@/hooks/useClients";
 
 export default function NewObituary() {
