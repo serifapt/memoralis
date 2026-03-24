@@ -46,7 +46,6 @@ const flowerNavigation = [
 
 const bottomNavigation = [
   { name: "Chat de Suporte", href: "/support", icon: MessageSquare },
-  { name: "Configurações", href: "/settings", icon: Settings },
 ];
 
 // Single source of truth for ALL collapsed buttons (toggle, nav items, logout)
