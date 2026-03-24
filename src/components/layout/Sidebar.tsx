@@ -125,7 +125,7 @@ export const Sidebar = () => {
       {/* Header */}
       <div className={cn(
         "border-b border-border flex items-center",
-        collapsed ? "justify-center py-5 px-3" : "justify-between p-6"
+        collapsed ? "justify-center py-6 px-4" : "justify-between p-7"
       )}>
         {collapsed ? (
           <img src={iconLogo} alt="Memoralis" className="w-5 h-7 object-contain" />
