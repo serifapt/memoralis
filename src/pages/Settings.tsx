@@ -299,9 +299,6 @@ export default function Settings() {
               onCropComplete={handleCropComplete}
             />
           </Card>
-              </Button>
-            </div>
-          </Card>
 
           {/* Public Page */}
           <PublicPageTab funerariaId={funerariaId} />
