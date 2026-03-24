@@ -147,8 +147,29 @@ export const Sidebar = () => {
       {/* Footer */}
       <div className={cn(
         "border-t border-border py-2",
-        collapsed ? "flex flex-col items-center" : "px-2"
+        collapsed ? "flex flex-col items-center gap-1" : "px-2 space-y-1"
       )}>
+        {/* Configurações */}
+        <NavItem item={{ name: "Configurações", href: "/settings", icon: Settings }} />
+
+        {/* Toggle */}
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button onClick={toggleCollapsed} className={COLLAPSED_BTN}>
+                <PanelLeftOpen className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Expandir</TooltipContent>
+          </Tooltip>
+        ) : (
+          <button onClick={toggleCollapsed} className={EXPANDED_BTN}>
+            <PanelLeftClose className="w-5 h-5" />
+            <span className="text-sm font-medium">Recolher</span>
+          </button>
+        )}
+
+        {/* Sair */}
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -159,10 +180,7 @@ export const Sidebar = () => {
             <TooltipContent side="right">Sair</TooltipContent>
           </Tooltip>
         ) : (
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
-          >
+          <button onClick={handleLogout} className={EXPANDED_BTN}>
             <LogOut className="w-5 h-5" />
             <span className="text-sm font-medium">Sair</span>
           </button>
