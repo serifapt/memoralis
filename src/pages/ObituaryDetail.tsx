@@ -146,8 +146,43 @@ export default function ObituaryDetail() {
       setLoading(false);
     }
   };
+  // Load approved condolences
+  const loadCondolences = async (obituaryId: string) => {
+    const { data } = await supabase
+      .from("condolences")
+      .select("id, author_name, message, created_at")
+      .eq("obituary_id", obituaryId)
+      .eq("is_approved", true)
+      .order("created_at", { ascending: false });
+    setApprovedCondolences(data || []);
+  };
 
-  const formatDate = (dateStr: string | null) => {
+  // Submit condolence
+  const handleCondolenceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!obituary) return;
+    setSubmittingCondolence(true);
+    try {
+      const { error } = await supabase.from("condolences").insert({
+        obituary_id: obituary.id,
+        author_name: authorName.trim(),
+        author_email: authorEmail.trim(),
+        message: condolenceMessage.trim(),
+      });
+      if (error) throw error;
+      toast.success("Mensagem enviada com sucesso.");
+      setAuthorName("");
+      setAuthorEmail("");
+      setCondolenceMessage("");
+      loadCondolences(obituary.id);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao enviar mensagem.");
+    } finally {
+      setSubmittingCondolence(false);
+    }
+  };
+
+
     if (!dateStr) return "—";
     try { return format(new Date(dateStr), "dd/MM/yyyy", { locale: pt }); } catch { return dateStr; }
   };
