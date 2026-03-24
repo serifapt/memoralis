@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
+import iconLogo from "@/assets/icon-memoralis.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useFlowerService } from "@/hooks/useFlowerService";
@@ -125,7 +126,7 @@ export const Sidebar = () => {
         collapsed ? "justify-center py-3" : "justify-between p-4"
       )}>
         {collapsed ? (
-          <img src={logo} alt="Memoralis" className="w-8 h-8 object-contain" />
+          <img src={iconLogo} alt="Memoralis" className="w-6 h-8 object-contain" />
         ) : (
           <div>
             <img src={logo} alt="Memoralis" className="h-10 mb-1" />
