@@ -33,6 +33,7 @@ function getAge(birth: string | null, death: string | null) {
 }
 
 export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
+  const navigate = useNavigate();
   const age = getAge(obit.birth_date, obit.death_date);
   const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
 
