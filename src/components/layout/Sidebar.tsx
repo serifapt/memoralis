@@ -120,8 +120,8 @@ export const Sidebar = () => {
     )}>
       {/* Logo */}
       <div className={cn(
-        "p-4 border-b border-border flex items-center",
-        collapsed ? "justify-center" : "justify-between"
+        "border-b border-border flex items-center",
+        collapsed ? "p-2 justify-center" : "p-4 justify-between"
       )}>
         {!collapsed && (
           <div>
