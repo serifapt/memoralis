@@ -5,11 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Building2, Users, Bell, Flower, Loader2, Upload, X } from "lucide-react";
+import { Building2, Users, Bell, Flower, Loader2, Upload, X, Crop, Image } from "lucide-react";
 import { useFlowerService } from "@/hooks/useFlowerService";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicPageTab } from "@/components/settings/PublicPageTab";
+import { LogoCropper } from "@/components/settings/LogoCropper";
 
 interface CompanyData {
   nome_comercial: string;
@@ -35,6 +36,8 @@ export default function Settings() {
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [savingLogo, setSavingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropSource, setCropSource] = useState<string>("");
 
   useEffect(() => {
     loadCompanyData();
@@ -114,10 +117,29 @@ export default function Settings() {
       toast.error("O ficheiro não pode exceder 5MB");
       return;
     }
-    setLogoFile(file);
     const reader = new FileReader();
-    reader.onloadend = () => setLogoPreview(reader.result as string);
+    reader.onloadend = () => {
+      const src = reader.result as string;
+      setCropSource(src);
+      setShowCropper(true);
+    };
     reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], "logo_cropped.png", { type: "image/png" });
+    setLogoFile(file);
+    const url = URL.createObjectURL(croppedBlob);
+    setLogoPreview(url);
+    setShowCropper(false);
+    setCropSource("");
+  };
+
+  const handleOpenCropper = () => {
+    if (logoPreview) {
+      setCropSource(logoPreview);
+      setShowCropper(true);
+    }
   };
 
   const handleRemoveLogo = () => {
@@ -231,33 +253,51 @@ export default function Settings() {
 
           {/* Logo */}
           <Card className="p-6">
-            <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Logótipo</h3>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoFileChange} />
-                {logoPreview ? (
-                  <div className="relative inline-block">
-                    <img src={logoPreview} alt="Logótipo" className="h-32 w-auto object-contain rounded-lg border border-border p-2 bg-background" />
+            <h3 className="text-lg font-archivo font-semibold text-foreground mb-2">Logótipo</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              O logótipo é utilizado nos cards de obituário, cabeçalhos de PDF, página pública e detalhe do obituário.
+            </p>
+            <div className="space-y-4">
+              <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoFileChange} />
+              {logoPreview ? (
+                <div className="flex flex-col items-center gap-4 p-6 rounded-lg border border-border bg-muted/20">
+                  <div className="relative">
+                    <img src={logoPreview} alt="Logótipo" className="h-40 w-auto object-contain rounded-lg" />
                     <button onClick={handleRemoveLogo} className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                ) : (
-                  <div onClick={() => logoInputRef.current?.click()} className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors">
-                    <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">Arraste o logótipo ou clique para selecionar</p>
-                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou SVG até 5MB</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()}>
+                      <Image className="w-4 h-4 mr-1" />
+                      Alterar
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleOpenCropper}>
+                      <Crop className="w-4 h-4 mr-1" />
+                      Recortar
+                    </Button>
                   </div>
-                )}
-                {logoPreview && (
-                  <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()}>Alterar imagem</Button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div onClick={() => logoInputRef.current?.click()} className="border-2 border-dashed border-border rounded-lg p-10 text-center cursor-pointer hover:border-primary/50 transition-colors">
+                  <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium text-foreground">Arraste o logótipo ou clique para selecionar</p>
+                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou SVG até 5MB</p>
+                </div>
+              )}
               <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveLogo} disabled={savingLogo || loadingCompany}>
                 {savingLogo && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Guardar Logótipo
               </Button>
             </div>
+
+            {/* Cropper Dialog */}
+            <LogoCropper
+              open={showCropper}
+              imageSrc={cropSource}
+              onClose={() => setShowCropper(false)}
+              onCropComplete={handleCropComplete}
+            />
           </Card>
 
           {/* Public Page */}
