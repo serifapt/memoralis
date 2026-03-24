@@ -374,13 +374,11 @@ export default function ObituaryDetail() {
 
                     <div className="space-y-3 mb-6">
                       <p className="font-semibold text-foreground text-center mb-2">Contactos</p>
-                      <a href={`tel:${funeraria.telefone}`} className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2 justify-center">
-                        <Phone className="w-4 h-4" />
+                      <a href={`tel:${funeraria.telefone}`} className="text-muted-foreground hover:text-primary transition-colors text-sm justify-center block">
                         {funeraria.telefone}
                       </a>
                       {funeraria.email && (
-                        <a href={`mailto:${funeraria.email}`} className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2 justify-center">
-                          <Mail className="w-4 h-4" />
+                        <a href={`mailto:${funeraria.email}`} className="text-muted-foreground hover:text-primary transition-colors text-sm justify-center block">
                           {funeraria.email}
                         </a>
                       )}
