@@ -18,7 +18,7 @@ import {
   PanelLeftOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 import iconLogo from "@/assets/icon-memoralis.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
