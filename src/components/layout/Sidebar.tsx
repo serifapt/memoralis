@@ -151,9 +151,6 @@ export const Sidebar = () => {
         "border-t border-border py-2",
         collapsed ? "flex flex-col items-center gap-1" : "px-2 space-y-1"
       )}>
-        {/* Configurações */}
-        <NavItem item={{ name: "Configurações", href: "/settings", icon: Settings }} />
-
         {/* Toggle */}
         {collapsed ? (
           <Tooltip>
