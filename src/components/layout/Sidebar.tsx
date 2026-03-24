@@ -153,7 +153,7 @@ export const Sidebar = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-10 h-10 mx-auto rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
+                className="flex items-center justify-center w-10 h-10 mx-auto rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors text-foreground"
               >
                 <LogOut className="w-5 h-5" />
               </button>
