@@ -1,67 +1,42 @@
 
 
-## Plano: uniformizar a sidebar colapsada pelo padrão do botão de expandir
+## Plano: Reorganizar sidebar — toggle após configurações + ícone do logo colapsado
 
-### Diagnóstico
-No ficheiro `src/components/layout/Sidebar.tsx`, o botão de expandir já define a referência visual correcta, mas:
-- os itens de navegação usam outra classe no modo colapsado
-- o botão de sair usa a classe partilhada, mas está num container diferente
-- header, nav e footer centram os elementos de formas diferentes
+### Alterações em `src/components/layout/Sidebar.tsx`
 
-Resultado: cada botão fica com uma “caixa” e um alinhamento ligeiramente distintos.
+#### 1. Mover botão expandir/colapsar para o footer (após Configurações)
+- Remover o botão de toggle do header
+- Colocar o botão de expandir/colapsar no footer, entre "Configurações" e "Sair"
+- Ordem no footer: **Configurações** → **Expandir/Colapsar** → **Sair**
+- Para isso, remover "Configurações" do `bottomNavigation` na nav e passá-lo para o footer
 
-### Alteração a fazer
-Manter tudo igual ao botão de expandir no modo colapsado.
+#### 2. Uniformizar hover de todos os botões
+- Os nav items expandidos usam `hover:bg-[hsl(var(--sidebar-hover))]` mas o botão "Sair" também
+- Manter o hover consistente: todos os botões (nav items, toggle, sair) devem ter o mesmo comportamento de hover — usar `hover:bg-primary hover:text-primary-foreground` em todos, tanto colapsado como expandido
 
-### Implementação em `src/components/layout/Sidebar.tsx`
+#### 3. Logo colapsado — mostrar ícone/favicon
+- Quando colapsado, em vez de esconder o logo completamente, mostrar uma versão pequena (favicon ou o próprio `logo-memoralis.png` reduzido a ~32px)
+- Usar `<img src={logo} className="w-8 h-8 object-contain" />` no header colapsado
 
-#### 1. Criar uma única base visual para o modo colapsado
-Usar uma única classe/base comum para:
-- botão de expandir/colapsar
-- todos os ícones do menu
-- botão de sair
+#### 4. Estrutura final do footer
+**Expandido:**
+```
+Configurações (link)
+─────────────────
+Expandir/Colapsar (botão)
+Sair (botão)
+```
 
-Essa base deve controlar sempre:
-- largura e altura
-- alinhamento interno
-- border radius
-- padding
-- transição
-- hover
+**Colapsado:**
+```
+⚙️ (tooltip: Configurações)
+◀️ (tooltip: Recolher)
+🚪 (tooltip: Sair)
+```
 
-Ou seja, os itens do menu deixam de ter uma versão “parecida” e passam a ter exactamente a mesma geometria do botão do topo.
-
-#### 2. Aplicar a mesma estrutura aos 3 blocos
-Uniformizar os wrappers do:
-- header
-- navegação
-- footer
-
-No estado colapsado, os 3 devem usar a mesma lógica de coluna centrada, sem variações de `mx-auto`, offsets ou espaçamentos diferentes.
-
-#### 3. Ajustar o `NavItem`
-Refatorar o `NavItem` para que, quando `collapsed`:
-- reutilize a mesma base do botão de expandir
-- mantenha apenas a diferença de estado activo
-- não tenha classes próprias que alterem alinhamento ou hover
-
-#### 4. Preservar estado activo sem mudar a caixa
-O item activo deve continuar destacado, mas sem alterar:
-- largura
-- altura
-- posicionamento
-- área clicável
-
-Assim o activo continua alinhado exactamente como os restantes.
-
-### Resultado esperado
-No modo reduzido:
-- ícone de expandir/colapsar
-- ícones do menu
-- ícone de sair
-
-ficam todos perfeitamente alinhados na mesma coluna e com comportamento visual uniforme.
-
-### Ficheiro a alterar
-- `src/components/layout/Sidebar.tsx`
+### Detalhes técnicos
+- Remover `{ name: "Configurações", ... }` do array `bottomNavigation`
+- No footer, renderizar: NavItem de Configurações + botão toggle + botão sair
+- O botão de toggle expandido usa o mesmo estilo dos outros botões expandidos (com `hover:bg-primary`)
+- Ficheiro: `src/components/layout/Sidebar.tsx`
 
