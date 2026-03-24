@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -12,13 +13,20 @@ import {
   ShoppingBag,
   Receipt,
   Mail,
-  MessageSquareQuote
+  MessageSquareQuote,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useFlowerService } from "@/hooks/useFlowerService";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const baseNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -44,6 +52,15 @@ const bottomNavigation = [
 export const Sidebar = () => {
   const navigate = useNavigate();
   const { isFlowerServiceActive } = useFlowerService();
+  const [collapsed, setCollapsed] = useState(() => 
+    localStorage.getItem("sidebar-collapsed") === "true"
+  );
+
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    localStorage.setItem("sidebar-collapsed", String(next));
+  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -61,50 +78,90 @@ export const Sidebar = () => {
     ...bottomNavigation,
   ];
 
+  const NavItem = ({ item }: { item: typeof baseNavigation[0] }) => {
+    const link = (
+      <NavLink
+        to={item.href}
+        end={item.href === "/dashboard"}
+        className={({ isActive }) =>
+          cn(
+            "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+            "hover:bg-[hsl(var(--sidebar-hover))]",
+            collapsed && "justify-center px-2",
+            isActive
+              ? "bg-primary text-primary-foreground"
+              : "text-foreground"
+          )
+        }
+      >
+        <item.icon className="w-5 h-5 shrink-0" />
+        {!collapsed && <span className="text-sm font-medium">{item.name}</span>}
+      </NavLink>
+    );
+
+    if (collapsed) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipContent side="right">{item.name}</TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return link;
+  };
+
   return (
-    <aside className="w-64 border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col">
+    <aside className={cn(
+      "border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col transition-all duration-300",
+      collapsed ? "w-16" : "w-64"
+    )}>
       {/* Logo */}
-      <div className="p-6 border-b border-border">
-        <img src={logo} alt="Memoralis" className="h-12 mb-2" />
-        <p className="text-xs text-muted-foreground mt-1">
-          Gestão Funerária
-        </p>
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        {!collapsed && (
+          <div>
+            <img src={logo} alt="Memoralis" className="h-10 mb-1" />
+            <p className="text-xs text-muted-foreground">Gestão Funerária</p>
+          </div>
+        )}
+        <button
+          onClick={toggleCollapsed}
+          className="p-2 rounded-lg hover:bg-[hsl(var(--sidebar-hover))] text-muted-foreground transition-colors"
+        >
+          {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+        </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-4">
-        <div className="space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              end={item.href === "/dashboard"}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                  "hover:bg-[hsl(var(--sidebar-hover))]",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground"
-                )
-              }
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-sm font-medium">{item.name}</span>
-            </NavLink>
-          ))}
-        </div>
+      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+        {navItems.map((item) => (
+          <NavItem key={item.name} item={item} />
+        ))}
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border">
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="text-sm font-medium">Sair</span>
-        </button>
+      <div className="p-2 border-t border-border">
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleLogout}
+                className="flex items-center justify-center w-full p-3 rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Sair</TooltipContent>
+          </Tooltip>
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-sm font-medium">Sair</span>
+          </button>
+        )}
       </div>
     </aside>
   );
