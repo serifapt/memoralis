@@ -969,6 +969,7 @@ export default function NewObituary() {
               <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
               <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
+              {isEditing && <TabsTrigger value="condolencias">Condolências</TabsTrigger>}
             </TabsList>
 
             {/* Tab: Informações Pessoais */}
