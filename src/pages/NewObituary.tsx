@@ -500,6 +500,68 @@ export default function NewObituary() {
     }
   }, [id, isEditing]);
 
+  // Pre-fill from budget quote when creating from an accepted quote
+  useEffect(() => {
+    if (isEditing || !fromQuoteId) return;
+
+    const loadQuoteData = async () => {
+      try {
+        const { data: quote, error: quoteError } = await supabase
+          .from("budget_quotes")
+          .select("*, client:clients(id, full_name, email, phone, nif, address, city, postal_code, relationship_degree, niss, nationality_place, iban, notes)")
+          .eq("id", fromQuoteId)
+          .single();
+
+        if (quoteError || !quote) return;
+
+        // Pre-fill deceased data from quote
+        setFormData(prev => ({
+          ...prev,
+          displayName: quote.deceased_name || "",
+          deathDate: quote.death_date || "",
+          deathLocation: quote.place_of_death || "",
+          funeralDate: quote.funeral_date || "",
+          funeralCemetery: quote.cemetery || "",
+        }));
+
+        // Activate funeral toggle if data exists
+        if (quote.funeral_date || quote.cemetery) {
+          setFuneral(true);
+        }
+
+        // Pre-fill client/family data
+        const client = quote.client as any;
+        if (client) {
+          setResponsibleClientId(client.id);
+          setFormData(prev => ({
+            ...prev,
+            familyName: client.full_name || "",
+            familyEmail: client.email || "",
+            familyPhone: client.phone || "",
+            familyNif: client.nif || "",
+            familyAddress: client.address || "",
+            familyLocality: client.city || "",
+            familyPostalCode: client.postal_code || "",
+            familyRelationship: client.relationship_degree || "",
+            familyNiss: client.niss || "",
+            familyNaturalidade: client.nationality_place || "",
+            familyIban: client.iban || "",
+            familyObservations: client.notes || "",
+          }));
+        }
+
+        // Mark as not having unsaved changes (it's pre-fill, not user edits)
+        setTimeout(() => {
+          setHasUnsavedChanges(false);
+        }, 100);
+      } catch (error) {
+        console.error("Error loading quote data for pre-fill:", error);
+      }
+    };
+
+    loadQuoteData();
+  }, [fromQuoteId, isEditing]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSaving) return;
