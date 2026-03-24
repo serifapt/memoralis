@@ -85,9 +85,11 @@ export const Sidebar = () => {
         end={item.href === "/dashboard"}
         className={({ isActive }) =>
           cn(
-            "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+            "flex items-center rounded-lg transition-colors",
             "hover:bg-[hsl(var(--sidebar-hover))]",
-            collapsed && "justify-center px-2",
+            collapsed
+              ? "justify-center w-10 h-10 mx-auto p-0"
+              : "gap-3 px-4 py-3",
             isActive
               ? "bg-primary text-primary-foreground"
               : "text-foreground"
