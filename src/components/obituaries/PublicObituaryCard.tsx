@@ -72,23 +72,13 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               </Link>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="hover:bg-primary hover:text-primary-foreground transition-colors"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/obituario/${obit.id}#condolencias`); }}
-            >
-              Condolências
-            </Button>
-            <Button
-              size="sm"
-              className="bg-primary hover:bg-primary/90"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Enviar Flores
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            className="w-full bg-primary hover:bg-primary/90"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Enviar Flores
+          </Button>
         </CardContent>
       </Card>
     </Link>
