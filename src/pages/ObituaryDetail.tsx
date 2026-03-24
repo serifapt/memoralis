@@ -326,7 +326,7 @@ export default function ObituaryDetail() {
 
             {/* Condolence Form */}
             {!obituary.hide_condolences && (
-              <Card>
+              <Card id="condolencias">
                 <CardContent className="p-6">
                   <h2 className="text-xl font-archivo font-semibold text-foreground mb-6">
                     Envie Mensagem de Condolências
