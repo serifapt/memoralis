@@ -131,8 +131,8 @@ export const Sidebar = () => {
         <button
           onClick={toggleCollapsed}
           className={cn(
-            "rounded-lg hover:bg-[hsl(var(--sidebar-hover))] text-muted-foreground transition-colors",
-            collapsed ? "w-10 h-10 flex items-center justify-center" : "p-2"
+            "rounded-lg text-muted-foreground transition-colors",
+            collapsed ? "w-10 h-10 flex items-center justify-center mx-auto hover:bg-primary hover:text-primary-foreground" : "p-2 hover:bg-[hsl(var(--sidebar-hover))]"
           )}
         >
           {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
