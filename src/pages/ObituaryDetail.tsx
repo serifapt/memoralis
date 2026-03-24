@@ -151,6 +151,18 @@ export default function ObituaryDetail() {
     } catch { return null; }
   };
 
+  const getEventTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      velorio: "Velório",
+      missa: "Missa",
+      cremacao: "Cremação",
+      sepultamento: "Sepultamento",
+      funeral: "Funeral",
+      outro: "Outro",
+    };
+    return labels[type] || type;
+  };
+
   const locationStr = [obituary?.freguesia, obituary?.locality].filter(Boolean).join(" - ");
   const age = getAge();
 
@@ -284,7 +296,7 @@ export default function ObituaryDetail() {
                     {events.map((event) => (
                       <div key={event.id} className="flex items-start gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-foreground mb-2">{event.event_type}</h3>
+                          <h3 className="font-semibold text-foreground mb-2">{getEventTypeLabel(event.event_type)}</h3>
                           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                             {event.event_date && (
                               <div className="flex items-center gap-2">
