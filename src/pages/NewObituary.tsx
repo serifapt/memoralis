@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AddRelationshipDialog } from "@/components/obituaries/AddRelationshipDialog";
 import { AnnouncementGenerator } from "@/components/obituaries/AnnouncementGenerator";
 import { DocumentsTab } from "@/components/obituaries/DocumentsTab";
+import { CondolencesTab } from "@/components/obituaries/CondolencesTab";
 import { useClients } from "@/hooks/useClients";
 
 export default function NewObituary() {
@@ -969,6 +970,7 @@ export default function NewObituary() {
               <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
               <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
+              {isEditing && <TabsTrigger value="condolencias">Condolências</TabsTrigger>}
             </TabsList>
 
             {/* Tab: Informações Pessoais */}
@@ -2229,6 +2231,13 @@ export default function NewObituary() {
                 />
               </Card>
             </TabsContent>
+
+            {/* Tab: Condolências */}
+            {isEditing && id && (
+              <TabsContent value="condolencias" className="space-y-4 md:space-y-8 max-w-full">
+                <CondolencesTab obituaryId={id} displayName={formData.displayName} />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
 

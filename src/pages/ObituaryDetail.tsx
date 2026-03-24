@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame, Phone } from "lucide-react";
+import { toast } from "sonner";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
@@ -68,6 +69,12 @@ export default function ObituaryDetail() {
   const [funeraria, setFuneraria] = useState<Funeraria | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<RelatedObituary[]>([]);
 
+  // Condolence form state
+  const [authorName, setAuthorName] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
+  const [condolenceMessage, setCondolenceMessage] = useState("");
+  const [submittingCondolence, setSubmittingCondolence] = useState(false);
+  const [approvedCondolences, setApprovedCondolences] = useState<Array<{ id: string; author_name: string; message: string; created_at: string }>>([]);
   const location = useLocation();
 
   useEffect(() => {
@@ -133,10 +140,48 @@ export default function ObituaryDetail() {
       setEvents(eventsRes.data || []);
       setFuneraria(funerariaRes.data);
       setRelatedObituaries(relatedRes.data || []);
+
+      // Load condolences
+      loadCondolences(obit.id);
     } catch (err) {
       console.error("Error loading obituary:", err);
     } finally {
       setLoading(false);
+    }
+  };
+  // Load approved condolences
+  const loadCondolences = async (obituaryId: string) => {
+    const { data } = await supabase
+      .from("condolences")
+      .select("id, author_name, message, created_at")
+      .eq("obituary_id", obituaryId)
+      .eq("is_approved", true)
+      .order("created_at", { ascending: false });
+    setApprovedCondolences(data || []);
+  };
+
+  // Submit condolence
+  const handleCondolenceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!obituary) return;
+    setSubmittingCondolence(true);
+    try {
+      const { error } = await supabase.from("condolences").insert({
+        obituary_id: obituary.id,
+        author_name: authorName.trim(),
+        author_email: authorEmail.trim(),
+        message: condolenceMessage.trim(),
+      });
+      if (error) throw error;
+      toast.success("Mensagem enviada com sucesso.");
+      setAuthorName("");
+      setAuthorEmail("");
+      setCondolenceMessage("");
+      loadCondolences(obituary.id);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao enviar mensagem.");
+    } finally {
+      setSubmittingCondolence(false);
     }
   };
 
@@ -341,26 +386,45 @@ export default function ObituaryDetail() {
                   <h2 className="text-xl font-archivo font-semibold text-foreground mb-6">
                     Envie Mensagem de Condolências
                   </h2>
-                  <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                  <form className="space-y-4" onSubmit={handleCondolenceSubmit}>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-foreground mb-2 block">Nome *</label>
-                        <Input placeholder="O seu nome" />
+                        <Input placeholder="O seu nome" value={authorName} onChange={(e) => setAuthorName(e.target.value)} required />
                       </div>
                       <div>
                         <label className="text-sm font-medium text-foreground mb-2 block">Email *</label>
-                        <Input type="email" placeholder="email@exemplo.com" />
+                        <Input type="email" placeholder="email@exemplo.com" value={authorEmail} onChange={(e) => setAuthorEmail(e.target.value)} required />
                       </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-foreground mb-2 block">Mensagem *</label>
-                      <Textarea placeholder="Sentidas condolências..." rows={5} />
+                      <Textarea placeholder="Sentidas condolências..." rows={5} value={condolenceMessage} onChange={(e) => setCondolenceMessage(e.target.value)} required />
                     </div>
-                    <Button className="bg-primary hover:bg-primary/90">Enviar mensagem</Button>
+                    <Button className="bg-primary hover:bg-primary/90" type="submit" disabled={submittingCondolence}>
+                      {submittingCondolence ? "A enviar..." : "Enviar mensagem"}
+                    </Button>
                   </form>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Funcionalidade de condolências em breve disponível.
-                  </p>
+
+                  {/* Approved condolences */}
+                  {approvedCondolences.length > 0 && (
+                    <div className="mt-8 pt-6 border-t border-border space-y-4">
+                      <h3 className="text-lg font-archivo font-semibold text-foreground">
+                        Mensagens de Condolências ({approvedCondolences.length})
+                      </h3>
+                      {approvedCondolences.map((c) => (
+                        <div key={c.id} className="bg-muted/30 rounded-lg p-4 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium text-foreground text-sm">{c.author_name}</p>
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(c.created_at), "dd/MM/yyyy", { locale: pt })}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{c.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

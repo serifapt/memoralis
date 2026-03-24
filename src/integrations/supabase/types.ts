@@ -611,6 +611,44 @@ export type Database = {
           },
         ]
       }
+      condolences: {
+        Row: {
+          author_email: string
+          author_name: string
+          created_at: string
+          id: string
+          is_approved: boolean
+          message: string
+          obituary_id: string
+        }
+        Insert: {
+          author_email: string
+          author_name: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          message: string
+          obituary_id: string
+        }
+        Update: {
+          author_email?: string
+          author_name?: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          message?: string
+          obituary_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "condolences_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
