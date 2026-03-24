@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Building2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 
 export interface PublicObituary {
@@ -33,6 +33,7 @@ function getAge(birth: string | null, death: string | null) {
 }
 
 export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
+  const navigate = useNavigate();
   const age = getAge(obit.birth_date, obit.death_date);
   const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
 
@@ -76,7 +77,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               variant="outline"
               size="sm"
               className="hover:bg-primary hover:text-primary-foreground transition-colors"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/obituario/${obit.id}#condolencias`); }}
             >
               Condolências
             </Button>

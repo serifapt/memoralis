@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame, Phone } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,9 +68,19 @@ export default function ObituaryDetail() {
   const [funeraria, setFuneraria] = useState<Funeraria | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<RelatedObituary[]>([]);
 
+  const location = useLocation();
+
   useEffect(() => {
     if (id) loadObituaryData(id);
   }, [id]);
+
+  useEffect(() => {
+    if (!loading && obituary && location.hash === '#condolencias') {
+      setTimeout(() => {
+        document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [loading, obituary, location.hash]);
 
   const [notPublished, setNotPublished] = useState(false);
 
@@ -264,7 +274,7 @@ export default function ObituaryDetail() {
                     </div>
 
                     <div className="flex gap-3">
-                      {!obituary.hide_condolences && <Button variant="outline">Condolências</Button>}
+                      {!obituary.hide_condolences && <Button variant="outline" onClick={() => document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' })}>Condolências</Button>}
                       <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
                         Enviar Flores
                       </Button>
@@ -326,7 +336,7 @@ export default function ObituaryDetail() {
 
             {/* Condolence Form */}
             {!obituary.hide_condolences && (
-              <Card>
+              <Card id="condolencias">
                 <CardContent className="p-6">
                   <h2 className="text-xl font-archivo font-semibold text-foreground mb-6">
                     Envie Mensagem de Condolências
