@@ -83,37 +83,37 @@ export const Sidebar = () => {
   ];
 
   const NavItem = ({ item }: { item: typeof baseNavigation[0] }) => {
-    const link = (
-      <NavLink
-        to={item.href}
-        end={item.href === "/dashboard"}
-        className={({ isActive }) =>
-          collapsed
-            ? cn(COLLAPSED_BTN, isActive && "bg-primary text-primary-foreground")
-            : cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                "hover:bg-primary hover:text-primary-foreground",
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground"
-              )
-        }
-      >
-        <item.icon className="w-5 h-5 shrink-0" />
-        {!collapsed && <span className="text-sm font-medium">{item.name}</span>}
-      </NavLink>
-    );
+    const isActive = location.pathname === item.href || 
+      (item.href !== "/dashboard" && location.pathname.startsWith(item.href));
 
     if (collapsed) {
       return (
         <Tooltip>
-          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => navigate(item.href)}
+              className={cn(COLLAPSED_BTN, isActive && "bg-primary text-primary-foreground")}
+            >
+              <item.icon className="w-5 h-5 shrink-0" />
+            </button>
+          </TooltipTrigger>
           <TooltipContent side="right">{item.name}</TooltipContent>
         </Tooltip>
       );
     }
 
-    return link;
+    return (
+      <NavLink
+        to={item.href}
+        end={item.href === "/dashboard"}
+        className={({ isActive: active }) =>
+          cn(EXPANDED_BTN, active && "bg-primary text-primary-foreground")
+        }
+      >
+        <item.icon className="w-5 h-5 shrink-0" />
+        <span className="text-sm font-medium">{item.name}</span>
+      </NavLink>
+    );
   };
 
   return (
