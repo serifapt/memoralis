@@ -182,7 +182,7 @@ export default function ObituaryDetail() {
     }
   };
 
-
+  const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "—";
     try { return format(new Date(dateStr), "dd/MM/yyyy", { locale: pt }); } catch { return dateStr; }
   };
