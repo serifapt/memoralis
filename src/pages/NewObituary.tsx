@@ -2231,6 +2231,13 @@ export default function NewObituary() {
                 />
               </Card>
             </TabsContent>
+
+            {/* Tab: Condolências */}
+            {isEditing && id && (
+              <TabsContent value="condolencias" className="space-y-4 md:space-y-8 max-w-full">
+                <CondolencesTab obituaryId={id} displayName={formData.displayName} />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
 
