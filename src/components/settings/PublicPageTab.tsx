@@ -61,7 +61,7 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
     try {
       const { data: f } = await supabase
         .from("funerarias")
-        .select("pagina_publica_visivel, slug, descricao, cover_image_url, telefone_secundario, website, localidade, codigo_postal, facebook_url, instagram_url, linkedin_url, horario, servicos")
+        .select("pagina_publica_visivel, slug, descricao, cover_image_url, telefone_secundario, website, facebook_url, instagram_url, linkedin_url, horario, servicos")
         .eq("id", funerariaId!)
         .single();
 
@@ -73,8 +73,8 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           cover_image_url: f.cover_image_url || "",
           telefone_secundario: f.telefone_secundario || "",
           website: f.website || "",
-          localidade: f.localidade || "",
-          codigo_postal: f.codigo_postal || "",
+          localidade: "",
+          codigo_postal: "",
           facebook_url: f.facebook_url || "",
           instagram_url: f.instagram_url || "",
           linkedin_url: f.linkedin_url || "",
@@ -156,8 +156,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           cover_image_url: coverUrl || null,
           telefone_secundario: data.telefone_secundario || null,
           website: data.website || null,
-          localidade: data.localidade || null,
-          codigo_postal: data.codigo_postal || null,
           facebook_url: data.facebook_url || null,
           instagram_url: data.instagram_url || null,
           linkedin_url: data.linkedin_url || null,
@@ -311,14 +309,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           <div className="space-y-2">
             <Label>Website</Label>
             <Input value={data.website} onChange={(e) => setData(prev => ({ ...prev, website: e.target.value }))} placeholder="https://funerariasjoan.pt" disabled={loading} />
-          </div>
-          <div className="space-y-2">
-            <Label>Localidade</Label>
-            <Input value={data.localidade} onChange={(e) => setData(prev => ({ ...prev, localidade: e.target.value }))} placeholder="Arcos de Valdevez" disabled={loading} />
-          </div>
-          <div className="space-y-2">
-            <Label>Código Postal</Label>
-            <Input value={data.codigo_postal} onChange={(e) => setData(prev => ({ ...prev, codigo_postal: e.target.value }))} placeholder="4970-446" disabled={loading} />
           </div>
         </div>
       </Card>
