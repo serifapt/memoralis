@@ -1,16 +1,19 @@
 
 
-## Plano: Ativar funcionalidades de partilha
+## Plano: Ocultar condolências apenas por obituário (via toggle existente)
 
-### Alterações em `src/pages/ObituaryDetail.tsx` (linhas 314-318)
+### Estado atual
+O campo `hide_condolences` já existe na BD e no formulário de edição do obituário. No `ObituaryDetail.tsx`, o botão e a secção de condolências já estão condicionados com `{!obituary.hide_condolences && ...}` (linhas 322 e 383).
 
-Os botões Facebook, WhatsApp e Email já existem mas não têm `onClick`. Adicionar:
+A funcionalidade já está implementada correctamente — o toggle no editor do obituário controla a visibilidade por obituário individual.
 
-1. **Facebook**: `onClick` abre `https://www.facebook.com/sharer/sharer.php?u={url}` em nova janela
-2. **WhatsApp** (MessageCircle): `onClick` abre `https://wa.me/?text={texto + url}` em nova janela
-3. **Email** (Mail): `onClick` abre `mailto:?subject={nome}&body={texto + url}`
-4. **Copiar link** (LinkIcon): já funciona — adicionar toast de confirmação "Link copiado!"
-5. **Imprimir** (Printer): já funciona via `window.print()`
+### Alteração necessária
 
-O URL de partilha será `window.location.href` e o texto incluirá o nome do falecido.
+#### `src/components/obituaries/PublicObituaryCard.tsx`
+- O botão "Condolências" nos cards públicos não tem acesso ao campo `hide_condolences`, por isso aparece sempre
+- Duas opções:
+  1. **Remover o botão dos cards** (recomendado) — nos cards da listagem, o botão "Condolências" faz pouco sentido porque redireciona para a página de detalhe; o utilizador pode aceder às condolências a partir daí
+  2. Adicionar `hide_condolences` à interface `PublicObituary` e à query que alimenta os cards, e condicionar o botão
+
+**Recomendação**: Remover o botão "Condolências" dos cards públicos e manter apenas o botão na página de detalhe (onde já respeita o toggle). Substituir por um botão "Ver mais" ou simplesmente deixar só o botão "Enviar Flores".
 
