@@ -45,6 +45,9 @@ interface Funeraria {
   email: string | null;
   morada: string | null;
   logo_url: string | null;
+  slug: string | null;
+  localidade: string | null;
+  codigo_postal: string | null;
 }
 
 interface RelatedObituary {
