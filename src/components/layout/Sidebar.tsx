@@ -86,10 +86,9 @@ export const Sidebar = () => {
         className={({ isActive }) =>
           cn(
             "flex items-center rounded-lg transition-colors",
-            "hover:bg-[hsl(var(--sidebar-hover))]",
             collapsed
-              ? "justify-center w-10 h-10 mx-auto p-0"
-              : "gap-3 px-4 py-3",
+              ? "justify-center w-10 h-10 mx-auto p-0 hover:bg-primary hover:text-primary-foreground"
+              : "gap-3 px-4 py-3 hover:bg-[hsl(var(--sidebar-hover))]",
             isActive
               ? "bg-primary text-primary-foreground"
               : "text-foreground"
