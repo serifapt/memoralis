@@ -91,8 +91,7 @@ export const Sidebar = () => {
           collapsed
             ? cn(COLLAPSED_BTN, isActive && "bg-primary text-primary-foreground")
             : cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                "hover:bg-primary hover:text-primary-foreground",
+                EXPANDED_BTN,
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground"
