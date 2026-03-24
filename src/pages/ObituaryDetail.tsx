@@ -68,6 +68,12 @@ export default function ObituaryDetail() {
   const [funeraria, setFuneraria] = useState<Funeraria | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<RelatedObituary[]>([]);
 
+  // Condolence form state
+  const [authorName, setAuthorName] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
+  const [condolenceMessage, setCondolenceMessage] = useState("");
+  const [submittingCondolence, setSubmittingCondolence] = useState(false);
+  const [approvedCondolences, setApprovedCondolences] = useState<Array<{ id: string; author_name: string; message: string; created_at: string }>>([]);
   const location = useLocation();
 
   useEffect(() => {
