@@ -769,6 +769,13 @@ export default function NewObituary() {
       setHasUnsavedChanges(false);
 
       if (!isEditing && obituaryId) {
+        // Link budget quote to the new obituary if created from a quote
+        if (fromQuoteId) {
+          await supabase
+            .from("budget_quotes")
+            .update({ obituary_id: obituaryId })
+            .eq("id", fromQuoteId);
+        }
         navigate(`/obituaries/${obituaryId}/edit`);
       }
     } catch (error: any) {
