@@ -24,6 +24,8 @@ export default function NewObituary() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const fromQuoteId = searchParams.get("fromQuoteId");
   const { toast } = useToast();
   const { findOrCreateClient } = useClients();
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
