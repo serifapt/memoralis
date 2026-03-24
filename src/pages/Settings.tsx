@@ -106,7 +106,29 @@ export default function Settings() {
     }
   };
 
-  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const autoCropToSquare = (src: string): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const side = Math.min(img.naturalWidth, img.naturalHeight);
+        const ox = (img.naturalWidth - side) / 2;
+        const oy = (img.naturalHeight - side) / 2;
+        const canvas = document.createElement("canvas");
+        canvas.width = side;
+        canvas.height = side;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, ox, oy, side, side, 0, 0, side, side);
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("Canvas toBlob failed"));
+        }, "image/png", 1);
+      };
+      img.onerror = reject;
+      img.src = src;
+    });
+  };
+
+  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -118,10 +140,28 @@ export default function Settings() {
       return;
     }
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const src = reader.result as string;
-      setCropSource(src);
-      setShowCropper(true);
+      // Detect dimensions
+      const img = new window.Image();
+      img.onload = async () => {
+        if (img.naturalWidth > img.naturalHeight) {
+          // Horizontal: auto-crop to 1:1
+          try {
+            const blob = await autoCropToSquare(src);
+            handleCropComplete(blob);
+            toast.success("Logótipo otimizado automaticamente para 1:1");
+          } catch {
+            setCropSource(src);
+            setShowCropper(true);
+          }
+        } else {
+          // Square or vertical: open cropper
+          setCropSource(src);
+          setShowCropper(true);
+        }
+      };
+      img.src = src;
     };
     reader.readAsDataURL(file);
   };
