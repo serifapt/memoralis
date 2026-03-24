@@ -264,7 +264,7 @@ export default function ObituaryDetail() {
                     </div>
 
                     <div className="flex gap-3">
-                      {!obituary.hide_condolences && <Button variant="outline">Condolências</Button>}
+                      {!obituary.hide_condolences && <Button variant="outline" onClick={() => document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' })}>Condolências</Button>}
                       <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
                         Enviar Flores
                       </Button>
