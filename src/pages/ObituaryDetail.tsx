@@ -68,9 +68,19 @@ export default function ObituaryDetail() {
   const [funeraria, setFuneraria] = useState<Funeraria | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<RelatedObituary[]>([]);
 
+  const location = useLocation();
+
   useEffect(() => {
     if (id) loadObituaryData(id);
   }, [id]);
+
+  useEffect(() => {
+    if (!loading && obituary && location.hash === '#condolencias') {
+      setTimeout(() => {
+        document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [loading, obituary, location.hash]);
 
   const [notPublished, setNotPublished] = useState(false);
 
