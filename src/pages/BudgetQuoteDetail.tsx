@@ -199,6 +199,12 @@ export default function BudgetQuoteDetail() {
 
         if (newQuoteId) {
           navigate(`/budgets/${newQuoteId}`, { replace: true });
+        } else {
+          toast({
+            title: "Erro ao criar orçamento",
+            description: "Não foi possível criar o orçamento. Verifique que a sua conta está associada a uma funerária.",
+            variant: "destructive",
+          });
         }
       } else if (quote) {
         await updateQuote(quote.id, {
@@ -213,6 +219,12 @@ export default function BudgetQuoteDetail() {
           setSections(data.sections);
         }
       }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao guardar",
+        description: error.message || "Erro inesperado",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
