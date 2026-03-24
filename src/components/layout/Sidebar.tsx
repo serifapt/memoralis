@@ -156,16 +156,18 @@ export const Sidebar = () => {
             <TooltipContent side="right">Expandir</TooltipContent>
           </Tooltip>
         ) : (
-          <button onClick={toggleCollapsed} className={cn(
-            "flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-colors",
-            "hover:bg-primary hover:text-primary-foreground text-foreground"
-          )}>
+          <button onClick={toggleCollapsed} className={EXPANDED_BTN}>
             <PanelLeftClose className="w-5 h-5 shrink-0" />
             <span className="text-sm font-medium">Recolher</span>
           </button>
         )}
+      </nav>
 
-        {/* Sair */}
+      {/* Footer - Sair */}
+      <div className={cn(
+        "border-t border-border py-2",
+        collapsed ? "flex flex-col items-center" : "px-2"
+      )}>
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -176,15 +178,12 @@ export const Sidebar = () => {
             <TooltipContent side="right">Sair</TooltipContent>
           </Tooltip>
         ) : (
-          <button onClick={handleLogout} className={cn(
-            "flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-colors",
-            "hover:bg-primary hover:text-primary-foreground text-foreground"
-          )}>
+          <button onClick={handleLogout} className={EXPANDED_BTN}>
             <LogOut className="w-5 h-5 shrink-0" />
             <span className="text-sm font-medium">Sair</span>
           </button>
         )}
-      </nav>
+      </div>
     </aside>
   );
 };
