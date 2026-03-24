@@ -1,19 +1,26 @@
 
 
-## Plano: Ocultar condolências apenas por obituário (via toggle existente)
+## Plano: Sidebar colapsável com modo ícones
 
-### Estado atual
-O campo `hide_condolences` já existe na BD e no formulário de edição do obituário. No `ObituaryDetail.tsx`, o botão e a secção de condolências já estão condicionados com `{!obituary.hide_condolences && ...}` (linhas 322 e 383).
+### Alterações
 
-A funcionalidade já está implementada correctamente — o toggle no editor do obituário controla a visibilidade por obituário individual.
+#### 1. `src/components/layout/Sidebar.tsx`
+- Adicionar state `collapsed` (boolean) com `useState`, persistido em `localStorage`
+- Botão de toggle (ícone `PanelLeftClose`/`PanelLeftOpen`) no fundo do header ou no topo
+- Quando colapsado:
+  - Largura muda de `w-64` para `w-16`
+  - Logo esconde, mostra apenas o ícone/avatar pequeno
+  - Texto dos links (`span`) esconde, ficam só os ícones centrados
+  - Subtítulo "Gestão Funerária" esconde
+  - Botão "Sair" mostra apenas o ícone
+  - Tooltips nos ícones com o nome do item (usando `Tooltip` do shadcn)
+- Transição suave com `transition-all duration-300`
 
-### Alteração necessária
+#### 2. `src/components/layout/AppLayout.tsx`
+- Nenhuma alteração necessária — o `flex-1` no main já se adapta automaticamente à largura da sidebar
 
-#### `src/components/obituaries/PublicObituaryCard.tsx`
-- O botão "Condolências" nos cards públicos não tem acesso ao campo `hide_condolences`, por isso aparece sempre
-- Duas opções:
-  1. **Remover o botão dos cards** (recomendado) — nos cards da listagem, o botão "Condolências" faz pouco sentido porque redireciona para a página de detalhe; o utilizador pode aceder às condolências a partir daí
-  2. Adicionar `hide_condolences` à interface `PublicObituary` e à query que alimenta os cards, e condicionar o botão
-
-**Recomendação**: Remover o botão "Condolências" dos cards públicos e manter apenas o botão na página de detalhe (onde já respeita o toggle). Substituir por um botão "Ver mais" ou simplesmente deixar só o botão "Enviar Flores".
+### Detalhes técnicos
+- Persistência do estado em `localStorage` para manter a preferência entre sessões
+- Tooltips via `<Tooltip>` do shadcn para mostrar o nome ao passar o rato nos ícones quando colapsado
+- O botão de toggle fica na parte inferior do header (junto ao logo) ou como último item antes do footer
 
