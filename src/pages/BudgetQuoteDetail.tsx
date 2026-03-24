@@ -171,7 +171,8 @@ export default function BudgetQuoteDetail() {
     };
 
     loadData();
-  }, [id, isNew, obituaryId, getQuoteById]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, isNew, obituaryId]);
 
   const handleClientChange = (clientId: string, client: Client) => {
     setSelectedClientId(clientId);
