@@ -1,14 +1,23 @@
 
 
-## Plano: Fixar proporção 1:1 no LogoCropper
+## Plano: Auto-otimizar logos horizontais para 1:1
 
-### Contexto
-O logo é usado principalmente em avatares e cards (onde 1:1 é ideal). Nos cabeçalhos PDF e página pública, o logo é renderizado com `object-contain`, pelo que 1:1 funciona bem em todos os contextos.
+### Ideia
+Quando o utilizador faz upload de uma imagem horizontal (largura > altura), em vez de abrir o cropper manualmente, a imagem é automaticamente recortada para 1:1 (centrada) e aplicada diretamente. O cropper só abre se a imagem já for quadrada ou vertical (onde o utilizador pode querer ajustar manualmente o enquadramento).
 
-### Alterações em `src/components/settings/LogoCropper.tsx`
+### Alterações
 
-1. **Remover os botões de seleção de proporção** — eliminar `ASPECT_OPTIONS`, o state `selectedAspect`, e a função `handleAspectChange`
-2. **Fixar `aspect={1}` no `ReactCrop`** — sempre quadrado
-3. **Inicializar o crop centrado** com proporção 1:1 ao abrir o dialog (usar `onImageLoad` para calcular o crop inicial centrado)
-4. **Simplificar o UI** — remover a barra de botões de proporção, manter apenas a área de recorte e os botões Cancelar/Confirmar
+#### 1. `src/pages/Settings.tsx` — `handleLogoFileChange`
+- Após carregar a imagem no `FileReader`, criar um `Image()` para obter `naturalWidth` e `naturalHeight`
+- Se `naturalWidth > naturalHeight` (horizontal): recortar automaticamente via Canvas para 1:1 (centrado na imagem), gerar o blob e aplicar directamente sem abrir o cropper
+- Caso contrário: abrir o cropper como actualmente
+
+#### 2. Nova função utilitária `autoCropToSquare` (inline em Settings.tsx ou num util)
+- Recebe o `src` da imagem (data URL)
+- Carrega num `Image`, calcula o offset para centrar um quadrado de lado `Math.min(w, h)`
+- Desenha no Canvas e retorna um `Blob` via `canvas.toBlob()`
+- Chama `handleCropComplete` com o resultado
+
+### Resultado
+Logos horizontais são automaticamente convertidos para 1:1 sem interação extra. O utilizador pode sempre re-recortar manualmente clicando "Recortar".
 
