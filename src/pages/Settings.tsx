@@ -5,11 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Building2, Users, Bell, Flower, Loader2, Upload, X } from "lucide-react";
+import { Building2, Users, Bell, Flower, Loader2, Upload, X, Crop, Image } from "lucide-react";
 import { useFlowerService } from "@/hooks/useFlowerService";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicPageTab } from "@/components/settings/PublicPageTab";
+import { LogoCropper } from "@/components/settings/LogoCropper";
 
 interface CompanyData {
   nome_comercial: string;
