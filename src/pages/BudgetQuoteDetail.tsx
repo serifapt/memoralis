@@ -382,6 +382,25 @@ export default function BudgetQuoteDetail() {
               </Button>
             </>
           )}
+          {/* Convert to obituary or link to existing */}
+          {!isNew && quote?.status === "ACCEPTED" && !quote?.obituary_id && (
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/obituaries/new?fromQuoteId=${quote.id}`)}
+            >
+              <FileCheck className="w-4 h-4 mr-2" />
+              Criar Processo de Óbito
+            </Button>
+          )}
+          {!isNew && quote?.obituary_id && (
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/obituaries/${quote.obituary_id}/edit`)}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Ver Processo de Óbito
+            </Button>
+          )}
           <Button onClick={handleSave} disabled={saving || isArchived}>
             <Save className="w-4 h-4 mr-2" />
             {saving ? "A guardar..." : "Guardar"}
