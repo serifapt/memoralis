@@ -61,7 +61,7 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
     try {
       const { data: f } = await supabase
         .from("funerarias")
-        .select("pagina_publica_visivel, slug, descricao, cover_image_url, telefone_secundario, website, localidade, codigo_postal, facebook_url, instagram_url, linkedin_url, horario, servicos")
+        .select("pagina_publica_visivel, slug, descricao, cover_image_url, telefone_secundario, website, facebook_url, instagram_url, linkedin_url, horario, servicos")
         .eq("id", funerariaId!)
         .single();
 
