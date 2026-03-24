@@ -346,42 +346,58 @@ export default function ObituaryDetail() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {funeraria && (
-              <Card className="sticky top-24">
-                <CardContent className="p-8">
-                  <div className="flex flex-col items-center text-center mb-8">
-                    {funeraria.logo_url ? (
-                      <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="w-20 h-20 object-contain rounded mb-4" />
-                    ) : (
-                      <div className="w-20 h-20 bg-foreground rounded mb-4 flex items-center justify-center">
-                        <span className="text-background font-bold text-xl">
-                          {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
-                        </span>
+            {funeraria && (() => {
+              const fullAddress = [funeraria.morada, funeraria.codigo_postal, funeraria.localidade].filter(Boolean).join(", ");
+              const mapsUrl = fullAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}` : null;
+              const profileUrl = funeraria.slug ? `/funerarias/${funeraria.slug}` : null;
+
+              return (
+                <Card className="sticky top-24">
+                  <CardContent className="p-8">
+                    <div className="flex flex-col items-center text-center mb-6">
+                      {funeraria.logo_url ? (
+                        <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="w-32 h-32 object-contain rounded mb-4" />
+                      ) : (
+                        <div className="w-32 h-32 bg-foreground rounded mb-4 flex items-center justify-center">
+                          <span className="text-background font-bold text-3xl">
+                            {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <h3 className="font-archivo font-bold text-foreground text-center mb-6 text-2xl">
+                      {profileUrl ? (
+                        <Link to={profileUrl} className="hover:text-primary transition-colors">{funeraria.nome_comercial}</Link>
+                      ) : funeraria.nome_comercial}
+                    </h3>
+
+                    <div className="space-y-4 text-center mb-6">
+                      <div>
+                        <p className="font-semibold text-foreground mb-2">Contactos</p>
+                        <a href={`tel:${funeraria.telefone}`} className="text-primary hover:underline text-sm block">{funeraria.telefone}</a>
+                        {funeraria.email && (
+                          <a href={`mailto:${funeraria.email}`} className="text-primary hover:underline text-sm block mt-1">{funeraria.email}</a>
+                        )}
+                      </div>
+                    </div>
+
+                    {fullAddress && (
+                      <div className="space-y-2 text-center mb-8">
+                        <p className="font-semibold text-foreground mb-2">Morada</p>
+                        {mapsUrl ? (
+                          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                            {fullAddress}
+                          </a>
+                        ) : (
+                          <p className="text-foreground text-sm">{fullAddress}</p>
+                        )}
                       </div>
                     )}
-                  </div>
-
-                  <h3 className="font-archivo font-bold text-foreground text-center mb-6 text-2xl">
-                    {funeraria.nome_comercial}
-                  </h3>
-
-                  <div className="space-y-4 text-center mb-6">
-                    <div>
-                      <p className="font-semibold text-foreground mb-2">Contactos</p>
-                      <p className="text-foreground text-sm">{funeraria.telefone}</p>
-                      {funeraria.email && <p className="text-foreground text-sm mt-1">{funeraria.email}</p>}
-                    </div>
-                  </div>
-
-                  {funeraria.morada && (
-                    <div className="space-y-2 text-center mb-8">
-                      <p className="font-semibold text-foreground mb-2">Morada</p>
-                      <p className="text-foreground text-sm">{funeraria.morada}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                  </CardContent>
+                </Card>
+              );
+            })()}
           </div>
         </div>
 
