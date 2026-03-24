@@ -85,9 +85,11 @@ export const Sidebar = () => {
         end={item.href === "/dashboard"}
         className={({ isActive }) =>
           cn(
-            "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+            "flex items-center rounded-lg transition-colors",
             "hover:bg-[hsl(var(--sidebar-hover))]",
-            collapsed && "justify-center px-2",
+            collapsed
+              ? "justify-center w-10 h-10 mx-auto p-0"
+              : "gap-3 px-4 py-3",
             isActive
               ? "bg-primary text-primary-foreground"
               : "text-foreground"
@@ -117,7 +119,10 @@ export const Sidebar = () => {
       collapsed ? "w-16" : "w-64"
     )}>
       {/* Logo */}
-      <div className="p-4 border-b border-border flex items-center justify-between">
+      <div className={cn(
+        "p-4 border-b border-border flex items-center",
+        collapsed ? "justify-center" : "justify-between"
+      )}>
         {!collapsed && (
           <div>
             <img src={logo} alt="Memoralis" className="h-10 mb-1" />
@@ -126,7 +131,10 @@ export const Sidebar = () => {
         )}
         <button
           onClick={toggleCollapsed}
-          className="p-2 rounded-lg hover:bg-[hsl(var(--sidebar-hover))] text-muted-foreground transition-colors"
+          className={cn(
+            "rounded-lg hover:bg-[hsl(var(--sidebar-hover))] text-muted-foreground transition-colors",
+            collapsed ? "w-10 h-10 flex items-center justify-center" : "p-2"
+          )}
         >
           {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
         </button>
@@ -146,7 +154,7 @@ export const Sidebar = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-full p-3 rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
+                className="flex items-center justify-center w-10 h-10 mx-auto rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
               >
                 <LogOut className="w-5 h-5" />
               </button>
