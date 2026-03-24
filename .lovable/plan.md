@@ -1,40 +1,39 @@
 
 
-## Plano: Converter orçamento aceite em processo de óbito
+## Plano: Corrigir botões "Guardar" e "Adicionar Secção" no orçamento
 
-### Contexto
-O orçamento já armazena dados do cliente (via `client_id`) e do falecido (`deceased_name`, `death_date`, `place_of_death`, `funeral_date`, `cemetery`). Quando o orçamento é aceite (ACCEPTED), o utilizador deve poder converter esses dados num novo processo de óbito com os campos pré-preenchidos.
+### Diagnóstico
 
-A tabela `budget_quotes` já tem `obituary_id` (FK para obituaries), que hoje é usado quando o orçamento nasce a partir de um óbito. Vamos reutilizar esse campo na direcção inversa: quando se cria um óbito a partir de um orçamento aceite, guardamos a referência.
+Analisei o código de `BudgetQuoteDetail.tsx` e `useBudgetQuotes.ts` e identifiquei dois problemas:
 
-### Alterações
+1. **Botão "Adicionar Secção"** — só aparece quando `!isNew` (linha 604). Na página `/budgets/new`, o botão é invisível por design. Depois de guardar, o `navigate` muda a rota, mas o botão pode não aparecer se o estado não recarregar correctamente.
 
-#### 1. Botão "Converter em Processo" no `BudgetQuoteDetail.tsx`
-- Quando `status === "ACCEPTED"` e **não existe** `obituary_id`, mostrar um botão "Criar Processo de Óbito"
-- Ao clicar, navegar para `/obituaries/new` passando os dados do orçamento via query params ou state:
-  - `fromQuoteId` — ID do orçamento
-  - Os dados são carregados na página de destino a partir do orçamento
+2. **Botão "Guardar"** — chama `handleSave` que internamente chama `createQuote`. Esta função chama `fetchFunerariaId()` que pode retornar `null` silenciosamente se o utilizador não tiver uma funerária associada, e o erro é engolido sem feedback claro. Além disso, o `useEffect` que carrega os dados depende de `getQuoteById` (um `useCallback`), o que pode causar re-execuções desnecessárias e estados instáveis.
 
-#### 2. Pré-preenchimento no `NewObituary.tsx`
-- Detectar `fromQuoteId` nos search params
-- Carregar o orçamento e o cliente associado
-- Pré-preencher:
-  - **Falecido**: `display_name`, `death_date`, `death_location` (do orçamento)
-  - **Cliente/Família**: `familyName`, `familyPhone`, `familyNif`, `familyEmail`, `familyRelationship`, `familyAddress`, `familyLocality`, `familyPostalCode` (do cliente associado)
-  - **Cerimónia**: activar toggle de funeral e preencher `funeralDate` e `funeralCemetery` (se existirem no orçamento)
+### Alterações em `src/pages/BudgetQuoteDetail.tsx`
 
-#### 3. Vincular orçamento ao óbito após criação
-- Após gravar o novo óbito (no `handleSubmit` do `NewObituary.tsx`), se `fromQuoteId` estiver presente:
-  - Fazer `UPDATE budget_quotes SET obituary_id = <novo_obituary_id> WHERE id = <fromQuoteId>`
-  - Assim o orçamento fica ligado ao processo
+#### 1. Adicionar logs de diagnóstico temporários no `handleSave`
+Para confirmar a causa exacta, adicionar `console.log` em pontos chave do fluxo de save.
 
-#### 4. Indicação visual no orçamento
-- Quando o orçamento já tem `obituary_id`, mostrar um link "Ver Processo de Óbito" em vez do botão de criar
+#### 2. Melhorar tratamento de erros no `handleSave`
+- Verificar se `createQuote` retorna `null` e mostrar toast de erro explícito
+- Adicionar `try/catch` mais robusto com feedback ao utilizador
+
+#### 3. Estabilizar dependências do `useEffect`
+- Remover `getQuoteById` das dependências do `useEffect` de carregamento
+- Usar uma ref ou chamar directamente dentro do efeito para evitar re-execuções
+
+### Alterações em `src/hooks/useBudgetQuotes.ts`
+
+#### 4. Melhorar `createQuote` com feedback de erros
+- Se `fetchFunerariaId` retorna `null`, mostrar toast com mensagem clara ("Funerária não encontrada — verifique que a sua conta está associada")
+- Garantir que erros do RPC `get_next_quote_number` são reportados
+
+### Resultado esperado
+- O botão "Guardar" cria o orçamento e navega para a página de edição onde "Adicionar Secção" aparece
+- Se algo falhar, o utilizador vê uma mensagem de erro clara
 
 ### Ficheiros a alterar
-- `src/pages/BudgetQuoteDetail.tsx` — botão de conversão + link para óbito existente
-- `src/pages/NewObituary.tsx` — lógica de pré-preenchimento a partir de orçamento
-
-### Sem alterações de backend
-A tabela `budget_quotes` já tem a coluna `obituary_id`. Não são necessárias migrações.
+- `src/pages/BudgetQuoteDetail.tsx`
+- `src/hooks/useBudgetQuotes.ts`
 
