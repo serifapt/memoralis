@@ -77,7 +77,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               variant="outline"
               size="sm"
               className="hover:bg-primary hover:text-primary-foreground transition-colors"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/obituario/${obit.id}#condolencias`); }}
             >
               Condolências
             </Button>
