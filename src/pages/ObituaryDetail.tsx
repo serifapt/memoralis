@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame } from "lucide-react";
+import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame, Phone } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
@@ -356,10 +356,10 @@ export default function ObituaryDetail() {
                   <CardContent className="p-8">
                     <div className="flex flex-col items-center text-center mb-6">
                       {funeraria.logo_url ? (
-                        <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="w-32 h-32 object-contain rounded mb-4" />
+                        <img src={funeraria.logo_url} alt={funeraria.nome_comercial} className="w-48 h-48 object-contain rounded mb-4" />
                       ) : (
-                        <div className="w-32 h-32 bg-foreground rounded mb-4 flex items-center justify-center">
-                          <span className="text-background font-bold text-3xl">
+                        <div className="w-48 h-48 bg-foreground rounded mb-4 flex items-center justify-center">
+                          <span className="text-background font-bold text-4xl">
                             {funeraria.nome_comercial.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
                           </span>
                         </div>
@@ -372,25 +372,33 @@ export default function ObituaryDetail() {
                       ) : funeraria.nome_comercial}
                     </h3>
 
-                    <div className="space-y-4 text-center mb-6">
-                      <div>
-                        <p className="font-semibold text-foreground mb-2">Contactos</p>
-                        <a href={`tel:${funeraria.telefone}`} className="text-primary hover:underline text-sm block">{funeraria.telefone}</a>
-                        {funeraria.email && (
-                          <a href={`mailto:${funeraria.email}`} className="text-primary hover:underline text-sm block mt-1">{funeraria.email}</a>
-                        )}
-                      </div>
+                    <div className="space-y-3 mb-6">
+                      <p className="font-semibold text-foreground text-center mb-2">Contactos</p>
+                      <a href={`tel:${funeraria.telefone}`} className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2 justify-center">
+                        <Phone className="w-4 h-4" />
+                        {funeraria.telefone}
+                      </a>
+                      {funeraria.email && (
+                        <a href={`mailto:${funeraria.email}`} className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2 justify-center">
+                          <Mail className="w-4 h-4" />
+                          {funeraria.email}
+                        </a>
+                      )}
                     </div>
 
                     {fullAddress && (
                       <div className="space-y-2 text-center mb-8">
                         <p className="font-semibold text-foreground mb-2">Morada</p>
                         {mapsUrl ? (
-                          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2 justify-center">
+                            <MapPin className="w-4 h-4 shrink-0" />
                             {fullAddress}
                           </a>
                         ) : (
-                          <p className="text-foreground text-sm">{fullAddress}</p>
+                          <p className="text-muted-foreground text-sm flex items-center gap-2 justify-center">
+                            <MapPin className="w-4 h-4 shrink-0" />
+                            {fullAddress}
+                          </p>
                         )}
                       </div>
                     )}
