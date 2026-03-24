@@ -1,26 +1,18 @@
 
 
-## Plano: Sidebar colapsável com modo ícones
+## Plano: Melhorar alinhamento e hover dos ícones na sidebar colapsada
 
-### Alterações
+### Problema
+Na screenshot, os ícones quando a sidebar está colapsada não estão bem centrados e o hover não tem o mesmo comportamento visual dos botões expandidos.
 
-#### 1. `src/components/layout/Sidebar.tsx`
-- Adicionar state `collapsed` (boolean) com `useState`, persistido em `localStorage`
-- Botão de toggle (ícone `PanelLeftClose`/`PanelLeftOpen`) no fundo do header ou no topo
-- Quando colapsado:
-  - Largura muda de `w-64` para `w-16`
-  - Logo esconde, mostra apenas o ícone/avatar pequeno
-  - Texto dos links (`span`) esconde, ficam só os ícones centrados
-  - Subtítulo "Gestão Funerária" esconde
-  - Botão "Sair" mostra apenas o ícone
-  - Tooltips nos ícones com o nome do item (usando `Tooltip` do shadcn)
-- Transição suave com `transition-all duration-300`
+### Alterações em `src/components/layout/Sidebar.tsx`
 
-#### 2. `src/components/layout/AppLayout.tsx`
-- Nenhuma alteração necessária — o `flex-1` no main já se adapta automaticamente à largura da sidebar
+1. **Centrar ícones no modo colapsado**: No header, centrar o botão de toggle quando colapsado. Ajustar padding do container do logo para centrar.
 
-### Detalhes técnicos
-- Persistência do estado em `localStorage` para manter a preferência entre sessões
-- Tooltips via `<Tooltip>` do shadcn para mostrar o nome ao passar o rato nos ícones quando colapsado
-- O botão de toggle fica na parte inferior do header (junto ao logo) ou como último item antes do footer
+2. **Uniformizar hover**: Os nav items colapsados já têm `hover:bg-[hsl(var(--sidebar-hover))]`, mas o padding (`px-2`) e a falta de tamanho fixo fazem com que a área de hover seja inconsistente. Adicionar tamanho fixo (`w-12 h-12` ou `p-3`) quando colapsado para criar áreas de hover quadradas e uniformes, centradas na sidebar.
+
+3. **Ajustes específicos**:
+   - Nav items colapsados: `justify-center px-0 py-0 w-12 h-12 mx-auto` para área de clique quadrada e centrada
+   - Botão de logout colapsado: mesmo tratamento
+   - Header colapsado: centrar o botão de toggle com `justify-center`
 
