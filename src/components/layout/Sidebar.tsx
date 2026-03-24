@@ -112,6 +112,8 @@ export const Sidebar = () => {
     return link;
   };
 
+  const collapsedBtn = "w-10 h-10 flex items-center justify-center rounded-lg p-0 transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
+
   return (
     <aside className={cn(
       "border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col transition-all duration-300",
@@ -119,8 +121,8 @@ export const Sidebar = () => {
     )}>
       {/* Logo */}
       <div className={cn(
-        "border-b border-border flex items-center",
-        collapsed ? "p-2 justify-center" : "p-4 justify-between"
+        "border-b border-border",
+        collapsed ? "flex flex-col items-center py-3" : "p-4 flex items-center justify-between"
       )}>
         {!collapsed && (
           <div>
@@ -128,33 +130,44 @@ export const Sidebar = () => {
             <p className="text-xs text-muted-foreground">Gestão Funerária</p>
           </div>
         )}
-        <button
-          onClick={toggleCollapsed}
-          className={cn(
-            "rounded-lg text-muted-foreground transition-colors",
-            collapsed ? "w-10 h-10 flex items-center justify-center mx-auto hover:bg-primary hover:text-primary-foreground" : "p-2 hover:bg-[hsl(var(--sidebar-hover))]"
-          )}
-        >
-          {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-        </button>
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button onClick={toggleCollapsed} className={collapsedBtn}>
+                <PanelLeftOpen className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Expandir</TooltipContent>
+          </Tooltip>
+        ) : (
+          <button
+            onClick={toggleCollapsed}
+            className="p-2 rounded-lg text-muted-foreground hover:bg-[hsl(var(--sidebar-hover))] transition-colors"
+          >
+            <PanelLeftClose className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+      <nav className={cn(
+        "flex-1 overflow-y-auto py-2",
+        collapsed ? "flex flex-col items-center gap-1" : "px-2 space-y-1"
+      )}>
         {navItems.map((item) => (
           <NavItem key={item.name} item={item} />
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="p-2 border-t border-border">
+      <div className={cn(
+        "border-t border-border py-2",
+        collapsed ? "flex flex-col items-center" : "px-2"
+      )}>
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <button
-                onClick={handleLogout}
-                className="flex items-center justify-center w-10 h-10 mx-auto rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors text-foreground"
-              >
+              <button onClick={handleLogout} className={collapsedBtn}>
                 <LogOut className="w-5 h-5" />
               </button>
             </TooltipTrigger>
