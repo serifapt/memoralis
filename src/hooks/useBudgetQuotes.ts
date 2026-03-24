@@ -229,7 +229,14 @@ export function useBudgetQuotes() {
   const createQuote = async (data: BudgetQuoteFormData, applyDefaultTemplate = true): Promise<string | null> => {
     try {
       const funId = funerariaId || await fetchFunerariaId();
-      if (!funId) throw new Error("Funerária não encontrada");
+      if (!funId) {
+        toast({
+          title: "Funerária não encontrada",
+          description: "A sua conta não está associada a nenhuma funerária. Verifique o seu registo.",
+          variant: "destructive",
+        });
+        return null;
+      }
 
       // Get next quote number
       const { data: nextNumber, error: numError } = await supabase
