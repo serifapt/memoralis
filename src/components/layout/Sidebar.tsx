@@ -126,7 +126,7 @@ export const Sidebar = () => {
         collapsed ? "justify-center py-3" : "justify-between p-4"
       )}>
         {collapsed ? (
-          <img src={logo} alt="Memoralis" className="w-8 h-8 object-contain" />
+          <img src={iconLogo} alt="Memoralis" className="w-6 h-8 object-contain" />
         ) : (
           <div>
             <img src={logo} alt="Memoralis" className="h-10 mb-1" />
