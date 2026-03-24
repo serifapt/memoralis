@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
+import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import {
   Dialog,
@@ -9,8 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Crop as CropIcon, Square, RectangleHorizontal, Monitor } from "lucide-react";
+import { Crop as CropIcon } from "lucide-react";
 
 interface LogoCropperProps {
   open: boolean;
@@ -18,13 +17,6 @@ interface LogoCropperProps {
   onClose: () => void;
   onCropComplete: (croppedBlob: Blob) => void;
 }
-
-const ASPECT_OPTIONS = [
-  { label: "Livre", value: undefined, icon: CropIcon, hint: "Recorte personalizado" },
-  { label: "1:1", value: 1, icon: Square, hint: "Cards e avatares" },
-  { label: "3:1", value: 3, icon: RectangleHorizontal, hint: "Cabeçalho PDF e navegação" },
-  { label: "16:9", value: 16 / 9, icon: Monitor, hint: "Página pública e capas" },
-];
 
 function getCroppedCanvas(image: HTMLImageElement, crop: PixelCrop): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
@@ -47,33 +39,23 @@ function getCroppedCanvas(image: HTMLImageElement, crop: PixelCrop): HTMLCanvasE
   return canvas;
 }
 
+function centerAspectCrop(mediaWidth: number, mediaHeight: number) {
+  return centerCrop(
+    makeAspectCrop({ unit: "%", width: 90 }, 1, mediaWidth, mediaHeight),
+    mediaWidth,
+    mediaHeight
+  );
+}
+
 export function LogoCropper({ open, imageSrc, onClose, onCropComplete }: LogoCropperProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [selectedAspect, setSelectedAspect] = useState<number | undefined>(undefined);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const handleAspectChange = (aspect: number | undefined) => {
-    setSelectedAspect(aspect);
-    if (aspect && imgRef.current) {
-      const { width, height } = imgRef.current;
-      const newCrop: Crop = { unit: "%", x: 0, y: 0, width: 100, height: 100 };
-      // Calculate centered crop with the given aspect
-      const imgAspect = width / height;
-      if (imgAspect > aspect) {
-        const cropWidth = (aspect / imgAspect) * 100;
-        newCrop.width = cropWidth;
-        newCrop.x = (100 - cropWidth) / 2;
-      } else {
-        const cropHeight = (imgAspect / aspect) * 100;
-        newCrop.height = cropHeight;
-        newCrop.y = (100 - cropHeight) / 2;
-      }
-      setCrop(newCrop);
-    } else {
-      setCrop(undefined);
-    }
-  };
+  const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    setCrop(centerAspectCrop(width, height));
+  }, []);
 
   const handleConfirm = useCallback(() => {
     if (!imgRef.current || !completedCrop) return;
@@ -91,46 +73,22 @@ export function LogoCropper({ open, imageSrc, onClose, onCropComplete }: LogoCro
             <CropIcon className="w-5 h-5 text-primary" />
             Recortar Logótipo
           </DialogTitle>
+          <p className="text-sm text-muted-foreground">Proporção fixa 1:1 — ideal para avatares, cards e cabeçalhos.</p>
         </DialogHeader>
 
-        {/* Aspect ratio buttons */}
-        <div className="flex flex-wrap gap-2">
-          {ASPECT_OPTIONS.map((opt) => {
-            const Icon = opt.icon;
-            const isActive = selectedAspect === opt.value;
-            return (
-              <button
-                key={opt.label}
-                onClick={() => handleAspectChange(opt.value)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
-                  isActive
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-background text-muted-foreground hover:border-primary/50"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="font-medium">{opt.label}</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                  {opt.hint}
-                </Badge>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Crop area */}
         <div className="flex justify-center bg-muted/30 rounded-lg p-4 max-h-[400px] overflow-auto">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
             onComplete={(c) => setCompletedCrop(c)}
-            aspect={selectedAspect}
+            aspect={1}
           >
             <img
               ref={imgRef}
               src={imageSrc}
               alt="Recortar logótipo"
               className="max-h-[360px] w-auto"
+              onLoad={onImageLoad}
             />
           </ReactCrop>
         </div>
