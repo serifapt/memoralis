@@ -46,11 +46,10 @@ const flowerNavigation = [
 
 const bottomNavigation = [
   { name: "Chat de Suporte", href: "/support", icon: MessageSquare },
-  { name: "Configurações", href: "/settings", icon: Settings },
 ];
 
-// Single source of truth for ALL collapsed buttons (toggle, nav items, logout)
 const COLLAPSED_BTN = "w-10 h-10 flex items-center justify-center rounded-lg p-0 transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
+const EXPANDED_BTN = "flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
 
 export const Sidebar = () => {
   const navigate = useNavigate();
@@ -91,7 +90,7 @@ export const Sidebar = () => {
             ? cn(COLLAPSED_BTN, isActive && "bg-primary text-primary-foreground")
             : cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                "hover:bg-[hsl(var(--sidebar-hover))]",
+                "hover:bg-primary hover:text-primary-foreground",
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground"
@@ -122,33 +121,16 @@ export const Sidebar = () => {
     )}>
       {/* Header */}
       <div className={cn(
-        "border-b border-border flex",
-        collapsed
-          ? "flex-col items-center py-3"
-          : "items-center justify-between p-4"
+        "border-b border-border flex items-center",
+        collapsed ? "justify-center py-3" : "justify-between p-4"
       )}>
-        {!collapsed && (
+        {collapsed ? (
+          <img src={logo} alt="Memoralis" className="w-8 h-8 object-contain" />
+        ) : (
           <div>
             <img src={logo} alt="Memoralis" className="h-10 mb-1" />
             <p className="text-xs text-muted-foreground">Gestão Funerária</p>
           </div>
-        )}
-        {collapsed ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button onClick={toggleCollapsed} className={COLLAPSED_BTN}>
-                <PanelLeftOpen className="w-5 h-5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Expandir</TooltipContent>
-          </Tooltip>
-        ) : (
-          <button
-            onClick={toggleCollapsed}
-            className="p-2 rounded-lg text-muted-foreground hover:bg-[hsl(var(--sidebar-hover))] transition-colors"
-          >
-            <PanelLeftClose className="w-5 h-5" />
-          </button>
         )}
       </div>
 
@@ -165,8 +147,29 @@ export const Sidebar = () => {
       {/* Footer */}
       <div className={cn(
         "border-t border-border py-2",
-        collapsed ? "flex flex-col items-center" : "px-2"
+        collapsed ? "flex flex-col items-center gap-1" : "px-2 space-y-1"
       )}>
+        {/* Configurações */}
+        <NavItem item={{ name: "Configurações", href: "/settings", icon: Settings }} />
+
+        {/* Toggle */}
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button onClick={toggleCollapsed} className={COLLAPSED_BTN}>
+                <PanelLeftOpen className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Expandir</TooltipContent>
+          </Tooltip>
+        ) : (
+          <button onClick={toggleCollapsed} className={EXPANDED_BTN}>
+            <PanelLeftClose className="w-5 h-5" />
+            <span className="text-sm font-medium">Recolher</span>
+          </button>
+        )}
+
+        {/* Sair */}
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -177,10 +180,7 @@ export const Sidebar = () => {
             <TooltipContent side="right">Sair</TooltipContent>
           </Tooltip>
         ) : (
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-[hsl(var(--sidebar-hover))] transition-colors text-foreground"
-          >
+          <button onClick={handleLogout} className={EXPANDED_BTN}>
             <LogOut className="w-5 h-5" />
             <span className="text-sm font-medium">Sair</span>
           </button>
