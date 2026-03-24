@@ -1,63 +1,54 @@
 
-Plano: confirmar e corrigir o fluxo completo de orçamentos
+Problema identificado
+- O bloqueio principal não está nos triggers nem no backend.
+- Em `src/pages/BudgetQuoteDetail.tsx`, `const isNew = id === "new"` está errado para a rota atual.
+- Em `/budgets/new`, `useParams()` não devolve `id`, por isso `id` é `undefined` e `isNew` fica `false`.
+- Resultado:
+  - a página entra em modo “editar”
+  - `handleSave` não chama `createQuote` porque `isNew` é `false` e `quote` é `null`
+  - `handleAddSection` faz `return` imediato porque `quote` é `null`
+  - os botões parecem clicáveis mas não executam nada
 
-Diagnóstico confirmado
-- O problema afecta tanto novo orçamento como orçamento existente.
-- No backend há 0 registos em `budget_quotes` e `budget_quote_sections`, por isso o fluxo de criação não está a persistir nada.
-- As políticas de acesso dos orçamentos existem, portanto o problema não parece ser falta de RLS aberta, mas sim falha no fluxo de gravação/estado.
-- As funções de recálculo existem, mas os triggers do orçamento não estão activos na base de dados. Isso deixa os totais e subtotais inconsistentes.
-- Em `BudgetQuoteDetail.tsx` há handlers que ficam silenciosamente sem efeito quando `quote` não está carregado, e outros que actualizam o estado local sem confirmar sucesso no backend.
+Plano de correção
 
-O que vou corrigir
+1. Corrigir a deteção “novo vs existente”
+- Em `BudgetQuoteDetail.tsx`, substituir a lógica atual por uma deteção robusta:
+  - `isNew = !id`, ou preferencialmente o mesmo padrão usado em `NewObituary.tsx`
+  - `isEditing = !!id && uuidRegex.test(id)`
+- Atualizar toda a página para usar esse estado correto:
+  - carregamento inicial
+  - título
+  - botão Guardar
+  - render das secções
+  - botão Adicionar Secção
 
-1. Tornar o editor robusto para novo e existente
-- Em `src/pages/BudgetQuoteDetail.tsx`, bloquear acções dependentes de `quote` até o orçamento estar realmente carregado/criado.
-- Mostrar estado de erro claro quando um orçamento existente não é encontrado ou não carrega.
-- Deixar de ter botões que parecem activos mas não fazem nada.
+2. Corrigir os handlers que hoje ficam em no-op
+- `handleSave`:
+  - se for novo, cria sempre o orçamento
+  - se for existente, atualiza
+  - se houver estado inválido, mostra toast claro em vez de não fazer nada
+- `handleAddSection`:
+  - continua escondido até existir um `quote.id`
+  - se for chamado sem orçamento carregado, mostra erro explícito
 
-2. Corrigir a gravação do orçamento
-- Em `src/hooks/useBudgetQuotes.ts`, reforçar o fluxo de `createQuote` e `updateQuote` com validação explícita de:
-  - sessão autenticada
-  - funerária associada ao utilizador
-  - cliente seleccionado
-  - resposta válida do backend
-- Se falhar, devolver erro utilizável pela UI, em vez de falhas silenciosas.
-- Em `BudgetQuoteDetail.tsx`, só navegar/recarregar quando a gravação for mesmo bem-sucedida.
+3. Alinhar com o padrão já usado no projeto
+- Replicar em `BudgetQuoteDetail.tsx` a abordagem de `NewObituary.tsx`, que já distingue corretamente criação vs edição.
+- Isto evita repetir o mesmo bug entre rotas `/budgets/new` e `/budgets/:id`.
 
-3. Corrigir secções e linhas
-- Fazer com que `addSection`, `updateSection`, `deleteSection`, `addLine`, `updateLine` e `deleteLine` só alterem o estado local se a operação no backend tiver sucesso.
-- Após operações estruturais, recarregar o orçamento do backend para manter UI, totais e PDF sincronizados.
-
-4. Corrigir leitura de orçamento existente
-- Trocar leituras críticas com risco de ausência de dados para `maybeSingle()` onde fizer sentido, em vez de `.single()`.
-- Em particular, `getQuoteById` deve tratar “não encontrado” de forma explícita e visível na UI.
-
-5. Reparar o backend do orçamento
-- Criar uma migração para repor os triggers que estão em falta nas tabelas de orçamento:
-  - cálculo automático de `line_total`
-  - recálculo de subtotal por secção
-  - recálculo de total do orçamento
-- Isto garante que lista, detalhe e PDF usam valores persistidos correctos.
-
-6. Confirmar o fluxo completo do módulo
-- Rever e validar todos os pontos do orçamento:
+4. Confirmar o fluxo completo após esta correção
+- Rever rapidamente:
   - criar orçamento novo
   - guardar
-  - abrir orçamento existente
-  - adicionar/editar/apagar secções
-  - adicionar/editar/apagar linhas
-  - recalcular totais
-  - duplicar
-  - alterar estado
-  - converter orçamento aceite em processo de óbito
-  - geração de PDF
+  - navegação automática para `/budgets/:id`
+  - mostrar “Adicionar Secção” só depois de existir orçamento
+  - editar orçamento existente
+  - adicionar secções e linhas
+- A migração de triggers continua útil para totais, mas não é a causa deste bloqueio dos botões.
 
-Ficheiros a alterar
+Ficheiro a alterar
 - `src/pages/BudgetQuoteDetail.tsx`
-- `src/hooks/useBudgetQuotes.ts`
-- `supabase/migrations/...` (nova migração para triggers do orçamento)
 
-Detalhes técnicos
-- Vou manter as políticas de acesso actuais e não abrir dados do orçamento.
-- O foco será eliminar no-ops, falhas silenciosas e inconsistências entre estado local e estado persistido.
-- Como hoje não há triggers activos, a confirmação “end-to-end” do orçamento exige corrigir frontend e backend em conjunto.
+Resultado esperado
+- Em `/budgets/new`, o botão “Guardar” passa a criar o orçamento.
+- Depois da criação, a página navega para o detalhe do orçamento.
+- Só nessa fase aparece “Adicionar Secção”, e os restantes botões passam a atuar sobre um orçamento real.
