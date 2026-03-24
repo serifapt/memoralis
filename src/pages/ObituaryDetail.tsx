@@ -374,11 +374,11 @@ export default function ObituaryDetail() {
 
                     <div className="space-y-3 mb-6">
                       <p className="font-semibold text-foreground text-center mb-2">Contactos</p>
-                      <a href={`tel:${funeraria.telefone}`} className="text-muted-foreground hover:text-primary transition-colors text-sm justify-center block">
+                      <a href={`tel:${funeraria.telefone}`} className="text-muted-foreground hover:text-primary transition-colors text-sm text-center block">
                         {funeraria.telefone}
                       </a>
                       {funeraria.email && (
-                        <a href={`mailto:${funeraria.email}`} className="text-muted-foreground hover:text-primary transition-colors text-sm justify-center block">
+                        <a href={`mailto:${funeraria.email}`} className="text-muted-foreground hover:text-primary transition-colors text-sm text-center block">
                           {funeraria.email}
                         </a>
                       )}
@@ -388,11 +388,11 @@ export default function ObituaryDetail() {
                       <div className="space-y-2 text-center mb-8">
                         <p className="font-semibold text-foreground mb-2">Morada</p>
                         {mapsUrl ? (
-                          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors text-sm justify-center block">
+                          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors text-sm text-center block">
                             {fullAddress}
                           </a>
                         ) : (
-                          <p className="text-muted-foreground text-sm justify-center">
+                          <p className="text-muted-foreground text-sm text-center">
                             {fullAddress}
                           </p>
                         )}
