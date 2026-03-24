@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Save,
   Printer,
-  FileText,
   Send,
   Archive,
   Plus,
@@ -30,7 +28,7 @@ import {
   BudgetQuoteStatus 
 } from "@/hooks/useBudgetQuotes";
 import { ClientSelector } from "@/components/clients/ClientSelector";
-import { useClients, Client } from "@/hooks/useClients";
+import { Client } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BudgetQuotePDF } from "@/components/budgets/BudgetQuotePDF";
@@ -91,6 +89,7 @@ export default function BudgetQuoteDetail() {
     footer_text: "Este orçamento é válido como contrato após assinatura.",
   });
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   // Fetch funeraria data for PDF
   useEffect(() => {
@@ -113,8 +112,8 @@ export default function BudgetQuoteDetail() {
   // Load quote data
   useEffect(() => {
     const loadData = async () => {
+      setLoadError(false);
       if (isNew) {
-        // If coming from an obituary, prefill data
         if (obituaryId) {
           const [{ data: obituary }, { data: funeralEvent }] = await Promise.all([
             supabase
@@ -165,6 +164,8 @@ export default function BudgetQuoteDetail() {
             vat_exempt_reason_text: data.quote.vat_exempt_reason_text || "",
             footer_text: data.quote.footer_text || "",
           });
+        } else {
+          setLoadError(true);
         }
       }
       setLoading(false);
@@ -174,7 +175,16 @@ export default function BudgetQuoteDetail() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isNew, obituaryId]);
 
-  const handleClientChange = (clientId: string, client: Client) => {
+  const reloadQuote = async () => {
+    if (!quote) return;
+    const data = await getQuoteById(quote.id);
+    if (data) {
+      setQuote(data.quote);
+      setSections(data.sections);
+    }
+  };
+
+  const handleClientChange = (clientId: string, _client: Client) => {
     setSelectedClientId(clientId);
   };
 
@@ -191,6 +201,7 @@ export default function BudgetQuoteDetail() {
     setSaving(true);
     try {
       if (isNew) {
+        console.log("[BudgetQuoteDetail] Creating new quote with client:", selectedClientId);
         const newQuoteId = await createQuote({
           client_id: selectedClientId,
           obituary_id: obituaryId || undefined,
@@ -198,28 +209,23 @@ export default function BudgetQuoteDetail() {
         });
 
         if (newQuoteId) {
+          console.log("[BudgetQuoteDetail] Quote created successfully:", newQuoteId);
           navigate(`/budgets/${newQuoteId}`, { replace: true });
         } else {
-          toast({
-            title: "Erro ao criar orçamento",
-            description: "Não foi possível criar o orçamento. Verifique que a sua conta está associada a uma funerária.",
-            variant: "destructive",
-          });
+          console.error("[BudgetQuoteDetail] createQuote returned null");
         }
       } else if (quote) {
-        await updateQuote(quote.id, {
+        const success = await updateQuote(quote.id, {
           client_id: selectedClientId,
           ...formData,
         });
         
-        // Reload data
-        const data = await getQuoteById(quote.id);
-        if (data) {
-          setQuote(data.quote);
-          setSections(data.sections);
+        if (success) {
+          await reloadQuote();
         }
       }
     } catch (error: any) {
+      console.error("[BudgetQuoteDetail] handleSave error:", error);
       toast({
         title: "Erro ao guardar",
         description: error.message || "Erro inesperado",
@@ -232,8 +238,10 @@ export default function BudgetQuoteDetail() {
 
   const handleStatusChange = async (newStatus: BudgetQuoteStatus) => {
     if (!quote) return;
-    await updateQuoteStatus(quote.id, newStatus);
-    setQuote(prev => prev ? { ...prev, status: newStatus } : null);
+    const success = await updateQuoteStatus(quote.id, newStatus);
+    if (success) {
+      setQuote(prev => prev ? { ...prev, status: newStatus } : null);
+    }
   };
 
   const handlePrint = () => {
@@ -258,13 +266,19 @@ export default function BudgetQuoteDetail() {
   };
 
   const handleUpdateSection = async (sectionId: string, title: string) => {
-    await updateSection(sectionId, title);
-    setSections(prev => prev.map(s => s.id === sectionId ? { ...s, title } : s));
+    const success = await updateSection(sectionId, title);
+    if (success) {
+      setSections(prev => prev.map(s => s.id === sectionId ? { ...s, title } : s));
+    }
   };
 
   const handleDeleteSection = async (sectionId: string) => {
-    await deleteSection(sectionId);
-    setSections(prev => prev.filter(s => s.id !== sectionId));
+    const success = await deleteSection(sectionId);
+    if (success) {
+      setSections(prev => prev.filter(s => s.id !== sectionId));
+      // Reload to get updated totals
+      await reloadQuote();
+    }
   };
 
   // Line handlers
@@ -280,9 +294,10 @@ export default function BudgetQuoteDetail() {
   };
 
   const handleUpdateLine = async (lineId: string, sectionId: string, updates: Partial<BudgetQuoteLine>) => {
-    await updateLine(lineId, updates);
+    const success = await updateLine(lineId, updates);
+    if (!success) return;
     
-    // Recalculate line total if needed
+    // Update local state optimistically
     setSections(prev => prev.map(s => {
       if (s.id !== sectionId) return s;
       
@@ -297,18 +312,18 @@ export default function BudgetQuoteDetail() {
       return { ...s, lines: updatedLines, subtotal };
     }));
 
-    // Update quote total
-    setTimeout(() => {
-      setSections(prev => {
-        const total = prev.reduce((sum, s) => sum + s.subtotal, 0);
-        setQuote(q => q ? { ...q, subtotal: total, total_quote: total } : null);
-        return prev;
-      });
-    }, 100);
+    // Update quote total from sections
+    setSections(prev => {
+      const total = prev.reduce((sum, s) => sum + s.subtotal, 0);
+      setQuote(q => q ? { ...q, subtotal: total, total_quote: total } : null);
+      return prev;
+    });
   };
 
   const handleDeleteLine = async (lineId: string, sectionId: string) => {
-    await deleteLine(lineId);
+    const success = await deleteLine(lineId);
+    if (!success) return;
+    
     setSections(prev => prev.map(s => 
       s.id === sectionId 
         ? { 
@@ -318,12 +333,34 @@ export default function BudgetQuoteDetail() {
           }
         : s
     ));
+
+    // Update quote total
+    setTimeout(() => {
+      setSections(prev => {
+        const total = prev.reduce((sum, s) => sum + s.subtotal, 0);
+        setQuote(q => q ? { ...q, subtotal: total, total_quote: total } : null);
+        return prev;
+      });
+    }, 50);
   };
 
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center">
         <div className="text-muted-foreground">A carregar...</div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center gap-4">
+        <div className="text-destructive font-semibold">Orçamento não encontrado</div>
+        <p className="text-muted-foreground">O orçamento solicitado não existe ou não tem permissão para o visualizar.</p>
+        <Button variant="outline" onClick={() => navigate("/budgets")}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Voltar aos Orçamentos
+        </Button>
       </div>
     );
   }
@@ -395,7 +432,6 @@ export default function BudgetQuoteDetail() {
               </Button>
             </>
           )}
-          {/* Convert to obituary or link to existing */}
           {!isNew && quote?.status === "ACCEPTED" && !quote?.obituary_id && (
             <Button
               variant="outline"
