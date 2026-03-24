@@ -1,11 +1,27 @@
 
 
-## Plano: Centrar texto dos contactos e morada
+## Plano: Corrigir nomes dos tipos de cerimónia
 
 ### Problema
-Os links usam `justify-center` (propriedade flexbox) com `display: block`, pelo que o texto não fica centrado. Falta `text-center`.
+Na linha 287 de `ObituaryDetail.tsx`, o `event.event_type` é exibido em bruto (ex: "velorio", "funeral") em vez dos nomes formatados ("Velório", "Funeral").
 
-### Alterações em `src/pages/ObituaryDetail.tsx`
+### Alteração em `src/pages/ObituaryDetail.tsx`
 
-- Linhas 377, 381, 391, 395: substituir `justify-center` por `text-center` nos links de telefone, email, morada e no parágrafo da morada
+Adicionar uma função de mapeamento e usá-la na linha 287:
+
+```typescript
+const getEventTypeLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    velorio: "Velório",
+    missa: "Missa",
+    cremacao: "Cremação",
+    sepultamento: "Sepultamento",
+    funeral: "Funeral",
+    outro: "Outro",
+  };
+  return labels[type] || type;
+};
+```
+
+Na linha 287, substituir `{event.event_type}` por `{getEventTypeLabel(event.event_type)}`.
 
