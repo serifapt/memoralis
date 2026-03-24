@@ -55,6 +55,7 @@ const EXPANDED_BTN = "flex items-center gap-3 px-4 py-3 w-full rounded-lg transi
 
 export const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isFlowerServiceActive } = useFlowerService();
   const [collapsed, setCollapsed] = useState(() => 
     localStorage.getItem("sidebar-collapsed") === "true"
