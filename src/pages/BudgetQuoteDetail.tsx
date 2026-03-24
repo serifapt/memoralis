@@ -55,7 +55,7 @@ export default function BudgetQuoteDetail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isNew = id === "new";
+  const isNew = !id;
   const obituaryId = searchParams.get("obituaryId");
 
   const { 
