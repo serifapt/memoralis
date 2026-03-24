@@ -124,18 +124,27 @@ export function useBudgetQuotes() {
 
   const fetchFunerariaId = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    if (!user) {
+      console.error("[BudgetQuotes] No authenticated user");
+      return null;
+    }
 
-    const { data: funeraria } = await supabase
+    const { data: funeraria, error } = await supabase
       .from("funerarias")
       .select("id")
       .eq("user_id", user.id)
       .maybeSingle();
 
+    if (error) {
+      console.error("[BudgetQuotes] Error fetching funeraria:", error.message);
+      return null;
+    }
+
     if (funeraria) {
       setFunerariaId(funeraria.id);
       return funeraria.id;
     }
+    console.error("[BudgetQuotes] No funeraria found for user:", user.id);
     return null;
   }, []);
 
@@ -185,9 +194,10 @@ export function useBudgetQuotes() {
           client:clients(id, full_name, email, phone, nif, address, city, postal_code)
         `)
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (quoteError) throw quoteError;
+      if (!quote) return null;
 
       const { data: sections, error: sectionsError } = await supabase
         .from("budget_quote_sections")
@@ -197,20 +207,25 @@ export function useBudgetQuotes() {
 
       if (sectionsError) throw sectionsError;
 
-      // Fetch lines for each section
-      const sectionsWithLines: BudgetQuoteSection[] = [];
-      for (const section of sections || []) {
-        const { data: lines } = await supabase
+      // Fetch lines for all sections in one query
+      const sectionIds = (sections || []).map(s => s.id);
+      let allLines: any[] = [];
+      if (sectionIds.length > 0) {
+        const { data: lines, error: linesError } = await supabase
           .from("budget_quote_lines")
           .select("*")
-          .eq("section_id", section.id)
+          .in("section_id", sectionIds)
           .order("sort_order");
-
-        sectionsWithLines.push({
-          ...section,
-          lines: (lines || []) as BudgetQuoteLine[],
-        });
+        
+        if (linesError) throw linesError;
+        allLines = lines || [];
       }
+
+      const sectionsWithLines: BudgetQuoteSection[] = (sections || []).map(section => ({
+        ...section,
+        subtotal: section.subtotal ?? 0,
+        lines: allLines.filter(l => l.section_id === section.id) as BudgetQuoteLine[],
+      }));
 
       return {
         quote: quote as BudgetQuote,
@@ -228,6 +243,17 @@ export function useBudgetQuotes() {
 
   const createQuote = async (data: BudgetQuoteFormData, applyDefaultTemplate = true): Promise<string | null> => {
     try {
+      // Validate session
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Sessão expirada",
+          description: "Faça login novamente para continuar.",
+          variant: "destructive",
+        });
+        return null;
+      }
+
       const funId = funerariaId || await fetchFunerariaId();
       if (!funId) {
         toast({
@@ -238,11 +264,23 @@ export function useBudgetQuotes() {
         return null;
       }
 
+      if (!data.client_id) {
+        toast({
+          title: "Cliente não seleccionado",
+          description: "Selecione um cliente para criar o orçamento.",
+          variant: "destructive",
+        });
+        return null;
+      }
+
       // Get next quote number
       const { data: nextNumber, error: numError } = await supabase
         .rpc("get_next_quote_number", { p_funeraria_id: funId });
 
-      if (numError) throw numError;
+      if (numError) {
+        console.error("[BudgetQuotes] RPC get_next_quote_number error:", numError);
+        throw numError;
+      }
 
       // Create quote
       const { data: newQuote, error: quoteError } = await supabase
@@ -265,7 +303,10 @@ export function useBudgetQuotes() {
         .select()
         .single();
 
-      if (quoteError) throw quoteError;
+      if (quoteError) {
+        console.error("[BudgetQuotes] Insert budget_quotes error:", quoteError);
+        throw quoteError;
+      }
 
       // Apply default template if requested
       if (applyDefaultTemplate) {
@@ -282,7 +323,10 @@ export function useBudgetQuotes() {
             .select()
             .single();
 
-          if (sectionError) throw sectionError;
+          if (sectionError) {
+            console.error("[BudgetQuotes] Insert section error:", sectionError);
+            throw sectionError;
+          }
 
           // Add default lines
           if (section.lines.length > 0) {
@@ -300,7 +344,10 @@ export function useBudgetQuotes() {
               .from("budget_quote_lines")
               .insert(linesToInsert);
 
-            if (linesError) throw linesError;
+            if (linesError) {
+              console.error("[BudgetQuotes] Insert lines error:", linesError);
+              throw linesError;
+            }
           }
         }
       }
@@ -313,6 +360,7 @@ export function useBudgetQuotes() {
       await fetchQuotes();
       return newQuote.id;
     } catch (error: any) {
+      console.error("[BudgetQuotes] createQuote failed:", error);
       toast({
         title: "Erro ao criar orçamento",
         description: error.message,
@@ -399,13 +447,11 @@ export function useBudgetQuotes() {
       const funId = funerariaId || await fetchFunerariaId();
       if (!funId) throw new Error("Funerária não encontrada");
 
-      // Get next quote number
       const { data: nextNumber, error: numError } = await supabase
         .rpc("get_next_quote_number", { p_funeraria_id: funId });
 
       if (numError) throw numError;
 
-      // Create new quote
       const { data: newQuote, error: quoteError } = await supabase
         .from("budget_quotes")
         .insert({
@@ -428,7 +474,6 @@ export function useBudgetQuotes() {
 
       if (quoteError) throw quoteError;
 
-      // Copy sections and lines
       for (const section of original.sections) {
         const { data: newSection, error: sectionError } = await supabase
           .from("budget_quote_sections")
@@ -529,7 +574,7 @@ export function useBudgetQuotes() {
         .single();
 
       if (error) throw error;
-      return { ...data, lines: [] } as BudgetQuoteSection;
+      return { ...data, subtotal: data.subtotal ?? 0, lines: [] } as BudgetQuoteSection;
     } catch (error: any) {
       toast({
         title: "Erro ao adicionar secção",
