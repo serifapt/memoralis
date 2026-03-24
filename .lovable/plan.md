@@ -1,16 +1,59 @@
 
+## Plano: corrigir de vez o alinhamento da sidebar colapsada
 
-## Plano: Alinhar ícones e corrigir hover na sidebar colapsada
+### Diagnóstico
+O problema já não é só de `padding`: no estado colapsado, header, navegação e footer estão a centrar os elementos de formas diferentes. Isso faz com que:
+- o botão de colapsar/expandir fique numa coluna visual
+- os itens do menu noutra
+- o botão de sair noutra
 
-### Problemas
-1. **Desalinhamento**: O botão de toggle tem `w-10 h-10` com padding do container `p-2`, mas o alinhamento horizontal pode diferir por causa de como o `mx-auto` interage com o `p-2` da nav
-2. **Hover sem fundo vermelho**: No estado expandido, o item ativo tem `bg-primary` (vermelho). Mas no hover dos itens colapsados usa-se `--sidebar-hover` (bege neutro) — deveria manter o mesmo estilo de hover com fundo vermelho/primary que os botões expandidos tinham
+Além disso, o hover/ativo dos itens colapsados deve usar exactamente a mesma “caixa” visual em todos os botões.
 
 ### Alterações em `src/components/layout/Sidebar.tsx`
 
-1. **Alinhar ícones com o toggle**: Remover `mx-auto` dos nav items colapsados e usar `flex justify-center` no container `nav` (com `items-center flex-col`). Alternativa mais simples: manter `mx-auto` mas garantir que o toggle também usa exactamente `w-10 h-10 mx-auto` com o mesmo padding envolvente
+#### 1. Unificar a geometria dos botões colapsados
+Criar uma classe/base comum para:
+- botão de colapsar/expandir
+- itens da navegação
+- botão de sair
 
-2. **Hover com fundo vermelho**: Substituir `hover:bg-[hsl(var(--sidebar-hover))]` por `hover:bg-primary hover:text-primary-foreground` nos nav items colapsados (e no logout), para que o hover tenha o mesmo visual vermelho do estado expandido
+Essa base deve usar sempre:
+- `w-10 h-10`
+- `flex items-center justify-center`
+- `rounded-lg`
+- `p-0`
 
-3. **Uniformizar o toggle**: O botão de toggle no header deve ter exactamente as mesmas dimensões e alinhamento que os nav items (`w-10 h-10 mx-auto flex items-center justify-center`)
+Assim todos passam a ocupar a mesma caixa e ficam alinhados na mesma coluna.
 
+#### 2. Corrigir o alinhamento estrutural da coluna
+No estado colapsado:
+- o `header` continua com `p-2 justify-center`
+- a `nav` passa a usar layout centrado (`flex flex-col items-center`)
+- o `footer` também centra o botão usando a mesma lógica da nav
+
+Isto elimina a dependência de `mx-auto` espalhado pelos elementos e garante que toggle, ícones e logout ficam todos sobre o mesmo eixo vertical.
+
+#### 3. Uniformizar hover e estado ativo
+Nos itens colapsados:
+- usar `hover:bg-primary hover:text-primary-foreground`
+- manter `bg-primary text-primary-foreground` no item activo
+- aplicar o mesmo comportamento visual ao botão de sair e ao botão de colapsar
+
+Assim o hover vermelho fica consistente com o comportamento antigo dos botões.
+
+#### 4. Simplificar o `NavItem`
+Ajustar o `NavItem` para que, quando colapsado:
+- não dependa de margens automáticas para alinhamento
+- use a mesma classe-base dos restantes botões
+- mantenha os tooltips como estão
+
+### Resultado esperado
+No modo reduzido:
+- ícone do topo, ícones do menu e ícone de sair ficam perfeitamente centrados entre si
+- o fundo vermelho no hover aparece centrado e com o mesmo tamanho em todos os botões
+- o item activo deixa de parecer deslocado
+
+### Detalhes técnicos
+- Ficheiro a alterar: `src/components/layout/Sidebar.tsx`
+- Sem alterações de backend
+- Sem alterações a outras páginas
