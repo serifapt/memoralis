@@ -48,8 +48,8 @@ const bottomNavigation = [
   { name: "Chat de Suporte", href: "/support", icon: MessageSquare },
 ];
 
-// Single source of truth for ALL collapsed buttons (toggle, nav items, logout)
 const COLLAPSED_BTN = "w-10 h-10 flex items-center justify-center rounded-lg p-0 transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
+const EXPANDED_BTN = "flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-colors hover:bg-primary hover:text-primary-foreground text-foreground";
 
 export const Sidebar = () => {
   const navigate = useNavigate();
