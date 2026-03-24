@@ -151,6 +151,18 @@ export default function ObituaryDetail() {
     } catch { return null; }
   };
 
+  const getEventTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      velorio: "Velório",
+      missa: "Missa",
+      cremacao: "Cremação",
+      sepultamento: "Sepultamento",
+      funeral: "Funeral",
+      outro: "Outro",
+    };
+    return labels[type] || type;
+  };
+
   const locationStr = [obituary?.freguesia, obituary?.locality].filter(Boolean).join(" - ");
   const age = getAge();
 
