@@ -422,6 +422,9 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
         familyBirthDate: obituaryData.familyBirthDate || '',
         familyCivilStatus: obituaryData.familyCivilStatus || '',
         familyIdCard: obituaryData.familyIdCard || '',
+        familyFreguesia: obituaryData.familyFreguesia || '',
+        familyConcelho: obituaryData.familyConcelho || '',
+        familyDistrito: obituaryData.familyDistrito || '',
       };
 
       // Fill the PDF form

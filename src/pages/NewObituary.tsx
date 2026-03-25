@@ -410,6 +410,9 @@ export default function NewObituary() {
           familyPostalCode: (data as any).family_postal_code || "",
           familyObservations: (data as any).family_observations || "",
           familyBirthDate: (data as any).family_birth_date || "",
+          familyFreguesia: (data as any).family_freguesia || "",
+          familyConcelho: (data as any).family_concelho || "",
+          familyDistrito: (data as any).family_distrito || "",
           serviceType: data.service_type || "",
           coffinBrand: data.coffin_brand || "",
           coffinRef: data.coffin_ref || "",
@@ -704,6 +707,9 @@ export default function NewObituary() {
         family_birth_date: formData.familyBirthDate || null,
         family_civil_status: formData.familyCivilStatus || null,
         family_id_card: formData.familyIdCard || null,
+        family_freguesia: formData.familyFreguesia || null,
+        family_concelho: formData.familyConcelho || null,
+        family_distrito: formData.familyDistrito || null,
       };
 
       let obituaryId = id;
@@ -943,6 +949,9 @@ export default function NewObituary() {
         family_birth_date: formData.familyBirthDate || null,
         family_civil_status: formData.familyCivilStatus || null,
         family_id_card: formData.familyIdCard || null,
+        family_freguesia: formData.familyFreguesia || null,
+        family_concelho: formData.familyConcelho || null,
+        family_distrito: formData.familyDistrito || null,
       };
 
       let currentId = savedObituaryIdRef.current;
