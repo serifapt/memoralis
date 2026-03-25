@@ -1328,8 +1328,10 @@ export type Database = {
           doctor: string | null
           family_address: string | null
           family_birth_date: string | null
+          family_civil_status: string | null
           family_email: string | null
           family_iban: string | null
+          family_id_card: string | null
           family_locality: string | null
           family_name: string | null
           family_naturalidade: string | null
@@ -1377,8 +1379,10 @@ export type Database = {
           doctor?: string | null
           family_address?: string | null
           family_birth_date?: string | null
+          family_civil_status?: string | null
           family_email?: string | null
           family_iban?: string | null
+          family_id_card?: string | null
           family_locality?: string | null
           family_name?: string | null
           family_naturalidade?: string | null
@@ -1426,8 +1430,10 @@ export type Database = {
           doctor?: string | null
           family_address?: string | null
           family_birth_date?: string | null
+          family_civil_status?: string | null
           family_email?: string | null
           family_iban?: string | null
+          family_id_card?: string | null
           family_locality?: string | null
           family_name?: string | null
           family_naturalidade?: string | null

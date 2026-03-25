@@ -420,6 +420,8 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
         familyLocality: obituaryData.familyLocality || '',
         familyPostalCode: obituaryData.familyPostalCode || '',
         familyBirthDate: obituaryData.familyBirthDate || '',
+        familyCivilStatus: obituaryData.familyCivilStatus || '',
+        familyIdCard: obituaryData.familyIdCard || '',
       };
 
       // Fill the PDF form
