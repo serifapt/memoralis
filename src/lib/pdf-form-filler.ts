@@ -32,6 +32,9 @@ export interface ObituaryFormData {
   familyBirthDate?: string;
   familyCivilStatus?: string;
   familyIdCard?: string;
+  familyFreguesia?: string;
+  familyConcelho?: string;
+  familyDistrito?: string;
 }
 
 // Helper to split a date string "YYYY-MM-DD" into {dia, mes, ano}

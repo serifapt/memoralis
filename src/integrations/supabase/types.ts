@@ -1329,7 +1329,10 @@ export type Database = {
           family_address: string | null
           family_birth_date: string | null
           family_civil_status: string | null
+          family_concelho: string | null
+          family_distrito: string | null
           family_email: string | null
+          family_freguesia: string | null
           family_iban: string | null
           family_id_card: string | null
           family_locality: string | null
@@ -1380,7 +1383,10 @@ export type Database = {
           family_address?: string | null
           family_birth_date?: string | null
           family_civil_status?: string | null
+          family_concelho?: string | null
+          family_distrito?: string | null
           family_email?: string | null
+          family_freguesia?: string | null
           family_iban?: string | null
           family_id_card?: string | null
           family_locality?: string | null
@@ -1431,7 +1437,10 @@ export type Database = {
           family_address?: string | null
           family_birth_date?: string | null
           family_civil_status?: string | null
+          family_concelho?: string | null
+          family_distrito?: string | null
           family_email?: string | null
+          family_freguesia?: string | null
           family_iban?: string | null
           family_id_card?: string | null
           family_locality?: string | null

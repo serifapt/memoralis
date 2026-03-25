@@ -151,6 +151,9 @@ export default function NewObituary() {
     familyBirthDate: "",
     familyCivilStatus: "",
     familyIdCard: "",
+    familyFreguesia: "",
+    familyConcelho: "",
+    familyDistrito: "",
     // Informação do Serviço
     serviceType: "",
     coffinBrand: "",
