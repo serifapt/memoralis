@@ -553,11 +553,13 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           />
         </div>
 
-        {uploadedDocs.length > 0 && (
+        {(() => {
+          const manualDocs = uploadedDocs.filter(d => d.document_type === "uploaded");
+          return manualDocs.length > 0 ? (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Documentos Adicionados</h3>
             <div className="space-y-3">
-              {uploadedDocs.map((doc) => (
+              {manualDocs.map((doc) => (
                 <Card key={doc.id} className="p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">
