@@ -19,7 +19,14 @@ import {
   Copy,
   FileCheck,
   ExternalLink,
+  ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { 
   useBudgetQuotes, 
   BudgetQuote, 
@@ -435,10 +442,28 @@ export default function BudgetQuoteDetail() {
               <h1 className="text-3xl font-archivo font-bold text-foreground">
                 {isNew ? "Novo Orçamento" : `Orçamento #${quote?.quote_number}`}
               </h1>
-              {quote && (
-                <Badge className={statusConfig[quote.status].color}>
-                  {statusConfig[quote.status].label}
-                </Badge>
+{quote && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="focus:outline-none">
+                      <Badge className={`${statusConfig[quote.status].color} cursor-pointer hover:opacity-80 transition-opacity`}>
+                        {statusConfig[quote.status].label}
+                        <ChevronDown className="ml-1 h-3 w-3 inline" />
+                      </Badge>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {(Object.entries(statusConfig) as [BudgetQuoteStatus, { label: string; color: string }][]).map(([key, config]) => (
+                      <DropdownMenuItem
+                        key={key}
+                        disabled={key === quote.status}
+                        onClick={() => handleStatusChange(key)}
+                      >
+                        <Badge className={`${config.color} mr-2`}>{config.label}</Badge>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
             <p className="text-muted-foreground mt-1">
