@@ -32,6 +32,9 @@ export interface ObituaryFormData {
   familyBirthDate?: string;
   familyCivilStatus?: string;
   familyIdCard?: string;
+  familyFreguesia?: string;
+  familyConcelho?: string;
+  familyDistrito?: string;
 }
 
 // Helper to split a date string "YYYY-MM-DD" into {dia, mes, ano}
@@ -91,6 +94,10 @@ function fillRP5033(form: any, data: ObituaryFormData) {
   setTextField(form, 'undefined_3', data.familyLocality || '');
   setTextField(form, 'Telemóvel  Telefone', data.familyPhone || '');
   setTextField(form, 'Email', data.familyEmail || '');
+  setTextField(form, 'Estado civil', data.familyCivilStatus || '');
+  setTextField(form, 'Freguesia', data.familyFreguesia || '');
+  setTextField(form, 'Concelho', data.familyConcelho || '');
+  setTextField(form, 'Distrito', data.familyDistrito || '');
 
   // Falecido (deceased) - page 1
   setTextField(form, 'Nome completo_2', data.fullName || '');
