@@ -1,0 +1,1 @@
+ALTER TYPE public.budget_quote_status ADD VALUE 'REJECTED';

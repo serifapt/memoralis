@@ -1820,7 +1820,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "funeraria" | "technician" | "customer"
-      budget_quote_status: "DRAFT" | "SENT" | "ACCEPTED" | "ARCHIVED"
+      budget_quote_status:
+        | "DRAFT"
+        | "SENT"
+        | "ACCEPTED"
+        | "ARCHIVED"
+        | "REJECTED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1949,7 +1954,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "funeraria", "technician", "customer"],
-      budget_quote_status: ["DRAFT", "SENT", "ACCEPTED", "ARCHIVED"],
+      budget_quote_status: [
+        "DRAFT",
+        "SENT",
+        "ACCEPTED",
+        "ARCHIVED",
+        "REJECTED",
+      ],
     },
   },
 } as const
