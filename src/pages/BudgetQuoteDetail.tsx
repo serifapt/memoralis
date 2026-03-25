@@ -564,20 +564,6 @@ export default function BudgetQuoteDetail() {
             <h2 className="text-lg font-semibold mb-4">Informações Gerais</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Tipo de Serviço</Label>
-                <Select value={formData.service_type} onValueChange={(value) => setFormData(prev => ({ ...prev, service_type: value }))} disabled={isArchived}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecionar tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="funeral_completo">Funeral Completo</SelectItem>
-                    <SelectItem value="cremacao">Cremação</SelectItem>
-                    <SelectItem value="translado">Translado</SelectItem>
-                    <SelectItem value="basico">Serviço Básico</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="deceased_name">Nome do Falecido</Label>
                 <Input id="deceased_name" value={formData.deceased_name} onChange={(e) => setFormData(prev => ({ ...prev, deceased_name: e.target.value }))} disabled={isArchived} />
               </div>
@@ -613,9 +599,23 @@ export default function BudgetQuoteDetail() {
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="cemetery">Cemitério</Label>
                 <Input id="cemetery" value={formData.cemetery} onChange={(e) => setFormData(prev => ({ ...prev, cemetery: e.target.value }))} disabled={isArchived} />
+              </div>
+              <div className="space-y-2">
+                <Label>Tipo de Serviço</Label>
+                <Select value={formData.service_type} onValueChange={(value) => setFormData(prev => ({ ...prev, service_type: value }))} disabled={isArchived}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="funeral_completo">Funeral Completo</SelectItem>
+                    <SelectItem value="cremacao">Cremação</SelectItem>
+                    <SelectItem value="translado">Translado</SelectItem>
+                    <SelectItem value="basico">Serviço Básico</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </Card>
