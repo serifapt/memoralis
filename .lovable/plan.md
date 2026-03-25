@@ -1,26 +1,24 @@
 
 
-## Plano: Corrigir bug no TimeInput — segundo dígito não funciona
+## Plano: Separar documentos gerados dos documentos manuais
 
-### Causa raiz
+### Problema
 
-Quando o utilizador digita o primeiro número (ex: "0"), a função `emit` faz `padStart(2, "0")` imediatamente, transformando "0" em "00". O valor `hh` passa a "00" e como o campo tem `maxLength={2}`, o segundo dígito não consegue ser introduzido — o campo já está "cheio".
+Quando um formulário da Segurança Social é gerado, é inserido na tabela `obituary_documents` com `document_type` igual ao ID do formulário (ex: `"rp5033"`). A lista "Documentos Adicionados" mostra **todos** os registos sem filtrar, misturando documentos gerados automaticamente com documentos carregados manualmente.
 
 ### Solução
 
-Usar **estado local** (`useState`) para os valores brutos dos campos HH e MM, em vez de derivar directamente do `value` prop (que já vem padded). Assim:
+No ficheiro `src/components/obituaries/DocumentsTab.tsx`, filtrar a lista de documentos na secção "Documentos Adicionados" para mostrar apenas os que têm `document_type === "uploaded"`.
 
-- O utilizador digita "0" → estado local fica "0" → campo mostra "0" → pode digitar o segundo dígito
-- O utilizador digita "09" → auto-advance para minutos + `emit("09", "00")` para o parent
-- Só chamar `emit` (com padding) quando os 2 dígitos estão completos ou no `onBlur`
-- Sincronizar o estado local quando o `value` prop muda externamente
+### Alteração
 
-### Alteração no ficheiro `src/components/ui/time-input.tsx`
+1. Na renderização da lista (linha ~560), filtrar `uploadedDocs` para excluir documentos auto-gerados:
+   ```tsx
+   const manualDocs = uploadedDocs.filter(d => d.document_type === "uploaded");
+   ```
+2. Usar `manualDocs` em vez de `uploadedDocs` na secção "Documentos Adicionados" (contagem, `.map()`, e mensagem de vazio)
+3. Manter `uploadedDocs` (sem filtro) na secção de Formulários da Segurança Social para que o estado "gerado" continue a funcionar correctamente
 
-1. Substituir `useMemo` por dois `useState` para `localHH` e `localMM`
-2. `useEffect` para sincronizar estado local quando `value` prop muda (ex: carregamento de dados)
-3. `handleHourChange`: actualizar estado local; só chamar `emit` quando `v.length === 2`
-4. `handleMinuteChange`: actualizar estado local; só chamar `emit` quando `v.length === 2`
-5. `onBlur` em ambos os inputs: fazer pad e `emit` do valor actual (para garantir formato correcto ao sair do campo)
-6. Remover `padStart` prematuro do fluxo de digitação
+### Ficheiro
+- `src/components/obituaries/DocumentsTab.tsx`
 
