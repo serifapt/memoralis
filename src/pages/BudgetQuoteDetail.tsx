@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ import { ClientSelector } from "@/components/clients/ClientSelector";
 import { Client } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { BudgetQuotePDF } from "@/components/budgets/BudgetQuotePDF";
+import { BudgetQuotePDF, BudgetQuotePDFHandle } from "@/components/budgets/BudgetQuotePDF";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -94,6 +94,7 @@ export default function BudgetQuoteDetail() {
   } = useBudgetQuotes();
 
   const [loading, setLoading] = useState(true);
+  const pdfRef = useRef<BudgetQuotePDFHandle>(null);
   const [saving, setSaving] = useState(false);
   const [quote, setQuote] = useState<BudgetQuote | null>(null);
   const [sections, setSections] = useState<BudgetQuoteSection[]>([]);
@@ -265,7 +266,7 @@ export default function BudgetQuoteDetail() {
     }
   };
 
-  const handlePrint = () => { window.print(); };
+  const handlePrint = () => { pdfRef.current?.print(); };
 
   const handleDuplicate = async () => {
     if (!quote) return;
@@ -450,7 +451,8 @@ export default function BudgetQuoteDetail() {
         <div className="flex flex-wrap gap-2">
           {!isNew && !isArchived && quote && (
             <>
-               <BudgetQuotePDF 
+               <BudgetQuotePDF
+                ref={pdfRef}
                 quote={quote} 
                 sections={sections} 
                 funerariaName={funerariaData?.nome_comercial}
