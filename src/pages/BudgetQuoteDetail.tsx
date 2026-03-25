@@ -7,6 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, parse } from "date-fns";
+import { pt } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 import {
   Save,
   Printer,
@@ -20,6 +25,7 @@ import {
   FileCheck,
   ExternalLink,
   ChevronDown,
+  CalendarIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -559,16 +565,36 @@ export default function BudgetQuoteDetail() {
                 <Input id="deceased_name" value={formData.deceased_name} onChange={(e) => setFormData(prev => ({ ...prev, deceased_name: e.target.value }))} disabled={isArchived} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="death_date">Data Falecimento</Label>
-                <Input id="death_date" type="date" value={formData.death_date} onChange={(e) => setFormData(prev => ({ ...prev, death_date: e.target.value }))} disabled={isArchived} />
+                <Label>Data Falecimento</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" disabled={isArchived} className={cn("w-full justify-start text-left font-normal", !formData.death_date && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.death_date ? format(parse(formData.death_date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" locale={pt} selected={formData.death_date ? parse(formData.death_date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => setFormData(prev => ({ ...prev, death_date: date ? format(date, "yyyy-MM-dd") : "" }))} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="place_of_death">Local Falecimento</Label>
                 <Input id="place_of_death" value={formData.place_of_death} onChange={(e) => setFormData(prev => ({ ...prev, place_of_death: e.target.value }))} disabled={isArchived} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="funeral_date">Data Funeral</Label>
-                <Input id="funeral_date" type="date" value={formData.funeral_date} onChange={(e) => setFormData(prev => ({ ...prev, funeral_date: e.target.value }))} disabled={isArchived} />
+                <Label>Data Funeral</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" disabled={isArchived} className={cn("w-full justify-start text-left font-normal", !formData.funeral_date && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.funeral_date ? format(parse(formData.funeral_date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" locale={pt} selected={formData.funeral_date ? parse(formData.funeral_date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => setFormData(prev => ({ ...prev, funeral_date: date ? format(date, "yyyy-MM-dd") : "" }))} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="md:col-span-2 space-y-2">
                 <Label htmlFor="cemetery">Cemitério</Label>
@@ -610,16 +636,16 @@ export default function BudgetQuoteDetail() {
                     {section.lines.map((line) => (
                       <tr key={line.id} className="border-b">
                         <td className="py-2">
-                          <Input type="number" min="0" step="1" className="w-16 text-center" value={line.quantity} onChange={(e) => handleUpdateLine(line.id, section.id, { quantity: Number(e.target.value) })} disabled={isArchived} />
+                          <Input type="number" min="0" step="1" className="w-16 text-center" value={line.quantity || ""} onFocus={(e) => e.target.select()} onBlur={(e) => { if (!e.target.value) handleUpdateLine(line.id, section.id, { quantity: 0 }); }} onChange={(e) => handleUpdateLine(line.id, section.id, { quantity: Number(e.target.value) })} disabled={isArchived} />
                         </td>
                         <td className="py-2">
                           <Input value={line.description} onChange={(e) => handleUpdateLine(line.id, section.id, { description: e.target.value })} disabled={isArchived} />
                         </td>
                         <td className="py-2">
-                          <Input type="number" min="0" step="0.01" className="w-28 text-right" value={line.unit_price} onChange={(e) => handleUpdateLine(line.id, section.id, { unit_price: Number(e.target.value) })} disabled={isArchived} />
+                          <Input type="number" min="0" step="0.01" className="w-28 text-right" value={line.unit_price || ""} placeholder="0.00" onFocus={(e) => e.target.select()} onBlur={(e) => { if (!e.target.value) handleUpdateLine(line.id, section.id, { unit_price: 0 }); }} onChange={(e) => handleUpdateLine(line.id, section.id, { unit_price: Number(e.target.value) })} disabled={isArchived} />
                         </td>
                         <td className="py-2">
-                          <Input type="number" min="0" max="100" step="1" className="w-20 text-right" value={line.discount_percent} onChange={(e) => handleUpdateLine(line.id, section.id, { discount_percent: Number(e.target.value) })} disabled={isArchived} />
+                          <Input type="number" min="0" max="100" step="1" className="w-20 text-right" value={line.discount_percent || ""} placeholder="0" onFocus={(e) => e.target.select()} onBlur={(e) => { if (!e.target.value) handleUpdateLine(line.id, section.id, { discount_percent: 0 }); }} onChange={(e) => handleUpdateLine(line.id, section.id, { discount_percent: Number(e.target.value) })} disabled={isArchived} />
                         </td>
                         <td className="py-2 text-right font-medium">
                           {line.line_total.toFixed(2)}€
