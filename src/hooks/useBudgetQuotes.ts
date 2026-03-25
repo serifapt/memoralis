@@ -503,6 +503,7 @@ export function useBudgetQuotes() {
         DRAFT: "Rascunho",
         SENT: "Enviado",
         ACCEPTED: "Aceite",
+        REJECTED: "Recusado",
         ARCHIVED: "Arquivado",
       };
 
