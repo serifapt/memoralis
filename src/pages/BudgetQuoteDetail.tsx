@@ -447,7 +447,7 @@ export default function BudgetQuoteDetail() {
         </div>
 
         {/* Header - Row 2: Action buttons */}
-        <div className="flex flex-wrap gap-2 pl-14">
+        <div className="flex flex-wrap gap-2">
           {!isNew && !isArchived && quote && (
             <>
               <BudgetQuotePDF 
