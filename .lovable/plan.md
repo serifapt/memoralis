@@ -1,15 +1,29 @@
 
 
-## Plano: Melhorar inputs de datas e valores no orçamento
+## Plano: Melhorar inputs de horas no processo de óbito
 
-### Alterações em `src/pages/BudgetQuoteDetail.tsx`
+### Objectivo
+Substituir os inputs nativos `type="time"` por um componente mais user-friendly usando `Select` com opções de horas (00:00–23:30, intervalos de 30 min), ou um input estilizado com ícone de relógio (`Clock`) e comportamento `onFocus` → `select()`.
 
-1. **Inputs de data (linhas 563, 571)** — Substituir os `<Input type="date">` nativos por date pickers com Popover + Calendar (padrão Shadcn), usando `format(date, "dd/MM/yyyy")` para exibição em formato português. Importar `Calendar`, `Popover`, `PopoverTrigger`, `PopoverContent`, `CalendarIcon` e `format`/`parse` do date-fns.
+### Alterações em `src/pages/NewObituary.tsx`
 
-2. **Inputs de valores numéricos (linhas 613, 619, 622)** — Adicionar `onFocus={(e) => e.target.select()}` aos inputs de quantidade, preço unitário e desconto para que ao clicar no input o valor existente fique automaticamente seleccionado, pronto para ser substituído. Isto evita que o utilizador tenha de apagar manualmente o "0" antes de escrever.
+Existem **7 inputs de hora** espalhados pelo formulário:
+- `deathTime` (linha ~1327)
+- `entry.time` nos velórios (linha ~1492)
+- `funeralTime` (linha ~1578)
+- `cremacaoTime` (linha ~1678)
+- `missa7Time` (linha ~1769)
+- `missa30Time` (linha ~1835)
+- `missa1anoTime` (linha ~1901)
 
-3. **Tratamento de valor vazio** — Nos inputs de preço e desconto, quando o valor é `0`, mostrar string vazia como placeholder visual para não confundir. Ao perder foco (onBlur), se vazio, repor `0`.
+**Abordagem**: Envolver cada input `type="time"` com um wrapper que adiciona o ícone `Clock` à esquerda (similar ao `CalendarIcon` nos date pickers) e `onFocus={(e) => e.target.select()}` para seleccionar automaticamente o valor ao clicar.
+
+Concretamente:
+1. Adicionar `Clock` aos imports de `lucide-react`
+2. Envolver cada `<Input type="time">` num `div` relativo com ícone `Clock` posicionado à esquerda e padding-left no input
+3. Adicionar `onFocus={(e) => e.target.select()}` a cada input de hora
+4. Adicionar `className` com `pl-9` para dar espaço ao ícone
 
 ### Ficheiro a alterar
-- `src/pages/BudgetQuoteDetail.tsx`
+- `src/pages/NewObituary.tsx`
 
