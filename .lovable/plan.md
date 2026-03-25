@@ -1,17 +1,23 @@
 
 
-## Plano: Ajustar estilos dos badges e dropdown de estado
+## Plano: Botão dinâmico "Criar/Ver Orçamento" no processo de óbito
 
-### Alterações
+### Objectivo
+Quando existem orçamentos associados ao óbito, o botão muda de "Criar Orçamento" para "Ver Orçamento". Se houver mais do que um, ao clicar aparece um popover/dropdown para o utilizador escolher qual visualizar. Se houver apenas um, navega directamente.
 
-**2 ficheiros**: `src/pages/BudgetQuotes.tsx` e `src/pages/BudgetQuoteDetail.tsx`
+### Alterações em `src/pages/NewObituary.tsx`
 
-1. **Remover hover dos badges de estado** — tirar `hover:opacity-80 transition-opacity` dos badges trigger (tanto na lista como no detalhe)
-2. **Hover vermelho (primary) nos itens do dropdown** — adicionar classe `focus:bg-primary/10 focus:text-primary` aos `DropdownMenuItem` do selector de estado, para que o hover use o vermelho/coral do projecto em vez do cinza padrão
+1. **Consultar orçamentos associados** — Adicionar um `useEffect` que faz query à tabela `budget_quotes` filtrando por `obituary_id` igual ao ID do óbito actual. Guardar o resultado num estado `linkedQuotes` (array com `id`, `quote_number`, `status`, `created_at`).
 
-### Detalhes técnicos
+2. **Lógica condicional do botão**:
+   - Se `linkedQuotes.length === 0` → manter botão "Criar Orçamento" (comportamento actual)
+   - Se `linkedQuotes.length === 1` → botão "Ver Orçamento" que navega directamente para `/budgets/{id}`
+   - Se `linkedQuotes.length > 1` → botão "Ver Orçamento" que abre um `Popover` com a lista dos orçamentos (número, estado, data) para o utilizador escolher
 
-- Badge trigger: `cursor-pointer` mantém-se, remove-se apenas `hover:opacity-80 transition-opacity`
-- Badges dentro do dropdown (opções): também sem hover, mantêm cor fixa
-- `DropdownMenuItem`: adicionar `className="focus:bg-primary/10 focus:text-primary"` para consistência com os botões ghost do projecto
+3. **Manter opção de criar novo** — No popover com múltiplos orçamentos, adicionar um separador e a opção "Criar Novo Orçamento" no fim da lista.
+
+4. **Imports adicionais**: `Popover`, `PopoverTrigger`, `PopoverContent` de `@/components/ui/popover`, e `ChevronDown`/`ExternalLink` de lucide-react.
+
+### Ficheiro a alterar
+- `src/pages/NewObituary.tsx`
 
