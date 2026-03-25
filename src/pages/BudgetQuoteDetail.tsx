@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -560,8 +561,22 @@ export default function BudgetQuoteDetail() {
 
           {/* Deceased Info */}
           <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Dados do Falecido</h2>
+            <h2 className="text-lg font-semibold mb-4">Informações Gerais</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Tipo de Serviço</Label>
+                <Select value={formData.service_type} onValueChange={(value) => setFormData(prev => ({ ...prev, service_type: value }))} disabled={isArchived}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="funeral_completo">Funeral Completo</SelectItem>
+                    <SelectItem value="cremacao">Cremação</SelectItem>
+                    <SelectItem value="translado">Translado</SelectItem>
+                    <SelectItem value="basico">Serviço Básico</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="deceased_name">Nome do Falecido</Label>
                 <Input id="deceased_name" value={formData.deceased_name} onChange={(e) => setFormData(prev => ({ ...prev, deceased_name: e.target.value }))} disabled={isArchived} />
