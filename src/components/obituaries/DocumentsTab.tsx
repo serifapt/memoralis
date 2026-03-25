@@ -667,13 +667,12 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
               ))}
             </div>
           </div>
-        )}
-
-        {uploadedDocs.length === 0 && (
+          ) : (
           <p className="text-sm text-muted-foreground text-center py-8">
             Nenhum documento carregado ainda. Preencha o título e faça upload do primeiro documento.
           </p>
-        )}
+          );
+        })()}
       </Card>
 
       {/* Secção: Formulários da Segurança Social */}
