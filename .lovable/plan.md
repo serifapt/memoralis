@@ -1,32 +1,26 @@
 
 
-## Plano: Corrigir selecção automática nos inputs de hora
+## Plano: Corrigir bug no TimeInput — segundo dígito não funciona
 
-### Problema
+### Causa raiz
 
-O componente `TimeInput` já tem `onFocus={(e) => e.target.select()}` e lógica de auto-advance, mas em muitos browsers o `select()` é anulado pelo evento `mouseup` que ocorre após o `focus`. O texto não fica seleccionado ao clicar.
+Quando o utilizador digita o primeiro número (ex: "0"), a função `emit` faz `padStart(2, "0")` imediatamente, transformando "0" em "00". O valor `hh` passa a "00" e como o campo tem `maxLength={2}`, o segundo dígito não consegue ser introduzido — o campo já está "cheio".
 
 ### Solução
 
-No ficheiro `src/components/ui/time-input.tsx`:
+Usar **estado local** (`useState`) para os valores brutos dos campos HH e MM, em vez de derivar directamente do `value` prop (que já vem padded). Assim:
 
-1. **Adicionar `onMouseUp` com `preventDefault`** nos dois inputs para impedir que o browser desseleccione o texto após o click
-2. **Usar `requestAnimationFrame`** no auto-advance (focus + select dos minutos) para garantir que a selecção acontece após o React actualizar o valor
-3. Manter a lógica existente de `onFocus` com `select()`
+- O utilizador digita "0" → estado local fica "0" → campo mostra "0" → pode digitar o segundo dígito
+- O utilizador digita "09" → auto-advance para minutos + `emit("09", "00")` para o parent
+- Só chamar `emit` (com padding) quando os 2 dígitos estão completos ou no `onBlur`
+- Sincronizar o estado local quando o `value` prop muda externamente
 
-### Alteração técnica
+### Alteração no ficheiro `src/components/ui/time-input.tsx`
 
-```tsx
-// Em ambos os inputs, adicionar:
-onMouseUp={(e) => e.preventDefault()}
-
-// No auto-advance (handleHourChange), envolver em rAF:
-requestAnimationFrame(() => {
-  minuteRef.current?.focus();
-  minuteRef.current?.select();
-});
-```
-
-### Ficheiro
-- `src/components/ui/time-input.tsx`
+1. Substituir `useMemo` por dois `useState` para `localHH` e `localMM`
+2. `useEffect` para sincronizar estado local quando `value` prop muda (ex: carregamento de dados)
+3. `handleHourChange`: actualizar estado local; só chamar `emit` quando `v.length === 2`
+4. `handleMinuteChange`: actualizar estado local; só chamar `emit` quando `v.length === 2`
+5. `onBlur` em ambos os inputs: fazer pad e `emit` do valor actual (para garantir formato correcto ao sair do campo)
+6. Remover `padStart` prematuro do fluxo de digitação
 
