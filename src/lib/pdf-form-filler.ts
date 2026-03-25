@@ -406,7 +406,8 @@ export async function listPdfFields(formId: string): Promise<Array<{ name: strin
 }
 
 /**
- * Load a PDF template, fill its form fields with obituary data, and return as Blob
+ * Load a PDF template, fill its form fields with obituary data, and return as Blob.
+ * Each stage is isolated so errors report exactly where the failure occurred.
  */
 export async function fillPdfForm(
   formId: string,
@@ -422,24 +423,54 @@ export async function fillPdfForm(
     throw new Error(`Função de preenchimento não encontrada para: ${formId}`);
   }
 
-  const response = await fetch(templatePath);
-  if (!response.ok) {
-    throw new Error(`Erro ao carregar template: ${response.statusText}`);
+  // Stage 1: Fetch
+  let templateBytes: ArrayBuffer;
+  try {
+    const response = await fetch(templatePath);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} ${response.statusText}`);
+    }
+    templateBytes = await response.arrayBuffer();
+  } catch (err: any) {
+    throw new Error(`[${formId}] Erro ao carregar template: ${err.message}`);
   }
-  const templateBytes = await response.arrayBuffer();
 
-  const pdfDoc = await PDFDocument.load(templateBytes, { ignoreEncryption: true });
-  const form = pdfDoc.getForm();
+  // Stage 2: Load PDF
+  let pdfDoc;
+  try {
+    pdfDoc = await PDFDocument.load(templateBytes, { ignoreEncryption: true });
+  } catch (err: any) {
+    throw new Error(`[${formId}] Erro ao abrir PDF (parser): ${err.message}`);
+  }
 
-  fillFn(form, data);
+  // Stage 3: Get form
+  let form;
+  try {
+    form = pdfDoc.getForm();
+  } catch (err: any) {
+    throw new Error(`[${formId}] Erro ao aceder ao formulário: ${err.message}`);
+  }
 
-  // Flatten form to make fields non-editable in the output
+  // Stage 4: Fill fields
+  try {
+    fillFn(form, data);
+  } catch (err: any) {
+    throw new Error(`[${formId}] Erro ao preencher campos: ${err.message}`);
+  }
+
+  // Stage 5: Flatten + Save
   try {
     form.flatten();
   } catch {
-    // Some forms may not support flattening
+    // Some forms may not support flattening — continue to save
   }
 
-  const filledBytes = await pdfDoc.save();
+  let filledBytes;
+  try {
+    filledBytes = await pdfDoc.save();
+  } catch (err: any) {
+    throw new Error(`[${formId}] Erro ao guardar PDF preenchido: ${err.message}`);
+  }
+
   return new Blob([new Uint8Array(filledBytes)], { type: 'application/pdf' });
 }
