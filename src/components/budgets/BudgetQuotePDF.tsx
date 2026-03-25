@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useImperativeHandle, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { BudgetQuote, BudgetQuoteSection } from "@/hooks/useBudgetQuotes";
@@ -18,7 +18,11 @@ interface BudgetQuotePDFProps {
   funerariaLogoUrl?: string | null;
 }
 
-export function BudgetQuotePDF({ 
+export interface BudgetQuotePDFHandle {
+  print: () => void;
+}
+
+export const BudgetQuotePDF = forwardRef<BudgetQuotePDFHandle, BudgetQuotePDFProps>(function BudgetQuotePDF({ 
   quote, 
   sections, 
   funerariaName = "Funerária", 
@@ -29,7 +33,7 @@ export function BudgetQuotePDF({
   funerariaLocality = "",
   funerariaPostalCode = "",
   funerariaLogoUrl,
-}: BudgetQuotePDFProps) {
+}, ref) {
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const formatCurrency = (value: number) => {
@@ -70,6 +74,24 @@ export function BudgetQuotePDF({
     pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
     pdf.save(`orcamento-${quote.quote_number}.pdf`);
   };
+
+  const handlePrint = () => {
+    if (!pdfRef.current) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <html><head><title>Orçamento ${quote.quote_number}</title>
+      <style>
+        @media print { @page { size: A4; margin: 0; } body { margin: 0; } }
+        body { margin: 0; font-family: Arial, sans-serif; }
+      </style>
+      </head><body>${pdfRef.current.outerHTML}</body></html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+  };
+
+  useImperativeHandle(ref, () => ({ print: handlePrint }));
 
   // Filter out zero-value lines per section
   const visibleSections = sections
@@ -266,4 +288,4 @@ export function BudgetQuotePDF({
       </div>
     </>
   );
-}
+});
