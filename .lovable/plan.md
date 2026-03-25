@@ -1,36 +1,58 @@
 
 
-## Plano: Imprimir o mesmo PDF gerado
+## Plano: Corrigir bloqueio do Chrome ao imprimir
 
 ### Problema
-O botão "Imprimir" copia o HTML do template para uma nova janela, mas as classes Tailwind não são incluídas — o resultado visual fica diferente do PDF gerado (que usa `html2canvas` para capturar o layout renderizado).
+O `window.open()` é chamado **depois** de operações assíncronas (`await html2canvas`, criação do jsPDF). O Chrome (e outros browsers) bloqueiam popups que não são abertos no contexto directo de um gesto do utilizador. Como o `await` quebra essa ligação, o popup é bloqueado.
 
 ### Solução
-Alterar `handlePrint` para gerar o PDF em memória (mesmo processo que `handleGeneratePDF`) e abri-lo numa nova aba para impressão, em vez de copiar HTML sem estilos.
+Abrir a janela **antes** das operações assíncronas (mantendo o contexto do clique do utilizador), e depois escrever o conteúdo do PDF nessa janela já aberta.
 
 ### Alteração em `src/components/budgets/BudgetQuotePDF.tsx`
 
-Substituir o `handlePrint` actual por:
-1. Usar `html2canvas` + `jsPDF` para gerar o PDF em memória (igual ao `handleGeneratePDF`)
-2. Em vez de `pdf.save()`, converter para blob URL com `pdf.output("bloburl")`
-3. Abrir o blob URL numa nova janela e chamar `window.print()` nessa janela
+Substituir o `handlePrint` (~linhas 78-107) por:
 
 ```typescript
 const handlePrint = async () => {
   if (!pdfRef.current) return;
-  const canvas = await html2canvas(pdfRef.current, { scale: 2, useCORS: true, logging: false });
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  // ... same image sizing logic as handleGeneratePDF ...
-  pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
-  const blobUrl = pdf.output("bloburl");
-  const printWindow = window.open(blobUrl);
-  if (printWindow) {
+
+  // Abrir janela ANTES do await para não perder o contexto do clique
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    alert("O browser bloqueou a janela de impressão. Permita popups para este site.");
+    return;
+  }
+  printWindow.document.write("<p>A preparar impressão...</p>");
+
+  try {
+    const canvas = await html2canvas(pdfRef.current, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+
+    pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
+    const blobUrl = pdf.output("bloburl");
+
+    printWindow.location.href = blobUrl;
     printWindow.addEventListener("load", () => { printWindow.print(); });
+  } catch (error) {
+    console.error("Erro ao gerar PDF para impressão:", error);
+    printWindow.close();
   }
 };
 ```
 
 ### Ficheiro a alterar
-- `src/components/budgets/BudgetQuotePDF.tsx` — apenas o método `handlePrint` (~10 linhas)
+- `src/components/budgets/BudgetQuotePDF.tsx` — apenas o método `handlePrint`
 
