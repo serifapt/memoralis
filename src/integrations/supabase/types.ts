@@ -1327,10 +1327,14 @@ export type Database = {
           display_name: string
           doctor: string | null
           family_address: string | null
+          family_birth_date: string | null
           family_email: string | null
+          family_iban: string | null
           family_locality: string | null
           family_name: string | null
+          family_naturalidade: string | null
           family_nif: string | null
+          family_niss: string | null
           family_observations: string | null
           family_phone: string | null
           family_postal_code: string | null
@@ -1372,10 +1376,14 @@ export type Database = {
           display_name: string
           doctor?: string | null
           family_address?: string | null
+          family_birth_date?: string | null
           family_email?: string | null
+          family_iban?: string | null
           family_locality?: string | null
           family_name?: string | null
+          family_naturalidade?: string | null
           family_nif?: string | null
+          family_niss?: string | null
           family_observations?: string | null
           family_phone?: string | null
           family_postal_code?: string | null
@@ -1417,10 +1425,14 @@ export type Database = {
           display_name?: string
           doctor?: string | null
           family_address?: string | null
+          family_birth_date?: string | null
           family_email?: string | null
+          family_iban?: string | null
           family_locality?: string | null
           family_name?: string | null
+          family_naturalidade?: string | null
           family_nif?: string | null
+          family_niss?: string | null
           family_observations?: string | null
           family_phone?: string | null
           family_postal_code?: string | null
