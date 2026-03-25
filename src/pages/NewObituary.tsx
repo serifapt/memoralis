@@ -148,6 +148,7 @@ export default function NewObituary() {
     familyLocality: "",
     familyPostalCode: "",
     familyObservations: "",
+    familyBirthDate: "",
     // Informação do Serviço
     serviceType: "",
     coffinBrand: "",
@@ -430,6 +431,7 @@ export default function NewObituary() {
               familyLocality: clientData.city || "",
               familyPostalCode: clientData.postal_code || "",
               familyObservations: clientData.notes || "",
+              familyBirthDate: (clientData as any).birth_date || "",
             }));
           }
         }
@@ -571,6 +573,7 @@ export default function NewObituary() {
             familyNaturalidade: client.nationality_place || "",
             familyIban: client.iban || "",
             familyObservations: client.notes || "",
+            familyBirthDate: (client as any).birth_date || "",
           }));
         }
 
@@ -622,6 +625,7 @@ export default function NewObituary() {
           city: formData.familyLocality || undefined,
           postal_code: formData.familyPostalCode || undefined,
           notes: formData.familyObservations || undefined,
+          birth_date: formData.familyBirthDate || undefined,
         });
         if (client) {
           clientId = client.id;
@@ -845,6 +849,7 @@ export default function NewObituary() {
           city: formData.familyLocality || undefined,
           postal_code: formData.familyPostalCode || undefined,
           notes: formData.familyObservations || undefined,
+          birth_date: formData.familyBirthDate || undefined,
         });
         if (client) {
           clientId = client.id;
@@ -2145,6 +2150,49 @@ export default function NewObituary() {
                       />
                     </div>
                   </div>
+
+                  {/* Data de Nascimento do Requerente */}
+                  <div className="space-y-2">
+                    <Label>Data de Nascimento</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !formData.familyBirthDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.familyBirthDate
+                            ? format(new Date(formData.familyBirthDate), "dd/MM/yyyy")
+                            : "Selecionar data"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            formData.familyBirthDate
+                              ? new Date(formData.familyBirthDate)
+                              : undefined
+                          }
+                          onSelect={(date) =>
+                            handleInputChange(
+                              "familyBirthDate",
+                              date ? format(date, "yyyy-MM-dd") : ""
+                            )
+                          }
+                          initialFocus
+                          captionLayout="dropdown-buttons"
+                          fromYear={1900}
+                          toYear={new Date().getFullYear()}
+                          locale={pt}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
 
                   {/* IBAN */}
                   <div className="space-y-2">
