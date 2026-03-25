@@ -75,20 +75,35 @@ export const BudgetQuotePDF = forwardRef<BudgetQuotePDFHandle, BudgetQuotePDFPro
     pdf.save(`orcamento-${quote.quote_number}.pdf`);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!pdfRef.current) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <html><head><title>Orçamento ${quote.quote_number}</title>
-      <style>
-        @media print { @page { size: A4; margin: 0; } body { margin: 0; } }
-        body { margin: 0; font-family: Arial, sans-serif; }
-      </style>
-      </head><body>${pdfRef.current.outerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+
+    const canvas = await html2canvas(pdfRef.current, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+
+    pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
+    const blobUrl = pdf.output("bloburl");
+    const printWindow = window.open(blobUrl);
+    if (printWindow) {
+      printWindow.addEventListener("load", () => { printWindow.print(); });
+    }
   };
 
   useImperativeHandle(ref, () => ({ print: handlePrint }));
