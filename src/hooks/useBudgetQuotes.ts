@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-export type BudgetQuoteStatus = "DRAFT" | "SENT" | "ACCEPTED" | "ARCHIVED";
+export type BudgetQuoteStatus = "DRAFT" | "SENT" | "ACCEPTED" | "REJECTED" | "ARCHIVED";
 
 export interface BudgetQuote {
   id: string;
@@ -503,6 +503,7 @@ export function useBudgetQuotes() {
         DRAFT: "Rascunho",
         SENT: "Enviado",
         ACCEPTED: "Aceite",
+        REJECTED: "Recusado",
         ARCHIVED: "Arquivado",
       };
 

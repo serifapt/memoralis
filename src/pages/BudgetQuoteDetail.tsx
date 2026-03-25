@@ -55,6 +55,7 @@ const statusConfig: Record<BudgetQuoteStatus, { label: string; color: string }> 
   DRAFT: { label: "Rascunho", color: "bg-muted text-muted-foreground" },
   SENT: { label: "Enviado", color: "bg-blue-100 text-blue-700" },
   ACCEPTED: { label: "Aceite", color: "bg-green-100 text-green-700" },
+  REJECTED: { label: "Recusado", color: "bg-red-100 text-red-700" },
   ARCHIVED: { label: "Arquivado", color: "bg-gray-100 text-gray-500" },
 };
 
@@ -460,7 +461,7 @@ export default function BudgetQuoteDetail() {
                         disabled={key === quote.status}
                         onClick={() => handleStatusChange(key)}
                       >
-                        <Badge className={`${config.color} mr-2`}>{config.label}</Badge>
+                        <Badge className={`${config.color} mr-2 pointer-events-none`}>{config.label}</Badge>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

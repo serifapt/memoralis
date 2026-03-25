@@ -16,7 +16,8 @@ import {
   Eye,
   Copy,
   Trash2,
-  Mail
+  Mail,
+  XCircle
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useBudgetQuotes, BudgetQuoteStatus } from "@/hooks/useBudgetQuotes";
@@ -44,6 +45,7 @@ const statusConfig: Record<BudgetQuoteStatus, { label: string; color: string; ic
   DRAFT: { label: "Rascunho", color: "bg-muted text-muted-foreground", icon: FileText },
   SENT: { label: "Enviado", color: "bg-blue-100 text-blue-700", icon: Send },
   ACCEPTED: { label: "Aceite", color: "bg-green-100 text-green-700", icon: CheckCircle },
+  REJECTED: { label: "Recusado", color: "bg-red-100 text-red-700", icon: XCircle },
   ARCHIVED: { label: "Arquivado", color: "bg-gray-100 text-gray-500", icon: Archive },
 };
 
@@ -196,7 +198,7 @@ export default function BudgetQuotes() {
                                   disabled={key === quote.status}
                                   onClick={() => updateQuoteStatus(quote.id, key)}
                                 >
-                                  <Badge className={`${config.color} mr-2`}>
+                        <Badge className={`${config.color} mr-2 pointer-events-none`}>
                                     <Icon className="w-3 h-3 mr-1" />
                                     {config.label}
                                   </Badge>
