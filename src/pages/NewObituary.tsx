@@ -1486,7 +1486,7 @@ export default function NewObituary() {
                               <div className="space-y-2">
                                 {index === 0 && (
                                   <Label className="flex items-center gap-1.5">
-                                    <Calendar className="w-4 h-4" />
+                                    <CalendarIcon className="w-4 h-4" />
                                     Data
                                   </Label>
                                 )}
@@ -1583,7 +1583,7 @@ export default function NewObituary() {
                         <div className="grid md:grid-cols-4 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="funeralDate" className="flex items-center gap-1.5">
-                              <Calendar className="w-4 h-4" />
+                              <CalendarIcon className="w-4 h-4" />
                               Data*
                             </Label>
                             <Popover>
@@ -1691,7 +1691,7 @@ export default function NewObituary() {
                         <div className="grid md:grid-cols-4 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="cremacaoDate" className="flex items-center gap-1.5">
-                              <Calendar className="w-4 h-4" />
+                              <CalendarIcon className="w-4 h-4" />
                               Data
                             </Label>
                             <Popover>
@@ -1790,7 +1790,7 @@ export default function NewObituary() {
                       <div className="grid md:grid-cols-4 gap-4 pl-8">
                         <div className="space-y-2">
                           <Label htmlFor="missa7Date" className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
+                            <CalendarIcon className="w-4 h-4" />
                             Data
                           </Label>
                           <Popover>
@@ -1864,7 +1864,7 @@ export default function NewObituary() {
                       <div className="grid md:grid-cols-4 gap-4 pl-8">
                         <div className="space-y-2">
                           <Label htmlFor="missa30Date" className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
+                            <CalendarIcon className="w-4 h-4" />
                             Data
                           </Label>
                           <Popover>
@@ -1938,7 +1938,7 @@ export default function NewObituary() {
                       <div className="grid md:grid-cols-4 gap-4 pl-8">
                         <div className="space-y-2">
                           <Label htmlFor="missa1anoDate" className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
+                            <CalendarIcon className="w-4 h-4" />
                             Data
                           </Label>
                           <Popover>
