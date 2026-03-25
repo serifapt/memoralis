@@ -29,13 +29,17 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
         const n = parseInt(v, 10);
         if (n > 23) v = "23";
         emit(v, mm || "00");
-        minuteRef.current?.focus();
-        minuteRef.current?.select();
+        requestAnimationFrame(() => {
+          minuteRef.current?.focus();
+          minuteRef.current?.select();
+        });
       } else if (v.length === 1 && parseInt(v, 10) > 2) {
         v = "0" + v;
         emit(v, mm || "00");
-        minuteRef.current?.focus();
-        minuteRef.current?.select();
+        requestAnimationFrame(() => {
+          minuteRef.current?.focus();
+          minuteRef.current?.select();
+        });
       } else {
         emit(v, mm || "00");
       }
@@ -105,6 +109,7 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
           className={baseInput}
           value={hh}
           onFocus={(e) => e.target.select()}
+          onMouseUp={(e) => e.preventDefault()}
           onChange={handleHourChange}
           onKeyDown={handleHourKeyDown}
         />
@@ -118,6 +123,7 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
           className={baseInput}
           value={mm}
           onFocus={(e) => e.target.select()}
+          onMouseUp={(e) => e.preventDefault()}
           onChange={handleMinuteChange}
           onKeyDown={handleMinuteKeyDown}
         />
