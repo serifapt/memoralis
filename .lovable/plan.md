@@ -1,39 +1,43 @@
 
 
-## Plano: Alinhar auto-save com save manual e garantir integridade dos dados familiares
+## Plano: Adicionar campos Freguesia, Concelho e Distrito do requerente
 
-### Problema encontrado
+### Problema
 
-A função `saveObituary` (auto-save, linha 896) **não inclui nenhum campo `family_*`** no objecto `obituaryData` que grava na base de dados. Apenas grava os dados do falecido e o `responsible_client_id`.
-
-Em contraste, o `handleSubmit` (save manual, linha 660) inclui todos os 15 campos `family_*`.
-
-**Consequência**: cada auto-save (a cada 1.5s após edição) sobrescreve o registo e **apaga** `family_name`, `family_niss`, `family_iban`, `family_civil_status`, `family_id_card`, etc. Quando a página é recarregada ou o PDF é gerado após reload, os dados familiares estão a `null`.
+O PDF RP-5033 (e potencialmente outros) tem 3 campos em branco que o processo do óbito não recolhe para o requerente/familiar:
+- **Estado civil** — já existe no DB (`family_civil_status`) e no formulário, mas pode não estar a ser preenchido pelo utilizador
+- **Freguesia** — não existe no processo
+- **Concelho** — não existe no processo
+- **Distrito** — não existe no processo
 
 ### Solução
 
-#### 1. Adicionar campos `family_*` ao auto-save
-Acrescentar os 15 campos familiares ao objecto `obituaryData` dentro de `saveObituary` (linha ~896), alinhando-o com o `handleSubmit`:
-
-```
-family_name, family_relationship, family_email, family_phone,
-family_nif, family_niss, family_naturalidade, family_iban,
-family_address, family_locality, family_postal_code,
-family_observations, family_birth_date, family_civil_status, family_id_card
+#### 1. Migração SQL — adicionar 3 colunas à tabela `obituaries`
+```sql
+ALTER TABLE public.obituaries
+  ADD COLUMN family_freguesia text,
+  ADD COLUMN family_concelho text,
+  ADD COLUMN family_distrito text;
 ```
 
-#### 2. Remover casts desnecessários `(formData as any)`
-Os campos `familyCivilStatus` e `familyIdCard` já existem no estado inicial do `formData` (linhas 152-153). Os casts `(formData as any)` nas linhas 702-703 e 2166/2177 são desnecessários e devem ser removidos.
+#### 2. Formulário — adicionar 3 inputs no tab Familiar (`src/pages/NewObituary.tsx`)
+- Adicionar `familyFreguesia`, `familyConcelho`, `familyDistrito` ao estado inicial do `formData`
+- Adicionar 3 campos de input na secção do familiar responsável (junto à Localidade/Código Postal)
+- Incluir os 3 campos no `handleSubmit` e no `saveObituary` (auto-save)
+- Carregar os valores no `useEffect` de carregamento do óbito
+
+#### 3. PDF filler — mapear os novos campos (`src/lib/pdf-form-filler.ts`)
+- Adicionar `familyFreguesia`, `familyConcelho`, `familyDistrito` à interface `ObituaryFormData`
+- Atualizar `fillRP5033()` para mapear estes campos para os campos AcroForm correspondentes (Freguesia, Concelho, Distrito)
+- Atualizar `fillRP5075()` e outros formulários que também tenham estes campos
+- Confirmar que `familyCivilStatus` está corretamente mapeado no RP-5033 (campo `Estado civil` ou equivalente)
+
+#### 4. DocumentsTab — passar os novos campos ao gerador (`src/components/obituaries/DocumentsTab.tsx`)
+- Adicionar `familyFreguesia`, `familyConcelho`, `familyDistrito` ao objecto `formData` passado a `fillPdfForm()`
 
 ### Ficheiros a alterar
-
-- **`src/pages/NewObituary.tsx`**
-  - `saveObituary` (~linha 896): adicionar os 15 campos `family_*` ao objecto de dados
-  - Remover casts `(formData as any)` para `familyCivilStatus` e `familyIdCard`
-
-### Resultado esperado
-
-- Os dados familiares deixam de ser apagados pelo auto-save
-- Os PDFs gerados após reload da página continuam preenchidos correctamente
-- Consistência total entre save manual e auto-save
+- **Migração SQL** — 3 novas colunas
+- **`src/pages/NewObituary.tsx`** — estado, inputs, persistência
+- **`src/lib/pdf-form-filler.ts`** — interface + mapeamentos
+- **`src/components/obituaries/DocumentsTab.tsx`** — passar dados ao gerador
 
