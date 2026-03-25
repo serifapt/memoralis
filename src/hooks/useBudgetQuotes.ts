@@ -370,6 +370,90 @@ export function useBudgetQuotes() {
     }
   };
 
+  const createQuoteWithSections = async (
+    data: BudgetQuoteFormData, 
+    customSections: { title: string; lines: { description: string; quantity: number; unit_price: number; discount_percent: number; line_total: number }[] }[]
+  ): Promise<string | null> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Sessão expirada", description: "Faça login novamente.", variant: "destructive" });
+        return null;
+      }
+
+      const funId = funerariaId || await fetchFunerariaId();
+      if (!funId) {
+        toast({ title: "Funerária não encontrada", description: "A sua conta não está associada a nenhuma funerária.", variant: "destructive" });
+        return null;
+      }
+
+      if (!data.client_id) {
+        toast({ title: "Cliente não seleccionado", description: "Selecione um cliente para criar o orçamento.", variant: "destructive" });
+        return null;
+      }
+
+      const { data: nextNumber, error: numError } = await supabase
+        .rpc("get_next_quote_number", { p_funeraria_id: funId });
+      if (numError) throw numError;
+
+      const { data: newQuote, error: quoteError } = await supabase
+        .from("budget_quotes")
+        .insert({
+          funeraria_id: funId,
+          quote_number: nextNumber,
+          client_id: data.client_id,
+          obituary_id: data.obituary_id || null,
+          deceased_name: data.deceased_name || null,
+          death_date: data.death_date || null,
+          funeral_date: data.funeral_date || null,
+          cemetery: data.cemetery || null,
+          place_of_death: data.place_of_death || null,
+          vat_exempt: data.vat_exempt ?? true,
+          vat_exempt_reason_text: data.vat_exempt_reason_text || "Isento de IVA de acordo com o Art. 9º, nº 26 do Código do IVA",
+          footer_text: data.footer_text || "Este orçamento é válido como contrato após assinatura.",
+          status: "DRAFT",
+        })
+        .select()
+        .single();
+
+      if (quoteError) throw quoteError;
+
+      for (let i = 0; i < customSections.length; i++) {
+        const section = customSections[i];
+        const { data: newSection, error: sectionError } = await supabase
+          .from("budget_quote_sections")
+          .insert({ quote_id: newQuote.id, title: section.title, sort_order: i })
+          .select()
+          .single();
+        if (sectionError) throw sectionError;
+
+        if (section.lines.length > 0) {
+          const linesToInsert = section.lines.map((line, j) => ({
+            section_id: newSection.id,
+            description: line.description,
+            quantity: line.quantity,
+            unit_price: line.unit_price,
+            discount_percent: line.discount_percent,
+            line_total: line.line_total,
+            sort_order: j,
+          }));
+          const { error: linesError } = await supabase
+            .from("budget_quote_lines")
+            .insert(linesToInsert);
+          if (linesError) throw linesError;
+        }
+      }
+
+      toast({ title: "Orçamento criado", description: `Orçamento nº ${nextNumber} criado com sucesso` });
+      await fetchQuotes();
+      return newQuote.id;
+    } catch (error: any) {
+      console.error("[BudgetQuotes] createQuoteWithSections failed:", error);
+      toast({ title: "Erro ao criar orçamento", description: error.message, variant: "destructive" });
+      return null;
+    }
+  };
+
   const updateQuote = async (id: string, data: Partial<BudgetQuoteFormData>): Promise<boolean> => {
     try {
       const { error } = await supabase
@@ -712,6 +796,7 @@ export function useBudgetQuotes() {
     fetchQuotes,
     getQuoteById,
     createQuote,
+    createQuoteWithSections,
     updateQuote,
     updateQuoteStatus,
     duplicateQuote,
