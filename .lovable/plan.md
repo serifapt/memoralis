@@ -1,58 +1,22 @@
 
 
-## Plano: Corrigir bloqueio do Chrome ao imprimir
+## Plano: Selector manual de estado do orçamento
 
-### Problema
-O `window.open()` é chamado **depois** de operações assíncronas (`await html2canvas`, criação do jsPDF). O Chrome (e outros browsers) bloqueiam popups que não são abertos no contexto directo de um gesto do utilizador. Como o `await` quebra essa ligação, o popup é bloqueado.
+### Situação actual
+O estado só pode ser alterado de forma linear (DRAFT → SENT → ACCEPTED) através de botões condicionais. O utilizador quer poder mudar para qualquer estado manualmente.
 
 ### Solução
-Abrir a janela **antes** das operações assíncronas (mantendo o contexto do clique do utilizador), e depois escrever o conteúdo do PDF nessa janela já aberta.
+Tornar o Badge de estado clicável, transformando-o num dropdown (usando `DropdownMenu`) que mostra todas as opções de estado disponíveis. Ao seleccionar um estado diferente, chama `handleStatusChange`.
 
-### Alteração em `src/components/budgets/BudgetQuotePDF.tsx`
+### Alteração em `src/pages/BudgetQuoteDetail.tsx`
 
-Substituir o `handlePrint` (~linhas 78-107) por:
+1. Importar `DropdownMenu`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuItem` e o ícone `ChevronDown`
+2. Substituir o Badge estático (linhas 438-442) por um `DropdownMenu` com o Badge como trigger, mostrando os 4 estados como opções
+3. Manter os botões de acção rápida existentes (Marcar Enviado, Marcar Aceite) como estão, para conveniência — ou removê-los para simplificar a UI, já que o dropdown cobre a mesma funcionalidade
 
-```typescript
-const handlePrint = async () => {
-  if (!pdfRef.current) return;
-
-  // Abrir janela ANTES do await para não perder o contexto do clique
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    alert("O browser bloqueou a janela de impressão. Permita popups para este site.");
-    return;
-  }
-  printWindow.document.write("<p>A preparar impressão...</p>");
-
-  try {
-    const canvas = await html2canvas(pdfRef.current, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-    const imgX = (pdfWidth - imgWidth * ratio) / 2;
-
-    pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
-    const blobUrl = pdf.output("bloburl");
-
-    printWindow.location.href = blobUrl;
-    printWindow.addEventListener("load", () => { printWindow.print(); });
-  } catch (error) {
-    console.error("Erro ao gerar PDF para impressão:", error);
-    printWindow.close();
-  }
-};
-```
+### Resultado
+O utilizador clica no badge de estado → aparece um menu com Rascunho, Enviado, Aceite, Arquivado → selecciona → estado muda imediatamente.
 
 ### Ficheiro a alterar
-- `src/components/budgets/BudgetQuotePDF.tsx` — apenas o método `handlePrint`
+- `src/pages/BudgetQuoteDetail.tsx`
 
