@@ -19,7 +19,14 @@ import {
   Copy,
   FileCheck,
   ExternalLink,
+  ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { 
   useBudgetQuotes, 
   BudgetQuote, 
