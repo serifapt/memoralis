@@ -98,7 +98,7 @@ export default function BudgetQuoteDetail() {
   const [quote, setQuote] = useState<BudgetQuote | null>(null);
   const [sections, setSections] = useState<BudgetQuoteSection[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>("");
-  const [funerariaData, setFunerariaData] = useState<{ nome_comercial: string; nif: string; telefone: string; morada: string; email: string; localidade: string; codigo_postal: string } | null>(null);
+  const [funerariaData, setFunerariaData] = useState<{ nome_comercial: string; nif: string; telefone: string; morada: string; email: string; localidade: string; codigo_postal: string; logo_url: string | null } | null>(null);
   const [formData, setFormData] = useState({
     deceased_name: "",
     death_date: "",
@@ -119,7 +119,7 @@ export default function BudgetQuoteDetail() {
       if (user) {
         const { data } = await supabase
           .from("funerarias")
-          .select("nome_comercial, nif, telefone, morada, email, localidade, codigo_postal")
+          .select("nome_comercial, nif, telefone, morada, email, localidade, codigo_postal, logo_url")
           .eq("user_id", user.id)
           .maybeSingle();
         if (data) {
@@ -450,7 +450,7 @@ export default function BudgetQuoteDetail() {
         <div className="flex flex-wrap gap-2">
           {!isNew && !isArchived && quote && (
             <>
-              <BudgetQuotePDF 
+               <BudgetQuotePDF 
                 quote={quote} 
                 sections={sections} 
                 funerariaName={funerariaData?.nome_comercial}
@@ -460,6 +460,7 @@ export default function BudgetQuoteDetail() {
                 funerariaEmail={funerariaData?.email}
                 funerariaLocality={funerariaData?.localidade}
                 funerariaPostalCode={funerariaData?.codigo_postal}
+                funerariaLogoUrl={funerariaData?.logo_url}
               />
               <Button variant="outline" size="sm" onClick={handlePrint}>
                 <Printer className="w-4 h-4 mr-2" />
