@@ -1391,7 +1391,6 @@ export default function NewObituary() {
                           value={formData.deathTime}
                           onChange={(v) => handleInputChange("deathTime", v)}
                         />
-                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cause">Causa</Label>
