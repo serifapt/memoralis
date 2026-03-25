@@ -12,6 +12,7 @@ import {
   Send, 
   CheckCircle, 
   MoreVertical,
+  ChevronDown,
   Eye,
   Copy,
   Trash2,
@@ -175,10 +176,34 @@ export default function BudgetQuotes() {
                         <h3 className="font-semibold truncate">
                           {quote.client?.full_name || "Cliente não definido"}
                         </h3>
-                        <Badge className={status.color}>
-                          <StatusIcon className="w-3 h-3 mr-1" />
-                          {status.label}
-                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="focus:outline-none">
+                              <Badge className={`${status.color} cursor-pointer hover:opacity-80 transition-opacity`}>
+                                <StatusIcon className="w-3 h-3 mr-1" />
+                                {status.label}
+                                <ChevronDown className="ml-1 h-3 w-3 inline" />
+                              </Badge>
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            {(Object.entries(statusConfig) as [BudgetQuoteStatus, { label: string; color: string; icon: any }][]).map(([key, config]) => {
+                              const Icon = config.icon;
+                              return (
+                                <DropdownMenuItem
+                                  key={key}
+                                  disabled={key === quote.status}
+                                  onClick={() => updateQuoteStatus(quote.id, key)}
+                                >
+                                  <Badge className={`${config.color} mr-2`}>
+                                    <Icon className="w-3 h-3 mr-1" />
+                                    {config.label}
+                                  </Badge>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                       <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
                         {quote.deceased_name && (
