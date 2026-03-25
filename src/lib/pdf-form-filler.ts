@@ -30,6 +30,8 @@ export interface ObituaryFormData {
   familyLocality?: string;
   familyPostalCode?: string;
   familyBirthDate?: string;
+  familyCivilStatus?: string;
+  familyIdCard?: string;
 }
 
 // Helper to split a date string "YYYY-MM-DD" into {dia, mes, ano}
@@ -71,20 +73,7 @@ function setTextField(form: any, fieldName: string, value: string) {
   }
 }
 
-// Safe set checkbox
-function setCheckbox(form: any, fieldName: string, checked: boolean) {
-  try {
-    const field = form.getCheckBox(fieldName);
-    if (field) {
-      if (checked) field.check();
-      else field.uncheck();
-    }
-  } catch {
-    // Field not found
-  }
-}
-
-// ====== REAL FIELD MAPPINGS (extracted from PDFs) ======
+// ====== REAL FIELD MAPPINGS (extracted from PDFs with pypdf) ======
 
 function fillRP5033(form: any, data: ObituaryFormData) {
   const pc = splitPostalCode(data.familyPostalCode);
@@ -103,7 +92,7 @@ function fillRP5033(form: any, data: ObituaryFormData) {
   setTextField(form, 'Telemóvel  Telefone', data.familyPhone || '');
   setTextField(form, 'Email', data.familyEmail || '');
 
-  // Falecido (deceased)
+  // Falecido (deceased) - page 1
   setTextField(form, 'Nome completo_2', data.fullName || '');
   setTextField(form, 'Data de nascimento_2', formatDatePt(data.birthDate));
   setTextField(form, 'N de Identificação de Segurança Social', data.socialSecurity || '');
@@ -126,39 +115,45 @@ function fillRP5075(form: any, data: ObituaryFormData) {
   setTextField(form, 'Data_nascimento_requerente_ano', reqBirth.ano);
   setTextField(form, 'NISS_requerente', data.familyNiss || '');
   setTextField(form, 'NIF_requerente', data.familyNif || '');
+  setTextField(form, 'Estado_civil_requerente', data.familyCivilStatus || '');
   setTextField(form, 'Relação_familiar_beneficiário_falecido', data.familyRelationship || '');
-  setTextField(form, 'Estado_civil_requerente', data.civilStatus || '');
   setTextField(form, 'Morada_requerente', data.familyAddress || '');
+  setTextField(form, 'Localidade_requerente', data.familyLocality || '');
   setTextField(form, 'Código_postal', pc.cp1);
   setTextField(form, 'Código_+postal_digitos', pc.cp2);
   setTextField(form, 'Código_postal_1', data.familyLocality || '');
-  setTextField(form, 'Localidade_requerente', data.familyLocality || '');
   setTextField(form, 'Telemovel_requerente', data.familyPhone || '');
   setTextField(form, 'E-mail_requerente', data.familyEmail || '');
 
   // Beneficiário falecido - page 1
   setTextField(form, 'Nome_completo_beneficiário_falecido', data.fullName || '');
+  setTextField(form, 'NISS_beneficiário_falecido', data.socialSecurity || '');
   setTextField(form, 'Data_nascimento_beneficiário_falecido_dia', decBirth.dia);
   setTextField(form, 'Data_nascimento_beneficiário_falecido_mês', decBirth.mes);
   setTextField(form, 'Data_nascimento_beneficiário_falecido_ano', decBirth.ano);
-  setTextField(form, 'NISS_beneficiário_falecido', data.socialSecurity || '');
   setTextField(form, 'Estado_civil_data_falecimento', data.civilStatus || '');
   setTextField(form, 'Data_falecimento_beneficiário_falecido_dia', decDeath.dia);
   setTextField(form, 'Data_falecimento_beneficiário_falecido_mês', decDeath.mes);
   setTextField(form, 'Data_falecimento_beneficiário_falecido_ano', decDeath.ano);
 
-  // Page 3
+  // Page 3 - subsídio funeral
   setTextField(form, 'relação_familiar_beneficiário', data.familyRelationship || '');
+
+  // Date - last page
+  const today = new Date();
+  setTextField(form, 'Data_ano', String(today.getFullYear()));
+  setTextField(form, 'Data_mês', String(today.getMonth() + 1).padStart(2, '0'));
+  setTextField(form, 'Data_dia', String(today.getDate()).padStart(2, '0'));
 }
 
 function fillMG14(form: any, data: ObituaryFormData) {
   const reqBirth = splitDate(data.familyBirthDate);
 
   setTextField(form, 'Nome Completo 2', data.familyName || '');
+  setTextField(form, 'NISS', data.familyNiss || '');
   setTextField(form, 'dia', reqBirth.dia);
   setTextField(form, 'mês', reqBirth.mes);
   setTextField(form, 'ano', reqBirth.ano);
-  setTextField(form, 'NISS', data.familyNiss || '');
   setTextField(form, 'Telemóvel', data.familyPhone || '');
   setTextField(form, 'Email', data.familyEmail || '');
   setTextField(form, 'IBAN', data.familyIban || '');
@@ -168,11 +163,11 @@ function fillMG14(form: any, data: ObituaryFormData) {
 function fillRP5018(form: any, data: ObituaryFormData) {
   const pc = splitPostalCode(data.familyPostalCode);
 
-  // Page 1 - Requerente (top section)
+  // Page 1 - Requerente (top)
   setTextField(form, 'Nome', data.familyName || '');
+  setTextField(form, 'NISS', data.familyNiss || '');
   setTextField(form, 'NIF', data.familyNif || '');
   setTextField(form, 'Data_nascimento', formatDatePt(data.familyBirthDate));
-  setTextField(form, 'NISS', data.familyNiss || '');
   setTextField(form, 'Morada', data.familyAddress || '');
   setTextField(form, 'Localidade', data.familyLocality || '');
   setTextField(form, 'Código_postal1', pc.cp1);
@@ -183,27 +178,27 @@ function fillRP5018(form: any, data: ObituaryFormData) {
 
   // Page 1 - Beneficiário falecido
   setTextField(form, 'Nome_beneffalecido', data.fullName || '');
-  setTextField(form, 'Data_nascimento_beneffalecido', formatDatePt(data.birthDate));
   setTextField(form, 'NISS_beneffalecido', data.socialSecurity || '');
+  setTextField(form, 'Data_nascimento_beneffalecido', formatDatePt(data.birthDate));
   setTextField(form, 'Data_falecimento_benef', formatDatePt(data.deathDate));
 
-  // Page 1 - Requerente (bottom section if different)
+  // Page 1 - Requerente (bottom)
   setTextField(form, 'Nome_Req', data.familyName || '');
-  setTextField(form, 'Data_nascimento_Req', formatDatePt(data.familyBirthDate));
-  setTextField(form, 'NIF_Req', data.familyNif || '');
   setTextField(form, 'NISS_Req', data.familyNiss || '');
+  setTextField(form, 'NIF_Req', data.familyNif || '');
+  setTextField(form, 'Data_nascimento_Req', formatDatePt(data.familyBirthDate));
 
-  // Page 2 - Address
+  // Page 2
   setTextField(form, 'Morada2', data.familyAddress || '');
   setTextField(form, 'Localidade2', data.familyLocality || '');
   setTextField(form, 'Código_postal2', pc.cp1);
   setTextField(form, 'Código_postal3', pc.cp2);
   setTextField(form, 'Localidade3', data.familyLocality || '');
-  setTextField(form, 'E-mail2', data.familyEmail || '');
   setTextField(form, 'Telemóvel2', data.familyPhone || '');
+  setTextField(form, 'E-mail2', data.familyEmail || '');
   setTextField(form, 'RelacaoFamiliar', data.familyRelationship || '');
 
-  // Page 3 - Date
+  // Page 3
   setTextField(form, 'Data_Req', new Date().toLocaleDateString('pt-PT'));
 }
 
@@ -216,37 +211,37 @@ function fillRP5076(form: any, data: ObituaryFormData) {
   // Falecido - page 1
   setTextField(form, 'Nome_completo_requerente', data.fullName || '');
   setTextField(form, 'NISS_requerente', data.socialSecurity || '');
+  setTextField(form, 'NIF_requerente', data.taxId || '');
   setTextField(form, 'Data_nascimento_requerente_dia', decBirth.dia);
   setTextField(form, 'Data_nascimento_requerente_mês', decBirth.mes);
   setTextField(form, 'Data_nascimento_requerente_ano', decBirth.ano);
-  setTextField(form, 'NIF_requerente', data.taxId || '');
   setTextField(form, 'estado civil à data do falecimento', data.civilStatus || '');
   setTextField(form, 'Data_falecimento_ano', decDeath.ano);
   setTextField(form, 'Data_falecimento_mês', decDeath.mes);
   setTextField(form, 'Data_falecimnto_dia', decDeath.dia);
 
-  // Requerente (person requesting) - page 1
+  // Requerente - page 1
   setTextField(form, 'Nome_completo_requerente1', data.familyName || '');
+  setTextField(form, 'NISS_requerente1', data.familyNiss || '');
+  setTextField(form, 'NIF_requerente1', data.familyNif || '');
   setTextField(form, 'Data_nascimento_requerente_dia1', reqBirth.dia);
   setTextField(form, 'Data_nascimento_requerente_mês1', reqBirth.mes);
   setTextField(form, 'Data_nascimento_requerente_ano1', reqBirth.ano);
-  setTextField(form, 'NISS_requerente1', data.familyNiss || '');
-  setTextField(form, 'NIF_requerente1', data.familyNif || '');
-  setTextField(form, 'estado civil', data.civilStatus || '');
+  setTextField(form, 'estado civil', data.familyCivilStatus || '');
   setTextField(form, 'relação familiar', data.familyRelationship || '');
   setTextField(form, 'Morada_requerente', data.familyAddress || '');
+  setTextField(form, 'Localidade_requerente', data.familyLocality || '');
   setTextField(form, 'Código_postal', pc.cp1);
   setTextField(form, 'Código_+postal_digitos', pc.cp2);
   setTextField(form, 'Código_postal_1', data.familyLocality || '');
-  setTextField(form, 'Localidade_requerente', data.familyLocality || '');
-  setTextField(form, 'E-mail_requerente', data.familyEmail || '');
   setTextField(form, 'Telemovel_requerente', data.familyPhone || '');
+  setTextField(form, 'E-mail_requerente', data.familyEmail || '');
 
   // Date - page 2
   const today = new Date();
-  setTextField(form, 'Data_declarações_dia', String(today.getDate()).padStart(2, '0'));
-  setTextField(form, 'Data_declarações_mês', String(today.getMonth() + 1).padStart(2, '0'));
   setTextField(form, 'Data_declarações_ano', String(today.getFullYear()));
+  setTextField(form, 'Data_declarações_mês', String(today.getMonth() + 1).padStart(2, '0'));
+  setTextField(form, 'Data_declarações_dia', String(today.getDate()).padStart(2, '0'));
 }
 
 function fillRP5077(form: any, data: ObituaryFormData) {
@@ -255,18 +250,19 @@ function fillRP5077(form: any, data: ObituaryFormData) {
   setTextField(form, 'NISS', data.socialSecurity || '');
   setTextField(form, 'NIF', data.taxId || '');
   setTextField(form, 'Data_nascimento', formatDatePt(data.birthDate));
-  setTextField(form, 'Estado_civil', data.civilStatus || '');
   setTextField(form, 'Data_falecimento', formatDatePt(data.deathDate));
+  setTextField(form, 'Estado_civil', data.civilStatus || '');
   setTextField(form, 'Ultima_profissao', data.profession || '');
 
   // Cônjuge/Requerente - page 3
   setTextField(form, 'Nome_conjuge', data.familyName || '');
   setTextField(form, 'Data_nascimento_conjuge', formatDatePt(data.familyBirthDate));
+  setTextField(form, 'EstadoCivil', data.familyCivilStatus || '');
   setTextField(form, 'Parentesco', data.familyRelationship || '');
   setTextField(form, 'Telemóvel', data.familyPhone || '');
   setTextField(form, 'E-mail', data.familyEmail || '');
 
-  // Date - page 4
+  // Date - last page
   setTextField(form, 'Data_Req', new Date().toLocaleDateString('pt-PT'));
 }
 
@@ -290,9 +286,9 @@ function fillRP5078(form: any, data: ObituaryFormData) {
 
   // Date - page 3
   const today = new Date();
-  setTextField(form, 'Data_declarações_dia', String(today.getDate()).padStart(2, '0'));
-  setTextField(form, 'Data_declarações_mês', String(today.getMonth() + 1).padStart(2, '0'));
   setTextField(form, 'Data_declarações_ano', String(today.getFullYear()));
+  setTextField(form, 'Data_declarações_mês', String(today.getMonth() + 1).padStart(2, '0'));
+  setTextField(form, 'Data_declarações_dia', String(today.getDate()).padStart(2, '0'));
 }
 
 function fillRP5083(form: any, data: ObituaryFormData) {
@@ -301,7 +297,7 @@ function fillRP5083(form: any, data: ObituaryFormData) {
   const reqBirth = splitDate(data.familyBirthDate);
   const pc = splitPostalCode(data.familyPostalCode);
 
-  // Membro A (falecido) - page 1
+  // Membro A (falecido)
   setTextField(form, '1 nome', data.fullName || '');
   setTextField(form, '2 Niss', data.socialSecurity || '');
   setTextField(form, '3 ano', decBirth.ano);
@@ -342,7 +338,7 @@ function fillRV1017(form: any, data: ObituaryFormData) {
 
   // Person being identified (deceased)
   setTextField(form, p + 'Nomes_próprios[0]', data.fullName || '');
-  setTextField(form, p + 'Data_de_nascimento[0]', formatDatePt(data.birthDate));
+  setTextField(form, p + 'Data_de_nascimento_2[0]', formatDatePt(data.birthDate));
   setTextField(form, p + 'N__Identificação_de_Segurança_Social[0]', data.socialSecurity || '');
   setTextField(form, p + 'N__Identificação_Fiscal[0]', data.taxId || '');
   setTextField(form, p + 'País[0]', data.nationality || '');
@@ -357,8 +353,9 @@ function fillRV1017(form: any, data: ObituaryFormData) {
 
   // Family member section
   setTextField(form, p + 'Nome_completo[0]', data.familyName || '');
-  setTextField(form, p + 'Data_de_nascimento[1]', formatDatePt(data.familyBirthDate));
+  setTextField(form, p + 'Data_de_nascimento[0]', formatDatePt(data.familyBirthDate));
   setTextField(form, p + 'N__Identificação_Fiscal[1]', data.familyNif || '');
+  setTextField(form, p + 'N__de_documento_de_identificação_civil[1]', data.familyIdCard || '');
 }
 
 // Map of form IDs to fill functions

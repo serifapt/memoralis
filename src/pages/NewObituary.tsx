@@ -2159,6 +2159,28 @@ export default function NewObituary() {
                       />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="familyCivilStatus">Estado Civil</Label>
+                      <Input
+                        id="familyCivilStatus"
+                        placeholder="Solteiro(a), Casado(a), etc."
+                        value={(formData as any).familyCivilStatus || ""}
+                        onChange={(e) =>
+                          handleInputChange("familyCivilStatus", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="familyIdCard">Nº Cartão Cidadão</Label>
+                      <Input
+                        id="familyIdCard"
+                        placeholder="00000000"
+                        value={(formData as any).familyIdCard || ""}
+                        onChange={(e) =>
+                          handleInputChange("familyIdCard", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="familyNaturalidade">Naturalidade</Label>
                       <Input
                         id="familyNaturalidade"
