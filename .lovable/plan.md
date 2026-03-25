@@ -1,23 +1,15 @@
 
 
-## Plano: Separar documentos gerados dos documentos manuais
-
-### Problema
-
-Quando um formulário da Segurança Social é gerado, é inserido na tabela `obituary_documents` com `document_type` igual ao ID do formulário (ex: `"rp5033"`). A lista "Documentos Adicionados" mostra **todos** os registos sem filtrar, misturando documentos gerados automaticamente com documentos carregados manualmente.
-
-### Solução
-
-No ficheiro `src/components/obituaries/DocumentsTab.tsx`, filtrar a lista de documentos na secção "Documentos Adicionados" para mostrar apenas os que têm `document_type === "uploaded"`.
+## Plano: Adicionar tooltips aos botões dos formulários da Segurança Social
 
 ### Alteração
 
-1. Na renderização da lista (linha ~560), filtrar `uploadedDocs` para excluir documentos auto-gerados:
-   ```tsx
-   const manualDocs = uploadedDocs.filter(d => d.document_type === "uploaded");
-   ```
-2. Usar `manualDocs` em vez de `uploadedDocs` na secção "Documentos Adicionados" (contagem, `.map()`, e mensagem de vazio)
-3. Manter `uploadedDocs` (sem filtro) na secção de Formulários da Segurança Social para que o estado "gerado" continue a funcionar correctamente
+No ficheiro `src/components/obituaries/DocumentsTab.tsx`, envolver os dois últimos botões de cada card (linhas ~728-751) com componentes `Tooltip` para mostrar descrições ao passar o rato:
+
+1. **Botão "Download modelo"** (linha 728-735): Tooltip com "Descarregar modelo em branco"
+2. **Botão "Documento gerado"** (linha 737-751): Tooltip com "Descarregar documento preenchido"
+
+Usar os componentes `Tooltip`, `TooltipTrigger` e `TooltipContent` já importáveis de `@/components/ui/tooltip`. O `TooltipProvider` já existe no `App.tsx`.
 
 ### Ficheiro
 - `src/components/obituaries/DocumentsTab.tsx`
