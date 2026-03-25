@@ -446,7 +446,7 @@ export default function BudgetQuoteDetail() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="focus:outline-none">
-                      <Badge className={`${statusConfig[quote.status].color} cursor-pointer hover:opacity-80 transition-opacity`}>
+                      <Badge className={`${statusConfig[quote.status].color} cursor-pointer`}>
                         {statusConfig[quote.status].label}
                         <ChevronDown className="ml-1 h-3 w-3 inline" />
                       </Badge>
@@ -456,6 +456,7 @@ export default function BudgetQuoteDetail() {
                     {(Object.entries(statusConfig) as [BudgetQuoteStatus, { label: string; color: string }][]).map(([key, config]) => (
                       <DropdownMenuItem
                         key={key}
+                        className="focus:bg-primary/10 focus:text-primary"
                         disabled={key === quote.status}
                         onClick={() => handleStatusChange(key)}
                       >
