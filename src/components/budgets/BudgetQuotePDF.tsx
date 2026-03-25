@@ -75,6 +75,24 @@ export const BudgetQuotePDF = forwardRef<BudgetQuotePDFHandle, BudgetQuotePDFPro
     pdf.save(`orcamento-${quote.quote_number}.pdf`);
   };
 
+  const handlePrint = () => {
+    if (!pdfRef.current) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <html><head><title>Orçamento ${quote.quote_number}</title>
+      <style>
+        @media print { @page { size: A4; margin: 0; } body { margin: 0; } }
+        body { margin: 0; font-family: Arial, sans-serif; }
+      </style>
+      </head><body>${pdfRef.current.outerHTML}</body></html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+  };
+
+  useImperativeHandle(ref, () => ({ print: handlePrint }));
+
   // Filter out zero-value lines per section
   const visibleSections = sections
     .map((section) => {
@@ -270,4 +288,4 @@ export const BudgetQuotePDF = forwardRef<BudgetQuotePDFHandle, BudgetQuotePDFPro
       </div>
     </>
   );
-}
+});
