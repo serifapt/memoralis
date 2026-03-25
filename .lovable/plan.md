@@ -1,75 +1,66 @@
 
+Diagnóstico
 
-## Plano: Corrigir PDFs corrompidos e auditar campos em falta
+Do I know what the issue is? Sim.
 
-### Problema principal
-Os ficheiros PDF em `public/templates/` foram salvos como texto em vez de dados binários, corrompendo a estrutura interna. Isto causa o erro `Expected instance of PDFDict2` ao tentar carregar os templates com `pdf-lib`.
+Os logs mostram que o erro atual já não é principalmente de mapeamento de campos. O bloqueio acontece antes disso, quando o template é aberto pelo `pdf-lib`:
 
-### Solução em 3 partes
+- avisos `Trying to parse invalid object`
+- `Invalid object ref: 203 0 R`, `205 0 R`, `207 0 R`, `208 0 R`
+- erro final `Expected instance of PDFDict2, but got instance of undefined`
 
-#### 1. Restaurar os 9 PDFs originais
-Copiar os PDFs originais do utilizador para `public/templates/` usando cópia binária correcta:
-- `RP-5033.pdf`, `RP-5075.pdf`, `MG-14.pdf`, `RP-5018.pdf`, `RP-5076.pdf`, `RP-5077.pdf`, `RP-5078.pdf`, `RP-5083.pdf`, `RV-1017.pdf`
+Ao mesmo tempo, os requests aos templates mostram PDFs oficiais com:
+- `Linearized`
+- `/Encrypt ...`
+- referências internas problemáticas na árvore de páginas/recursos
 
-#### 2. Extrair os nomes reais dos form fields de cada PDF
-Usar `pypdf` num script para listar todos os campos AcroForm de cada template. Com esta informação, corrigir os mapeamentos no `pdf-form-filler.ts`.
+Isto significa que alguns formulários oficiais continuam incompatíveis com o `pdf-lib` no browser, mesmo estando binariamente corretos. Por isso:
+- alguns documentos geram
+- outros falham logo no `PDFDocument.load()` / acesso às páginas
+- corrigir nomes de campos, sozinho, não resolve este erro
 
-#### 3. Auditoria de campos: PDF vs Processo de Óbito
+Plano de correção
 
-Campos **já existentes** no processo (`formData` em `NewObituary.tsx`):
+1. Isolar compatibilidade por template
+- Rever os 9 templates e marcar quais abrem corretamente no `pdf-lib` e quais falham.
+- Guardar uma matriz simples: “carrega”, “campos acessíveis”, “gera”, “falha no parse”.
 
-| Campo processo | Campo DB | Disponível |
-|---|---|---|
-| fullName | full_name | Sim |
-| birthDate | birth_date | Sim |
-| deathDate | death_date | Sim |
-| deathTime | death_time | Sim |
-| birthPlace | birth_place | Sim |
-| nationality | nationality | Sim |
-| civilStatus | civil_status | Sim |
-| profession | profession | Sim |
-| taxId (NIF) | tax_id | Sim |
-| socialSecurity (NISS) | social_security | Sim |
-| idCard (CC) | id_card | Sim |
-| deathLocation | death_location | Sim |
-| cause | cause | Sim |
-| doctor | doctor | Sim |
-| beneficiary | beneficiary | Sim |
-| familyName | family_name | Sim |
-| familyRelationship | family_relationship | Sim |
-| familyEmail | family_email | Sim |
-| familyPhone | family_phone | Sim |
-| familyNif | family_nif | Sim |
-| familyNiss | family_niss | Sim |
-| familyIban | family_iban | Sim |
-| familyNaturalidade | family_naturalidade | Sim |
-| familyAddress | family_address | Sim |
-| familyLocality | family_locality | Sim |
-| familyPostalCode | family_postal_code | Sim |
-| familyBirthDate | family_birth_date | Sim |
+2. Normalizar os PDFs problemáticos
+- Substituir os templates incompatíveis por versões normalizadas/regravadas dos mesmos formulários oficiais.
+- Objetivo: remover a estrutura que está a partir o parser, mantendo o formulário preenchível.
 
-Campos **que os formulários pedem mas NÃO existem** no processo:
+3. Tornar o `pdf-form-filler` robusto
+- Separar as fases: `fetch` → `load` → `getForm` → `fill` → `flatten/save`.
+- Incluir erros com contexto do template (`rp5033`, `rp5075`, etc.), em vez da mensagem genérica atual.
+- Não assumir que todos os PDFs aceitam `flatten()` ou até mesmo `getPages()`.
 
-| Campo PDF | Formulários onde aparece | Proposta |
-|---|---|---|
-| Estado civil do requerente | RP-5075, RP-5076 | Adicionar `familyCivilStatus` |
-| Nº documento identificação do requerente (CC) | RP-5083, RV-1017 | Adicionar `familyIdCard` |
-| País de residência do requerente | RV-1017 | Usar `nationality` ou adicionar campo |
-| Distrito/Concelho/Freguesia do requerente | RP-5033 | Expandir `familyNaturalidade` ou usar `familyLocality` |
-| IBAN em campos separados (IBAN completo) | MG-14 | Já existe `familyIban` |
+4. Adicionar fallback por documento
+- Se um template continuar incompatível após normalização, usar fallback específico:
+  - manter download do original em branco
+  - e, para os casos necessários, gerar por overlay posicional em vez de AcroForm
+- Assim deixamos de ter um fluxo “funciona para uns e crasha para outros”.
 
-#### 4. Implementação
+5. Só depois voltar ao ajuste fino dos campos
+- Com os templates estáveis, fazer uma segunda passagem aos campos ainda vazios.
+- Confirmar para cada formulário o que:
+  - existe no PDF
+  - existe no processo do óbito
+  - continua em falta no produto
 
-**Ficheiros a alterar:**
-- `public/templates/*.pdf` — restaurar binários correctos
-- `src/lib/pdf-form-filler.ts` — corrigir mapeamentos com nomes reais dos campos
-- `src/pages/NewObituary.tsx` — adicionar 2 campos novos (`familyCivilStatus`, `familyIdCard`) no tab Familiar
-- Migração SQL — adicionar `family_civil_status` e `family_id_card` à tabela `obituaries`
+Ficheiros a alterar
 
-**Abordagem:**
-1. Restaurar PDFs binários
-2. Executar script de inspecção dos campos reais
-3. Corrigir todos os mapeamentos em `pdf-form-filler.ts`
-4. Adicionar os 2 campos em falta ao processo
-5. Testar geração de todos os 9 formulários
+- `public/templates/*.pdf` — substituir os templates incompatíveis por versões normalizadas
+- `src/lib/pdf-form-filler.ts` — carregar com tratamento por etapa, mensagens de erro claras e fallback por template
+- `src/components/obituaries/DocumentsTab.tsx` — mostrar o erro certo por formulário e evitar falha opaca no UI
 
+O que não parece ser o problema principal agora
+
+- Não há indícios de que a base de dados esteja a bloquear esta geração
+- Não há indícios de que o `DocumentsTab` esteja a montar mal os dados
+- O crash acontece no parser do PDF, antes de o preenchimento dos campos terminar
+
+Resultado esperado
+
+- deixar de ter erros de parser ao gerar os formulários
+- identificar exatamente quais modelos oficiais precisam de normalização ou fallback
+- estabilizar a geração dos 9 documentos antes de continuar o refinamento dos campos em falta
