@@ -99,42 +99,42 @@ export function BudgetQuotePDF({
           className="bg-white text-black w-[210mm] min-h-[297mm] font-sans text-[11px]"
           style={{ fontFamily: "Arial, sans-serif" }}
         >
-          {/* Header with dark background */}
-          <div className="flex items-center justify-between px-8 py-5" style={{ backgroundColor: "#1e293b" }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-8 py-5 border-b-2" style={{ borderColor: "#000000" }}>
             <div className="flex items-center gap-4">
               {funerariaLogoUrl && (
                 <img 
                   src={funerariaLogoUrl} 
                   alt="Logo" 
-                  className="object-contain rounded"
+                  className="object-contain"
                   style={{ maxHeight: "56px", maxWidth: "120px" }}
                   crossOrigin="anonymous"
                 />
               )}
               <div>
-                <h1 className="text-lg font-bold" style={{ color: "#ffffff" }}>{funerariaName}</h1>
+                <h1 className="text-lg font-bold" style={{ color: "#000000" }}>{funerariaName}</h1>
                 {funerariaFullAddress && (
-                  <p className="text-[10px]" style={{ color: "#cbd5e1" }}>{funerariaFullAddress}</p>
+                  <p className="text-[10px]" style={{ color: "#333333" }}>{funerariaFullAddress}</p>
                 )}
                 <div className="flex gap-4 mt-0.5">
                   {funerariaPhone && (
-                    <span className="text-[10px]" style={{ color: "#cbd5e1" }}>Tel: {funerariaPhone}</span>
+                    <span className="text-[10px]" style={{ color: "#333333" }}>Tel: {funerariaPhone}</span>
                   )}
                   {funerariaEmail && (
-                    <span className="text-[10px]" style={{ color: "#cbd5e1" }}>{funerariaEmail}</span>
+                    <span className="text-[10px]" style={{ color: "#333333" }}>{funerariaEmail}</span>
                   )}
                 </div>
                 {funerariaNif && (
-                  <p className="text-[10px] mt-0.5" style={{ color: "#94a3b8" }}>NIF: {funerariaNif}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "#555555" }}>NIF: {funerariaNif}</p>
                 )}
               </div>
             </div>
             <div className="text-right">
-              <div className="px-5 py-3 rounded" style={{ backgroundColor: "#334155" }}>
-                <p className="text-[10px] font-medium tracking-wider uppercase" style={{ color: "#94a3b8" }}>Orçamento</p>
-                <p className="text-xl font-bold" style={{ color: "#ffffff" }}>Nº {quote.quote_number}</p>
+              <div className="px-5 py-3 border-2" style={{ borderColor: "#000000" }}>
+                <p className="text-[10px] font-medium tracking-wider uppercase" style={{ color: "#555555" }}>Orçamento</p>
+                <p className="text-xl font-bold" style={{ color: "#000000" }}>Nº {quote.quote_number}</p>
               </div>
-              <p className="mt-2 text-[10px]" style={{ color: "#94a3b8" }}>Data: {formatDate(quote.issue_date)}</p>
+              <p className="mt-2 text-[10px]" style={{ color: "#555555" }}>Data: {formatDate(quote.issue_date)}</p>
             </div>
           </div>
 
@@ -171,17 +171,17 @@ export function BudgetQuotePDF({
             {/* Sections / Services */}
             {visibleSections.map((section) => (
               <div key={section.id} className="mb-4">
-                <div className="px-2 py-1.5 rounded-t" style={{ backgroundColor: "#334155" }}>
-                  <h3 className="font-bold text-[11px]" style={{ color: "#ffffff" }}>{section.title}</h3>
+                <div className="px-2 py-1.5" style={{ backgroundColor: "#f1f5f9", borderBottom: "1px solid #000000" }}>
+                  <h3 className="font-bold text-[11px]" style={{ color: "#000000" }}>{section.title}</h3>
                 </div>
                 <table className="w-full border-collapse">
                   <thead>
                     <tr style={{ backgroundColor: "#f8fafc" }}>
-                      <th className="text-center py-1.5 w-10 text-[10px] font-semibold border-b border-gray-200" style={{ color: "#475569" }}>Qtd</th>
-                      <th className="text-left py-1.5 text-[10px] font-semibold border-b border-gray-200" style={{ color: "#475569" }}>Descrição</th>
-                      <th className="text-right py-1.5 w-20 text-[10px] font-semibold border-b border-gray-200" style={{ color: "#475569" }}>Preço Unit.</th>
-                      <th className="text-right py-1.5 w-16 text-[10px] font-semibold border-b border-gray-200" style={{ color: "#475569" }}>Desc. (%)</th>
-                      <th className="text-right py-1.5 w-20 text-[10px] font-semibold border-b border-gray-200" style={{ color: "#475569" }}>Total</th>
+                      <th className="text-center py-1.5 w-10 text-[10px] font-semibold border-b" style={{ color: "#000000", borderColor: "#cccccc" }}>Qtd</th>
+                      <th className="text-left py-1.5 text-[10px] font-semibold border-b" style={{ color: "#000000", borderColor: "#cccccc" }}>Descrição</th>
+                      <th className="text-right py-1.5 w-20 text-[10px] font-semibold border-b" style={{ color: "#000000", borderColor: "#cccccc" }}>Preço Unit.</th>
+                      <th className="text-right py-1.5 w-16 text-[10px] font-semibold border-b" style={{ color: "#000000", borderColor: "#cccccc" }}>Desc. (%)</th>
+                      <th className="text-right py-1.5 w-20 text-[10px] font-semibold border-b" style={{ color: "#000000", borderColor: "#cccccc" }}>Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -199,11 +199,11 @@ export function BudgetQuotePDF({
                       </tr>
                     ))}
                     {section.subtotal > 0 && (
-                      <tr style={{ backgroundColor: "#f1f5f9" }}>
-                        <td colSpan={4} className="text-right py-1.5 font-semibold text-[10px]" style={{ color: "#334155" }}>
+                      <tr style={{ backgroundColor: "#f5f5f5" }}>
+                        <td colSpan={4} className="text-right py-1.5 font-semibold text-[10px]" style={{ color: "#000000" }}>
                           Subtotal {section.title}:
                         </td>
-                        <td className="text-right py-1.5 font-bold text-[10px]" style={{ color: "#334155" }}>
+                        <td className="text-right py-1.5 font-bold text-[10px]" style={{ color: "#000000" }}>
                           {formatCurrency(section.subtotal)}
                         </td>
                       </tr>
@@ -215,10 +215,10 @@ export function BudgetQuotePDF({
 
             {/* Total */}
             <div className="mt-6 flex justify-end">
-              <div className="p-4 rounded" style={{ backgroundColor: "#1e293b", minWidth: "220px" }}>
+              <div className="p-4 border-2" style={{ borderColor: "#000000", minWidth: "220px" }}>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold" style={{ color: "#cbd5e1" }}>TOTAL:</span>
-                  <span className="text-lg font-bold" style={{ color: "#ffffff" }}>{formatCurrency(total)}</span>
+                  <span className="text-sm font-bold" style={{ color: "#000000" }}>TOTAL:</span>
+                  <span className="text-lg font-bold" style={{ color: "#000000" }}>{formatCurrency(total)}</span>
                 </div>
               </div>
             </div>
