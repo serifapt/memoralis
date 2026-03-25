@@ -8,8 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X, Receipt, Info, Check, Loader2, AlertCircle, Save, ChevronDown, ExternalLink } from "lucide-react";
+import { Camera, Eye, Upload, Heart, MessageCircle, Calendar as CalendarIcon, Clock, MapPin, Map, User, Plus, X, Receipt, Info, Check, Loader2, AlertCircle, Save, ChevronDown, ExternalLink } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format, parse } from "date-fns";
+import { pt } from "date-fns/locale/pt";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -1125,14 +1129,17 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="birthDate">Data Nascimento*</Label>
-                      <Input
-                        id="birthDate"
-                        type="date"
-                        value={formData.birthDate}
-                        onChange={(e) =>
-                          handleInputChange("birthDate", e.target.value)
-                        }
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.birthDate && "text-muted-foreground")}>
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.birthDate ? format(parse(formData.birthDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" locale={pt} selected={formData.birthDate ? parse(formData.birthDate, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => handleInputChange("birthDate", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
 
@@ -1313,14 +1320,17 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="deathDate">Data Falecimento*</Label>
-                      <Input
-                        id="deathDate"
-                        type="date"
-                        value={formData.deathDate}
-                        onChange={(e) =>
-                          handleInputChange("deathDate", e.target.value)
-                        }
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.deathDate && "text-muted-foreground")}>
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.deathDate ? format(parse(formData.deathDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" locale={pt} selected={formData.deathDate ? parse(formData.deathDate, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => handleInputChange("deathDate", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="deathTime">Hora Falecimento</Label>
@@ -1480,11 +1490,17 @@ export default function NewObituary() {
                                     Data
                                   </Label>
                                 )}
-                                <Input
-                                  type="date"
-                                  value={entry.date}
-                                  onChange={(e) => updateVelorioEntry(index, "date", e.target.value)}
-                                />
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !entry.date && "text-muted-foreground")}>
+                                      <CalendarIcon className="mr-2 h-4 w-4" />
+                                      {entry.date ? format(parse(entry.date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar"}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar mode="single" locale={pt} selected={entry.date ? parse(entry.date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => updateVelorioEntry(index, "date", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                                  </PopoverContent>
+                                </Popover>
                               </div>
                               <div className="space-y-2">
                                 {index === 0 && (
@@ -1570,14 +1586,17 @@ export default function NewObituary() {
                               <Calendar className="w-4 h-4" />
                               Data*
                             </Label>
-                            <Input
-                              id="funeralDate"
-                              type="date"
-                              value={formData.funeralDate}
-                              onChange={(e) =>
-                                handleInputChange("funeralDate", e.target.value)
-                              }
-                            />
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.funeralDate && "text-muted-foreground")}>
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {formData.funeralDate ? format(parse(formData.funeralDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar mode="single" locale={pt} selected={formData.funeralDate ? parse(formData.funeralDate, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => handleInputChange("funeralDate", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                              </PopoverContent>
+                            </Popover>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="funeralTime" className="flex items-center gap-1.5">
@@ -1675,14 +1694,17 @@ export default function NewObituary() {
                               <Calendar className="w-4 h-4" />
                               Data
                             </Label>
-                            <Input
-                              id="cremacaoDate"
-                              type="date"
-                              value={formData.cremacaoDate}
-                              onChange={(e) =>
-                                handleInputChange("cremacaoDate", e.target.value)
-                              }
-                            />
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.cremacaoDate && "text-muted-foreground")}>
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {formData.cremacaoDate ? format(parse(formData.cremacaoDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar mode="single" locale={pt} selected={formData.cremacaoDate ? parse(formData.cremacaoDate, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => handleInputChange("cremacaoDate", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                              </PopoverContent>
+                            </Popover>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="cremacaoTime" className="flex items-center gap-1.5">
@@ -1771,14 +1793,17 @@ export default function NewObituary() {
                             <Calendar className="w-4 h-4" />
                             Data
                           </Label>
-                          <Input
-                            id="missa7Date"
-                            type="date"
-                            value={formData.missa7Date}
-                            onChange={(e) =>
-                              handleInputChange("missa7Date", e.target.value)
-                            }
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.missa7Date && "text-muted-foreground")}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {formData.missa7Date ? format(parse(formData.missa7Date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar mode="single" locale={pt} selected={formData.missa7Date ? parse(formData.missa7Date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => handleInputChange("missa7Date", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa7Time" className="flex items-center gap-1.5">
@@ -1842,14 +1867,17 @@ export default function NewObituary() {
                             <Calendar className="w-4 h-4" />
                             Data
                           </Label>
-                          <Input
-                            id="missa30Date"
-                            type="date"
-                            value={formData.missa30Date}
-                            onChange={(e) =>
-                              handleInputChange("missa30Date", e.target.value)
-                            }
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.missa30Date && "text-muted-foreground")}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {formData.missa30Date ? format(parse(formData.missa30Date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar mode="single" locale={pt} selected={formData.missa30Date ? parse(formData.missa30Date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => handleInputChange("missa30Date", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa30Time" className="flex items-center gap-1.5">
@@ -1913,14 +1941,17 @@ export default function NewObituary() {
                             <Calendar className="w-4 h-4" />
                             Data
                           </Label>
-                          <Input
-                            id="missa1anoDate"
-                            type="date"
-                            value={formData.missa1anoDate}
-                            onChange={(e) =>
-                              handleInputChange("missa1anoDate", e.target.value)
-                            }
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !formData.missa1anoDate && "text-muted-foreground")}>
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {formData.missa1anoDate ? format(parse(formData.missa1anoDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar mode="single" locale={pt} selected={formData.missa1anoDate ? parse(formData.missa1anoDate, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => handleInputChange("missa1anoDate", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa1anoTime" className="flex items-center gap-1.5">
