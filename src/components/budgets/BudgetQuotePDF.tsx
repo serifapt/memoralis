@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useImperativeHandle, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { BudgetQuote, BudgetQuoteSection } from "@/hooks/useBudgetQuotes";
@@ -18,7 +18,11 @@ interface BudgetQuotePDFProps {
   funerariaLogoUrl?: string | null;
 }
 
-export function BudgetQuotePDF({ 
+export interface BudgetQuotePDFHandle {
+  print: () => void;
+}
+
+export const BudgetQuotePDF = forwardRef<BudgetQuotePDFHandle, BudgetQuotePDFProps>(function BudgetQuotePDF({ 
   quote, 
   sections, 
   funerariaName = "Funerária", 
@@ -29,7 +33,7 @@ export function BudgetQuotePDF({
   funerariaLocality = "",
   funerariaPostalCode = "",
   funerariaLogoUrl,
-}: BudgetQuotePDFProps) {
+}, ref) {
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const formatCurrency = (value: number) => {
