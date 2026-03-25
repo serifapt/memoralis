@@ -1,0 +1,1 @@
+ALTER TABLE budget_quotes ADD COLUMN service_type text;

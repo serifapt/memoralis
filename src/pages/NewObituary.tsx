@@ -1071,7 +1071,7 @@ export default function NewObituary() {
               <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
               <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
               <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
-              <TabsTrigger value="servico">Informação do Serviço</TabsTrigger>
+              
               <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
               {isEditing && <TabsTrigger value="condolencias">Condolências</TabsTrigger>}
@@ -2292,77 +2292,6 @@ export default function NewObituary() {
               </Card>
             </TabsContent>
 
-            {/* Tab: Informação do Serviço */}
-            <TabsContent value="servico" className="space-y-4 md:space-y-8 max-w-full">
-              <Card className="p-6">
-                <h2 className="text-xl font-archivo font-semibold mb-6">
-                  Informação do Serviço
-                </h2>
-
-                <div className="space-y-6">
-                  {/* Tipo de Serviço, Marca Caixão, Caixão Ref. */}
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="serviceType">Tipo de Serviço</Label>
-                      <Select
-                        value={formData.serviceType}
-                        onValueChange={(value) =>
-                          handleInputChange("serviceType", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecionar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="funeral_completo">Funeral Completo</SelectItem>
-                          <SelectItem value="cremacao">Cremação</SelectItem>
-                          <SelectItem value="translado">Translado</SelectItem>
-                          <SelectItem value="basico">Serviço Básico</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="coffinBrand">Marca Caixão</Label>
-                      <Input
-                        id="coffinBrand"
-                        placeholder="Marca"
-                        value={formData.coffinBrand}
-                        onChange={(e) =>
-                          handleInputChange("coffinBrand", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="coffinRef">Caixão Ref.</Label>
-                      <Input
-                        id="coffinRef"
-                        placeholder="ID. Ref Interna"
-                        value={formData.coffinRef}
-                        onChange={(e) =>
-                          handleInputChange("coffinRef", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Preço */}
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="servicePrice">Preço*</Label>
-                      <Input
-                        id="servicePrice"
-                        type="number"
-                        placeholder="41900"
-                        value={formData.servicePrice}
-                        onChange={(e) =>
-                          handleInputChange("servicePrice", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </TabsContent>
 
             {/* Tab: Documentos */}
             <TabsContent value="documentos" className="space-y-4 md:space-y-8 max-w-full">

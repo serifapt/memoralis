@@ -187,6 +187,7 @@ export type Database = {
           place_of_death: string | null
           quote_number: number
           sent_at: string | null
+          service_type: string | null
           status: Database["public"]["Enums"]["budget_quote_status"]
           subtotal: number | null
           total_quote: number | null
@@ -213,6 +214,7 @@ export type Database = {
           place_of_death?: string | null
           quote_number: number
           sent_at?: string | null
+          service_type?: string | null
           status?: Database["public"]["Enums"]["budget_quote_status"]
           subtotal?: number | null
           total_quote?: number | null
@@ -239,6 +241,7 @@ export type Database = {
           place_of_death?: string | null
           quote_number?: number
           sent_at?: string | null
+          service_type?: string | null
           status?: Database["public"]["Enums"]["budget_quote_status"]
           subtotal?: number | null
           total_quote?: number | null
