@@ -1324,14 +1324,19 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="deathTime">Hora Falecimento</Label>
-                      <Input
-                        id="deathTime"
-                        type="time"
-                        value={formData.deathTime}
-                        onChange={(e) =>
-                          handleInputChange("deathTime", e.target.value)
-                        }
-                      />
+                      <div className="relative">
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="deathTime"
+                          type="time"
+                          className="pl-9"
+                          value={formData.deathTime}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) =>
+                            handleInputChange("deathTime", e.target.value)
+                          }
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cause">Causa</Label>
@@ -1488,11 +1493,16 @@ export default function NewObituary() {
                                     Hora
                                   </Label>
                                 )}
-                                <Input
-                                  type="time"
-                                  value={entry.time}
-                                  onChange={(e) => updateVelorioEntry(index, "time", e.target.value)}
-                                />
+                                <div className="relative">
+                                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input
+                                    type="time"
+                                    className="pl-9"
+                                    value={entry.time}
+                                    onFocus={(e) => e.target.select()}
+                                    onChange={(e) => updateVelorioEntry(index, "time", e.target.value)}
+                                  />
+                                </div>
                               </div>
                               <div className="space-y-2">
                                 {index === 0 && (
@@ -1574,14 +1584,19 @@ export default function NewObituary() {
                               <Clock className="w-4 h-4" />
                               Hora
                             </Label>
-                            <Input
-                              id="funeralTime"
-                              type="time"
-                              value={formData.funeralTime}
-                              onChange={(e) =>
-                                handleInputChange("funeralTime", e.target.value)
-                              }
-                            />
+                            <div className="relative">
+                              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="funeralTime"
+                                type="time"
+                                className="pl-9"
+                                value={formData.funeralTime}
+                                onFocus={(e) => e.target.select()}
+                                onChange={(e) =>
+                                  handleInputChange("funeralTime", e.target.value)
+                                }
+                              />
+                            </div>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="funeralCemetery" className="flex items-center gap-1.5">
@@ -1674,14 +1689,19 @@ export default function NewObituary() {
                               <Clock className="w-4 h-4" />
                               Hora
                             </Label>
-                            <Input
-                              id="cremacaoTime"
-                              type="time"
-                              value={formData.cremacaoTime}
-                              onChange={(e) =>
-                                handleInputChange("cremacaoTime", e.target.value)
-                              }
-                            />
+                            <div className="relative">
+                              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="cremacaoTime"
+                                type="time"
+                                className="pl-9"
+                                value={formData.cremacaoTime}
+                                onFocus={(e) => e.target.select()}
+                                onChange={(e) =>
+                                  handleInputChange("cremacaoTime", e.target.value)
+                                }
+                              />
+                            </div>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="cremacaoCemetery" className="flex items-center gap-1.5">
@@ -1765,14 +1785,19 @@ export default function NewObituary() {
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
-                          <Input
-                            id="missa7Time"
-                            type="time"
-                            value={formData.missa7Time}
-                            onChange={(e) =>
-                              handleInputChange("missa7Time", e.target.value)
-                            }
-                          />
+                          <div className="relative">
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="missa7Time"
+                              type="time"
+                              className="pl-9"
+                              value={formData.missa7Time}
+                              onFocus={(e) => e.target.select()}
+                              onChange={(e) =>
+                                handleInputChange("missa7Time", e.target.value)
+                              }
+                            />
+                          </div>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa7Location" className="flex items-center gap-1.5">
@@ -1831,14 +1856,19 @@ export default function NewObituary() {
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
-                          <Input
-                            id="missa30Time"
-                            type="time"
-                            value={formData.missa30Time}
-                            onChange={(e) =>
-                              handleInputChange("missa30Time", e.target.value)
-                            }
-                          />
+                          <div className="relative">
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="missa30Time"
+                              type="time"
+                              className="pl-9"
+                              value={formData.missa30Time}
+                              onFocus={(e) => e.target.select()}
+                              onChange={(e) =>
+                                handleInputChange("missa30Time", e.target.value)
+                              }
+                            />
+                          </div>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa30Location" className="flex items-center gap-1.5">
@@ -1897,14 +1927,19 @@ export default function NewObituary() {
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
-                          <Input
-                            id="missa1anoTime"
-                            type="time"
-                            value={formData.missa1anoTime}
-                            onChange={(e) =>
-                              handleInputChange("missa1anoTime", e.target.value)
-                            }
-                          />
+                          <div className="relative">
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="missa1anoTime"
+                              type="time"
+                              className="pl-9"
+                              value={formData.missa1anoTime}
+                              onFocus={(e) => e.target.select()}
+                              onChange={(e) =>
+                                handleInputChange("missa1anoTime", e.target.value)
+                              }
+                            />
+                          </div>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa1anoLocation" className="flex items-center gap-1.5">
