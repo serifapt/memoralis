@@ -27,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { fillPdfForm, TEMPLATE_FILES, type ObituaryFormData } from "@/lib/pdf-form-filler";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 // Formulários oficiais da Segurança Social
 const AUTO_DOCUMENT_TYPES = [
@@ -725,30 +726,38 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
                     <FileText className="w-4 h-4 mr-2" />
                     {isGenerating ? "A gerar..." : isGenerated ? "Regerar" : "Gerar Preenchido"}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDownloadTemplate(docType.id)}
-                    title="Descarregar modelo em branco"
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownloadTemplate(docType.id)}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Descarregar modelo em branco</TooltipContent>
+                  </Tooltip>
                   {isGenerated && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        const doc = uploadedDocs.find(
-                          (d) => d.document_type === docType.id
-                        );
-                        if (doc) {
-                          handleDownload(doc.file_path, doc.document_name);
-                        }
-                      }}
-                      title="Descarregar preenchido"
-                    >
-                      <FileText className="w-4 h-4" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const doc = uploadedDocs.find(
+                              (d) => d.document_type === docType.id
+                            );
+                            if (doc) {
+                              handleDownload(doc.file_path, doc.document_name);
+                            }
+                          }}
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Descarregar documento preenchido</TooltipContent>
+                    </Tooltip>
                   )}
                 </div>
               </Card>
