@@ -78,31 +78,39 @@ export const BudgetQuotePDF = forwardRef<BudgetQuotePDFHandle, BudgetQuotePDFPro
   const handlePrint = async () => {
     if (!pdfRef.current) return;
 
-    const canvas = await html2canvas(pdfRef.current, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-    });
+    // Abrir janela ANTES do await para não perder o contexto do clique
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("O browser bloqueou a janela de impressão. Permita popups para este site.");
+      return;
+    }
+    printWindow.document.write("<p style='font-family:sans-serif;padding:2rem;'>A preparar impressão...</p>");
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
+    try {
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-    pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
-    const blobUrl = pdf.output("bloburl");
-    const printWindow = window.open(blobUrl);
-    if (printWindow) {
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+
+      pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
+      const blobUrl = pdf.output("bloburl");
+
+      printWindow.location.href = blobUrl;
       printWindow.addEventListener("load", () => { printWindow.print(); });
+    } catch (error) {
+      console.error("Erro ao gerar PDF para impressão:", error);
+      printWindow.close();
     }
   };
 
