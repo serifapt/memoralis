@@ -14,34 +14,39 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
     const minuteRef = React.useRef<HTMLInputElement>(null);
     const hourRef = React.useRef<HTMLInputElement>(null);
 
-    const [hh, mm] = React.useMemo(() => {
-      const parts = (value || "").split(":");
-      return [parts[0] || "", parts[1] || ""];
-    }, [value]);
+    // Parse the prop value
+    const parsedHH = (value || "").split(":")[0] || "";
+    const parsedMM = (value || "").split(":")[1] || "";
 
-    const emit = (newHH: string, newMM: string) => {
-      onChange(`${newHH.padStart(2, "0")}:${newMM.padStart(2, "0")}`);
+    const [localHH, setLocalHH] = React.useState(parsedHH);
+    const [localMM, setLocalMM] = React.useState(parsedMM);
+
+    // Sync local state when prop changes externally
+    React.useEffect(() => {
+      setLocalHH(parsedHH);
+      setLocalMM(parsedMM);
+    }, [parsedHH, parsedMM]);
+
+    const emit = (hh: string, mm: string) => {
+      onChange(`${hh.padStart(2, "0")}:${mm.padStart(2, "0")}`);
     };
 
     const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       let v = e.target.value.replace(/\D/g, "").slice(0, 2);
+      if (v.length === 1 && parseInt(v, 10) > 2) {
+        v = "0" + v;
+      }
       if (v.length === 2) {
         const n = parseInt(v, 10);
         if (n > 23) v = "23";
-        emit(v, mm || "00");
-        requestAnimationFrame(() => {
-          minuteRef.current?.focus();
-          minuteRef.current?.select();
-        });
-      } else if (v.length === 1 && parseInt(v, 10) > 2) {
-        v = "0" + v;
-        emit(v, mm || "00");
+        setLocalHH(v);
+        emit(v, localMM || "00");
         requestAnimationFrame(() => {
           minuteRef.current?.focus();
           minuteRef.current?.select();
         });
       } else {
-        emit(v, mm || "00");
+        setLocalHH(v);
       }
     };
 
@@ -50,8 +55,27 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
       if (v.length === 2) {
         const n = parseInt(v, 10);
         if (n > 59) v = "59";
+        setLocalMM(v);
+        emit(localHH || "00", v);
+      } else {
+        setLocalMM(v);
       }
-      emit(hh || "00", v);
+    };
+
+    const handleHourBlur = () => {
+      if (localHH) {
+        const padded = localHH.padStart(2, "0");
+        setLocalHH(padded);
+        emit(padded, localMM || "00");
+      }
+    };
+
+    const handleMinuteBlur = () => {
+      if (localMM) {
+        const padded = localMM.padStart(2, "0");
+        setLocalMM(padded);
+        emit(localHH || "00", padded);
+      }
     };
 
     const handleHourKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -62,9 +86,11 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
       }
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault();
-        let n = parseInt(hh || "0", 10);
+        let n = parseInt(localHH || "0", 10);
         n = e.key === "ArrowUp" ? (n + 1) % 24 : (n - 1 + 24) % 24;
-        emit(String(n).padStart(2, "0"), mm || "00");
+        const v = String(n).padStart(2, "0");
+        setLocalHH(v);
+        emit(v, localMM || "00");
       }
     };
 
@@ -81,9 +107,11 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
       }
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault();
-        let n = parseInt(mm || "0", 10);
+        let n = parseInt(localMM || "0", 10);
         n = e.key === "ArrowUp" ? (n + 1) % 60 : (n - 1 + 60) % 60;
-        emit(hh || "00", String(n).padStart(2, "0"));
+        const v = String(n).padStart(2, "0");
+        setLocalMM(v);
+        emit(localHH || "00", v);
       }
     };
 
@@ -107,11 +135,12 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
           maxLength={2}
           placeholder="HH"
           className={baseInput}
-          value={hh}
+          value={localHH}
           onFocus={(e) => e.target.select()}
           onMouseUp={(e) => e.preventDefault()}
           onChange={handleHourChange}
           onKeyDown={handleHourKeyDown}
+          onBlur={handleHourBlur}
         />
         <span className="text-muted-foreground font-mono select-none">:</span>
         <input
@@ -121,11 +150,12 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
           maxLength={2}
           placeholder="MM"
           className={baseInput}
-          value={mm}
+          value={localMM}
           onFocus={(e) => e.target.select()}
           onMouseUp={(e) => e.preventDefault()}
           onChange={handleMinuteChange}
           onKeyDown={handleMinuteKeyDown}
+          onBlur={handleMinuteBlur}
         />
       </div>
     );
