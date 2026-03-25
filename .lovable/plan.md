@@ -1,29 +1,36 @@
 
 
-## Plano: Melhorar PDF do orçamento
+## Plano: Imprimir o mesmo PDF gerado
 
-### Alterações
+### Problema
+O botão "Imprimir" copia o HTML do template para uma nova janela, mas as classes Tailwind não são incluídas — o resultado visual fica diferente do PDF gerado (que usa `html2canvas` para capturar o layout renderizado).
 
-#### 1. Ocultar campos com valor 0 no PDF (`BudgetQuotePDF.tsx`)
-- Filtrar linhas com `line_total === 0` (ou `unit_price === 0`) de cada secção antes de renderizar
-- Ocultar secções inteiras se todas as linhas tiverem valor 0
-- Ocultar a linha de subtotal da secção se o subtotal for 0
+### Solução
+Alterar `handlePrint` para gerar o PDF em memória (mesmo processo que `handleGeneratePDF`) e abri-lo numa nova aba para impressão, em vez de copiar HTML sem estilos.
 
-#### 2. Incorporar logo da funerária no PDF (`BudgetQuotePDF.tsx` + `BudgetQuoteDetail.tsx`)
-- Adicionar prop `funerariaLogoUrl` ao componente `BudgetQuotePDF`
-- No header do PDF, mostrar o logo à esquerda do nome da funerária (max ~60px altura)
-- Em `BudgetQuoteDetail.tsx`, incluir `logo_url` na query de `funerarias` e passar ao componente PDF
+### Alteração em `src/components/budgets/BudgetQuotePDF.tsx`
 
-#### 3. Melhorar estética do PDF (`BudgetQuotePDF.tsx`)
-- Header: fundo com cor neutra escura (slate-800), texto branco, logo + nome lado a lado
-- Caixa "ORÇAMENTO Nº" com estilo mais elegante (fundo colorido em vez de borda simples)
-- Cards de Cliente e Falecido: headers com fundo colorido subtil, cantos arredondados
-- Tabelas das secções: header com fundo slate, linhas alternadas (zebra striping)
-- Caixa de total final: destaque visual mais forte com cor de fundo
-- Tipografia mais refinada com melhor hierarquia visual
-- Assinaturas: espaçamento mais generoso
+Substituir o `handlePrint` actual por:
+1. Usar `html2canvas` + `jsPDF` para gerar o PDF em memória (igual ao `handleGeneratePDF`)
+2. Em vez de `pdf.save()`, converter para blob URL com `pdf.output("bloburl")`
+3. Abrir o blob URL numa nova janela e chamar `window.print()` nessa janela
 
-### Ficheiros a alterar
-- `src/components/budgets/BudgetQuotePDF.tsx` — redesign completo do template
-- `src/pages/BudgetQuoteDetail.tsx` — adicionar `logo_url` à query e passar como prop
+```typescript
+const handlePrint = async () => {
+  if (!pdfRef.current) return;
+  const canvas = await html2canvas(pdfRef.current, { scale: 2, useCORS: true, logging: false });
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  // ... same image sizing logic as handleGeneratePDF ...
+  pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
+  const blobUrl = pdf.output("bloburl");
+  const printWindow = window.open(blobUrl);
+  if (printWindow) {
+    printWindow.addEventListener("load", () => { printWindow.print(); });
+  }
+};
+```
+
+### Ficheiro a alterar
+- `src/components/budgets/BudgetQuotePDF.tsx` — apenas o método `handlePrint` (~10 linhas)
 
