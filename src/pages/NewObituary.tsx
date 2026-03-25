@@ -2178,7 +2178,7 @@ export default function NewObituary() {
                       <Input
                         id="familyCivilStatus"
                         placeholder="Solteiro(a), Casado(a), etc."
-                        value={(formData as any).familyCivilStatus || ""}
+                        value={formData.familyCivilStatus || ""}
                         onChange={(e) =>
                           handleInputChange("familyCivilStatus", e.target.value)
                         }
@@ -2189,7 +2189,7 @@ export default function NewObituary() {
                       <Input
                         id="familyIdCard"
                         placeholder="00000000"
-                        value={(formData as any).familyIdCard || ""}
+                        value={formData.familyIdCard || ""}
                         onChange={(e) =>
                           handleInputChange("familyIdCard", e.target.value)
                         }
