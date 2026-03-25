@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { TimeInput } from "@/components/ui/time-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -1386,19 +1387,11 @@ export default function NewObituary() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="deathTime">Hora Falecimento</Label>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
+                      <TimeInput
                           id="deathTime"
-                          type="time"
-                          className="pl-9"
                           value={formData.deathTime}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) =>
-                            handleInputChange("deathTime", e.target.value)
-                          }
+                          onChange={(v) => handleInputChange("deathTime", v)}
                         />
-                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cause">Causa</Label>
@@ -1561,16 +1554,10 @@ export default function NewObituary() {
                                     Hora
                                   </Label>
                                 )}
-                                <div className="relative">
-                                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                  <Input
-                                    type="time"
-                                    className="pl-9"
+                                <TimeInput
                                     value={entry.time}
-                                    onFocus={(e) => e.target.select()}
-                                    onChange={(e) => updateVelorioEntry(index, "time", e.target.value)}
-                                  />
-                                </div>
+                                    onChange={(v) => updateVelorioEntry(index, "time", v)}
+                                />
                               </div>
                               <div className="space-y-2">
                                 {index === 0 && (
@@ -1655,19 +1642,11 @@ export default function NewObituary() {
                               <Clock className="w-4 h-4" />
                               Hora
                             </Label>
-                            <div className="relative">
-                              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input
+                            <TimeInput
                                 id="funeralTime"
-                                type="time"
-                                className="pl-9"
                                 value={formData.funeralTime}
-                                onFocus={(e) => e.target.select()}
-                                onChange={(e) =>
-                                  handleInputChange("funeralTime", e.target.value)
-                                }
-                              />
-                            </div>
+                                onChange={(v) => handleInputChange("funeralTime", v)}
+                            />
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="funeralCemetery" className="flex items-center gap-1.5">
@@ -1763,19 +1742,11 @@ export default function NewObituary() {
                               <Clock className="w-4 h-4" />
                               Hora
                             </Label>
-                            <div className="relative">
-                              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input
+                            <TimeInput
                                 id="cremacaoTime"
-                                type="time"
-                                className="pl-9"
                                 value={formData.cremacaoTime}
-                                onFocus={(e) => e.target.select()}
-                                onChange={(e) =>
-                                  handleInputChange("cremacaoTime", e.target.value)
-                                }
-                              />
-                            </div>
+                                onChange={(v) => handleInputChange("cremacaoTime", v)}
+                            />
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="cremacaoCemetery" className="flex items-center gap-1.5">
@@ -1862,19 +1833,11 @@ export default function NewObituary() {
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
+                          <TimeInput
                               id="missa7Time"
-                              type="time"
-                              className="pl-9"
                               value={formData.missa7Time}
-                              onFocus={(e) => e.target.select()}
-                              onChange={(e) =>
-                                handleInputChange("missa7Time", e.target.value)
-                              }
-                            />
-                          </div>
+                              onChange={(v) => handleInputChange("missa7Time", v)}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa7Location" className="flex items-center gap-1.5">
@@ -1936,19 +1899,11 @@ export default function NewObituary() {
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
+                          <TimeInput
                               id="missa30Time"
-                              type="time"
-                              className="pl-9"
                               value={formData.missa30Time}
-                              onFocus={(e) => e.target.select()}
-                              onChange={(e) =>
-                                handleInputChange("missa30Time", e.target.value)
-                              }
-                            />
-                          </div>
+                              onChange={(v) => handleInputChange("missa30Time", v)}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa30Location" className="flex items-center gap-1.5">
@@ -2010,19 +1965,11 @@ export default function NewObituary() {
                             <Clock className="w-4 h-4" />
                             Hora
                           </Label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
+                          <TimeInput
                               id="missa1anoTime"
-                              type="time"
-                              className="pl-9"
                               value={formData.missa1anoTime}
-                              onFocus={(e) => e.target.select()}
-                              onChange={(e) =>
-                                handleInputChange("missa1anoTime", e.target.value)
-                              }
-                            />
-                          </div>
+                              onChange={(v) => handleInputChange("missa1anoTime", v)}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="missa1anoLocation" className="flex items-center gap-1.5">
