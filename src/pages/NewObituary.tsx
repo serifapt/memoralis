@@ -2262,6 +2262,42 @@ export default function NewObituary() {
                     </Popover>
                   </div>
 
+                  {/* Freguesia, Concelho, Distrito */}
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="familyFreguesia">Freguesia</Label>
+                      <Input
+                        id="familyFreguesia"
+                        placeholder="Freguesia"
+                        value={formData.familyFreguesia}
+                        onChange={(e) =>
+                          handleInputChange("familyFreguesia", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="familyConcelho">Concelho</Label>
+                      <Input
+                        id="familyConcelho"
+                        placeholder="Concelho"
+                        value={formData.familyConcelho}
+                        onChange={(e) =>
+                          handleInputChange("familyConcelho", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="familyDistrito">Distrito</Label>
+                      <Input
+                        id="familyDistrito"
+                        placeholder="Distrito"
+                        value={formData.familyDistrito}
+                        onChange={(e) =>
+                          handleInputChange("familyDistrito", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
 
                   {/* IBAN */}
                   <div className="space-y-2">
