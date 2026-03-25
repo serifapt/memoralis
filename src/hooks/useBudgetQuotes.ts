@@ -17,6 +17,7 @@ export interface BudgetQuote {
   funeral_date?: string;
   cemetery?: string;
   place_of_death?: string;
+  service_type?: string;
   vat_exempt: boolean;
   vat_exempt_reason_text?: string;
   subtotal: number;
@@ -69,6 +70,7 @@ export interface BudgetQuoteFormData {
   funeral_date?: string;
   cemetery?: string;
   place_of_death?: string;
+  service_type?: string;
   vat_exempt?: boolean;
   vat_exempt_reason_text?: string;
   footer_text?: string;
