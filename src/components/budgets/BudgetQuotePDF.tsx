@@ -106,7 +106,7 @@ export const BudgetQuotePDF = forwardRef<BudgetQuotePDFHandle, BudgetQuotePDFPro
       pdf.addImage(imgData, "PNG", imgX, 0, imgWidth * ratio, imgHeight * ratio);
       const blobUrl = pdf.output("bloburl");
 
-      printWindow.location.href = blobUrl;
+      printWindow.location.href = blobUrl as unknown as string;
       printWindow.addEventListener("load", () => { printWindow.print(); });
     } catch (error) {
       console.error("Erro ao gerar PDF para impressão:", error);
