@@ -8,7 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X, Receipt, Info, Check, Loader2, AlertCircle, Save } from "lucide-react";
+import { Camera, Eye, Upload, Heart, MessageCircle, Calendar, Clock, MapPin, Map, User, Plus, X, Receipt, Info, Check, Loader2, AlertCircle, Save, ChevronDown, ExternalLink } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
@@ -46,6 +49,7 @@ export default function NewObituary() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const [linkedQuotes, setLinkedQuotes] = useState<Array<{ id: string; quote_number: number; status: string; created_at: string }>>([]);
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
@@ -197,12 +201,28 @@ export default function NewObituary() {
     return true;
   }, [formData, funeral]);
 
+  const fetchLinkedQuotes = useCallback(async () => {
+    const obitId = savedObituaryIdRef.current || id;
+    if (!obitId) return;
+    try {
+      const { data } = await supabase
+        .from('budget_quotes')
+        .select('id, quote_number, status, created_at')
+        .eq('obituary_id', obitId)
+        .order('quote_number', { ascending: false });
+      setLinkedQuotes(data || []);
+    } catch (e) {
+      console.error('Error fetching linked quotes:', e);
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchFunerariaId();
     if (isEditing && id) {
       fetchRelatedObituaries();
+      fetchLinkedQuotes();
     }
-  }, [id, isEditing]);
+  }, [id, isEditing, fetchLinkedQuotes]);
 
   useEffect(() => {
     // Scroll to anchor if present in URL
@@ -1018,6 +1038,14 @@ export default function NewObituary() {
     if (savedObituaryIdRef.current || id) {
       navigate(`/budgets/new?obituaryId=${savedObituaryIdRef.current || id}`);
     }
+  };
+
+  const quoteStatusLabels: Record<string, { label: string; color: string }> = {
+    DRAFT: { label: "Rascunho", color: "bg-muted text-muted-foreground" },
+    SENT: { label: "Enviado", color: "bg-blue-100 text-blue-700" },
+    ACCEPTED: { label: "Aceite", color: "bg-green-100 text-green-700" },
+    REJECTED: { label: "Recusado", color: "bg-red-100 text-red-700" },
+    ARCHIVED: { label: "Arquivado", color: "bg-amber-100 text-amber-700" },
   };
 
   return (
@@ -2379,10 +2407,52 @@ export default function NewObituary() {
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
               {(isEditing || savedObituaryIdRef.current) && (
-                <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
-                  <Receipt className="w-4 h-4" />
-                  Criar Orçamento
-                </Button>
+                linkedQuotes.length === 0 ? (
+                  <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
+                    <Receipt className="w-4 h-4" />
+                    Criar Orçamento
+                  </Button>
+                ) : linkedQuotes.length === 1 ? (
+                  <Button variant="outline" className="w-full gap-2" onClick={() => navigate(`/budgets/${linkedQuotes[0].id}`)}>
+                    <Receipt className="w-4 h-4" />
+                    Ver Orçamento
+                  </Button>
+                ) : (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full gap-2">
+                        <Receipt className="w-4 h-4" />
+                        Ver Orçamento
+                        <ChevronDown className="w-4 h-4 ml-auto" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-2" align="start">
+                      <div className="space-y-1">
+                        {linkedQuotes.map((q) => {
+                          const st = quoteStatusLabels[q.status] || { label: q.status, color: "bg-muted text-muted-foreground" };
+                          return (
+                            <button
+                              key={q.id}
+                              className="w-full flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-primary/10 hover:text-primary transition-colors"
+                              onClick={() => navigate(`/budgets/${q.id}`)}
+                            >
+                              <span className="font-medium">Orçamento #{q.quote_number}</span>
+                              <Badge className={`${st.color} pointer-events-none text-[10px]`}>{st.label}</Badge>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <Separator className="my-2" />
+                      <button
+                        className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-primary/10 hover:text-primary transition-colors"
+                        onClick={handleCreateBudget}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Criar Novo Orçamento
+                      </button>
+                    </PopoverContent>
+                  </Popover>
+                )
               )}
               {(isEditing || savedObituaryIdRef.current) && (
                 isPublic ? (
