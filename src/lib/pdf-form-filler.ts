@@ -447,7 +447,7 @@ export async function fillPdfForm(
 
   // Save and return as Blob
   const filledBytes = await pdfDoc.save();
-  return new Blob([filledBytes], { type: 'application/pdf' });
+  return new Blob([filledBytes.buffer], { type: 'application/pdf' });
 }
 
 /**
