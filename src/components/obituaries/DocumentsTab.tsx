@@ -26,75 +26,63 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { fillPdfForm, TEMPLATE_FILES, type ObituaryFormData } from "@/lib/pdf-form-filler";
 
-// Tipos de documentos automáticos disponíveis
-// Para adicionar novos documentos: adicionar aqui e criar o template correspondente
+// Formulários oficiais da Segurança Social
 const AUTO_DOCUMENT_TYPES = [
   { 
-    id: "cmo", 
-    name: "Certificado Médico de Óbito (CMO)",
-    description: "Certificado médico que atesta o óbito",
-    requiredFields: ["fullName", "deathDate", "doctor"]
+    id: "rp5033", 
+    name: "RP-5033 — Subsídio de Funeral",
+    description: "Requerimento de subsídio por morte para despesas de funeral",
+    requiredFields: ["fullName", "deathDate", "familyName"]
   },
   { 
-    id: "registo_obito", 
-    name: "Registo/Assento de Óbito",
-    description: "Documento oficial de registo do óbito",
-    requiredFields: ["fullName", "deathDate", "birthDate", "birthPlace"]
+    id: "rp5075", 
+    name: "RP-5075 — Prestações por Morte",
+    description: "Pedido de prestações por morte (pensão de sobrevivência)",
+    requiredFields: ["fullName", "deathDate", "familyName"]
   },
   { 
-    id: "certidao_obito", 
-    name: "Certidão de Óbito",
-    description: "Certidão oficial emitida pela conservatória",
-    requiredFields: ["fullName", "deathDate", "deathLocation"]
+    id: "mg14", 
+    name: "MG-14 — Registo/Alteração de IBAN",
+    description: "Registo ou alteração de IBAN para recebimento de prestações",
+    requiredFields: ["familyName", "familyNiss"]
   },
   { 
-    id: "requisicao_inumacao", 
-    name: "Requisição de Inumação/Cremação",
-    description: "Autorização para inumação ou cremação",
-    requiredFields: ["fullName", "deathDate", "funeralCemetery"]
+    id: "rp5018", 
+    name: "RP-5018 — Prestações por Morte (Regime não contributivo)",
+    description: "Prestações por morte para regime não contributivo",
+    requiredFields: ["fullName", "deathDate", "familyName"]
   },
   { 
-    id: "guia_transporte", 
-    name: "Guias de Transporte",
-    description: "Documento para transporte do corpo",
-    requiredFields: ["fullName", "deathLocation", "funeralCemetery"]
+    id: "rp5076", 
+    name: "RP-5076 — Reembolso Despesas de Funeral",
+    description: "Pedido de reembolso de despesas de funeral",
+    requiredFields: ["fullName", "deathDate", "familyName"]
   },
   { 
-    id: "autorizacao_entidades", 
-    name: "Autorizações das Entidades",
-    description: "Autorizações de cemitério, conservatória, etc.",
+    id: "rp5077", 
+    name: "RP-5077 — Pedido de Pensão à Instituição Estrangeira",
+    description: "Pedido de pensão a instituição de segurança social estrangeira",
     requiredFields: ["fullName", "deathDate"]
   },
   { 
-    id: "seg_social", 
-    name: "Certidões para Segurança Social",
-    description: "Documentos para subsídio de funeral",
-    requiredFields: ["fullName", "deathDate", "socialSecurity"]
-  },
-  { 
-    id: "financas", 
-    name: "Documentos para Finanças",
-    description: "Declarações fiscais relacionadas",
-    requiredFields: ["fullName", "taxId"]
-  },
-  { 
-    id: "consulares", 
-    name: "Processos Consulares",
-    description: "Documentos para cidadãos estrangeiros",
-    requiredFields: ["fullName", "nationality"]
-  },
-  { 
-    id: "seguros", 
-    name: "Documentos de Seguros",
-    description: "Documentação para companhias de seguros",
+    id: "rp5078", 
+    name: "RP-5078 — Declaração Ato de Responsabilidade de Terceiro",
+    description: "Declaração quando o falecimento resulta de ato de terceiro",
     requiredFields: ["fullName", "deathDate"]
   },
   { 
-    id: "certificado_sanitario", 
-    name: "Certificados Sanitários",
-    description: "Para transporte internacional ou especial",
-    requiredFields: ["fullName", "deathDate", "doctor"]
+    id: "rp5083", 
+    name: "RP-5083 — Situação União de Facto",
+    description: "Declaração de situação de união de facto",
+    requiredFields: ["fullName", "familyName"]
+  },
+  { 
+    id: "rv1017", 
+    name: "RV-1017 — Identificação Cidadão Estrangeiro",
+    description: "Formulário de identificação para cidadãos estrangeiros",
+    requiredFields: ["fullName"]
   },
 ];
 
@@ -123,7 +111,7 @@ interface AutoDocument {
 
 interface DocumentsTabProps {
   obituaryId: string;
-  obituaryData: any; // Todos os dados do óbito para preencher templates
+  obituaryData: any;
 }
 
 export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
@@ -133,14 +121,13 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
 
-  // Carregar documentos ao montar o componente
   useEffect(() => {
     loadUploadedDocuments();
     initializeAutoDocuments();
   }, [obituaryId]);
 
-  // Carregar documentos uploadados da base de dados
   const loadUploadedDocuments = async () => {
     const { data, error } = await (supabase as any)
       .from("obituary_documents")
@@ -160,7 +147,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     setUploadedDocs((data as any) || []);
   };
 
-  // Inicializar lista de documentos automáticos
   const initializeAutoDocuments = () => {
     const docs: AutoDocument[] = AUTO_DOCUMENT_TYPES.map((type) => ({
       type: type.id,
@@ -171,16 +157,13 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     setAutoDocs(docs);
   };
 
-  // Estados para o upload com título e notas
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadNotes, setUploadNotes] = useState("");
 
-  // Upload de ficheiro
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    // Validar se o título está preenchido
     if (!uploadTitle.trim()) {
       toast({
         title: "Título obrigatório",
@@ -193,7 +176,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     setIsUploading(true);
 
     for (const file of Array.from(files)) {
-      // Validar tamanho (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "Ficheiro muito grande",
@@ -203,7 +185,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
         continue;
       }
 
-      // Validar tipo
       const allowedTypes = [
         "application/pdf",
         "application/msword",
@@ -222,7 +203,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
         continue;
       }
 
-      // Upload para storage
       const filePath = `${obituaryId}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("obituary-documents")
@@ -237,10 +217,8 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
         continue;
       }
 
-      // Obter ID do utilizador atual
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Guardar registo na base de dados com título e notas
       const { error: dbError } = await (supabase as any)
         .from("obituary_documents")
         .insert({
@@ -260,7 +238,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           description: dbError.message,
           variant: "destructive",
         });
-        // Limpar ficheiro do storage se falhar guardar na DB
         await supabase.storage.from("obituary-documents").remove([filePath]);
         continue;
       }
@@ -269,7 +246,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     setIsUploading(false);
     loadUploadedDocuments();
     
-    // Limpar campos
     setUploadTitle("");
     setUploadNotes("");
     toast({
@@ -277,11 +253,9 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
       description: "Documentos carregados com sucesso",
     });
 
-    // Limpar input
     event.target.value = "";
   };
 
-  // Download de documento
   const handleDownload = async (filePath: string, fileName: string) => {
     const { data, error } = await supabase.storage
       .from("obituary-documents")
@@ -296,7 +270,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
       return;
     }
 
-    // Criar link de download
     const url = URL.createObjectURL(data);
     const a = document.createElement("a");
     a.href = url;
@@ -307,9 +280,7 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     URL.revokeObjectURL(url);
   };
 
-  // Remover documento
   const handleDelete = async (docId: string, filePath: string) => {
-    // Remover da base de dados
     const { error: dbError } = await (supabase as any)
       .from("obituary_documents")
       .delete()
@@ -324,7 +295,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
       return;
     }
 
-    // Remover do storage
     const { error: storageError } = await supabase.storage
       .from("obituary-documents")
       .remove([filePath]);
@@ -340,7 +310,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     });
   };
 
-  // Editar título do documento
   const handleEditTitle = (docId: string, currentName: string) => {
     setEditingDocId(docId);
     setEditingTitle(currentName);
@@ -384,7 +353,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     setEditingTitle("");
   };
 
-  // Verificar se os campos obrigatórios estão preenchidos
   const checkRequiredFields = (docType: typeof AUTO_DOCUMENT_TYPES[0]) => {
     const missingFields = docType.requiredFields.filter(
       (field) => !obituaryData[field] || obituaryData[field] === ""
@@ -392,12 +360,24 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
     return missingFields;
   };
 
-  // Gerar documento automático (PDF)
+  // Download original blank template
+  const handleDownloadTemplate = (docTypeId: string) => {
+    const templatePath = TEMPLATE_FILES[docTypeId];
+    if (!templatePath) return;
+    
+    const a = document.createElement("a");
+    a.href = templatePath;
+    a.download = templatePath.split('/').pop() || 'template.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  // Generate filled PDF using pdf-lib
   const handleGenerateAutoDoc = async (docType: string) => {
     const docConfig = AUTO_DOCUMENT_TYPES.find((d) => d.id === docType);
     if (!docConfig) return;
 
-    // Verificar campos obrigatórios
     const missingFields = checkRequiredFields(docConfig);
     if (missingFields.length > 0) {
       toast({
@@ -408,56 +388,55 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
       return;
     }
 
-    toast({
-      title: "A gerar documento...",
-      description: "Por favor aguarde",
-    });
+    setGeneratingDoc(docType);
 
-    // Aqui seria chamado um serviço que gera o PDF
-    // Por agora, criar um placeholder
     try {
-      // Importar jsPDF dinamicamente
-      const { default: jsPDF } = await import("jspdf");
-      
-      const doc = new jsPDF();
-      
-      // Adicionar conteúdo ao PDF baseado no tipo de documento
-      doc.setFontSize(20);
-      doc.text(docConfig.name, 20, 20);
-      
-      doc.setFontSize(12);
-      doc.text(`Nome: ${obituaryData.fullName || "N/A"}`, 20, 40);
-      doc.text(`Data de Óbito: ${obituaryData.deathDate || "N/A"}`, 20, 50);
-      doc.text(`Data de Nascimento: ${obituaryData.birthDate || "N/A"}`, 20, 60);
-      doc.text(`Local de Nascimento: ${obituaryData.birthPlace || "N/A"}`, 20, 70);
-      
-      // Adicionar mais campos conforme o tipo de documento
-      if (docType === "cmo") {
-        doc.text(`Médico: ${obituaryData.doctor || "N/A"}`, 20, 80);
-        doc.text(`Causa: ${obituaryData.cause || "N/A"}`, 20, 90);
-      }
-      
-      doc.setFontSize(10);
-      doc.text(`Gerado automaticamente em ${new Date().toLocaleString("pt-PT")}`, 20, 280);
-      
-      // Salvar PDF
-      const pdfBlob = doc.output("blob");
+      // Map obituaryData to ObituaryFormData
+      const formDataForPdf: ObituaryFormData = {
+        fullName: obituaryData.fullName || '',
+        birthDate: obituaryData.birthDate || '',
+        deathDate: obituaryData.deathDate || '',
+        deathTime: obituaryData.deathTime || '',
+        birthPlace: obituaryData.birthPlace || '',
+        nationality: obituaryData.nationality || '',
+        civilStatus: obituaryData.civilStatus || '',
+        profession: obituaryData.profession || '',
+        taxId: obituaryData.taxId || '',
+        socialSecurity: obituaryData.socialSecurity || '',
+        deathLocation: obituaryData.deathLocation || '',
+        cause: obituaryData.cause || '',
+        doctor: obituaryData.doctor || '',
+        beneficiary: obituaryData.beneficiary || '',
+        idCard: obituaryData.idCard || '',
+        familyName: obituaryData.familyName || '',
+        familyRelationship: obituaryData.familyRelationship || '',
+        familyEmail: obituaryData.familyEmail || '',
+        familyPhone: obituaryData.familyPhone || '',
+        familyNif: obituaryData.familyNif || '',
+        familyNiss: obituaryData.familyNiss || '',
+        familyNaturalidade: obituaryData.familyNaturalidade || '',
+        familyIban: obituaryData.familyIban || '',
+        familyAddress: obituaryData.familyAddress || '',
+        familyLocality: obituaryData.familyLocality || '',
+        familyPostalCode: obituaryData.familyPostalCode || '',
+        familyBirthDate: obituaryData.familyBirthDate || '',
+      };
+
+      // Fill the PDF form
+      const pdfBlob = await fillPdfForm(docType, formDataForPdf);
+
+      // Upload to storage
       const fileName = `${docType}_${obituaryId}_${Date.now()}.pdf`;
       const filePath = `${obituaryId}/auto/${fileName}`;
-      
-      // Upload para storage
+
       const { error: uploadError } = await supabase.storage
         .from("obituary-documents")
         .upload(filePath, pdfBlob);
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
-      // Obter ID do utilizador atual
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Guardar registo na base de dados
       const { error: dbError } = await (supabase as any)
         .from("obituary_documents")
         .insert({
@@ -467,15 +446,12 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           file_path: filePath,
           file_size: pdfBlob.size,
           uploaded_by: user?.id || "",
-          notes: "Gerado automaticamente",
+          notes: "Gerado automaticamente com dados do processo",
           is_required: false,
         });
 
-      if (dbError) {
-        throw dbError;
-      }
+      if (dbError) throw dbError;
 
-      // Atualizar estado dos documentos automáticos
       setAutoDocs((prev) =>
         prev.map((d) =>
           d.type === docType
@@ -515,6 +491,8 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setGeneratingDoc(null);
     }
   };
 
@@ -526,7 +504,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           Uploads de Documentos
         </h2>
 
-        {/* Formulário de Upload */}
         <div className="mb-6 space-y-4">
           <div>
             <Label htmlFor="upload-title">Título do Documento*</Label>
@@ -571,7 +548,6 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           />
         </div>
 
-        {/* Lista de Documentos Adicionados */}
         {uploadedDocs.length > 0 && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Documentos Adicionados</h3>
@@ -693,30 +669,24 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
         )}
       </Card>
 
-      {/* Secção: Certidões e Documentos Automáticos */}
+      {/* Secção: Formulários da Segurança Social */}
       <Card className="p-4 md:p-6 max-w-full overflow-hidden">
         <h2 className="text-xl font-archivo font-semibold mb-2">
-          Certidões e Documentos Automáticos
+          Formulários da Segurança Social
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Para gerar os documentos abaixo, certifique-se de que preencheu todos os campos obrigatórios (*) nos outros tabs:
-          <br />
-          <strong>Tab Informações Pessoais:</strong> Nome Completo, Data Nascimento, Naturalidade, Nacionalidade, NIF, Segurança Social, Local/Data Falecimento, Médico Declarante
-          <br />
-          <strong>Tab Informações Fúnebres:</strong> Nome do Cemitério (para documentos de inumação)
-        </p>
-        <p className="text-sm text-muted-foreground mb-6">
-          Gere automaticamente documentos oficiais com base nos dados do óbito
+          Formulários oficiais pré-preenchidos automaticamente com os dados do processo de óbito.
+          Pode descarregar o modelo original em branco ou gerar o formulário preenchido.
         </p>
 
         <div className="grid md:grid-cols-2 gap-4">
           {AUTO_DOCUMENT_TYPES.map((docType) => {
-            const autoDoc = autoDocs.find((d) => d.type === docType.id);
             const missingFields = checkRequiredFields(docType);
             const hasAllFields = missingFields.length === 0;
             const isGenerated = uploadedDocs.some(
               (d) => d.document_type === docType.id
             );
+            const isGenerating = generatingDoc === docType.id;
 
             return (
               <Card key={docType.id} className="p-4">
@@ -743,11 +713,19 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
                     size="sm"
                     variant={isGenerated ? "outline" : "default"}
                     onClick={() => handleGenerateAutoDoc(docType.id)}
-                    disabled={!hasAllFields}
-                    className="w-full"
+                    disabled={!hasAllFields || isGenerating}
+                    className="flex-1"
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    {isGenerated ? "Regerar" : "Gerar PDF"}
+                    {isGenerating ? "A gerar..." : isGenerated ? "Regerar" : "Gerar Preenchido"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDownloadTemplate(docType.id)}
+                    title="Descarregar modelo em branco"
+                  >
+                    <Download className="w-4 h-4" />
                   </Button>
                   {isGenerated && (
                     <Button
@@ -761,8 +739,9 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
                           handleDownload(doc.file_path, doc.document_name);
                         }
                       }}
+                      title="Descarregar preenchido"
                     >
-                      <Download className="w-4 h-4" />
+                      <FileText className="w-4 h-4" />
                     </Button>
                   )}
                 </div>

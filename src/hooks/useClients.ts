@@ -18,6 +18,7 @@ export interface Client {
   postal_code?: string;
   notes?: string;
   dedupe_key?: string;
+  birth_date?: string;
   created_at: string;
   updated_at: string;
 }
@@ -35,6 +36,7 @@ export interface ClientFormData {
   city?: string;
   postal_code?: string;
   notes?: string;
+  birth_date?: string;
 }
 
 export function useClients() {

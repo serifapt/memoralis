@@ -549,6 +549,7 @@ export type Database = {
       clients: {
         Row: {
           address: string | null
+          birth_date: string | null
           city: string | null
           created_at: string
           dedupe_key: string | null
@@ -568,6 +569,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          birth_date?: string | null
           city?: string | null
           created_at?: string
           dedupe_key?: string | null
@@ -587,6 +589,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          birth_date?: string | null
           city?: string | null
           created_at?: string
           dedupe_key?: string | null
