@@ -1,22 +1,17 @@
 
 
-## Plano: Selector manual de estado do orçamento
+## Plano: Ajustar estilos dos badges e dropdown de estado
 
-### Situação actual
-O estado só pode ser alterado de forma linear (DRAFT → SENT → ACCEPTED) através de botões condicionais. O utilizador quer poder mudar para qualquer estado manualmente.
+### Alterações
 
-### Solução
-Tornar o Badge de estado clicável, transformando-o num dropdown (usando `DropdownMenu`) que mostra todas as opções de estado disponíveis. Ao seleccionar um estado diferente, chama `handleStatusChange`.
+**2 ficheiros**: `src/pages/BudgetQuotes.tsx` e `src/pages/BudgetQuoteDetail.tsx`
 
-### Alteração em `src/pages/BudgetQuoteDetail.tsx`
+1. **Remover hover dos badges de estado** — tirar `hover:opacity-80 transition-opacity` dos badges trigger (tanto na lista como no detalhe)
+2. **Hover vermelho (primary) nos itens do dropdown** — adicionar classe `focus:bg-primary/10 focus:text-primary` aos `DropdownMenuItem` do selector de estado, para que o hover use o vermelho/coral do projecto em vez do cinza padrão
 
-1. Importar `DropdownMenu`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuItem` e o ícone `ChevronDown`
-2. Substituir o Badge estático (linhas 438-442) por um `DropdownMenu` com o Badge como trigger, mostrando os 4 estados como opções
-3. Manter os botões de acção rápida existentes (Marcar Enviado, Marcar Aceite) como estão, para conveniência — ou removê-los para simplificar a UI, já que o dropdown cobre a mesma funcionalidade
+### Detalhes técnicos
 
-### Resultado
-O utilizador clica no badge de estado → aparece um menu com Rascunho, Enviado, Aceite, Arquivado → selecciona → estado muda imediatamente.
-
-### Ficheiro a alterar
-- `src/pages/BudgetQuoteDetail.tsx`
+- Badge trigger: `cursor-pointer` mantém-se, remove-se apenas `hover:opacity-80 transition-opacity`
+- Badges dentro do dropdown (opções): também sem hover, mantêm cor fixa
+- `DropdownMenuItem`: adicionar `className="focus:bg-primary/10 focus:text-primary"` para consistência com os botões ghost do projecto
 
