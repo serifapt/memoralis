@@ -1,23 +1,15 @@
 
 
-## Plano: Botão dinâmico "Criar/Ver Orçamento" no processo de óbito
+## Plano: Melhorar inputs de datas e valores no orçamento
 
-### Objectivo
-Quando existem orçamentos associados ao óbito, o botão muda de "Criar Orçamento" para "Ver Orçamento". Se houver mais do que um, ao clicar aparece um popover/dropdown para o utilizador escolher qual visualizar. Se houver apenas um, navega directamente.
+### Alterações em `src/pages/BudgetQuoteDetail.tsx`
 
-### Alterações em `src/pages/NewObituary.tsx`
+1. **Inputs de data (linhas 563, 571)** — Substituir os `<Input type="date">` nativos por date pickers com Popover + Calendar (padrão Shadcn), usando `format(date, "dd/MM/yyyy")` para exibição em formato português. Importar `Calendar`, `Popover`, `PopoverTrigger`, `PopoverContent`, `CalendarIcon` e `format`/`parse` do date-fns.
 
-1. **Consultar orçamentos associados** — Adicionar um `useEffect` que faz query à tabela `budget_quotes` filtrando por `obituary_id` igual ao ID do óbito actual. Guardar o resultado num estado `linkedQuotes` (array com `id`, `quote_number`, `status`, `created_at`).
+2. **Inputs de valores numéricos (linhas 613, 619, 622)** — Adicionar `onFocus={(e) => e.target.select()}` aos inputs de quantidade, preço unitário e desconto para que ao clicar no input o valor existente fique automaticamente seleccionado, pronto para ser substituído. Isto evita que o utilizador tenha de apagar manualmente o "0" antes de escrever.
 
-2. **Lógica condicional do botão**:
-   - Se `linkedQuotes.length === 0` → manter botão "Criar Orçamento" (comportamento actual)
-   - Se `linkedQuotes.length === 1` → botão "Ver Orçamento" que navega directamente para `/budgets/{id}`
-   - Se `linkedQuotes.length > 1` → botão "Ver Orçamento" que abre um `Popover` com a lista dos orçamentos (número, estado, data) para o utilizador escolher
-
-3. **Manter opção de criar novo** — No popover com múltiplos orçamentos, adicionar um separador e a opção "Criar Novo Orçamento" no fim da lista.
-
-4. **Imports adicionais**: `Popover`, `PopoverTrigger`, `PopoverContent` de `@/components/ui/popover`, e `ChevronDown`/`ExternalLink` de lucide-react.
+3. **Tratamento de valor vazio** — Nos inputs de preço e desconto, quando o valor é `0`, mostrar string vazia como placeholder visual para não confundir. Ao perder foco (onBlur), se vazio, repor `0`.
 
 ### Ficheiro a alterar
-- `src/pages/NewObituary.tsx`
+- `src/pages/BudgetQuoteDetail.tsx`
 
