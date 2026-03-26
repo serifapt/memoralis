@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 import { Heart, Menu, X } from "lucide-react";
 import { useState } from "react";
 

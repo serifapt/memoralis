@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Search, MapPin, Star, Eye, Home, ChevronRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";

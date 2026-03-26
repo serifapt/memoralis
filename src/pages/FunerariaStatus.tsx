@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, CheckCircle, XCircle, FileText, Upload } from "lucide-react";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 
 export default function FunerariaStatus() {
   const [funeraria, setFuneraria] = useState<any>(null);

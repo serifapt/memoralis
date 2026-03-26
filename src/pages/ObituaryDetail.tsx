@@ -14,7 +14,7 @@ import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 
 interface Obituary {
   id: string;

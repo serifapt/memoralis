@@ -10,7 +10,7 @@ import { Mail, Phone, MapPin, Clock, Send, Heart } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório").max(100, "Nome muito longo"),
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
