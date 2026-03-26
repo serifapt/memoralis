@@ -88,7 +88,7 @@ export const ObituaryTemplateA4 = ({
     >
       {/* Memoralis logo */}
       {memoralisLogo && (
-        <div style={{ position: "absolute", top: 27, left: 471 }}>
+        <div style={{ position: "absolute", width: 130, height: 17, top: 24, left: 440, overflow: "hidden" }}>
           <LogoMemoralis />
         </div>
       )}
