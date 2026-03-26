@@ -1,31 +1,59 @@
 
 
-## Plano: Refinar ObituaryTemplateA4 para corresponder ao PDF de referência
+## Plano: Adicionar opções de personalização e tipos de anúncio ao AnnouncementGenerator
 
-### Alterações no ficheiro `src/components/obituaries/ObituaryTemplateA4.tsx`
+### Contexto
+O utilizador quer que, antes de gerar o anúncio, possa configurar:
+1. Se inclui o local de falecimento (ex: "Faleceu em França")
+2. Se usa a mensagem da família do processo
+3. O **tipo de anúncio** a gerar (não apenas "Faleceu", mas também Missas e Aniversários)
 
-**1. Tipografia**
-- Nome: manter `font-playfair`, aumentar para `text-4xl`
-- "FALECEU EM": mudar para `font-sans font-bold` com `tracking-[0.25em]` e cor `text-gray-400`
-- Títulos de secção (Câmara Ardente, Funeral, Cemitério): manter `font-playfair font-bold`
+### Alterações
 
-**2. Foto**
-- Mudar de quadrada (`w-48 h-48`) para proporção vertical (`w-48 h-64`)
-- Arredondamento: `rounded-[40px]` em vez de `rounded-3xl`
+#### 1. `src/components/obituaries/types.ts` — Novo tipo de anúncio
+Adicionar:
+```ts
+export type AnnouncementType = "faleceu" | "faleceu_local" | "missa_7" | "missa_30" | "missa_aniversario";
+```
 
-**3. Remover ícones**
-- Eliminar imports de `Calendar`, `Clock`, `MapPin` do lucide-react
-- Substituir por texto limpo alinhado, sem ícones — apenas data, hora e local em linhas separadas com formatação simples
+#### 2. `src/components/obituaries/AnnouncementGenerator.tsx` — Painel de opções
+Antes da selecção de template, adicionar um Card com:
+- **Select** para tipo de anúncio com 5 opções:
+  - Faleceu
+  - Faleceu em "[local]" (preenche automaticamente com `deathLocation`)
+  - Missa 7º Dia
+  - Missa 30º Dia
+  - Missa 1º Aniversário
+- **Checkbox** "Incluir local de falecimento" (visível apenas quando tipo é "faleceu_local", pré-preenchido com `deathLocation`)
+- **Checkbox** "Incluir mensagem da família" (toggle para usar `publicMessage` no template)
 
-**4. Espaçamento**
-- Aumentar `gap` do grid principal de `gap-6` para `gap-10`
-- Aumentar `mb` entre o bloco nome e as cerimónias de `mb-6` para `mb-10`
-- Aumentar `space-y` entre secções de cerimónia de `space-y-5` para `space-y-6`
+Novo estado:
+```ts
+const [announcementType, setAnnouncementType] = useState<AnnouncementType>("faleceu");
+const [includeDeathLocation, setIncludeDeathLocation] = useState(false);
+const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
+```
 
-**5. Rodapé**
-- Manter layout actual (logo+contactos à esquerda, flores à direita)
-- Aumentar ligeiramente o tamanho do logo da funerária e nome
+Passar `announcementType`, `includeDeathLocation` e `includeFamilyMessage` ao `ObituaryTemplateA4`.
 
-### Ficheiro
+#### 3. `src/components/obituaries/ObituaryTemplateA4.tsx` — Adaptar ao tipo de anúncio
+Expandir a interface `ObituaryTemplateA4Data` com:
+```ts
+announcementType?: AnnouncementType;
+includeDeathLocation?: boolean;
+includeFamilyMessage?: boolean;
+```
+
+Lógica condicional no template:
+- **"faleceu"**: Mostra "FALECEU" sem local
+- **"faleceu_local"**: Mostra "FALECEU EM [LOCAL]"
+- **"missa_7"**: Substitui o bloco "FALECEU" por "MISSA DO 7º DIA" e mostra apenas a secção de cerimónia religiosa
+- **"missa_30"**: Idem para 30º dia
+- **"missa_aniversario"**: "MISSA DO 1º ANIVERSÁRIO"
+- Se `includeFamilyMessage` for false, omite o bloco de mensagem pública
+
+### Ficheiros
+- `src/components/obituaries/types.ts`
+- `src/components/obituaries/AnnouncementGenerator.tsx`
 - `src/components/obituaries/ObituaryTemplateA4.tsx`
 
