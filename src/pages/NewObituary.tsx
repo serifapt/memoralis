@@ -45,6 +45,7 @@ export default function NewObituary() {
   const [funerariaInfo, setFunerariaInfo] = useState<{
     nome_comercial: string;
     telefone: string;
+    telefone_secundario: string | null;
     email: string | null;
     website: string | null;
     logo_url: string | null;
@@ -268,7 +269,7 @@ export default function NewObituary() {
       if (user) {
         const { data } = await supabase
           .from('funerarias')
-          .select('id, nome_comercial, telefone, email, website, logo_url')
+          .select('id, nome_comercial, telefone, telefone_secundario, email, website, logo_url')
           .eq('user_id', user.id)
           .single();
         
@@ -277,6 +278,7 @@ export default function NewObituary() {
           setFunerariaInfo({
             nome_comercial: data.nome_comercial,
             telefone: data.telefone,
+            telefone_secundario: data.telefone_secundario,
             email: data.email,
             website: data.website,
             logo_url: data.logo_url,
@@ -2450,6 +2452,7 @@ export default function NewObituary() {
                     municipality: formData.locality || undefined,
                     funerariaName: funerariaInfo?.nome_comercial,
                     funerariaPhone: funerariaInfo?.telefone,
+                    funerariaPhone2: funerariaInfo?.telefone_secundario || undefined,
                     funerariaEmail: funerariaInfo?.email || undefined,
                     funerariaWebsite: funerariaInfo?.website || undefined,
                     funerariaLogoUrl: funerariaInfo?.logo_url || undefined,
