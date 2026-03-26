@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicPageTab } from "@/components/settings/PublicPageTab";
 import { LogoCropper } from "@/components/settings/LogoCropper";
+import { useFunerariaRole } from "@/hooks/useFunerariaRole";
+import { MembersTab } from "@/components/settings/MembersTab";
 
 interface CompanyData {
   nome_comercial: string;
@@ -23,7 +26,17 @@ interface CompanyData {
 }
 
 export default function Settings() {
+  const navigate = useNavigate();
   const { isFlowerServiceActive, funerariaId, toggleFlowerService } = useFlowerService();
+  const { isEditor, loading: roleLoading } = useFunerariaRole();
+
+  // Redirect editors away from settings
+  useEffect(() => {
+    if (!roleLoading && isEditor) {
+      toast.error("Não tem permissão para aceder às configurações");
+      navigate("/dashboard", { replace: true });
+    }
+  }, [roleLoading, isEditor, navigate]);
   const [companyData, setCompanyData] = useState<CompanyData>({
     nome_comercial: "", nif: "", telefone: "", email: "", morada: "", localidade: "", codigo_postal: "",
   });
@@ -377,15 +390,13 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="users">
-          <Card className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-archivo font-semibold text-foreground">Utilizadores do Sistema</h3>
-              <Button variant="outline">Adicionar Utilizador</Button>
-            </div>
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Gestão de utilizadores será implementada em breve.</p>
-            </div>
-          </Card>
+          {funerariaId ? (
+            <MembersTab funerariaId={funerariaId} />
+          ) : (
+            <Card className="p-6">
+              <p className="text-sm text-muted-foreground">A carregar...</p>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="notifications">
