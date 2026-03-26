@@ -56,6 +56,8 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPassword, setEditPassword] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
@@ -87,9 +89,25 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
 
       const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
 
+      // Fetch emails via edge function
+      let emailMap: Record<string, string> = {};
+      if (memberIds.length > 0) {
+        try {
+          const { data: emailData } = await supabase.functions.invoke("get-member-emails", {
+            body: { user_ids: memberIds, funeraria_id: funerariaId },
+          });
+          if (emailData?.emails) {
+            emailMap = emailData.emails;
+          }
+        } catch {
+          // Silently fail — emails just won't show
+        }
+      }
+
       const enriched = (data || []).map((m) => ({
         ...m,
         profile: profileMap.get(m.user_id) || null,
+        email: emailMap[m.user_id] || undefined,
       }));
 
       setMembers(enriched);
@@ -121,14 +139,14 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      toast.success(data.message || "Utilizador convidado com sucesso");
+      toast.success(data.message || "Utilizador adicionado com sucesso");
       setInviteEmail("");
       setInviteName("");
       setInviteRole("editor");
       setShowInviteForm(false);
       loadMembers();
     } catch (err: any) {
-      toast.error(err.message || "Erro ao convidar utilizador");
+      toast.error(err.message || "Erro ao adicionar utilizador");
     } finally {
       setInviting(false);
     }
@@ -173,6 +191,8 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
     setEditingMember(member);
     setEditName(member.profile?.full_name || "");
     setEditPhone(member.profile?.phone || "");
+    setEditEmail(member.email || "");
+    setEditPassword("");
     setEditDialogOpen(true);
   };
 
@@ -195,21 +215,52 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
       return;
     }
 
+    const trimmedEmail = editEmail.trim();
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      toast.error("Email inválido");
+      return;
+    }
+
+    const trimmedPassword = editPassword.trim();
+    if (trimmedPassword) {
+      if (trimmedPassword.length < 8) {
+        toast.error("A password deve ter no mínimo 8 caracteres");
+        return;
+      }
+      if (!/[A-Z]/.test(trimmedPassword)) {
+        toast.error("A password deve conter pelo menos uma maiúscula");
+        return;
+      }
+      if (!/[a-z]/.test(trimmedPassword)) {
+        toast.error("A password deve conter pelo menos uma minúscula");
+        return;
+      }
+      if (!/[0-9]/.test(trimmedPassword)) {
+        toast.error("A password deve conter pelo menos um número");
+        return;
+      }
+    }
+
     setSavingEdit(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({
-          id: editingMember.user_id,
+      const { data, error } = await supabase.functions.invoke("update-funeraria-member", {
+        body: {
+          member_user_id: editingMember.user_id,
+          funeraria_id: funerariaId,
           full_name: trimmedName,
           phone: trimmedPhone || null,
-        }, { onConflict: "id" });
+          email: trimmedEmail || undefined,
+          password: trimmedPassword || undefined,
+        },
+      });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success("Dados atualizados com sucesso");
       setEditDialogOpen(false);
       setEditingMember(null);
+      setEditPassword("");
       loadMembers();
     } catch (err: any) {
       toast.error(err.message || "Erro ao atualizar dados");
@@ -235,14 +286,14 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
         </div>
         <Button onClick={() => setShowInviteForm(!showInviteForm)}>
           <Plus className="w-4 h-4 mr-2" />
-          Convidar Utilizador
+          Adicionar Utilizador
         </Button>
       </div>
 
-      {/* Invite Form */}
+      {/* Add User Form */}
       {showInviteForm && (
         <Card className="p-4 mb-6 border-dashed">
-          <h4 className="font-semibold mb-3">Convidar Novo Utilizador</h4>
+          <h4 className="font-semibold mb-3">Adicionar Novo Utilizador</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="invite-email">Email *</Label>
@@ -279,7 +330,7 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
           <div className="flex gap-2 mt-4">
             <Button onClick={handleInvite} disabled={inviting}>
               {inviting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Convidar
+              Adicionar
             </Button>
             <Button variant="outline" onClick={() => setShowInviteForm(false)}>
               Cancelar
@@ -319,6 +370,9 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
                         <span className="text-muted-foreground ml-1">(você)</span>
                       )}
                     </p>
+                    {member.email && (
+                      <p className="text-xs text-muted-foreground">{member.email}</p>
+                    )}
                     {member.profile?.phone && (
                       <p className="text-xs text-muted-foreground">{member.profile.phone}</p>
                     )}
@@ -397,6 +451,29 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
                 placeholder="Número de telefone"
                 maxLength={20}
               />
+            </div>
+            <div>
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                placeholder="email@exemplo.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-password">Nova Password</Label>
+              <Input
+                id="edit-password"
+                type="password"
+                value={editPassword}
+                onChange={(e) => setEditPassword(e.target.value)}
+                placeholder="Deixe vazio para não alterar"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Mín. 8 caracteres, 1 maiúscula, 1 minúscula, 1 número
+              </p>
             </div>
           </div>
           <DialogFooter>
