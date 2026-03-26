@@ -1145,7 +1145,7 @@ export default function NewObituary() {
             <TabsList className="w-full mb-4 md:mb-8 justify-start max-w-full">
               <TabsTrigger value="pessoais">Informações Pessoais</TabsTrigger>
               <TabsTrigger value="funebres">Informações Fúnebres</TabsTrigger>
-              <TabsTrigger value="familia">Família / Responsável</TabsTrigger>
+              <TabsTrigger value="familia">Cliente / Família</TabsTrigger>
               
               <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
