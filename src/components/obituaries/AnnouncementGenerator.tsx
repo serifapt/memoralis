@@ -41,6 +41,8 @@ interface AnnouncementGeneratorProps {
 
 export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>("profissional");
+  const [announcementType, setAnnouncementType] = useState<AnnouncementType>("faleceu");
+  const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
@@ -267,6 +269,40 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
 
   return (
     <div className="space-y-6">
+      {/* Announcement options */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div>
+            <Label>Tipo de Anúncio</Label>
+            <Select value={announcementType} onValueChange={(v) => setAnnouncementType(v as AnnouncementType)}>
+              <SelectTrigger className="mt-2">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="faleceu">Faleceu</SelectItem>
+                <SelectItem value="faleceu_local">
+                  Faleceu em "{obituaryData.deathLocation || 'local'}"
+                </SelectItem>
+                <SelectItem value="missa_7">Missa 7º Dia</SelectItem>
+                <SelectItem value="missa_30">Missa 30º Dia</SelectItem>
+                <SelectItem value="missa_aniversario">Missa 1º Aniversário</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="includeFamilyMessage"
+              checked={includeFamilyMessage}
+              onCheckedChange={(checked) => setIncludeFamilyMessage(checked === true)}
+            />
+            <Label htmlFor="includeFamilyMessage" className="cursor-pointer">
+              Incluir mensagem da família do processo
+            </Label>
+          </div>
+        </div>
+      </Card>
+
       <Card className="p-6">
         <div className="space-y-4">
           <div>
