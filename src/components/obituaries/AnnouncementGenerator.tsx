@@ -46,6 +46,18 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
+  const formatDatePT = (dateStr: string) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const formatted = date.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  };
+
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return undefined;
+    return timeStr.substring(0, 5);
+  };
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
@@ -96,20 +108,20 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
           deathYear={deathYear}
           parish={obituaryData.parish}
           municipality={obituaryData.municipality}
-          deathCountry={announcementType === "faleceu_local" ? obituaryData.deathLocation : undefined}
-          familyText={includeFamilyMessage ? (obituaryData.publicMessage || undefined) : ""}
+          deathCountry={obituaryData.deathLocation?.toUpperCase()}
+          familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
           wake={obituaryData.velorioDate ? {
-            date: obituaryData.velorioDate,
-            startTime: obituaryData.velorioTime,
+            date: formatDatePT(obituaryData.velorioDate),
+            startTime: formatTime(obituaryData.velorioTime),
             location: obituaryData.velorioLocation,
           } : undefined}
           funeral={obituaryData.funeralDate ? {
-            date: obituaryData.funeralDate,
-            time: obituaryData.funeralTime,
+            date: formatDatePT(obituaryData.funeralDate),
+            time: formatTime(obituaryData.funeralTime),
             location: obituaryData.funeralCemetery,
           } : undefined}
-          cemetery={obituaryData.cerimoniaChurch ? {
-            location: obituaryData.cerimoniaChurch,
+          cemetery={obituaryData.funeralCemetery ? {
+            location: obituaryData.funeralCemetery,
           } : undefined}
           funeralHomeLogo={obituaryData.funerariaLogoUrl}
           phone1={obituaryData.funerariaPhone}
@@ -190,6 +202,8 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
       const canvas = await html2canvas(element, {
         scale: 2,
         backgroundColor: null,
+        useCORS: true,
+        allowTaint: true,
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -238,6 +252,8 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
       const canvas = await html2canvas(element, {
         scale: 2,
         backgroundColor: null,
+        useCORS: true,
+        allowTaint: true,
         width: width,
         height: height,
       });
