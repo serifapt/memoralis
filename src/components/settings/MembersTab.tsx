@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Shield, Edit3, Loader2 } from "lucide-react";
+import { Plus, Trash2, Shield, Edit3, Loader2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -18,13 +18,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Member {
   id: string;
   user_id: string;
   role: string;
   created_at: string;
-  profile?: { full_name: string | null; } | null;
+  profile?: { full_name: string | null; phone: string | null } | null;
   email?: string;
 }
 
@@ -43,6 +50,13 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Edit member state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     loadMembers();
@@ -65,11 +79,10 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
 
       if (error) throw error;
 
-      // Fetch profiles for each member
       const memberIds = (data || []).map((m) => m.user_id);
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, full_name")
+        .select("id, full_name, phone")
         .in("id", memberIds);
 
       const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
@@ -156,9 +169,58 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
     }
   };
 
+  const openEditDialog = (member: Member) => {
+    setEditingMember(member);
+    setEditName(member.profile?.full_name || "");
+    setEditPhone(member.profile?.phone || "");
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingMember) return;
+
+    const trimmedName = editName.trim();
+    if (!trimmedName) {
+      toast.error("O nome não pode estar vazio");
+      return;
+    }
+    if (trimmedName.length > 100) {
+      toast.error("O nome não pode ter mais de 100 caracteres");
+      return;
+    }
+
+    const trimmedPhone = editPhone.trim();
+    if (trimmedPhone && trimmedPhone.length > 20) {
+      toast.error("O telefone não pode ter mais de 20 caracteres");
+      return;
+    }
+
+    setSavingEdit(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          id: editingMember.user_id,
+          full_name: trimmedName,
+          phone: trimmedPhone || null,
+        }, { onConflict: "id" });
+
+      if (error) throw error;
+
+      toast.success("Dados atualizados com sucesso");
+      setEditDialogOpen(false);
+      setEditingMember(null);
+      loadMembers();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atualizar dados");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const roleLabel = (role: string) => role === "admin" ? "Administrador" : "Editor";
   const roleBadgeColor = (role: string) =>
-    role === "admin" ? "bg-primary/10 text-primary" : "bg-blue-100 text-blue-700";
+    role === "admin" ? "bg-primary/10 text-primary" : "bg-accent/50 text-accent-foreground";
 
   return (
     <Card className="p-6">
@@ -247,7 +309,7 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
                     {member.role === "admin" ? (
                       <Shield className="w-4 h-4 text-primary" />
                     ) : (
-                      <Edit3 className="w-4 h-4 text-blue-600" />
+                      <Edit3 className="w-4 h-4 text-muted-foreground" />
                     )}
                   </div>
                   <div>
@@ -257,6 +319,9 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
                         <span className="text-muted-foreground ml-1">(você)</span>
                       )}
                     </p>
+                    {member.profile?.phone && (
+                      <p className="text-xs text-muted-foreground">{member.profile.phone}</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -278,6 +343,14 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
                       </SelectContent>
                     </Select>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => openEditDialog(member)}
+                    title="Editar dados"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
                   {!isCurrentUser && (
                     <Button
                       variant="ghost"
@@ -297,6 +370,46 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
           })}
         </div>
       )}
+
+      {/* Edit Member Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Utilizador</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label htmlFor="edit-name">Nome completo</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Nome do utilizador"
+                maxLength={100}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-phone">Telefone</Label>
+              <Input
+                id="edit-phone"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="Número de telefone"
+                maxLength={20}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit}>
+              {savingEdit && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
