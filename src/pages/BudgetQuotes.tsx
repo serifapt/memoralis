@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ import {
   XCircle
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useFunerariaRole } from "@/hooks/useFunerariaRole";
+import { toast } from "sonner";
 import { useBudgetQuotes, BudgetQuoteStatus } from "@/hooks/useBudgetQuotes";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
@@ -51,11 +53,19 @@ const statusConfig: Record<BudgetQuoteStatus, { label: string; color: string; ic
 
 export default function BudgetQuotes() {
   const navigate = useNavigate();
+  const { isEditor, loading: roleLoading } = useFunerariaRole();
   const { quotes, loading, fetchQuotes, updateQuoteStatus, duplicateQuote, deleteQuote } = useBudgetQuotes();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [quoteToDelete, setQuoteToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!roleLoading && isEditor) {
+      toast.error("Não tem permissão para aceder aos orçamentos");
+      navigate("/dashboard", { replace: true });
+    }
+  }, [roleLoading, isEditor, navigate]);
 
   const filteredQuotes = quotes.filter(quote => {
     const matchesSearch = searchQuery === "" || 
