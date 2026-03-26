@@ -1,40 +1,29 @@
 
 
-## Plano: Renomear "Convidar" para "Adicionar" e permitir editar email/password
+## Plano: Percentagem de preenchimento só com campos pessoais e da família
 
-### 1. Renomear textos no MembersTab
+### Alteração
 
-**`src/components/settings/MembersTab.tsx`**:
-- Botão: "Convidar Utilizador" → "Adicionar Utilizador"
-- Título do formulário: "Convidar Novo Utilizador" → "Adicionar Novo Utilizador"
-- Botão submit: "Convidar" → "Adicionar"
-- Toast de sucesso: "convidado" → "adicionado"
+**`src/pages/NewObituary.tsx`** — Substituir o cálculo atual do `completionPercentage` (linhas 172-176) que conta todos os campos do `formData`, por um cálculo que apenas considera:
 
-### 2. Adicionar campos email e password ao diálogo de edição
+**Campos pessoais do falecido:**
+`displayName`, `fullName`, `birthDate`, `freguesia`, `locality`, `birthPlace`, `nationality`, `civilStatus`, `profession`, `idCard`, `taxId`, `socialSecurity`, `beneficiary`, `deathLocation`, `deathDate`, `deathTime`, `cause`, `doctor`, `medicalCertificate`
 
-**`src/components/settings/MembersTab.tsx`**:
-- Adicionar campos "Email" e "Nova Password" ao diálogo de edição existente
-- Email: campo editável, pré-preenchido com o email atual do membro
-- Password: campo opcional (só altera se preenchido), com validação mínima (8 chars, maiúscula, minúscula, número)
-- Mostrar email na listagem de membros (abaixo do nome/telefone)
+**Campos da família:**
+`familyName`, `familyRelationship`, `familyEmail`, `familyPhone`, `familyNif`, `familyNiss`, `familyNaturalidade`, `familyIban`, `familyAddress`, `familyLocality`, `familyPostalCode`, `familyObservations`, `familyBirthDate`, `familyCivilStatus`, `familyIdCard`, `familyFreguesia`, `familyConcelho`, `familyDistrito`
 
-### 3. Edge Function para atualizar email/password
+Ficam **excluídos** do cálculo: campos de cerimónias (funeral, cremação, missas, velório), notas/observações gerais, informação do serviço, `publicMessage`, `hideCondolences`.
 
-**`supabase/functions/update-funeraria-member/index.ts`** (nova):
-- Recebe: `member_user_id`, `funeraria_id`, `email?`, `password?`, `full_name?`, `phone?`
-- Valida que o caller é admin da funerária
-- Usa `adminClient.auth.admin.updateUserById()` para alterar email e/ou password
-- Atualiza `profiles` para nome e telefone
-- Retorna sucesso
+### Implementação
 
-### 4. Carregar emails dos membros
+Criar um array `personalAndFamilyFields` com as chaves acima e calcular a percentagem apenas com esses campos:
 
-**`src/components/settings/MembersTab.tsx`** — no `loadMembers`:
-- Após carregar profiles, chamar uma edge function ou RPC para obter os emails dos utilizadores (já que `auth.users` não é acessível via client SDK)
-- Alternativa: criar uma edge function `get-member-emails` que recebe os user_ids e retorna os emails (usando service role)
+```typescript
+const personalAndFamilyFields = ["displayName", "fullName", "birthDate", ...];
+const filledCount = personalAndFamilyFields.filter(key => formData[key] !== "" && formData[key] !== false).length;
+const completionPercentage = Math.round((filledCount / personalAndFamilyFields.length) * 100);
+```
 
-### Ficheiros
-- `src/components/settings/MembersTab.tsx` — renomear textos + campos email/password no edit dialog
-- `supabase/functions/update-funeraria-member/index.ts` — nova edge function para update de auth data
-- `supabase/functions/invite-funeraria-member/index.ts` — renomear mensagem de resposta
+### Ficheiro
+- `src/pages/NewObituary.tsx` (linhas 172-176)
 
