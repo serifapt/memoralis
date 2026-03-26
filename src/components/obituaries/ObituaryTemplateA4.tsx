@@ -1,5 +1,3 @@
-import { Calendar, Clock, MapPin } from "lucide-react";
-
 export interface ObituaryTemplateA4Data {
   displayName: string;
   birthDate: string;
@@ -63,7 +61,7 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
     >
       <div className="absolute inset-0 p-[6%] flex flex-col">
         {/* Header - Memoralis logo */}
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-8">
           <img
             src="/lovable-uploads/logo-memoralis-template.png"
             alt="Memoralis"
@@ -72,25 +70,25 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
         </div>
 
         {/* Main content - two columns */}
-        <div className="flex-1 grid grid-cols-2 gap-6">
+        <div className="flex-1 grid grid-cols-2 gap-10">
           {/* Left Column */}
           <div className="flex flex-col justify-between">
             {/* Photo */}
-            <div className="mb-5">
+            <div className="mb-6">
               {data.photoUrl ? (
                 <img
                   src={data.photoUrl}
                   alt={data.displayName}
-                  className="w-48 h-48 object-cover rounded-3xl"
+                  className="w-48 h-64 object-cover rounded-[40px]"
                 />
               ) : (
-                <div className="w-48 h-48 bg-gray-200 rounded-3xl" />
+                <div className="w-48 h-64 bg-gray-200 rounded-[40px]" />
               )}
             </div>
 
             {/* FALECEU block */}
-            <div className="mb-4">
-              <h2 className="text-4xl font-bold text-gray-400 uppercase leading-tight tracking-wide">
+            <div className="mb-6">
+              <p className="font-sans font-bold text-sm text-gray-400 uppercase tracking-[0.25em] leading-relaxed">
                 FALECEU
                 {data.deathLocation && (
                   <>
@@ -98,7 +96,7 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
                     EM {data.deathLocation.toUpperCase()}
                   </>
                 )}
-              </h2>
+              </p>
             </div>
 
             {/* Public message / family text */}
@@ -129,8 +127,8 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
           {/* Right Column */}
           <div className="flex flex-col">
             {/* Name and details */}
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-1">
+            <div className="mb-10">
+              <h1 className="text-4xl font-bold text-gray-900 leading-tight mb-1">
                 {data.displayName || "Nome do Falecido"}
               </h1>
               {(age || birthYear) && (
@@ -152,28 +150,17 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
             </div>
 
             {/* Ceremony sections */}
-            <div className="space-y-5 flex-1">
+            <div className="space-y-6 flex-1">
               {/* Câmara Ardente */}
               {data.velorioDate && data.velorioLocation && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">
                     Câmara Ardente
                   </h3>
-                  <div className="space-y-1.5 text-sm text-gray-600 font-sans">
-                    <p className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
-                      {formatDatePT(data.velorioDate)}
-                    </p>
-                    {data.velorioTime && (
-                      <p className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-400 shrink-0" />
-                        {data.velorioTime}
-                      </p>
-                    )}
-                    <p className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-                      {data.velorioLocation}
-                    </p>
+                  <div className="space-y-1 text-sm text-gray-600 font-sans pl-1">
+                    <p>{formatDatePT(data.velorioDate)}</p>
+                    {data.velorioTime && <p>{data.velorioTime}</p>}
+                    <p>{data.velorioLocation}</p>
                   </div>
                 </div>
               )}
@@ -181,24 +168,13 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
               {/* Funeral */}
               {data.funeralDate && data.funeralLocation && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">
                     Funeral
                   </h3>
-                  <div className="space-y-1.5 text-sm text-gray-600 font-sans">
-                    <p className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
-                      {formatDatePT(data.funeralDate)}
-                    </p>
-                    {data.funeralTime && (
-                      <p className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-400 shrink-0" />
-                        {data.funeralTime}
-                      </p>
-                    )}
-                    <p className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-                      {data.funeralLocation}
-                    </p>
+                  <div className="space-y-1 text-sm text-gray-600 font-sans pl-1">
+                    <p>{formatDatePT(data.funeralDate)}</p>
+                    {data.funeralTime && <p>{data.funeralTime}</p>}
+                    <p>{data.funeralLocation}</p>
                   </div>
                 </div>
               )}
@@ -206,14 +182,11 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
               {/* Cemitério */}
               {data.cemeteryName && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">
                     Cemitério
                   </h3>
-                  <div className="text-sm text-gray-600 font-sans">
-                    <p className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-                      {data.cemeteryName}
-                    </p>
+                  <div className="text-sm text-gray-600 font-sans pl-1">
+                    <p>{data.cemeteryName}</p>
                   </div>
                 </div>
               )}
@@ -230,17 +203,17 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
                 <img
                   src={data.funerariaLogoUrl}
                   alt={data.funerariaName || "Funerária"}
-                  className="h-10 w-10 object-contain"
+                  className="h-12 w-12 object-contain"
                 />
               ) : (
                 <img
                   src="/lovable-uploads/logo-funeraria.png"
                   alt="Funerária"
-                  className="h-10 w-10 object-contain"
+                  className="h-12 w-12 object-contain"
                 />
               )}
               <div>
-                <p className="text-base font-bold text-gray-900 font-sans leading-tight">
+                <p className="text-lg font-bold text-gray-900 font-sans leading-tight">
                   {data.funerariaName || "FUNERÁRIA"}
                 </p>
                 <div className="text-[9px] text-gray-500 font-sans space-y-0">
