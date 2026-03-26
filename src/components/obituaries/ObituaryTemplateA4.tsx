@@ -1,3 +1,5 @@
+import { type AnnouncementType } from "./types";
+
 export interface ObituaryTemplateA4Data {
   displayName: string;
   birthDate: string;
@@ -20,6 +22,9 @@ export interface ObituaryTemplateA4Data {
   funerariaEmail?: string;
   funerariaWebsite?: string;
   funerariaLogoUrl?: string;
+  announcementType?: AnnouncementType;
+  includeDeathLocation?: boolean;
+  includeFamilyMessage?: boolean;
 }
 
 interface ObituaryTemplateA4Props {
@@ -86,32 +91,42 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
               )}
             </div>
 
-            {/* FALECEU block */}
+            {/* Announcement type block */}
             <div className="mb-6">
               <p className="font-sans font-bold text-sm text-gray-400 uppercase tracking-[0.25em] leading-relaxed">
-                FALECEU
-                {data.deathLocation && (
+                {(!announcementType || announcementType === "faleceu") && "FALECEU"}
+                {announcementType === "faleceu_local" && (
                   <>
-                    <br />
-                    EM {data.deathLocation.toUpperCase()}
+                    FALECEU
+                    {data.deathLocation && (
+                      <>
+                        <br />
+                        EM {data.deathLocation.toUpperCase()}
+                      </>
+                    )}
                   </>
                 )}
+                {announcementType === "missa_7" && "MISSA DO 7º DIA"}
+                {announcementType === "missa_30" && "MISSA DO 30º DIA"}
+                {announcementType === "missa_aniversario" && "MISSA DO 1º ANIVERSÁRIO"}
               </p>
             </div>
 
             {/* Public message / family text */}
-            <div className="space-y-3 text-[11px] text-gray-600 leading-relaxed font-sans">
-              {data.publicMessage ? (
-                <p>{data.publicMessage}</p>
-              ) : (
-                <p>
-                  Sua Família cumpre o doloroso dever de participar a todas as
-                  pessoas de suas relações e amizade o falecimento do seu
-                  saudoso familiar.
-                </p>
-              )}
-              <p>Antecipadamente, a Família reconhecida agradece!</p>
-            </div>
+            {includeFamilyMessage !== false && (
+              <div className="space-y-3 text-[11px] text-gray-600 leading-relaxed font-sans">
+                {data.publicMessage ? (
+                  <p>{data.publicMessage}</p>
+                ) : (
+                  <p>
+                    Sua Família cumpre o doloroso dever de participar a todas as
+                    pessoas de suas relações e amizade o falecimento do seu
+                    saudoso familiar.
+                  </p>
+                )}
+                <p>Antecipadamente, a Família reconhecida agradece!</p>
+              </div>
+            )}
 
             {/* QR code area */}
             <div className="mt-auto pt-4">
