@@ -83,33 +83,38 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
     const styles = getTemplateStyles(selectedTemplate);
     
     if (selectedTemplate === "profissional") {
+      const birthYear = obituaryData.birthDate ? new Date(obituaryData.birthDate).getFullYear() : undefined;
+      const deathYear = obituaryData.deathDate ? new Date(obituaryData.deathDate).getFullYear() : undefined;
+      const calcAge = birthYear && deathYear ? deathYear - birthYear : undefined;
+
       return (
         <ObituaryTemplateA4
-          data={{
-            displayName: obituaryData.displayName,
-            birthDate: obituaryData.birthDate,
-            deathDate: obituaryData.deathDate,
-            velorioDate: obituaryData.velorioDate,
-            velorioTime: obituaryData.velorioTime,
-            velorioLocation: obituaryData.velorioLocation,
-            funeralDate: obituaryData.funeralDate,
-            funeralTime: obituaryData.funeralTime,
-            funeralLocation: obituaryData.funeralCemetery,
-            cemeteryName: obituaryData.cerimoniaChurch,
-            publicMessage: obituaryData.publicMessage,
-            photoUrl: obituaryData.photoUrl,
-            deathLocation: obituaryData.deathLocation,
-            parish: obituaryData.parish,
-            municipality: obituaryData.municipality,
-            funerariaName: obituaryData.funerariaName,
-            funerariaPhone: obituaryData.funerariaPhone,
-            funerariaEmail: obituaryData.funerariaEmail,
-            funerariaWebsite: obituaryData.funerariaWebsite,
-            funerariaLogoUrl: obituaryData.funerariaLogoUrl,
-            announcementType,
-            includeDeathLocation: announcementType === "faleceu_local",
-            includeFamilyMessage,
-          }}
+          fullName={obituaryData.displayName}
+          photo={obituaryData.photoUrl}
+          age={calcAge}
+          birthYear={birthYear}
+          deathYear={deathYear}
+          parish={obituaryData.parish}
+          municipality={obituaryData.municipality}
+          deathCountry={announcementType === "faleceu_local" ? obituaryData.deathLocation : undefined}
+          familyText={includeFamilyMessage ? (obituaryData.publicMessage || undefined) : ""}
+          wake={obituaryData.velorioDate ? {
+            date: obituaryData.velorioDate,
+            startTime: obituaryData.velorioTime,
+            location: obituaryData.velorioLocation,
+          } : undefined}
+          funeral={obituaryData.funeralDate ? {
+            date: obituaryData.funeralDate,
+            time: obituaryData.funeralTime,
+            location: obituaryData.funeralCemetery,
+          } : undefined}
+          cemetery={obituaryData.cerimoniaChurch ? {
+            location: obituaryData.cerimoniaChurch,
+          } : undefined}
+          funeralHomeLogo={obituaryData.funerariaLogoUrl}
+          phone1={obituaryData.funerariaPhone}
+          email={obituaryData.funerariaEmail}
+          website={obituaryData.funerariaWebsite}
         />
       );
     }
