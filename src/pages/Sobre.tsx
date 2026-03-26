@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Heart, Users, Shield, Award, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 import heroImage from "@/assets/sobre-hero.jpg";
 
 const Sobre = () => {

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Calendar, User, Facebook, Twitter, Linkedin, Link as LinkIcon, ArrowLeft, Heart } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 
 // Mock data - in a real app, this would come from an API/database
 const blogPosts = {

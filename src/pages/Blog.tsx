@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Calendar, User, ArrowRight, Clock, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 
 const featuredArticle = {
   title: "Como Preparar uma Cerimónia Memorial Significativa",

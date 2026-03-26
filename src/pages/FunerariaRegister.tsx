@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import logo from "@/assets/logo-memoralis.png";
+import logo from "@/assets/logo-memoralis.svg";
 import { RegisterForm } from "@/components/funeraria/RegisterForm";
 import { Fase1Data } from "@/lib/validation";
 import { supabase } from "@/integrations/supabase/client";
