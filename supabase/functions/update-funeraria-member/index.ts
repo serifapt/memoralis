@@ -94,8 +94,8 @@ Deno.serve(async (req) => {
     // Update profile if name or phone provided
     if (full_name !== undefined || phone !== undefined) {
       const profileUpdate: Record<string, unknown> = { id: member_user_id };
-      if (full_name !== undefined) profileUpdate.full_name = full_name.trim() || null;
-      if (phone !== undefined) profileUpdate.phone = phone.trim() || null;
+      if (full_name !== undefined) profileUpdate.full_name = (full_name ?? "").trim() || null;
+      if (phone !== undefined) profileUpdate.phone = (phone ?? "").trim() || null;
 
       const { error: profileError } = await adminClient
         .from("profiles")
