@@ -31,14 +31,14 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
 
       setLoading(true);
 
-      const [adminRes, funerariaRes] = await Promise.all([
+      const [adminRes, funerariaRes, memberRes] = await Promise.all([
         supabase.rpc("has_role", { _user_id: nextSession.user.id, _role: "admin" }),
         supabase.rpc("has_role", { _user_id: nextSession.user.id, _role: "funeraria" }),
+        supabase.from("funeraria_members").select("id").eq("user_id", nextSession.user.id).limit(1),
       ]);
 
       if (adminRes.error || funerariaRes.error) {
         console.error("Erro ao verificar permissões (ProtectedRoute):", adminRes.error || funerariaRes.error);
-        // Fail closed
         setHasRole(false);
         setUserRole(null);
         setLoading(false);
@@ -47,8 +47,9 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
 
       const isAdmin = Boolean(adminRes.data);
       const isFuneraria = Boolean(funerariaRes.data);
+      const isMember = (memberRes.data && memberRes.data.length > 0);
 
-      if (!isAdmin && !isFuneraria) {
+      if (!isAdmin && !isFuneraria && !isMember) {
         // User has no roles - orphan user, force logout
         console.warn("User has no roles in ProtectedRoute, signing out");
         await supabase.auth.signOut();
@@ -58,7 +59,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
         return;
       }
 
-      setUserRole(isAdmin ? "admin" : isFuneraria ? "funeraria" : null);
+      setUserRole(isAdmin ? "admin" : (isFuneraria || isMember) ? "funeraria" : null);
 
       if (requireRole) {
         setHasRole(requireRole === "admin" ? isAdmin : isFuneraria);
