@@ -42,6 +42,13 @@ export default function NewObituary() {
   const [isPublic, setIsPublic] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
   const [funerariaId, setFunerariaId] = useState<string>("");
+  const [funerariaInfo, setFunerariaInfo] = useState<{
+    nome_comercial: string;
+    telefone: string;
+    email: string | null;
+    website: string | null;
+    logo_url: string | null;
+  } | null>(null);
   const [responsibleClientId, setResponsibleClientId] = useState<string | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -253,12 +260,19 @@ export default function NewObituary() {
       if (user) {
         const { data } = await supabase
           .from('funerarias')
-          .select('id')
+          .select('id, nome_comercial, telefone, email, website, logo_url')
           .eq('user_id', user.id)
           .single();
         
         if (data) {
           setFunerariaId(data.id);
+          setFunerariaInfo({
+            nome_comercial: data.nome_comercial,
+            telefone: data.telefone,
+            email: data.email,
+            website: data.website,
+            logo_url: data.logo_url,
+          });
         }
       }
     } catch (error) {
@@ -2422,6 +2436,15 @@ export default function NewObituary() {
                     funeralDate: formData.funeralDate,
                     funeralTime: formData.funeralTime,
                     funeralCemetery: formData.funeralCemetery,
+                    photoUrl: photoPreview || undefined,
+                    deathLocation: formData.deathLocation || undefined,
+                    parish: formData.freguesia || undefined,
+                    municipality: formData.locality || undefined,
+                    funerariaName: funerariaInfo?.nome_comercial,
+                    funerariaPhone: funerariaInfo?.telefone,
+                    funerariaEmail: funerariaInfo?.email || undefined,
+                    funerariaWebsite: funerariaInfo?.website || undefined,
+                    funerariaLogoUrl: funerariaInfo?.logo_url || undefined,
                   }}
                 />
               </Card>

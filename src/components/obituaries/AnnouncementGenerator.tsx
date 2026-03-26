@@ -25,6 +25,15 @@ interface AnnouncementGeneratorProps {
     funeralDate?: string;
     funeralTime?: string;
     funeralCemetery?: string;
+    photoUrl?: string;
+    deathLocation?: string;
+    parish?: string;
+    municipality?: string;
+    funerariaName?: string;
+    funerariaPhone?: string;
+    funerariaEmail?: string;
+    funerariaWebsite?: string;
+    funerariaLogoUrl?: string;
   };
 }
 
@@ -84,6 +93,15 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
             funeralLocation: obituaryData.funeralCemetery,
             cemeteryName: obituaryData.cerimoniaChurch,
             publicMessage: obituaryData.publicMessage,
+            photoUrl: obituaryData.photoUrl,
+            deathLocation: obituaryData.deathLocation,
+            parish: obituaryData.parish,
+            municipality: obituaryData.municipality,
+            funerariaName: obituaryData.funerariaName,
+            funerariaPhone: obituaryData.funerariaPhone,
+            funerariaEmail: obituaryData.funerariaEmail,
+            funerariaWebsite: obituaryData.funerariaWebsite,
+            funerariaLogoUrl: obituaryData.funerariaLogoUrl,
           }}
         />
       );
