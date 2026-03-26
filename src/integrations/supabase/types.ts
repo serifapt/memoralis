@@ -1061,6 +1061,41 @@ export type Database = {
           },
         ]
       }
+      funeraria_members: {
+        Row: {
+          created_at: string
+          funeraria_id: string
+          id: string
+          invited_by: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          funeraria_id: string
+          id?: string
+          invited_by?: string | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          funeraria_id?: string
+          id?: string
+          invited_by?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funeraria_members_funeraria_id_fkey"
+            columns: ["funeraria_id"]
+            isOneToOne: false
+            referencedRelation: "funerarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funeraria_testimonials: {
         Row: {
           author_email: string | null
@@ -1821,6 +1856,10 @@ export type Database = {
       }
       generate_client_dedupe_key: {
         Args: { p_email: string; p_nif: string; p_phone: string }
+        Returns: string
+      }
+      get_funeraria_member_role: {
+        Args: { _funeraria_id: string; _user_id: string }
         Returns: string
       }
       get_next_quote_number: {
