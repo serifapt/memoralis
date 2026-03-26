@@ -1,255 +1,367 @@
-import { type AnnouncementType } from "./types";
+import { ObituaryTemplateProps } from "./ObituaryTypes";
+import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "./ObituaryIcons";
 
-export interface ObituaryTemplateA4Data {
-  displayName: string;
-  birthDate: string;
-  deathDate: string;
-  age?: number;
-  parish?: string;
-  municipality?: string;
-  deathLocation?: string;
-  photoUrl?: string;
-  publicMessage?: string;
-  velorioDate?: string;
-  velorioTime?: string;
-  velorioLocation?: string;
-  funeralDate?: string;
-  funeralTime?: string;
-  funeralLocation?: string;
-  cemeteryName?: string;
-  funerariaName?: string;
-  funerariaPhone?: string;
-  funerariaEmail?: string;
-  funerariaWebsite?: string;
-  funerariaLogoUrl?: string;
-  announcementType?: AnnouncementType;
-  includeDeathLocation?: boolean;
-  includeFamilyMessage?: boolean;
+interface EventSectionProps {
+  title: string;
+  date?: string;
+  time?: string;
+  startTime?: string;
+  endTime?: string;
+  location?: string;
 }
 
-interface ObituaryTemplateA4Props {
-  data: ObituaryTemplateA4Data;
-}
+const EventSection = ({ title, date, time, startTime, endTime, location }: EventSectionProps) => {
+  const timeDisplay = startTime && endTime
+    ? `${startTime} - ${endTime}`
+    : startTime || endTime || time;
 
-const formatDatePT = (dateStr: string) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("pt-PT", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  return (
+    <div>
+      <p style={{ fontWeight: 600, fontSize: 14, color: "#1d2735", marginBottom: 8 }}>
+        {title}
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {date && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <IconCalendar />
+            <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{date}</span>
+          </div>
+        )}
+        {timeDisplay && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <IconClock />
+            <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{timeDisplay}</span>
+          </div>
+        )}
+        {location && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <IconMapPin />
+            <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{location}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
-const calculateAge = (birthDate: string, deathDate: string): number | null => {
-  if (!birthDate || !deathDate) return null;
-  try {
-    const [bY, bM, bD] = birthDate.split("-").map(Number);
-    const [dY, dM, dD] = deathDate.split("-").map(Number);
-    let age = dY - bY;
-    if (dM < bM || (dM === bM && dD < bD)) age--;
-    return age;
-  } catch { return null; }
-};
+const DEFAULT_FAMILY_TEXT =
+  "Sua Família cumpre o doloroso dever de participar a todas as pessoas das suas relações e amizade o seu falecimento.\n\nAntecipadamente, a Família reconhecida agradece!";
 
-export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
-  const age = data.age ?? calculateAge(data.birthDate, data.deathDate);
-  const birthYear = data.birthDate ? new Date(data.birthDate).getFullYear() : "";
-  const deathYear = data.deathDate ? new Date(data.deathDate).getFullYear() : "";
-  const announcementType = data.announcementType || "faleceu";
-  const includeFamilyMessage = data.includeFamilyMessage !== false;
+const DEFAULT_CONDOLENCES_TEXT = "Deixe uma mensagem\nde condolências.";
+
+export const ObituaryTemplateA4 = ({
+  memoralisLogo = true,
+  photo,
+  fullName = "Nome Completo",
+  age,
+  birthYear,
+  deathYear,
+  parish,
+  municipality,
+  deathCountry,
+  familyText = DEFAULT_FAMILY_TEXT,
+  wake,
+  funeral,
+  cemetery,
+  condolencesText = DEFAULT_CONDOLENCES_TEXT,
+  qrCodeImage,
+  funeralHomeLogo,
+  phone1,
+  phone2,
+  email,
+  website,
+  flowerImage,
+}: ObituaryTemplateProps) => {
+  const locality = [parish, municipality].filter(Boolean).join(" · ");
 
   return (
     <div
       id="obituary-template-a4"
-      className="bg-white aspect-[210/297] w-full relative overflow-hidden font-playfair"
-      style={{ maxWidth: "794px" }}
+      style={{
+        position: "relative",
+        width: 595,
+        height: 842,
+        backgroundColor: "#ffffff",
+        overflow: "hidden",
+        fontFamily: "'Inter', sans-serif",
+      }}
     >
-      <div className="absolute inset-0 p-[6%] flex flex-col">
-        {/* Header - Memoralis logo */}
-        <div className="flex justify-end mb-8">
+      {/* Memoralis logo */}
+      {memoralisLogo && (
+        <div style={{ position: "absolute", top: 27, left: 471 }}>
+          <LogoMemoralis />
+        </div>
+      )}
+
+      {/* Photo */}
+      <div
+        style={{
+          position: "absolute",
+          top: 40,
+          left: 40.67,
+          width: 173.333,
+          height: 208,
+          borderRadius: 30,
+          overflow: "hidden",
+        }}
+      >
+        {photo ? (
           <img
-            src="/lovable-uploads/logo-memoralis-template.png"
-            alt="Memoralis"
-            className="h-6 object-contain opacity-60"
+            src={photo}
+            alt={fullName}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              filter: "grayscale(100%)",
+            }}
+          />
+        ) : (
+          <div style={{ width: "100%", height: "100%", backgroundColor: "#d1d5db" }} />
+        )}
+      </div>
+
+      {/* Full name */}
+      <div
+        style={{
+          position: "absolute",
+          top: 103,
+          left: 255.78,
+          width: 309.6,
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "'Roboto', sans-serif",
+            fontWeight: 500,
+            fontSize: 32,
+            lineHeight: "40px",
+            color: "#1d2735",
+            margin: 0,
+          }}
+        >
+          {fullName}
+        </p>
+      </div>
+
+      {/* Age + years */}
+      {(age || birthYear || deathYear) && (
+        <div
+          style={{
+            position: "absolute",
+            top: 194,
+            left: 255.78,
+            display: "flex",
+            alignItems: "baseline",
+            gap: 4,
+          }}
+        >
+          {age && (
+            <span style={{ fontWeight: 600, fontSize: 20, color: "#6c727f" }}>
+              {age} anos
+            </span>
+          )}
+          {birthYear && deathYear && (
+            <span style={{ fontWeight: 400, fontSize: 14, color: "#6c727f" }}>
+              · {birthYear} - {deathYear}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Locality */}
+      {locality && (
+        <div
+          style={{
+            position: "absolute",
+            top: 224,
+            left: 255.78,
+          }}
+        >
+          <p style={{ fontWeight: 600, fontSize: 16, color: "#1d2735", margin: 0 }}>
+            {locality}
+          </p>
+        </div>
+      )}
+
+      {/* FALECEU EM [country] */}
+      <div
+        style={{
+          position: "absolute",
+          top: 304,
+          left: 40,
+          width: 160,
+        }}
+      >
+        <p
+          style={{
+            fontWeight: 600,
+            fontSize: 24,
+            lineHeight: "32px",
+            color: "#6c727f",
+            margin: 0,
+          }}
+        >
+          FALECEU
+          {deathCountry && (
+            <>
+              {" "}EM {deathCountry.toUpperCase()}
+            </>
+          )}
+        </p>
+      </div>
+
+      {/* Family text */}
+      <div
+        style={{
+          position: "absolute",
+          top: 425.21,
+          left: 40.67,
+          width: 160,
+        }}
+      >
+        <p
+          style={{
+            fontWeight: 400,
+            fontSize: 12,
+            lineHeight: "18px",
+            color: "#4e5562",
+            margin: 0,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {familyText}
+        </p>
+      </div>
+
+      {/* Câmara Ardente */}
+      {wake && (
+        <div style={{ position: "absolute", top: 307, left: 256.78 }}>
+          <EventSection
+            title="Câmara Ardente"
+            date={wake.date}
+            startTime={wake.startTime}
+            endTime={wake.endTime}
+            location={wake.location}
           />
         </div>
+      )}
 
-        {/* Main content - two columns */}
-        <div className="flex-1 grid grid-cols-2 gap-10">
-          {/* Left Column */}
-          <div className="flex flex-col justify-between">
-            {/* Photo */}
-            <div className="mb-6">
-              {data.photoUrl ? (
-                <img
-                  src={data.photoUrl}
-                  alt={data.displayName}
-                  className="w-48 h-64 object-cover rounded-[40px]"
-                />
-              ) : (
-                <div className="w-48 h-64 bg-gray-200 rounded-[40px]" />
-              )}
-            </div>
-
-            {/* Announcement type block */}
-            <div className="mb-6">
-              <p className="font-sans font-bold text-sm text-gray-400 uppercase tracking-[0.25em] leading-relaxed">
-                {(!announcementType || announcementType === "faleceu") && "FALECEU"}
-                {announcementType === "faleceu_local" && (
-                  <>
-                    FALECEU
-                    {data.deathLocation && (
-                      <>
-                        <br />
-                        EM {data.deathLocation.toUpperCase()}
-                      </>
-                    )}
-                  </>
-                )}
-                {announcementType === "missa_7" && "MISSA DO 7º DIA"}
-                {announcementType === "missa_30" && "MISSA DO 30º DIA"}
-                {announcementType === "missa_aniversario" && "MISSA DO 1º ANIVERSÁRIO"}
-              </p>
-            </div>
-
-            {/* Public message / family text */}
-            {includeFamilyMessage && (
-              <div className="space-y-3 text-[11px] text-gray-600 leading-relaxed font-sans">
-                {data.publicMessage ? (
-                  <p>{data.publicMessage}</p>
-                ) : (
-                  <p>
-                    Sua Família cumpre o doloroso dever de participar a todas as
-                    pessoas de suas relações e amizade o falecimento do seu
-                    saudoso familiar.
-                  </p>
-                )}
-                <p>Antecipadamente, a Família reconhecida agradece!</p>
-              </div>
-            )}
-
-            {/* QR code area */}
-            <div className="mt-auto pt-4">
-              <p className="text-[10px] text-gray-500 font-sans mb-2">
-                Deixe uma mensagem
-                <br />
-                de condolências.
-              </p>
-              <div className="w-16 h-16 bg-gray-200 rounded" />
-            </div>
-          </div>
-
-          {/* Right Column */}
-          <div className="flex flex-col">
-            {/* Name and details */}
-            <div className="mb-10">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight mb-1">
-                {data.displayName || "Nome do Falecido"}
-              </h1>
-              {(age || birthYear) && (
-                <p className="text-xl text-gray-500 font-sans mb-1">
-                  {age && <span className="font-semibold">{age} anos</span>}
-                  {age && birthYear && " · "}
-                  {birthYear && deathYear && (
-                    <span>
-                      {birthYear} - {deathYear}
-                    </span>
-                  )}
-                </p>
-              )}
-              {(data.parish || data.municipality) && (
-                <p className="text-base text-gray-500 font-sans">
-                  {[data.parish, data.municipality].filter(Boolean).join(" · ")}
-                </p>
-              )}
-            </div>
-
-            {/* Ceremony sections */}
-            <div className="space-y-6 flex-1">
-              {/* Câmara Ardente */}
-              {data.velorioDate && data.velorioLocation && (
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">
-                    Câmara Ardente
-                  </h3>
-                  <div className="space-y-1 text-sm text-gray-600 font-sans pl-1">
-                    <p>{formatDatePT(data.velorioDate)}</p>
-                    {data.velorioTime && <p>{data.velorioTime}</p>}
-                    <p>{data.velorioLocation}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Funeral */}
-              {data.funeralDate && data.funeralLocation && (
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">
-                    Funeral
-                  </h3>
-                  <div className="space-y-1 text-sm text-gray-600 font-sans pl-1">
-                    <p>{formatDatePT(data.funeralDate)}</p>
-                    {data.funeralTime && <p>{data.funeralTime}</p>}
-                    <p>{data.funeralLocation}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Cemitério */}
-              {data.cemeteryName && (
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">
-                    Cemitério
-                  </h3>
-                  <div className="text-sm text-gray-600 font-sans pl-1">
-                    <p>{data.cemeteryName}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+      {/* Funeral */}
+      {funeral && (
+        <div style={{ position: "absolute", top: 422.21, left: 254 }}>
+          <EventSection
+            title="Funeral"
+            date={funeral.date}
+            time={funeral.time}
+            location={funeral.location}
+          />
         </div>
+      )}
 
-        {/* Footer */}
-        <div className="mt-auto pt-4 border-t border-gray-200">
-          <div className="flex items-end justify-between">
-            {/* Funeral home info */}
-            <div className="flex items-center gap-3">
-              {data.funerariaLogoUrl ? (
-                <img
-                  src={data.funerariaLogoUrl}
-                  alt={data.funerariaName || "Funerária"}
-                  className="h-12 w-12 object-contain"
-                />
-              ) : (
-                <img
-                  src="/lovable-uploads/logo-funeraria.png"
-                  alt="Funerária"
-                  className="h-12 w-12 object-contain"
-                />
-              )}
-              <div>
-                <p className="text-lg font-bold text-gray-900 font-sans leading-tight">
-                  {data.funerariaName || "FUNERÁRIA"}
-                </p>
-                <div className="text-[9px] text-gray-500 font-sans space-y-0">
-                  {data.funerariaPhone && <p>{data.funerariaPhone}</p>}
-                  {data.funerariaEmail && <p>{data.funerariaEmail}</p>}
-                  {data.funerariaWebsite && <p>{data.funerariaWebsite}</p>}
-                </div>
-              </div>
-            </div>
-
-            {/* Decorative flowers */}
-            <img
-              src="/lovable-uploads/flores-template.png"
-              alt=""
-              className="h-24 w-24 object-contain opacity-50"
-            />
-          </div>
+      {/* Cemitério */}
+      {cemetery && (
+        <div style={{ position: "absolute", top: 547.42, left: 254 }}>
+          <EventSection
+            title="Cemitério"
+            location={cemetery.location}
+          />
         </div>
+      )}
+
+      {/* Condolences text */}
+      <div style={{ position: "absolute", top: 697.2, left: 40 }}>
+        <p
+          style={{
+            fontWeight: 400,
+            fontSize: 12,
+            color: "#4e5562",
+            margin: 0,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {condolencesText}
+        </p>
       </div>
+
+      {/* QR code */}
+      <div
+        style={{
+          position: "absolute",
+          top: 745,
+          left: 40.7,
+          width: 56.88,
+          height: 56.88,
+        }}
+      >
+        {qrCodeImage ? (
+          <img
+            src={qrCodeImage}
+            alt="QR Code"
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
+        ) : (
+          <div style={{ width: "100%", height: "100%", backgroundColor: "#d1d5db", borderRadius: 4 }} />
+        )}
+      </div>
+
+      {/* Funeral home logo */}
+      {funeralHomeLogo && (
+        <div style={{ position: "absolute", top: 697.2, left: 254 }}>
+          <img
+            src={funeralHomeLogo}
+            alt="Funerária"
+            style={{ width: 150, height: 43, objectFit: "contain" }}
+          />
+        </div>
+      )}
+
+      {/* Contacts */}
+      {(phone1 || phone2 || email || website) && (
+        <div
+          style={{
+            position: "absolute",
+            top: 754.89,
+            left: 254.58,
+            fontWeight: 400,
+            fontSize: 9,
+            lineHeight: "18px",
+            color: "#4e5562",
+          }}
+        >
+          {phone1 && phone2 && <p style={{ margin: 0 }}>{phone1} · {phone2}</p>}
+          {phone1 && !phone2 && <p style={{ margin: 0 }}>{phone1}</p>}
+          {!phone1 && phone2 && <p style={{ margin: 0 }}>{phone2}</p>}
+          {email && <p style={{ margin: 0 }}>{email}</p>}
+          {website && <p style={{ margin: 0 }}>{website}</p>}
+        </div>
+      )}
+
+      {/* Decorative flowers */}
+      {flowerImage && (
+        <div
+          style={{
+            position: "absolute",
+            top: 568.42,
+            left: 326.25,
+            width: 275.298,
+            height: 313.631,
+            overflow: "hidden",
+            pointerEvents: "none",
+          }}
+        >
+          <img
+            src={flowerImage}
+            alt=""
+            style={{
+              width: 204.885,
+              height: 263.908,
+              transform: "rotate(17.66deg)",
+              objectFit: "contain",
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
