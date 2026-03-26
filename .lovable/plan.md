@@ -1,43 +1,31 @@
 
 
-## Plano: Melhorar ObituaryTemplateA4 e integração com dados completos
+## Plano: Refinar ObituaryTemplateA4 para corresponder ao PDF de referência
 
-### Problema actual
+### Alterações no ficheiro `src/components/obituaries/ObituaryTemplateA4.tsx`
 
-O template A4 já existe e é visualmente próximo do design de referência, mas o `AnnouncementGenerator` **não passa vários campos importantes** ao template:
-- **Foto** (`photoUrl`) — não é passada
-- **Local de falecimento** (`deathLocation`) — não é passado
-- **Freguesia e localidade** (`parish`, `municipality`) — não são passados
-- **Dados da funerária** (nome, telefone, email, website, logo) — não são passados
+**1. Tipografia**
+- Nome: manter `font-playfair`, aumentar para `text-4xl`
+- "FALECEU EM": mudar para `font-sans font-bold` com `tracking-[0.25em]` e cor `text-gray-400`
+- Títulos de secção (Câmara Ardente, Funeral, Cemitério): manter `font-playfair font-bold`
 
-### Alterações
+**2. Foto**
+- Mudar de quadrada (`w-48 h-48`) para proporção vertical (`w-48 h-64`)
+- Arredondamento: `rounded-[40px]` em vez de `rounded-3xl`
 
-#### 1. `src/pages/NewObituary.tsx` — Passar dados completos ao AnnouncementGenerator
+**3. Remover ícones**
+- Eliminar imports de `Calendar`, `Clock`, `MapPin` do lucide-react
+- Substituir por texto limpo alinhado, sem ícones — apenas data, hora e local em linhas separadas com formatação simples
 
-- Expandir a interface `AnnouncementGeneratorProps` para incluir os campos em falta
-- No ponto onde `<AnnouncementGenerator>` é renderizado (~linha 2413), adicionar:
-  - `photoUrl: photoPreview`
-  - `deathLocation: formData.deathLocation`
-  - `parish: formData.freguesia`
-  - `municipality: formData.locality`
-- Buscar dados da funerária (`nome_comercial`, `telefone`, `email`, `website`, `logo_url`) no `fetchFunerariaId` e guardá-los em estado local para os passar também
+**4. Espaçamento**
+- Aumentar `gap` do grid principal de `gap-6` para `gap-10`
+- Aumentar `mb` entre o bloco nome e as cerimónias de `mb-6` para `mb-10`
+- Aumentar `space-y` entre secções de cerimónia de `space-y-5` para `space-y-6`
 
-#### 2. `src/components/obituaries/AnnouncementGenerator.tsx` — Propagar campos ao template
+**5. Rodapé**
+- Manter layout actual (logo+contactos à esquerda, flores à direita)
+- Aumentar ligeiramente o tamanho do logo da funerária e nome
 
-- Adicionar os novos campos à interface `obituaryData`
-- Passar `photoUrl`, `deathLocation`, `parish`, `municipality` e dados da funerária ao `<ObituaryTemplateA4>`
-
-#### 3. `src/components/obituaries/ObituaryTemplateA4.tsx` — Refinamentos visuais
-
-O template já está bem estruturado. Ajustes menores para alinhar com o PDF de referência:
-- Garantir que a foto e o nome ficam lado a lado no topo (já está assim)
-- Garantir que o "FALECEU EM..." e as cerimónias ficam alinhados na mesma linha (já está assim)
-- O rodapé com logo da funerária e contactos já existe
-
-Essencialmente, o componente já está correcto — o problema principal é que **não recebe os dados**.
-
-### Ficheiros
-- `src/pages/NewObituary.tsx` — buscar dados da funerária e passar todos os campos
-- `src/components/obituaries/AnnouncementGenerator.tsx` — expandir interface e propagar
-- `src/components/obituaries/ObituaryTemplateA4.tsx` — sem alterações significativas (apenas se necessário ajuste menor)
+### Ficheiro
+- `src/components/obituaries/ObituaryTemplateA4.tsx`
 
