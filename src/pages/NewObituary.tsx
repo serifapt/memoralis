@@ -175,7 +175,7 @@ export default function NewObituary() {
     "beneficiary", "deathLocation", "deathDate", "deathTime", "cause", "doctor", "medicalCertificate",
     "familyName", "familyRelationship", "familyEmail", "familyPhone", "familyNif",
     "familyNiss", "familyNaturalidade", "familyIban", "familyAddress", "familyLocality",
-    "familyPostalCode", "familyObservations", "familyBirthDate", "familyCivilStatus",
+    "familyPostalCode", "familyBirthDate", "familyCivilStatus",
     "familyIdCard", "familyFreguesia", "familyConcelho", "familyDistrito",
   ];
   const filledCount = personalAndFamilyFields.filter(
