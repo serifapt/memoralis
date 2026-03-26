@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useFunerariaRole } from "@/hooks/useFunerariaRole";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,8 +92,15 @@ export default function BudgetQuoteDetail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isEditor, loading: roleLoading } = useFunerariaRole();
   const isNew = !id;
   const obituaryId = searchParams.get("obituaryId");
+
+  useEffect(() => {
+    if (!roleLoading && isEditor) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [roleLoading, isEditor, navigate]);
 
   const { 
     getQuoteById, 

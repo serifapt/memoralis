@@ -23,6 +23,7 @@ import iconLogo from "@/assets/icon-memoralis.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useFlowerService } from "@/hooks/useFlowerService";
+import { useFunerariaRole } from "@/hooks/useFunerariaRole";
 import {
   Tooltip,
   TooltipContent,
@@ -57,6 +58,7 @@ export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isFlowerServiceActive } = useFlowerService();
+  const { isEditor } = useFunerariaRole();
   const [collapsed, setCollapsed] = useState(() => 
     localStorage.getItem("sidebar-collapsed") === "true"
   );
@@ -78,9 +80,16 @@ export const Sidebar = () => {
   };
 
   const navItems = [
-    ...baseNavigation,
+    ...baseNavigation.filter(item => {
+      // Editors can't see Orçamentos or Configurações
+      if (isEditor && (item.href === "/budgets" || item.href === "/settings")) return false;
+      return true;
+    }),
     ...(isFlowerServiceActive ? flowerNavigation : []),
-    ...bottomNavigation,
+    ...bottomNavigation.filter(item => {
+      if (isEditor && item.href === "/settings") return false;
+      return true;
+    }),
   ];
 
   const NavItem = ({ item }: { item: typeof baseNavigation[0] }) => {
