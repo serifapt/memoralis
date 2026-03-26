@@ -57,6 +57,8 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
   const age = data.age ?? calculateAge(data.birthDate, data.deathDate);
   const birthYear = data.birthDate ? new Date(data.birthDate).getFullYear() : "";
   const deathYear = data.deathDate ? new Date(data.deathDate).getFullYear() : "";
+  const announcementType = data.announcementType || "faleceu";
+  const includeFamilyMessage = data.includeFamilyMessage !== false;
 
   return (
     <div
@@ -113,7 +115,7 @@ export const ObituaryTemplateA4 = ({ data }: ObituaryTemplateA4Props) => {
             </div>
 
             {/* Public message / family text */}
-            {includeFamilyMessage !== false && (
+            {includeFamilyMessage && (
               <div className="space-y-3 text-[11px] text-gray-600 leading-relaxed font-sans">
                 {data.publicMessage ? (
                   <p>{data.publicMessage}</p>

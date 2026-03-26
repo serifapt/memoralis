@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileDown, Image as ImageIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { TemplateThumbnail } from "./TemplateThumbnail";
-import { type TemplateType } from "./types";
+import { type TemplateType, type AnnouncementType } from "./types";
 import { ObituaryTemplateA4 } from "./ObituaryTemplateA4";
 
 interface AnnouncementGeneratorProps {
