@@ -106,6 +106,9 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
             funerariaEmail: obituaryData.funerariaEmail,
             funerariaWebsite: obituaryData.funerariaWebsite,
             funerariaLogoUrl: obituaryData.funerariaLogoUrl,
+            announcementType,
+            includeDeathLocation: announcementType === "faleceu_local",
+            includeFamilyMessage,
           }}
         />
       );
