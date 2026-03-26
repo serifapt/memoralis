@@ -103,6 +103,7 @@ export const ObituaryTemplateA4 = ({
           height: 208,
           borderRadius: 30,
           overflow: "hidden",
+          background: "white",
         }}
       >
         {photo ? (
@@ -113,6 +114,7 @@ export const ObituaryTemplateA4 = ({
               width: "100%",
               height: "100%",
               objectFit: "cover",
+              objectPosition: "center top",
               filter: "grayscale(100%)",
             }}
           />
@@ -234,11 +236,11 @@ export const ObituaryTemplateA4 = ({
         </p>
       </div>
 
-      {/* Câmara Ardente */}
+      {/* Velório */}
       {wake && (
         <div style={{ position: "absolute", top: 307, left: 256.78 }}>
           <EventSection
-            title="Câmara Ardente"
+            title="Velório"
             date={wake.date}
             startTime={wake.startTime}
             endTime={wake.endTime}
@@ -329,7 +331,7 @@ export const ObituaryTemplateA4 = ({
             color: "#4e5562",
           }}
         >
-          {phone1 && phone2 && <p style={{ margin: 0 }}>{phone1} · {phone2}</p>}
+          {phone1 && phone2 && <p style={{ margin: 0 }}>{phone1} | {phone2}</p>}
           {phone1 && !phone2 && <p style={{ margin: 0 }}>{phone1}</p>}
           {!phone1 && phone2 && <p style={{ margin: 0 }}>{phone2}</p>}
           {email && <p style={{ margin: 0 }}>{email}</p>}

@@ -33,6 +33,7 @@ interface AnnouncementGeneratorProps {
     municipality?: string;
     funerariaName?: string;
     funerariaPhone?: string;
+    funerariaPhone2?: string;
     funerariaEmail?: string;
     funerariaWebsite?: string;
     funerariaLogoUrl?: string;
@@ -125,6 +126,7 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
           } : undefined}
           funeralHomeLogo={obituaryData.funerariaLogoUrl}
           phone1={obituaryData.funerariaPhone}
+          phone2={obituaryData.funerariaPhone2}
           email={obituaryData.funerariaEmail}
           website={obituaryData.funerariaWebsite}
         />
@@ -201,9 +203,9 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
 
       const canvas = await html2canvas(element, {
         scale: 2,
-        backgroundColor: null,
+        backgroundColor: "#ffffff",
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -251,9 +253,9 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
 
       const canvas = await html2canvas(element, {
         scale: 2,
-        backgroundColor: null,
+        backgroundColor: "#ffffff",
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         width: width,
         height: height,
       });
