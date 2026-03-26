@@ -1,32 +1,53 @@
 
 
-## Plano: Corrigir 6 problemas no template de anúncio A4
+## Plano: Atualizar logo e ícone Memoralis em todo o projeto
 
-### 1. Foto com grayscale — `ObituaryTemplateA4.tsx`
-- Adicionar `objectPosition: "center top"` e `background: "white"` ao container da foto
-- Manter `filter: "grayscale(100%)"` na img (já existe)
+### Contexto
+O projeto usa 3 versões dos assets Memoralis:
+- `src/assets/logo-memoralis.png` — usado em **15 ficheiros** (páginas públicas, auth, headers)
+- `src/assets/logo-memoralis.svg` — usado apenas no **Sidebar.tsx**
+- `src/assets/icon-memoralis.svg` — usado apenas no **Sidebar.tsx** (collapsed)
+- **Inline SVG** no `ObituaryIcons.tsx` com cores cinza (#6C727F) em vez das cores da marca
 
-### 2. Renomear "Câmara Ardente" para "Velório" — `ObituaryTemplateA4.tsx`
-- Linha 237: comentário `{/* Câmara Ardente */}` → `{/* Velório */}`
-- Linha 241: `title="Câmara Ardente"` → `title="Velório"`
+### Alterações
 
-### 3. Segundo telefone (phone2) — 3 ficheiros
-O campo `telefone_secundario` já existe na tabela `funerarias` e no schema. Basta:
+#### 1. Substituir ficheiros de assets
+- Copiar `memoralis-logo-cores.svg` → `src/assets/logo-memoralis.svg` (substituir)
+- Copiar `memoralis-icon-cor.svg` → `src/assets/icon-memoralis.svg` (substituir)
+- Eliminar `src/assets/logo-memoralis.png` (já não será necessário)
 
-- **`NewObituary.tsx`**: Adicionar `telefone_secundario` ao `funerariaInfo` state type, ao select query (linha 271), ao setFunerariaInfo, e passar como `funerariaPhone2` ao AnnouncementGenerator (linha 2452)
-- **`AnnouncementGenerator.tsx`**: Adicionar `funerariaPhone2?: string` à interface e passar como `phone2` ao template
+#### 2. Migrar todos os imports de PNG para SVG (15 ficheiros)
+Alterar `import logo from "@/assets/logo-memoralis.png"` → `import logo from "@/assets/logo-memoralis.svg"` em:
+- `src/components/layout/PublicHeader.tsx`
+- `src/components/layout/CareHeader.tsx`
+- `src/components/layout/AdminSidebar.tsx`
+- `src/pages/Auth.tsx`
+- `src/pages/ForgotPassword.tsx`
+- `src/pages/ResetPassword.tsx`
+- `src/pages/Home.tsx`
+- `src/pages/Sobre.tsx`
+- `src/pages/Blog.tsx`
+- `src/pages/BlogPost.tsx`
+- `src/pages/Contactos.tsx`
+- `src/pages/FunerariaRegister.tsx`
+- `src/pages/FunerariaStatus.tsx`
+- `src/pages/FunerariaArchive.tsx`
+- `src/pages/FunerariaDetail.tsx`
+- `src/pages/ObituaryArchive.tsx`
+- `src/pages/ObituaryDetail.tsx`
 
-### 4. Contactos dinâmicos — separador "|"
-- **`ObituaryTemplateA4.tsx`**: Alterar o separador de telefones de `" · "` para `" | "` (linha 332)
+#### 3. Atualizar LogoMemoralis inline no ObituaryIcons.tsx
+Substituir o SVG inline do `LogoMemoralis` (atualmente cinza #6C727F) pelas cores da marca:
+- Ícone (3 barras): `fill="#d85151"` (vermelho)
+- Wordmark (texto "memoralis"): `fill="#2d595e"` (verde escuro)
+- Atualizar paths e viewBox para coincidir com o SVG oficial uploaded
 
-### 5. Hora do velório
-- A lógica já está correcta: o EventSection no template aceita `startTime` e mostra-o. O AnnouncementGenerator já passa `startTime: formatTime(obituaryData.velorioTime)`. Como só existe um campo de hora na BD, funciona como hora de início. Sem alterações necessárias.
-
-### 6. html2canvas cross-origin — `AnnouncementGenerator.tsx`
-- Alterar `allowTaint: true` → `allowTaint: false` e `backgroundColor: null` → `backgroundColor: "#ffffff"` nas duas chamadas html2canvas (generatePDF linha 202 e generateImage linha 252)
+#### 4. Sidebar.tsx — sem alterações de import
+Já importa os ficheiros `.svg` correctos. Só beneficia da substituição dos ficheiros.
 
 ### Ficheiros editados
-1. `src/components/obituaries/ObituaryTemplateA4.tsx` — foto background, renomear Velório, separador "|"
-2. `src/components/obituaries/AnnouncementGenerator.tsx` — interface phone2, html2canvas options
-3. `src/pages/NewObituary.tsx` — funerariaInfo com telefone_secundario, passar phone2
+1. `src/assets/logo-memoralis.svg` — substituído pelo novo
+2. `src/assets/icon-memoralis.svg` — substituído pelo novo
+3. `src/components/obituaries/ObituaryIcons.tsx` — cores atualizadas no LogoMemoralis
+4. 17 ficheiros com import `.png` → `.svg`
 
