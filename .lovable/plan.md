@@ -1,29 +1,32 @@
 
 
-## Plano: Percentagem de preenchimento só com campos pessoais e da família
+## Plano: Corrigir 6 problemas no template de anúncio A4
 
-### Alteração
+### 1. Foto com grayscale — `ObituaryTemplateA4.tsx`
+- Adicionar `objectPosition: "center top"` e `background: "white"` ao container da foto
+- Manter `filter: "grayscale(100%)"` na img (já existe)
 
-**`src/pages/NewObituary.tsx`** — Substituir o cálculo atual do `completionPercentage` (linhas 172-176) que conta todos os campos do `formData`, por um cálculo que apenas considera:
+### 2. Renomear "Câmara Ardente" para "Velório" — `ObituaryTemplateA4.tsx`
+- Linha 237: comentário `{/* Câmara Ardente */}` → `{/* Velório */}`
+- Linha 241: `title="Câmara Ardente"` → `title="Velório"`
 
-**Campos pessoais do falecido:**
-`displayName`, `fullName`, `birthDate`, `freguesia`, `locality`, `birthPlace`, `nationality`, `civilStatus`, `profession`, `idCard`, `taxId`, `socialSecurity`, `beneficiary`, `deathLocation`, `deathDate`, `deathTime`, `cause`, `doctor`, `medicalCertificate`
+### 3. Segundo telefone (phone2) — 3 ficheiros
+O campo `telefone_secundario` já existe na tabela `funerarias` e no schema. Basta:
 
-**Campos da família:**
-`familyName`, `familyRelationship`, `familyEmail`, `familyPhone`, `familyNif`, `familyNiss`, `familyNaturalidade`, `familyIban`, `familyAddress`, `familyLocality`, `familyPostalCode`, `familyObservations`, `familyBirthDate`, `familyCivilStatus`, `familyIdCard`, `familyFreguesia`, `familyConcelho`, `familyDistrito`
+- **`NewObituary.tsx`**: Adicionar `telefone_secundario` ao `funerariaInfo` state type, ao select query (linha 271), ao setFunerariaInfo, e passar como `funerariaPhone2` ao AnnouncementGenerator (linha 2452)
+- **`AnnouncementGenerator.tsx`**: Adicionar `funerariaPhone2?: string` à interface e passar como `phone2` ao template
 
-Ficam **excluídos** do cálculo: campos de cerimónias (funeral, cremação, missas, velório), notas/observações gerais, informação do serviço, `publicMessage`, `hideCondolences`.
+### 4. Contactos dinâmicos — separador "|"
+- **`ObituaryTemplateA4.tsx`**: Alterar o separador de telefones de `" · "` para `" | "` (linha 332)
 
-### Implementação
+### 5. Hora do velório
+- A lógica já está correcta: o EventSection no template aceita `startTime` e mostra-o. O AnnouncementGenerator já passa `startTime: formatTime(obituaryData.velorioTime)`. Como só existe um campo de hora na BD, funciona como hora de início. Sem alterações necessárias.
 
-Criar um array `personalAndFamilyFields` com as chaves acima e calcular a percentagem apenas com esses campos:
+### 6. html2canvas cross-origin — `AnnouncementGenerator.tsx`
+- Alterar `allowTaint: true` → `allowTaint: false` e `backgroundColor: null` → `backgroundColor: "#ffffff"` nas duas chamadas html2canvas (generatePDF linha 202 e generateImage linha 252)
 
-```typescript
-const personalAndFamilyFields = ["displayName", "fullName", "birthDate", ...];
-const filledCount = personalAndFamilyFields.filter(key => formData[key] !== "" && formData[key] !== false).length;
-const completionPercentage = Math.round((filledCount / personalAndFamilyFields.length) * 100);
-```
-
-### Ficheiro
-- `src/pages/NewObituary.tsx` (linhas 172-176)
+### Ficheiros editados
+1. `src/components/obituaries/ObituaryTemplateA4.tsx` — foto background, renomear Velório, separador "|"
+2. `src/components/obituaries/AnnouncementGenerator.tsx` — interface phone2, html2canvas options
+3. `src/pages/NewObituary.tsx` — funerariaInfo com telefone_secundario, passar phone2
 
