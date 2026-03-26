@@ -169,11 +169,19 @@ export default function NewObituary() {
     servicePrice: "",
   });
 
-  const completionPercentage = Math.round(
-    (Object.values(formData).filter((v) => v !== "").length /
-      Object.values(formData).length) *
-      100
-  );
+  const personalAndFamilyFields = [
+    "displayName", "fullName", "birthDate", "freguesia", "locality", "birthPlace",
+    "nationality", "civilStatus", "profession", "idCard", "taxId", "socialSecurity",
+    "beneficiary", "deathLocation", "deathDate", "deathTime", "cause", "doctor", "medicalCertificate",
+    "familyName", "familyRelationship", "familyEmail", "familyPhone", "familyNif",
+    "familyNiss", "familyNaturalidade", "familyIban", "familyAddress", "familyLocality",
+    "familyPostalCode", "familyObservations", "familyBirthDate", "familyCivilStatus",
+    "familyIdCard", "familyFreguesia", "familyConcelho", "familyDistrito",
+  ];
+  const filledCount = personalAndFamilyFields.filter(
+    (key) => formData[key as keyof typeof formData] !== "" && formData[key as keyof typeof formData] !== false
+  ).length;
+  const completionPercentage = Math.round((filledCount / personalAndFamilyFields.length) * 100);
 
   const handleInputChange = (
     field: string,
