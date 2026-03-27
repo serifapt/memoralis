@@ -1,18 +1,36 @@
 
 
-## Plano: Criar óbito automaticamente ao aceitar orçamento
+## Plano: Adicionar pesquisa de clientes existentes no tab Cliente/Família
 
-### Situação atual
-Já existe o fluxo de pré-preenchimento ao navegar para `/obituaries/new?fromQuoteId=X`. Atualmente, após marcar como "Aceite", o utilizador precisa clicar manualmente no botão "Criar Processo".
+### Objetivo
+Adicionar um `ClientSelector` no topo do tab "Cliente / Família" do processo de óbito, permitindo selecionar um cliente já existente (criado na página de Clientes ou ao fazer um orçamento) e preencher automaticamente todos os campos do formulário.
 
-### Alteração
-Após `updateQuoteStatus` com sucesso para `ACCEPTED`, navegar automaticamente para `/obituaries/new?fromQuoteId={quoteId}`, reutilizando toda a lógica de pré-preenchimento já existente.
+### Alterações
 
-### Ficheiros a editar
+**`src/pages/NewObituary.tsx`**:
 
-1. **`src/pages/BudgetQuoteDetail.tsx`** — No `handleStatusChange`, após sucesso com status `ACCEPTED`, fazer `navigate(/obituaries/new?fromQuoteId=${quote.id})`.
+1. Importar `ClientSelector` de `@/components/clients/ClientSelector` e `Client` de `@/hooks/useClients`
+2. No tab "familia" (linha ~2069), antes dos campos manuais, adicionar:
+   - Label "Associar Cliente Existente" + componente `ClientSelector`
+   - Se `responsibleClientId` já existir (ex: vindo de orçamento), pré-selecionar esse cliente
+   - Ao selecionar, preencher automaticamente todos os campos family* com o mapeamento:
+     ```
+     full_name → familyName
+     relationship_degree → familyRelationship
+     email → familyEmail
+     phone → familyPhone
+     nif → familyNif
+     niss → familyNiss
+     nationality_place → familyNaturalidade
+     iban → familyIban
+     address → familyAddress
+     city → familyLocality
+     postal_code → familyPostalCode
+     birth_date → familyBirthDate
+     ```
+   - Atualizar `responsibleClientId` com o ID do cliente
+3. Adicionar um `Separator` com texto "ou preencha manualmente" entre o seletor e os campos existentes
 
-2. **`src/pages/BudgetQuotes.tsx`** — No handler de mudança de status na listagem (linha ~209), adicionar a mesma navegação automática quando o novo status é `ACCEPTED`.
-
-Assim, o utilizador aceita o orçamento e é imediatamente levado ao formulário de novo óbito com todos os dados já preenchidos (falecido, cliente, cerimónia).
+### Ficheiro editado
+1. `src/pages/NewObituary.tsx`
 
