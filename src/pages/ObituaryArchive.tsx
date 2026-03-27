@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
+import { getActiveTag, hasUpcomingMass, type CeremonyEvent } from "@/lib/ceremony-utils";
 
 const PAGE_SIZE = 12;
 
@@ -89,11 +90,33 @@ export default function ObituaryArchive() {
 
       let obits = (data as unknown as PublicObituary[]) || [];
       if (obits.length > 0) {
-        const counts = await fetchObituaryCounts(obits.map((o) => o.id));
+        const obitIds = obits.map((o) => o.id);
+        const [counts, { data: events }] = await Promise.all([
+          fetchObituaryCounts(obitIds),
+          supabase
+            .from("ceremony_events")
+            .select("obituary_id, event_type, event_date, event_time, location")
+            .in("obituary_id", obitIds),
+        ]);
+
+        const eventsMap: Record<string, CeremonyEvent[]> = {};
+        (events || []).forEach((e: any) => {
+          if (!eventsMap[e.obituary_id]) eventsMap[e.obituary_id] = [];
+          eventsMap[e.obituary_id].push(e);
+        });
+
         obits = obits.map((o) => ({
           ...o,
           ...counts[o.id],
+          active_tag: getActiveTag(eventsMap[o.id] || []),
         }));
+
+        // Boost obituaries with upcoming masses to top when sorting by recent
+        if (sortBy === "recent") {
+          const boosted = obits.filter((o) => hasUpcomingMass(eventsMap[o.id] || []));
+          const rest = obits.filter((o) => !hasUpcomingMass(eventsMap[o.id] || []));
+          obits = [...boosted, ...rest];
+        }
       }
 
       if (reset) {

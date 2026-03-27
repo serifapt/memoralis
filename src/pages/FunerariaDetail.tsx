@@ -27,6 +27,7 @@ import { withCacheBust } from "@/lib/funeraria-utils";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { TestimonialsSection } from "@/components/funeraria/TestimonialsSection";
+import { getActiveTag, type CeremonyEvent } from "@/lib/ceremony-utils";
 
 interface FunerariaData {
   id: string;
@@ -54,8 +55,10 @@ interface PublicObituary {
   birth_date: string | null;
   death_date: string | null;
   locality: string | null;
+  freguesia: string | null;
   photo_url: string | null;
   service_type: string | null;
+  active_tag: string | null;
 }
 
 export default function FunerariaDetail() {
@@ -101,14 +104,34 @@ export default function FunerariaDetail() {
       // Load public obituaries for this funeraria
       const { data: obits } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, photo_url, service_type")
+        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, service_type")
         .eq("funeraria_id", data.id)
         .eq("is_public", true)
         .eq("is_completed", true)
         .order("death_date", { ascending: false })
         .limit(8);
 
-      if (obits) setObituaries(obits);
+      if (obits && obits.length > 0) {
+        // Load ceremony events for tags
+        const obitIds = obits.map((o: any) => o.id);
+        const { data: events } = await supabase
+          .from("ceremony_events")
+          .select("obituary_id, event_type, event_date, event_time, location")
+          .in("obituary_id", obitIds);
+
+        const eventsMap: Record<string, CeremonyEvent[]> = {};
+        (events || []).forEach((e: any) => {
+          if (!eventsMap[e.obituary_id]) eventsMap[e.obituary_id] = [];
+          eventsMap[e.obituary_id].push(e);
+        });
+
+        setObituaries(obits.map((o: any) => ({
+          ...o,
+          active_tag: getActiveTag(eventsMap[o.id] || []),
+        })));
+      } else {
+        setObituaries([]);
+      }
     } catch (err) {
       console.error("Error loading funeraria:", err);
       setNotFound(true);

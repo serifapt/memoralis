@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
+import { getActiveTag, hasUpcomingMass, type CeremonyEvent } from "@/lib/ceremony-utils";
 
 const funeralHomes = Array(6).fill({
   name: "Funerária S. João",
@@ -44,24 +45,44 @@ export default function Home() {
 
   useEffect(() => {
     const loadObituaries = async () => {
+      // Load recent obituaries
       const { data } = await supabase
         .from("obituaries")
         .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funerarias(nome_comercial, slug)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
-      const obits = (data as unknown as PublicObituary[]) || [];
+      let obits = (data as unknown as PublicObituary[]) || [];
+
+      // Load ceremony events for all obituaries
       if (obits.length > 0) {
-        const counts = await fetchObituaryCounts(obits.map((o) => o.id));
-        obits.forEach((o) => {
-          const c = counts[o.id];
-          if (c) {
-            o.view_count = c.view_count;
-            o.condolence_count = c.condolence_count;
-            o.candle_count = c.candle_count;
-          }
+        const obitIds = obits.map((o) => o.id);
+        const [counts, { data: events }] = await Promise.all([
+          fetchObituaryCounts(obitIds),
+          supabase
+            .from("ceremony_events")
+            .select("obituary_id, event_type, event_date, event_time, location")
+            .in("obituary_id", obitIds),
+        ]);
+
+        const eventsMap: Record<string, CeremonyEvent[]> = {};
+        (events || []).forEach((e: any) => {
+          if (!eventsMap[e.obituary_id]) eventsMap[e.obituary_id] = [];
+          eventsMap[e.obituary_id].push(e);
         });
+
+        obits = obits.map((o) => ({
+          ...o,
+          ...counts[o.id],
+          active_tag: getActiveTag(eventsMap[o.id] || []),
+        }));
+
+        // Boost obituaries with upcoming masses to the top
+        const boosted = obits.filter((o) => hasUpcomingMass(eventsMap[o.id] || []));
+        const rest = obits.filter((o) => !hasUpcomingMass(eventsMap[o.id] || []));
+        obits = [...boosted, ...rest];
       }
+
       setObituaries(obits);
       setLoadingObits(false);
     };
