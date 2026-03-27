@@ -94,6 +94,7 @@ export default function ObituaryDetail() {
   useEffect(() => {
     if (!obituary) return;
     const loc = [obituary.freguesia, obituary.locality].filter(Boolean).join(" - ");
+    const pageUrl = window.location.href;
     const imageUrl = obituary.photo_url || `${window.location.origin}/placeholder.svg`;
 
     // JSON-LD structured data
