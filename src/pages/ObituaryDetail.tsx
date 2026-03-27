@@ -93,8 +93,7 @@ export default function ObituaryDetail() {
   // SEO: JSON-LD + Open Graph meta tags
   useEffect(() => {
     if (!obituary) return;
-
-    const pageUrl = window.location.href;
+    const loc = [obituary.freguesia, obituary.locality].filter(Boolean).join(" - ");
     const imageUrl = obituary.photo_url || `${window.location.origin}/placeholder.svg`;
 
     // JSON-LD structured data
@@ -105,7 +104,7 @@ export default function ObituaryDetail() {
       ...(obituary.birth_date && { birthDate: obituary.birth_date }),
       ...(obituary.death_date && { deathDate: obituary.death_date }),
       image: imageUrl,
-      ...(locationStr && { address: { "@type": "PostalAddress", addressLocality: locationStr } }),
+      ...(loc && { address: { "@type": "PostalAddress", addressLocality: loc } }),
     };
 
     const script = document.createElement("script");
@@ -142,7 +141,7 @@ export default function ObituaryDetail() {
       createdElements.forEach((el) => el.remove());
       document.title = prevTitle;
     };
-  }, [obituary, locationStr]);
+  }, [obituary]);
 
   // Register view
   useEffect(() => {
