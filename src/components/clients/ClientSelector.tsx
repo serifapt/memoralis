@@ -139,6 +139,7 @@ export function ClientSelector({ value, onChange, placeholder = "Selecionar clie
                     key={client.id}
                     value={client.id}
                     onSelect={() => handleSelect(client)}
+                    className="data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground"
                   >
                     <Check
                       className={cn(
