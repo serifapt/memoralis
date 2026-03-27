@@ -16,7 +16,7 @@ export const PublicHeader = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Memoralis" className="h-12" />
+            <img src={logo} alt="Memoralis" className="w-[250px]" />
           </Link>
 
           {/* Centered Navigation */}
