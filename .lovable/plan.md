@@ -1,16 +1,18 @@
 
 
-## Corrigir tipografia do TimeInput
+## Corrigir hover do ClientSelector para vermelho (primário)
 
 ### Problema
-O `TimeInput` usa `font-mono` (monospace) nos campos internos e no separador `:`, enquanto todos os outros inputs usam a fonte padrão (Inter). Isto cria uma inconsistência visual.
+O `CommandItem` usado no dropdown de clientes aplica `bg-accent` (dourado) no hover/seleção, enquanto os outros selects da app usam vermelho (`bg-primary`).
 
 ### Solução
-Remover `font-mono` da variável `baseInput` e do separador `:` no ficheiro `src/components/ui/time-input.tsx`.
+No `ClientSelector.tsx`, passar uma className ao `CommandItem` para sobrepor o estilo de hover/seleção com as cores primárias (vermelho), mantendo consistência com os outros selects.
 
 ### Alteração
 
-**`src/components/ui/time-input.tsx`**:
-- Linha do `baseInput`: remover `font-mono`
-- Linha do `<span>` separador: remover `font-mono`
+**`src/components/clients/ClientSelector.tsx`**:
+- Adicionar className ao `CommandItem` para usar `data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground` em vez do accent dourado
+
+### Ficheiro editado
+1. `src/components/clients/ClientSelector.tsx`
 
