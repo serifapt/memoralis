@@ -116,7 +116,7 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
     };
 
     const baseInput =
-      "w-8 bg-transparent text-center text-sm font-mono outline-none placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+      "w-8 bg-transparent text-center text-sm outline-none placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
     return (
       <div
@@ -142,7 +142,7 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
           onKeyDown={handleHourKeyDown}
           onBlur={handleHourBlur}
         />
-        <span className="text-muted-foreground font-mono select-none">:</span>
+        <span className="text-muted-foreground select-none">:</span>
         <input
           ref={minuteRef}
           type="text"
