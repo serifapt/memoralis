@@ -70,6 +70,16 @@ export default function ObituaryDetail() {
   const [funeraria, setFuneraria] = useState<Funeraria | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<RelatedObituary[]>([]);
 
+  // Counters
+  const [viewCount, setViewCount] = useState(0);
+  const [condolenceCount, setCondolenceCount] = useState(0);
+  const [candleCount, setCandleCount] = useState(0);
+
+  // Candle dialog
+  const [candleDialogOpen, setCandleDialogOpen] = useState(false);
+  const [candleName, setCandleName] = useState("");
+  const [submittingCandle, setSubmittingCandle] = useState(false);
+
   // Condolence form state
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -81,6 +91,18 @@ export default function ObituaryDetail() {
   useEffect(() => {
     if (id) loadObituaryData(id);
   }, [id]);
+
+  // Register view
+  useEffect(() => {
+    if (!id || loading || !obituary) return;
+    const key = `viewed_${id}`;
+    if (!sessionStorage.getItem(key)) {
+      supabase.from("obituary_views").insert({ obituary_id: id }).then(() => {
+        sessionStorage.setItem(key, "true");
+        setViewCount((prev) => prev + 1);
+      });
+    }
+  }, [id, loading, obituary]);
 
   useEffect(() => {
     if (!loading && obituary && location.hash === '#condolencias') {
