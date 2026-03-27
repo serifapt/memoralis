@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams, useLocation } from "react-router-dom";
@@ -69,6 +70,16 @@ export default function ObituaryDetail() {
   const [funeraria, setFuneraria] = useState<Funeraria | null>(null);
   const [relatedObituaries, setRelatedObituaries] = useState<RelatedObituary[]>([]);
 
+  // Counters
+  const [viewCount, setViewCount] = useState(0);
+  const [condolenceCount, setCondolenceCount] = useState(0);
+  const [candleCount, setCandleCount] = useState(0);
+
+  // Candle dialog
+  const [candleDialogOpen, setCandleDialogOpen] = useState(false);
+  const [candleName, setCandleName] = useState("");
+  const [submittingCandle, setSubmittingCandle] = useState(false);
+
   // Condolence form state
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -80,6 +91,18 @@ export default function ObituaryDetail() {
   useEffect(() => {
     if (id) loadObituaryData(id);
   }, [id]);
+
+  // Register view
+  useEffect(() => {
+    if (!id || loading || !obituary) return;
+    const key = `viewed_${id}`;
+    if (!sessionStorage.getItem(key)) {
+      supabase.from("obituary_views").insert({ obituary_id: id }).then(() => {
+        sessionStorage.setItem(key, "true");
+        setViewCount((prev) => prev + 1);
+      });
+    }
+  }, [id, loading, obituary]);
 
   useEffect(() => {
     if (!loading && obituary && location.hash === '#condolencias') {
@@ -141,13 +164,23 @@ export default function ObituaryDetail() {
       setFuneraria(funerariaRes.data);
       setRelatedObituaries(relatedRes.data || []);
 
-      // Load condolences
+      // Load condolences and counts
       loadCondolences(obit.id);
+      loadCounts(obit.id);
     } catch (err) {
       console.error("Error loading obituary:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadCounts = async (obituaryId: string) => {
+    const [viewsRes, candlesRes] = await Promise.all([
+      supabase.from("obituary_views").select("id", { count: "exact", head: true }).eq("obituary_id", obituaryId),
+      supabase.from("obituary_candles").select("id", { count: "exact", head: true }).eq("obituary_id", obituaryId),
+    ]);
+    setViewCount(viewsRes.count ?? 0);
+    setCandleCount(candlesRes.count ?? 0);
   };
   // Load approved condolences
   const loadCondolences = async (obituaryId: string) => {
@@ -158,6 +191,28 @@ export default function ObituaryDetail() {
       .eq("is_approved", true)
       .order("created_at", { ascending: false });
     setApprovedCondolences(data || []);
+    setCondolenceCount((data || []).length);
+  };
+
+  // Submit candle
+  const handleCandleSubmit = async () => {
+    if (!obituary) return;
+    setSubmittingCandle(true);
+    try {
+      const { error } = await supabase.from("obituary_candles").insert({
+        obituary_id: obituary.id,
+        visitor_name: candleName.trim() || null,
+      });
+      if (error) throw error;
+      toast.success("Vela acesa com sucesso. 🕯️");
+      setCandleName("");
+      setCandleDialogOpen(false);
+      setCandleCount((prev) => prev + 1);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao acender vela.");
+    } finally {
+      setSubmittingCandle(false);
+    }
   };
 
   // Submit condolence
@@ -308,6 +363,22 @@ export default function ObituaryDetail() {
                       </div>
                     )}
 
+                    {/* Counters */}
+                    <div className="flex items-center gap-5 text-muted-foreground mb-4">
+                      <div className="flex items-center gap-1.5">
+                        <Eye className="w-4 h-4" />
+                        <span className="text-sm">{viewCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MessageSquare className="w-4 h-4" />
+                        <span className="text-sm">{condolenceCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Flame className="w-4 h-4" />
+                        <span className="text-sm">{candleCount}</span>
+                      </div>
+                    </div>
+
                     {/* Share */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
                       <span className="text-sm font-medium text-foreground">Partilhar</span>
@@ -318,8 +389,12 @@ export default function ObituaryDetail() {
                       <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.print()}><Printer className="w-4 h-4" /></Button>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                       {!obituary.hide_condolences && <Button variant="outline" onClick={() => document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' })}>Condolências</Button>}
+                      <Button variant="outline" onClick={() => setCandleDialogOpen(true)}>
+                        <Flame className="w-4 h-4 mr-2" />
+                        Acender Vela
+                      </Button>
                       <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
                         Enviar Flores
                       </Button>
@@ -572,6 +647,33 @@ export default function ObituaryDetail() {
         obituaryName={obituary.display_name}
         funerariaId={obituary.funeraria_id}
       />
+
+      {/* Candle Dialog */}
+      <Dialog open={candleDialogOpen} onOpenChange={setCandleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-primary" />
+              Acender uma vela
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Acenda uma vela em memória de {obituary.display_name}.
+            </p>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">O seu nome (opcional)</label>
+              <Input placeholder="O seu nome" value={candleName} onChange={(e) => setCandleName(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCandleDialogOpen(false)}>Cancelar</Button>
+            <Button className="bg-primary hover:bg-primary/90" onClick={handleCandleSubmit} disabled={submittingCandle}>
+              {submittingCandle ? "A acender..." : "🕯️ Acender Vela"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

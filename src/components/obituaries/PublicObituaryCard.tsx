@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Building2 } from "lucide-react";
+import { MapPin, Building2, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 
@@ -14,6 +14,9 @@ export interface PublicObituary {
   photo_url: string | null;
   funeraria_id?: string;
   funerarias: { nome_comercial: string; slug: string | null } | null;
+  view_count?: number;
+  condolence_count?: number;
+  candle_count?: number;
 }
 
 function getYear(dateStr: string | null) {
@@ -72,6 +75,23 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               </Link>
             )}
           </div>
+
+          {/* Counters */}
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" />
+              <span className="text-xs">{obit.view_count ?? 0}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span className="text-xs">{obit.condolence_count ?? 0}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Flame className="w-3.5 h-3.5" />
+              <span className="text-xs">{obit.candle_count ?? 0}</span>
+            </div>
+          </div>
+
           <Button
             size="sm"
             className="w-full bg-primary hover:bg-primary/90"

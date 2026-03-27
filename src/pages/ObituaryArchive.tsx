@@ -15,6 +15,7 @@ import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
+import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
 
 const PAGE_SIZE = 12;
 
@@ -86,10 +87,19 @@ export default function ObituaryArchive() {
         return;
       }
 
+      let obits = (data as unknown as PublicObituary[]) || [];
+      if (obits.length > 0) {
+        const counts = await fetchObituaryCounts(obits.map((o) => o.id));
+        obits = obits.map((o) => ({
+          ...o,
+          ...counts[o.id],
+        }));
+      }
+
       if (reset) {
-        setObituaries((data as unknown as PublicObituary[]) || []);
+        setObituaries(obits);
       } else {
-        setObituaries(prev => [...prev, ...((data as unknown as PublicObituary[]) || [])]);
+        setObituaries(prev => [...prev, ...obits]);
       }
       setTotalCount(count || 0);
     } finally {

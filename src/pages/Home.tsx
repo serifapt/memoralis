@@ -11,6 +11,7 @@ import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
+import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
 
 const funeralHomes = Array(6).fill({
   name: "Funerária S. João",
@@ -49,7 +50,19 @@ export default function Home() {
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
-      setObituaries((data as unknown as PublicObituary[]) || []);
+      const obits = (data as unknown as PublicObituary[]) || [];
+      if (obits.length > 0) {
+        const counts = await fetchObituaryCounts(obits.map((o) => o.id));
+        obits.forEach((o) => {
+          const c = counts[o.id];
+          if (c) {
+            o.view_count = c.view_count;
+            o.condolence_count = c.condolence_count;
+            o.candle_count = c.candle_count;
+          }
+        });
+      }
+      setObituaries(obits);
       setLoadingObits(false);
     };
     loadObituaries();
