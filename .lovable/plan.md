@@ -1,29 +1,18 @@
 
 
-## Plano: Adicionar campos em falta ao diálogo "Novo Cliente" no ClientSelector
+## Plano: Criar óbito automaticamente ao aceitar orçamento
 
-### Problema
-O diálogo de criação de cliente no orçamento só tem 5 campos (Nome, Email, Telefone, NIF, Grau Parentesco). Faltam campos importantes como Endereço, Localidade, Código Postal, NISS, Nacionalidade/Naturalidade, IBAN e Data de Nascimento.
+### Situação atual
+Já existe o fluxo de pré-preenchimento ao navegar para `/obituaries/new?fromQuoteId=X`. Atualmente, após marcar como "Aceite", o utilizador precisa clicar manualmente no botão "Criar Processo".
 
-### Alterações
+### Alteração
+Após `updateQuoteStatus` com sucesso para `ACCEPTED`, navegar automaticamente para `/obituaries/new?fromQuoteId={quoteId}`, reutilizando toda a lógica de pré-preenchimento já existente.
 
-**`src/components/clients/ClientSelector.tsx`**:
-- Expandir o `DialogContent` para `sm:max-w-2xl` para acomodar mais campos
-- Adicionar campos organizados em grid:
-  - **Linha 1**: Nome Completo (full width)
-  - **Linha 2**: Email | Telefone
-  - **Linha 3**: NIF | NISS
-  - **Linha 4**: Grau Parentesco | Data de Nascimento
-  - **Linha 5**: Nacionalidade/Naturalidade | IBAN
-  - **Linha 6**: Endereço (full width)
-  - **Linha 7**: Localidade | Código Postal
-  - **Linha 8**: Notas (textarea, full width)
-- Adicionar scroll ao conteúdo do diálogo para manter a usabilidade
-- Atualizar o `newClientData` inicial para incluir todos os campos novos
-- Importar `Textarea` para o campo de notas
+### Ficheiros a editar
 
-**`src/hooks/useClients.ts`** — sem alterações (o `ClientFormData` já suporta todos os campos)
+1. **`src/pages/BudgetQuoteDetail.tsx`** — No `handleStatusChange`, após sucesso com status `ACCEPTED`, fazer `navigate(/obituaries/new?fromQuoteId=${quote.id})`.
 
-### Ficheiro editado
-1. `src/components/clients/ClientSelector.tsx`
+2. **`src/pages/BudgetQuotes.tsx`** — No handler de mudança de status na listagem (linha ~209), adicionar a mesma navegação automática quando o novo status é `ACCEPTED`.
+
+Assim, o utilizador aceita o orçamento e é imediatamente levado ao formulário de novo óbito com todos os dados já preenchidos (falecido, cliente, cerimónia).
 
