@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { MapPin, Building2, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
@@ -17,6 +18,7 @@ export interface PublicObituary {
   view_count?: number;
   condolence_count?: number;
   candle_count?: number;
+  active_tag?: string | null;
 }
 
 function getYear(dateStr: string | null) {
@@ -49,6 +51,11 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
             alt={obit.display_name}
             className="w-full aspect-[3/4] object-cover"
           />
+          {obit.active_tag && (
+            <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0 text-xs font-medium">
+              {obit.active_tag}
+            </Badge>
+          )}
         </div>
         <CardContent className="p-4 space-y-3">
           <div>
