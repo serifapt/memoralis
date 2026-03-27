@@ -205,8 +205,13 @@ export default function BudgetQuotes() {
                                 <DropdownMenuItem
                                   key={key}
                                   className="focus:bg-primary/10 focus:text-primary"
-                                  disabled={key === quote.status}
-                                  onClick={() => updateQuoteStatus(quote.id, key)}
+                                disabled={key === quote.status}
+                                  onClick={async () => {
+                                    const success = await updateQuoteStatus(quote.id, key);
+                                    if (success && key === "ACCEPTED") {
+                                      navigate(`/obituaries/new?fromQuoteId=${quote.id}`);
+                                    }
+                                  }}
                                 >
                         <Badge className={`${config.color} mr-2 pointer-events-none`}>
                                     <Icon className="w-3 h-3 mr-1" />
