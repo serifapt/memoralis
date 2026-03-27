@@ -75,10 +75,8 @@ export default function ObituaryDetail() {
   const [condolenceCount, setCondolenceCount] = useState(0);
   const [candleCount, setCandleCount] = useState(0);
 
-  // Candle dialog
-  const [candleDialogOpen, setCandleDialogOpen] = useState(false);
-  const [candleName, setCandleName] = useState("");
-  const [submittingCandle, setSubmittingCandle] = useState(false);
+  // Candle state (direct click, no dialog)
+  const [lightingCandle, setLightingCandle] = useState(false);
 
   // Condolence form state
   const [authorName, setAuthorName] = useState("");
@@ -91,6 +89,60 @@ export default function ObituaryDetail() {
   useEffect(() => {
     if (id) loadObituaryData(id);
   }, [id]);
+
+  // SEO: JSON-LD + Open Graph meta tags
+  useEffect(() => {
+    if (!obituary) return;
+
+    const pageUrl = window.location.href;
+    const imageUrl = obituary.photo_url || `${window.location.origin}/placeholder.svg`;
+
+    // JSON-LD structured data
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: obituary.display_name,
+      ...(obituary.birth_date && { birthDate: obituary.birth_date }),
+      ...(obituary.death_date && { deathDate: obituary.death_date }),
+      image: imageUrl,
+      ...(locationStr && { address: { "@type": "PostalAddress", addressLocality: locationStr } }),
+    };
+
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+
+    // OG meta tags
+    const metaTags = [
+      { property: "og:title", content: `Homenagem a ${obituary.display_name} | Memoralis` },
+      { property: "og:description", content: obituary.public_message?.substring(0, 160) || `Homenagem e memória de ${obituary.display_name}.` },
+      { property: "og:image", content: imageUrl },
+      { property: "og:url", content: pageUrl },
+      { property: "og:type", content: "article" },
+      { name: "description", content: obituary.public_message?.substring(0, 160) || `Homenagem e memória de ${obituary.display_name}. Acenda uma vela, envie condolências ou flores.` },
+    ];
+
+    const createdElements: HTMLMetaElement[] = [];
+    metaTags.forEach(({ property, name, content }) => {
+      const meta = document.createElement("meta");
+      if (property) meta.setAttribute("property", property);
+      if (name) meta.setAttribute("name", name);
+      meta.content = content;
+      document.head.appendChild(meta);
+      createdElements.push(meta);
+    });
+
+    // Update page title
+    const prevTitle = document.title;
+    document.title = `${obituary.display_name} | Memoralis`;
+
+    return () => {
+      script.remove();
+      createdElements.forEach((el) => el.remove());
+      document.title = prevTitle;
+    };
+  }, [obituary, locationStr]);
 
   // Register view
   useEffect(() => {
@@ -194,24 +246,21 @@ export default function ObituaryDetail() {
     setCondolenceCount((data || []).length);
   };
 
-  // Submit candle
-  const handleCandleSubmit = async () => {
-    if (!obituary) return;
-    setSubmittingCandle(true);
+  // Submit candle (direct click, no dialog)
+  const handleLightCandle = async () => {
+    if (!obituary || lightingCandle) return;
+    setLightingCandle(true);
     try {
       const { error } = await supabase.from("obituary_candles").insert({
         obituary_id: obituary.id,
-        visitor_name: candleName.trim() || null,
       });
       if (error) throw error;
       toast.success("Vela acesa com sucesso. 🕯️");
-      setCandleName("");
-      setCandleDialogOpen(false);
       setCandleCount((prev) => prev + 1);
     } catch (err: any) {
       toast.error(err.message || "Erro ao acender vela.");
     } finally {
-      setSubmittingCandle(false);
+      setTimeout(() => setLightingCandle(false), 2000);
     }
   };
 
@@ -391,9 +440,9 @@ export default function ObituaryDetail() {
 
                     <div className="flex flex-wrap gap-3">
                       {!obituary.hide_condolences && <Button variant="outline" onClick={() => document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' })}>Condolências</Button>}
-                      <Button variant="outline" onClick={() => setCandleDialogOpen(true)}>
+                      <Button variant="outline" onClick={handleLightCandle} disabled={lightingCandle}>
                         <Flame className="w-4 h-4 mr-2" />
-                        Acender Vela
+                        {lightingCandle ? "A acender..." : "Acender Vela"}
                       </Button>
                       <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
                         Enviar Flores
@@ -648,32 +697,6 @@ export default function ObituaryDetail() {
         funerariaId={obituary.funeraria_id}
       />
 
-      {/* Candle Dialog */}
-      <Dialog open={candleDialogOpen} onOpenChange={setCandleDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-primary" />
-              Acender uma vela
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <p className="text-sm text-muted-foreground">
-              Acenda uma vela em memória de {obituary.display_name}.
-            </p>
-            <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">O seu nome (opcional)</label>
-              <Input placeholder="O seu nome" value={candleName} onChange={(e) => setCandleName(e.target.value)} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCandleDialogOpen(false)}>Cancelar</Button>
-            <Button className="bg-primary hover:bg-primary/90" onClick={handleCandleSubmit} disabled={submittingCandle}>
-              {submittingCandle ? "A acender..." : "🕯️ Acender Vela"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
