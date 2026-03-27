@@ -363,6 +363,22 @@ export default function ObituaryDetail() {
                       </div>
                     )}
 
+                    {/* Counters */}
+                    <div className="flex items-center gap-5 text-muted-foreground mb-4">
+                      <div className="flex items-center gap-1.5">
+                        <Eye className="w-4 h-4" />
+                        <span className="text-sm">{viewCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MessageSquare className="w-4 h-4" />
+                        <span className="text-sm">{condolenceCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Flame className="w-4 h-4" />
+                        <span className="text-sm">{candleCount}</span>
+                      </div>
+                    </div>
+
                     {/* Share */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
                       <span className="text-sm font-medium text-foreground">Partilhar</span>
@@ -373,8 +389,12 @@ export default function ObituaryDetail() {
                       <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.print()}><Printer className="w-4 h-4" /></Button>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                       {!obituary.hide_condolences && <Button variant="outline" onClick={() => document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' })}>Condolências</Button>}
+                      <Button variant="outline" onClick={() => setCandleDialogOpen(true)}>
+                        <Flame className="w-4 h-4 mr-2" />
+                        Acender Vela
+                      </Button>
                       <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
                         Enviar Flores
                       </Button>
