@@ -647,6 +647,33 @@ export default function ObituaryDetail() {
         obituaryName={obituary.display_name}
         funerariaId={obituary.funeraria_id}
       />
+
+      {/* Candle Dialog */}
+      <Dialog open={candleDialogOpen} onOpenChange={setCandleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-primary" />
+              Acender uma vela
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Acenda uma vela em memória de {obituary.display_name}.
+            </p>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">O seu nome (opcional)</label>
+              <Input placeholder="O seu nome" value={candleName} onChange={(e) => setCandleName(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCandleDialogOpen(false)}>Cancelar</Button>
+            <Button className="bg-primary hover:bg-primary/90" onClick={handleCandleSubmit} disabled={submittingCandle}>
+              {submittingCandle ? "A acender..." : "🕯️ Acender Vela"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
