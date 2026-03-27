@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, ChevronRight } from "lucide-react";
+import { Search, MapPin, Home, ChevronRight, Building } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
@@ -20,32 +20,65 @@ import { getActiveTag, hasUpcomingMass, type CeremonyEvent } from "@/lib/ceremon
 
 const PAGE_SIZE = 12;
 
+const TAG_OPTIONS = [
+  { label: "Todos", value: "all" },
+  { label: "Funeral", value: "Funeral" },
+  { label: "Missa 7º dia", value: "Missa 7º dia" },
+  { label: "Missa 30º dia", value: "Missa 30º dia" },
+  { label: "Missa Anual", value: "Missa 1 Ano" },
+];
+
 export default function ObituaryArchive() {
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
   const [selectedLocality, setSelectedLocality] = useState<string>("all");
+  const [selectedFreguesia, setSelectedFreguesia] = useState<string>("all");
+  const [selectedDistrito, setSelectedDistrito] = useState<string>("all");
+  const [selectedFuneraria, setSelectedFuneraria] = useState<string>("all");
+  const [selectedTag, setSelectedTag] = useState<string>("all");
   const [sortBy, setSortBy] = useState("recent");
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [localities, setLocalities] = useState<string[]>([]);
+  const [freguesias, setFreguesias] = useState<string[]>([]);
+  const [distritos, setDistritos] = useState<string[]>([]);
+  const [funerariasList, setFunerariasList] = useState<{ id: string; nome_comercial: string }[]>([]);
 
   useEffect(() => {
     loadObituaries(true);
-    loadLocalities();
-  }, [searchName, selectedLocality, sortBy]);
+  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy]);
 
-  const loadLocalities = async () => {
-    const { data } = await supabase
-      .from("obituaries")
-      .select("locality")
-      .eq("is_public", true)
-      .not("locality", "is", null);
-    
-    if (data) {
-      const unique = [...new Set(data.map(d => d.locality).filter(Boolean))] as string[];
-      setLocalities(unique.sort());
+  useEffect(() => {
+    loadFilterOptions();
+  }, []);
+
+  const loadFilterOptions = async () => {
+    const [locRes, fregRes, distRes, funRes] = await Promise.all([
+      supabase.from("obituaries").select("locality").eq("is_public", true).not("locality", "is", null),
+      supabase.from("obituaries").select("freguesia").eq("is_public", true).not("freguesia", "is", null),
+      supabase.from("obituaries").select("distrito").eq("is_public", true).not("distrito", "is", null),
+      supabase.from("obituaries").select("funeraria_id, funerarias(nome_comercial)").eq("is_public", true),
+    ]);
+
+    if (locRes.data) {
+      setLocalities([...new Set(locRes.data.map(d => d.locality).filter(Boolean) as string[])].sort());
+    }
+    if (fregRes.data) {
+      setFreguesias([...new Set(fregRes.data.map(d => d.freguesia).filter(Boolean) as string[])].sort());
+    }
+    if (distRes.data) {
+      setDistritos([...new Set(distRes.data.map(d => d.distrito).filter(Boolean) as string[])].sort());
+    }
+    if (funRes.data) {
+      const funerariaMap = new Map<string, string>();
+      funRes.data.forEach((d: any) => {
+        if (d.funeraria_id && d.funerarias?.nome_comercial) {
+          funerariaMap.set(d.funeraria_id, d.funerarias.nome_comercial);
+        }
+      });
+      setFunerariasList(Array.from(funerariaMap.entries()).map(([id, nome_comercial]) => ({ id, nome_comercial })).sort((a, b) => a.nome_comercial.localeCompare(b.nome_comercial)));
     }
   };
 
@@ -61,14 +94,23 @@ export default function ObituaryArchive() {
     try {
       let query = supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)", { count: "exact" })
+        .select("id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, funerarias(nome_comercial, slug)", { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {
         query = query.ilike("display_name", `%${searchName.trim()}%`);
       }
-      if (selectedLocality && selectedLocality !== "all") {
+      if (selectedLocality !== "all") {
         query = query.eq("locality", selectedLocality);
+      }
+      if (selectedFreguesia !== "all") {
+        query = query.eq("freguesia", selectedFreguesia);
+      }
+      if (selectedDistrito !== "all") {
+        query = query.eq("distrito", selectedDistrito);
+      }
+      if (selectedFuneraria !== "all") {
+        query = query.eq("funeraria_id", selectedFuneraria);
       }
 
       if (sortBy === "recent") {
@@ -111,7 +153,6 @@ export default function ObituaryArchive() {
           active_tag: getActiveTag(eventsMap[o.id] || []),
         }));
 
-        // Boost obituaries with upcoming masses to top when sorting by recent
         if (sortBy === "recent") {
           const boosted = obits.filter((o) => hasUpcomingMass(eventsMap[o.id] || []));
           const rest = obits.filter((o) => !hasUpcomingMass(eventsMap[o.id] || []));
@@ -136,9 +177,12 @@ export default function ObituaryArchive() {
     loadObituaries(false);
   };
 
-
-
   const hasMore = obituaries.length < totalCount;
+
+  // Filter by tag client-side
+  const displayedObituaries = selectedTag === "all"
+    ? obituaries
+    : obituaries.filter(o => (o as any).active_tag === selectedTag);
 
   // Debounce search
   const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -172,7 +216,7 @@ export default function ObituaryArchive() {
 
         {/* Filters */}
         <div className="space-y-4 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
               <Input
@@ -183,7 +227,7 @@ export default function ObituaryArchive() {
             </div>
             <Select value={selectedLocality} onValueChange={setSelectedLocality}>
               <SelectTrigger>
-                <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
+                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
                 <SelectValue placeholder="Localidade" />
               </SelectTrigger>
               <SelectContent>
@@ -193,22 +237,74 @@ export default function ObituaryArchive() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={selectedFreguesia} onValueChange={setSelectedFreguesia}>
               <SelectTrigger>
-                <SelectValue />
+                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Freguesia" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="recent">Mais recentes</SelectItem>
-                <SelectItem value="oldest">Mais antigos</SelectItem>
-                <SelectItem value="name">Nome A-Z</SelectItem>
+                <SelectItem value="all">Todas as freguesias</SelectItem>
+                {freguesias.map(f => (
+                  <SelectItem key={f} value={f}>{f}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedDistrito} onValueChange={setSelectedDistrito}>
+              <SelectTrigger>
+                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Distrito" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os distritos</SelectItem>
+                {distritos.map(d => (
+                  <SelectItem key={d} value={d}>{d}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedFuneraria} onValueChange={setSelectedFuneraria}>
+              <SelectTrigger>
+                <Building className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Funerária" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as funerárias</SelectItem>
+                {funerariasList.map(f => (
+                  <SelectItem key={f.id} value={f.id}>{f.nome_comercial}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {loading ? "A carregar..." : `${totalCount} resultado${totalCount !== 1 ? "s" : ""}`}
-            </p>
+          {/* Tag pills + counter + sort */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2">
+              {TAG_OPTIONS.map(tag => (
+                <Button
+                  key={tag.value}
+                  variant={selectedTag === tag.value ? "default" : "outline"}
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => setSelectedTag(tag.value)}
+                >
+                  {tag.label}
+                </Button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-muted-foreground whitespace-nowrap">
+                {loading ? "A carregar..." : `${selectedTag === "all" ? totalCount : displayedObituaries.length} resultado${(selectedTag === "all" ? totalCount : displayedObituaries.length) !== 1 ? "s" : ""}`}
+              </p>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Mais recentes</SelectItem>
+                  <SelectItem value="oldest">Mais antigos</SelectItem>
+                  <SelectItem value="name">Nome A-Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -219,20 +315,20 @@ export default function ObituaryArchive() {
               <Skeleton key={i} className="h-96 w-full rounded-lg" />
             ))}
           </div>
-        ) : obituaries.length === 0 ? (
+        ) : displayedObituaries.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-lg text-muted-foreground">Nenhum obituário encontrado.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {obituaries.map((obit) => (
+            {displayedObituaries.map((obit) => (
               <PublicObituaryCard key={obit.id} obit={obit} />
             ))}
           </div>
         )}
 
         {/* Load More */}
-        {hasMore && !loading && (
+        {hasMore && !loading && selectedTag === "all" && (
           <div className="flex justify-center">
             <Button variant="outline" size="lg" onClick={handleLoadMore} disabled={loadingMore}>
               {loadingMore ? "A carregar..." : "Carregar mais"}

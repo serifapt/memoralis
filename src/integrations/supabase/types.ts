@@ -1148,6 +1148,7 @@ export type Database = {
           created_at: string
           declaro_representacao_legal: boolean
           descricao: string | null
+          distrito: string | null
           email: string | null
           facebook_url: string | null
           horario: string | null
@@ -1179,6 +1180,7 @@ export type Database = {
           created_at?: string
           declaro_representacao_legal?: boolean
           descricao?: string | null
+          distrito?: string | null
           email?: string | null
           facebook_url?: string | null
           horario?: string | null
@@ -1210,6 +1212,7 @@ export type Database = {
           created_at?: string
           declaro_representacao_legal?: boolean
           descricao?: string | null
+          distrito?: string | null
           email?: string | null
           facebook_url?: string | null
           horario?: string | null
@@ -1360,6 +1363,7 @@ export type Database = {
           death_location: string | null
           death_time: string | null
           display_name: string
+          distrito: string | null
           doctor: string | null
           family_address: string | null
           family_birth_date: string | null
@@ -1414,6 +1418,7 @@ export type Database = {
           death_location?: string | null
           death_time?: string | null
           display_name: string
+          distrito?: string | null
           doctor?: string | null
           family_address?: string | null
           family_birth_date?: string | null
@@ -1468,6 +1473,7 @@ export type Database = {
           death_location?: string | null
           death_time?: string | null
           display_name?: string
+          distrito?: string | null
           doctor?: string | null
           family_address?: string | null
           family_birth_date?: string | null
