@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical, Mail, Star, MessageSquareQuote } from "lucide-react";
+import { Search, Plus, FileText, Calendar, Users, TrendingUp, CheckCircle2, Clock, MapPin, GripVertical, Mail, Star, MessageSquareQuote, Receipt } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ChatButton } from "@/components/chat/ChatButton";
 import { supabase } from "@/integrations/supabase/client";
@@ -543,6 +543,10 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-3">
           {funerariaId && <NotificationBell funerariaId={funerariaId} />}
+          <Button variant="outline" onClick={() => navigate("/budgets/new")}>
+            <Receipt className="w-4 h-4 mr-2" />
+            Novo Orçamento
+          </Button>
           <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate("/obituaries/new")}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Obituário
