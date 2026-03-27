@@ -26,7 +26,8 @@ import { AddRelationshipDialog } from "@/components/obituaries/AddRelationshipDi
 import { AnnouncementGenerator } from "@/components/obituaries/AnnouncementGenerator";
 import { DocumentsTab } from "@/components/obituaries/DocumentsTab";
 import { CondolencesTab } from "@/components/obituaries/CondolencesTab";
-import { useClients } from "@/hooks/useClients";
+import { useClients, Client } from "@/hooks/useClients";
+import { ClientSelector } from "@/components/clients/ClientSelector";
 
 export default function NewObituary() {
   const { id } = useParams();
@@ -2066,6 +2067,39 @@ export default function NewObituary() {
                 <h2 className="text-xl font-archivo font-semibold mb-6">
                   Informação Família / Responsável
                 </h2>
+
+                {/* Associar Cliente Existente */}
+                <div className="space-y-2 mb-6">
+                  <Label>Associar Cliente Existente</Label>
+                  <ClientSelector
+                    value={responsibleClientId || undefined}
+                    onChange={(clientId: string, client: Client) => {
+                      setResponsibleClientId(clientId);
+                      setFormData(prev => ({
+                        ...prev,
+                        familyName: client.full_name || prev.familyName,
+                        familyRelationship: client.relationship_degree || prev.familyRelationship,
+                        familyEmail: client.email || prev.familyEmail,
+                        familyPhone: client.phone || prev.familyPhone,
+                        familyNif: client.nif || prev.familyNif,
+                        familyNiss: client.niss || prev.familyNiss,
+                        familyNaturalidade: client.nationality_place || prev.familyNaturalidade,
+                        familyIban: client.iban || prev.familyIban,
+                        familyAddress: client.address || prev.familyAddress,
+                        familyLocality: client.city || prev.familyLocality,
+                        familyPostalCode: client.postal_code || prev.familyPostalCode,
+                        familyBirthDate: client.birth_date || prev.familyBirthDate,
+                      }));
+                    }}
+                  />
+                </div>
+
+                <div className="relative my-6">
+                  <Separator />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-sm text-muted-foreground">
+                    ou preencha manualmente
+                  </span>
+                </div>
 
                 <div className="space-y-6">
                   {/* Nome and Grau Parentesco */}
