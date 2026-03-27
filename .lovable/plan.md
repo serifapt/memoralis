@@ -1,21 +1,29 @@
 
 
-## Plano: Adicionar botão "Novo Orçamento" no Dashboard
+## Plano: Adicionar campos em falta ao diálogo "Novo Cliente" no ClientSelector
 
-### Alteração
-**`src/pages/Dashboard.tsx`** — Adicionar um segundo botão ao lado do "Novo Obituário" (linha 546-549) que navega para `/budgets/new`:
+### Problema
+O diálogo de criação de cliente no orçamento só tem 5 campos (Nome, Email, Telefone, NIF, Grau Parentesco). Faltam campos importantes como Endereço, Localidade, Código Postal, NISS, Nacionalidade/Naturalidade, IBAN e Data de Nascimento.
 
-```tsx
-<Button variant="outline" onClick={() => navigate("/budgets/new")}>
-  <Receipt className="w-4 h-4 mr-2" />
-  Novo Orçamento
-</Button>
-```
+### Alterações
 
-- Importar `Receipt` do lucide-react (já usado no Sidebar para Orçamentos)
-- Botão com `variant="outline"` para diferenciar visualmente do botão primário
-- Posicionado antes do botão "Novo Obituário" na div `flex items-center gap-3`
+**`src/components/clients/ClientSelector.tsx`**:
+- Expandir o `DialogContent` para `sm:max-w-2xl` para acomodar mais campos
+- Adicionar campos organizados em grid:
+  - **Linha 1**: Nome Completo (full width)
+  - **Linha 2**: Email | Telefone
+  - **Linha 3**: NIF | NISS
+  - **Linha 4**: Grau Parentesco | Data de Nascimento
+  - **Linha 5**: Nacionalidade/Naturalidade | IBAN
+  - **Linha 6**: Endereço (full width)
+  - **Linha 7**: Localidade | Código Postal
+  - **Linha 8**: Notas (textarea, full width)
+- Adicionar scroll ao conteúdo do diálogo para manter a usabilidade
+- Atualizar o `newClientData` inicial para incluir todos os campos novos
+- Importar `Textarea` para o campo de notas
+
+**`src/hooks/useClients.ts`** — sem alterações (o `ClientFormData` já suporta todos os campos)
 
 ### Ficheiro editado
-1. `src/pages/Dashboard.tsx`
+1. `src/components/clients/ClientSelector.tsx`
 
