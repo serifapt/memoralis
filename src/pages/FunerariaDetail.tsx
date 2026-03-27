@@ -365,9 +365,9 @@ export default function FunerariaDetail() {
                               alt={obit.display_name}
                               className="w-full aspect-[3/4] object-cover"
                             />
-                            {obit.service_type && (
-                              <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0">
-                                {obit.service_type}
+                            {obit.active_tag && (
+                              <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0 text-xs font-medium">
+                                {obit.active_tag}
                               </Badge>
                             )}
                           </div>
@@ -377,10 +377,10 @@ export default function FunerariaDetail() {
                               {obit.birth_date && new Date(obit.birth_date).getFullYear()} - {obit.death_date && new Date(obit.death_date).getFullYear()}
                               {age !== null && ` | ${age} Anos`}
                             </p>
-                            {obit.locality && (
+                            {(obit.freguesia || obit.locality) && (
                               <div className="flex items-center gap-2 text-muted-foreground">
                                 <MapPin className="w-3 h-3" />
-                                <span className="text-xs">{obit.locality}</span>
+                                <span className="text-xs">{[obit.freguesia, obit.locality].filter(Boolean).join(" - ")}</span>
                               </div>
                             )}
                           </CardContent>
