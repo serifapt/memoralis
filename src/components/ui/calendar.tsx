@@ -1,9 +1,54 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, CaptionProps, useNavigation } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+
+function CustomCaption({ displayMonth, id }: CaptionProps) {
+  const { goToMonth } = useNavigation();
+
+  const months = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const fromYear = 1920;
+  const toYear = currentYear + 5;
+  const years = Array.from({ length: toYear - fromYear + 1 }, (_, i) => toYear - i);
+
+  return (
+    <div className="flex justify-center items-center gap-1" id={id}>
+      <select
+        value={displayMonth.getMonth()}
+        onChange={(e) => {
+          const newDate = new Date(displayMonth);
+          newDate.setMonth(parseInt(e.target.value));
+          goToMonth(newDate);
+        }}
+        className="bg-background text-foreground text-sm font-medium border border-input rounded-md px-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+      >
+        {months.map((month, i) => (
+          <option key={i} value={i}>{month}</option>
+        ))}
+      </select>
+      <select
+        value={displayMonth.getFullYear()}
+        onChange={(e) => {
+          const newDate = new Date(displayMonth);
+          newDate.setFullYear(parseInt(e.target.value));
+          goToMonth(newDate);
+        }}
+        className="bg-background text-foreground text-sm font-medium border border-input rounded-md px-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+      >
+        {years.map((year) => (
+          <option key={year} value={year}>{year}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -11,7 +56,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-3 pointer-events-auto", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
@@ -42,6 +87,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         ...classNames,
       }}
       components={{
+        Caption: CustomCaption,
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
       }}
