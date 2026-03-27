@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Star, Eye, Home, ChevronRight, Loader2 } from "lucide-react";
+import { Search, MapPin, Star, Home, ChevronRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
@@ -20,6 +20,7 @@ interface FunerariaListItem {
   id: string;
   nome_comercial: string;
   localidade: string | null;
+  distrito: string | null;
   logo_url: string | null;
   cover_image_url: string | null;
   slug: string | null;
@@ -29,6 +30,11 @@ export default function FunerariaArchive() {
   const [funerarias, setFunerarias] = useState<FunerariaListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLocality, setSelectedLocality] = useState<string>("all");
+  const [selectedDistrito, setSelectedDistrito] = useState<string>("all");
+  const [selectedRating, setSelectedRating] = useState<string>("all");
+  const [localities, setLocalities] = useState<string[]>([]);
+  const [distritos, setDistritos] = useState<string[]>([]);
 
   useEffect(() => {
     loadFunerarias();
@@ -38,12 +44,16 @@ export default function FunerariaArchive() {
     try {
       const { data, error } = await supabase
         .from("funerarias")
-        .select("id, nome_comercial, localidade, logo_url, cover_image_url, slug")
+        .select("id, nome_comercial, localidade, distrito, logo_url, cover_image_url, slug")
         .eq("pagina_publica_visivel", true)
         .order("nome_comercial");
 
       if (!error && data) {
         setFunerarias(data);
+        const uniqueLocalities = [...new Set(data.map(f => f.localidade).filter(Boolean) as string[])].sort();
+        const uniqueDistritos = [...new Set(data.map(f => f.distrito).filter(Boolean) as string[])].sort();
+        setLocalities(uniqueLocalities);
+        setDistritos(uniqueDistritos);
       }
     } catch (err) {
       console.error("Error loading funerarias:", err);
@@ -52,10 +62,13 @@ export default function FunerariaArchive() {
     }
   };
 
-  const filtered = funerarias.filter((f) =>
-    f.nome_comercial.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (f.localidade && f.localidade.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filtered = funerarias.filter((f) => {
+    const matchesSearch = f.nome_comercial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (f.localidade && f.localidade.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesLocality = selectedLocality === "all" || f.localidade === selectedLocality;
+    const matchesDistrito = selectedDistrito === "all" || f.distrito === selectedDistrito;
+    return matchesSearch && matchesLocality && matchesDistrito;
+  });
 
   return (
     <div className="min-h-screen bg-background font-inter">
@@ -81,18 +94,56 @@ export default function FunerariaArchive() {
           Funerárias
         </h1>
 
-        {/* Search */}
-        <div className="mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
-            <Input
-              placeholder="Pesquisar por nome ou localidade..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        {/* Filters */}
+        <div className="space-y-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
+              <Input
+                placeholder="Pesquisar por nome..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select value={selectedLocality} onValueChange={setSelectedLocality}>
+              <SelectTrigger>
+                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Localidade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as localidades</SelectItem>
+                {localities.map(loc => (
+                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedDistrito} onValueChange={setSelectedDistrito}>
+              <SelectTrigger>
+                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Distrito" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os distritos</SelectItem>
+                {distritos.map(d => (
+                  <SelectItem key={d} value={d}>{d}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedRating} onValueChange={setSelectedRating}>
+              <SelectTrigger>
+                <Star className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+                <SelectValue placeholder="Avaliação" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as avaliações</SelectItem>
+                <SelectItem value="5">5 estrelas</SelectItem>
+                <SelectItem value="4">4+ estrelas</SelectItem>
+                <SelectItem value="3">3+ estrelas</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <p className="text-sm text-muted-foreground mt-3">
+          <p className="text-sm text-muted-foreground">
             {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
           </p>
         </div>
