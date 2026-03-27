@@ -164,13 +164,23 @@ export default function ObituaryDetail() {
       setFuneraria(funerariaRes.data);
       setRelatedObituaries(relatedRes.data || []);
 
-      // Load condolences
+      // Load condolences and counts
       loadCondolences(obit.id);
+      loadCounts(obit.id);
     } catch (err) {
       console.error("Error loading obituary:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadCounts = async (obituaryId: string) => {
+    const [viewsRes, candlesRes] = await Promise.all([
+      supabase.from("obituary_views").select("id", { count: "exact", head: true }).eq("obituary_id", obituaryId),
+      supabase.from("obituary_candles").select("id", { count: "exact", head: true }).eq("obituary_id", obituaryId),
+    ]);
+    setViewCount(viewsRes.count ?? 0);
+    setCandleCount(candlesRes.count ?? 0);
   };
   // Load approved condolences
   const loadCondolences = async (obituaryId: string) => {
