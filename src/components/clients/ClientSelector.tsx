@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -234,12 +235,22 @@ export function ClientSelector({ value, onChange, placeholder = "Selecionar clie
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="client-relationship">Grau Parentesco</Label>
-                  <Input
-                    id="client-relationship"
-                    value={newClientData.relationship_degree}
-                    onChange={(e) => updateField("relationship_degree", e.target.value)}
-                    placeholder="Filho, Esposa..."
-                  />
+                  <Select
+                    value={newClientData.relationship_degree || ""}
+                    onValueChange={(value) => updateField("relationship_degree", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="conjuge">Cônjuge</SelectItem>
+                      <SelectItem value="filho">Filho(a)</SelectItem>
+                      <SelectItem value="pai">Pai/Mãe</SelectItem>
+                      <SelectItem value="irmao">Irmão(ã)</SelectItem>
+                      <SelectItem value="neto">Neto(a)</SelectItem>
+                      <SelectItem value="outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="client-birth-date">Data de Nascimento</Label>
