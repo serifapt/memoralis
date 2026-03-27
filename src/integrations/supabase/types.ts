@@ -1526,6 +1526,35 @@ export type Database = {
           },
         ]
       }
+      obituary_candles: {
+        Row: {
+          created_at: string
+          id: string
+          obituary_id: string
+          visitor_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          obituary_id: string
+          visitor_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          obituary_id?: string
+          visitor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obituary_candles_obituary_id_fkey"
+            columns: ["obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       obituary_documents: {
         Row: {
           document_name: string
@@ -1606,6 +1635,35 @@ export type Database = {
           {
             foreignKeyName: "obituary_relationships_related_obituary_id_fkey"
             columns: ["related_obituary_id"]
+            isOneToOne: false
+            referencedRelation: "obituaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      obituary_views: {
+        Row: {
+          created_at: string
+          id: string
+          obituary_id: string
+          viewer_ip: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          obituary_id: string
+          viewer_ip?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          obituary_id?: string
+          viewer_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obituary_views_obituary_id_fkey"
+            columns: ["obituary_id"]
             isOneToOne: false
             referencedRelation: "obituaries"
             referencedColumns: ["id"]
