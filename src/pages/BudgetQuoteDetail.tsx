@@ -288,6 +288,9 @@ export default function BudgetQuoteDetail() {
     const success = await updateQuoteStatus(quote.id, newStatus);
     if (success) {
       setQuote(prev => prev ? { ...prev, status: newStatus } : null);
+      if (newStatus === "ACCEPTED") {
+        navigate(`/obituaries/new?fromQuoteId=${quote.id}`);
+      }
     }
   };
 
