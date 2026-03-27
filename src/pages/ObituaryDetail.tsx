@@ -191,6 +191,28 @@ export default function ObituaryDetail() {
       .eq("is_approved", true)
       .order("created_at", { ascending: false });
     setApprovedCondolences(data || []);
+    setCondolenceCount((data || []).length);
+  };
+
+  // Submit candle
+  const handleCandleSubmit = async () => {
+    if (!obituary) return;
+    setSubmittingCandle(true);
+    try {
+      const { error } = await supabase.from("obituary_candles").insert({
+        obituary_id: obituary.id,
+        visitor_name: candleName.trim() || null,
+      });
+      if (error) throw error;
+      toast.success("Vela acesa com sucesso. 🕯️");
+      setCandleName("");
+      setCandleDialogOpen(false);
+      setCandleCount((prev) => prev + 1);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao acender vela.");
+    } finally {
+      setSubmittingCandle(false);
+    }
   };
 
   // Submit condolence
