@@ -306,15 +306,46 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loadingFunerarias ? (
-            Array(6).fill(null).map((_, i) => <Skeleton key={i} className="h-72 w-full rounded-lg" />)
+            Array(6).fill(null).map((_, i) => <Skeleton key={i} className="h-36 w-full rounded-lg" />)
           ) : funerarias.length === 0 ? (
             <p className="text-sm text-muted-foreground col-span-full text-center py-8">Nenhuma funerária disponível</p>
           ) : (
-            funerarias.map((f) => (
-              <PublicFunerariaCard key={f.id} funeraria={f} stats={funerariaStats[f.id]} />
-            ))
+            funerarias.map((f) => {
+              const stats = funerariaStats[f.id];
+              return (
+                <Link key={f.id} to={`/funerarias/${f.slug || f.id}`}>
+                  <Card className="flex gap-4 p-4 hover:shadow-lg transition-shadow h-full">
+                    <img
+                      src={getFunerariaImage(f.cover_image_url, f.logo_url)}
+                      alt={f.nome_comercial}
+                      className="w-[110px] h-[110px] rounded-lg object-cover shrink-0"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <h3 className="font-archivo font-bold text-foreground leading-tight">{f.nome_comercial}</h3>
+                      {stats && stats.review_count > 0 && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <Star className="w-4 h-4 fill-primary text-primary" />
+                          <span className="text-sm font-semibold text-foreground">{stats.avg_rating.toFixed(1)}</span>
+                          <span className="text-xs text-muted-foreground">({stats.review_count})</span>
+                        </div>
+                      )}
+                      {f.localidade && (
+                        <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="text-sm truncate">{f.localidade}</span>
+                        </div>
+                      )}
+                      <div className="mt-auto pt-2">
+                        <Button variant="outline" size="sm" className="text-xs">Ver página</Button>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              );
+            })
           )}
         </div>
       </section>
