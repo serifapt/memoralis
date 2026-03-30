@@ -47,6 +47,9 @@ export default function FunerariaArchive() {
         const uniqueDistritos = [...new Set(data.map(f => f.distrito).filter(Boolean) as string[])].sort();
         setLocalities(uniqueLocalities);
         setDistritos(uniqueDistritos);
+
+        const funerariaStats = await fetchFunerariaStats(data.map(f => f.id));
+        setStats(funerariaStats);
       }
     } catch (err) {
       console.error("Error loading funerarias:", err);
