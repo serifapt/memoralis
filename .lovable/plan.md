@@ -1,27 +1,22 @@
 
 
-## Cards de funerárias na Home com layout horizontal (como referência)
+## Atualizar cards de funerárias na Home
 
-O utilizador quer que os cards na secção "Funerárias" da Home usem um layout horizontal (logo à esquerda, info à direita, botão "Ver página") em vez do layout vertical do `PublicFunerariaCard`. Os dados reais já estão a ser carregados — só o layout do card na Home precisa de mudar.
+### Alterações em `src/pages/Home.tsx` (linhas 317-347)
 
-### Alterações
+1. **Remover** o botão "Ver página" (linha 341-343)
+2. **Usar logo** em vez de cover image: trocar `getFunerariaImage(f.cover_image_url, f.logo_url)` por `f.logo_url || "/placeholder.svg"` com `object-contain` e fundo claro para logos ficarem bem
+3. **Adicionar contador de visualizações**: `Eye` icon + `stats.view_count` ao lado da localidade
+4. **Adicionar contador de avaliações**: já existe rating, adicionar também quando `review_count === 0` de forma discreta ou manter visível só com dados
 
-#### 1. `src/pages/Home.tsx` — Secção Funerárias (linhas 309-318)
-
-Substituir o uso de `PublicFunerariaCard` por um card horizontal inline com:
-- **Esquerda**: imagem quadrada (logo/cover) com cantos arredondados, ~120px
-- **Direita**: nome comercial, estrela + rating + (count) se houver avaliações, localidade com ícone MapPin
-- **Rodapé**: botão "Ver página" outline
-- Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` para layout responsivo
-
-Layout de referência:
+Layout atualizado:
 ```text
 ┌─────────────────────────────────────┐
 │ ┌──────────┐  Nome Comercial        │
-│ │          │  ★ 3.9 (18)           │
-│ │  logo    │  📍 Localidade        │
-│ │          │                        │
-│ └──────────┘  [Ver página]          │
+│ │  logo    │  ★ 3.9 (18)           │
+│ │ contain  │  📍 Localidade        │
+│ │          │  👁 392                │
+│ └──────────┘                        │
 └─────────────────────────────────────┘
 ```
 
