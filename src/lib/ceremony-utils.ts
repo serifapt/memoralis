@@ -51,6 +51,12 @@ export function getActiveTag(events: CeremonyEvent[]): string | null {
   );
 
   if (primaryEvent) {
+    if (primaryEvent.event_date) {
+      const eventDate = new Date(primaryEvent.event_date + "T23:59:59");
+      if (eventDate < now) {
+        return null;
+      }
+    }
     return getEventTagLabel(primaryEvent.event_type);
   }
 
