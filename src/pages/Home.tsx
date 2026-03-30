@@ -13,6 +13,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
 import { getActiveTag, hasUpcomingMass, type CeremonyEvent } from "@/lib/ceremony-utils";
+import { PublicFunerariaCard, type FunerariaCardData } from "@/components/funerarias/PublicFunerariaCard";
+import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
+import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
 const funeralHomes = Array(6).fill({
   name: "Funerária S. João",
