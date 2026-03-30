@@ -172,9 +172,11 @@ export default function Home() {
             <h2 className="text-3xl font-archivo font-bold text-foreground">
               Obituário
             </h2>
-            <Button variant="ghost" size="sm">
-              Ver todos →
-            </Button>
+            <Link to="/obituarios">
+              <Button variant="ghost" size="sm">
+                Ver todos →
+              </Button>
+            </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {loadingObits ? (
