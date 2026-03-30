@@ -155,31 +155,11 @@ export default function FunerariaArchive() {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {filtered.map((home) => (
-              <Link key={home.id} to={`/funerarias/${home.slug || home.id}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative">
-                    <img
-                      src={getFunerariaImage(home.cover_image_url, home.logo_url)}
-                      alt={home.nome_comercial}
-                      className="w-full aspect-[4/3] object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.svg";
-                      }}
-                    />
-                  </div>
-                  <CardContent className="p-4 space-y-2">
-                    <h3 className="font-archivo font-bold text-foreground text-lg">
-                      {home.nome_comercial}
-                    </h3>
-                    {home.localidade && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-sm">{home.localidade}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
+              <PublicFunerariaCard
+                key={home.id}
+                funeraria={home}
+                stats={stats[home.id]}
+              />
             ))}
           </div>
         )}
