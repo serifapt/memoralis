@@ -1,13 +1,17 @@
 
 
-## Remover tag "Velório" e sem tag por defeito
+## Não mostrar tag de funeral/cremação se a data já passou
 
-### Alterações em `src/lib/ceremony-utils.ts`:
+### Alteração em `src/lib/ceremony-utils.ts`
 
-1. Remover `velorio` do `TAG_LABELS` e de `primaryTypes` — fica `["funeral", "cremacao"]`
-2. Na função `getActiveTag`: após verificar missas futuras e funeral/cremação com campos preenchidos, retornar **`null`** (sem tag) se nenhum evento relevante for encontrado — **não há fallback para "Funeral"**
-3. Remover `velorio` dos tag pills no `ObituaryArchive.tsx` se existir
+Na função `getActiveTag`, o bloco que verifica `primaryTypes` (funeral/cremação) atualmente mostra a tag se o evento tiver `event_date` ou `location` preenchidos, **independentemente de a data já ter passado**.
 
-### Ficheiros editados
-1. `src/lib/ceremony-utils.ts`
+**Correção**: adicionar verificação temporal — só mostrar a tag de funeral/cremação se:
+- O evento **não tiver data** (manter tag porque não sabemos se passou), OU
+- A data do evento **ainda não passou** (>= hoje)
+
+Se a data já passou e não houver missa futura, retorna `null` (sem tag).
+
+### Ficheiro editado
+1. `src/lib/ceremony-utils.ts` — adicionar check de data passada no bloco `primaryEvent`
 
