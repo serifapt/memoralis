@@ -45,7 +45,7 @@ export function PublicFunerariaCard({ funeraria, stats }: Props) {
 
           {stats && stats.review_count > 0 && (
             <div className="flex items-center gap-1.5">
-              <Star className="w-4 h-4 fill-primary text-primary" />
+              <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
               <span className="text-sm font-semibold text-foreground">
                 {stats.avg_rating.toFixed(1)}
               </span>

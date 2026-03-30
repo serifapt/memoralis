@@ -329,7 +329,7 @@ export default function Home() {
                       <h3 className="font-archivo font-bold text-foreground leading-tight">{f.nome_comercial}</h3>
                       {stats && stats.review_count > 0 && (
                         <div className="flex items-center gap-1.5 mt-1">
-                          <Star className="w-4 h-4 fill-primary text-primary" />
+                          <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
                           <span className="text-sm font-semibold text-foreground">{stats.avg_rating.toFixed(1)}</span>
                           <span className="text-xs text-muted-foreground">({stats.review_count})</span>
                         </div>
