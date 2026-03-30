@@ -206,6 +206,13 @@ export default function FunerariaDetail() {
         {/* Header Info */}
         <div className="mb-8">
           <h1 className="text-4xl font-archivo font-bold text-foreground mb-4">{funeraria.nome_comercial}</h1>
+          {stats && stats.review_count > 0 && (
+            <div className="flex items-center gap-1.5 mb-4">
+              <Star className="w-5 h-5 fill-amber-500 text-amber-500" />
+              <span className="text-lg font-semibold text-foreground">{stats.avg_rating.toFixed(1)}</span>
+              <span className="text-sm text-muted-foreground">({stats.review_count} avaliações)</span>
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
             {fullAddress && (
               <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
