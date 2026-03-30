@@ -1,29 +1,24 @@
 
 
-## Atualizar datas de nascimento e falecimento dos 32 óbitos
+## Plano: Atualizar localidade e eliminar duplicado da Libertina
 
-### Dados atuais
-- 32 registos da importação S. João, todos com `birth_date = NULL`
-- 1 registo (#4 Maria da Conceição da Rocha Leal Gomes) também sem `death_date` — será atribuída uma data fictícia em 2026
-- 2 registos pré-existentes (Libertina Lourenço, Maria de Lurdes Dias Barbosa) já têm datas — não serão tocados
+### 1. Eliminar o registo duplicado da Libertina
 
-### Lógica de cálculo
-- **birth_date** = `death_date - age anos - 2 meses` (garante que o aniversário já passou antes do falecimento, resultando na idade correta)
-- **death_date** para #4: `2026-03-10` (fictícia, dentro do intervalo jan-mar 2026)
+O registo mais recente (`b7f6a19d`, "Libertina Lídia dos Santos Lourenço", criado a 30/03) será eliminado. Tem 3 `ceremony_events` associados que também serão eliminados. O registo original (`7ed68825`, "Libertina Lourenço", criado a 20/03) já tem `locality = "Arcos de Valdevez"` e `freguesia = "Gavieira"` — fica intacto.
+
+### 2. Atualizar localidade dos 31 óbitos restantes da importação
+
+Para os 31 registos importados a 30/03 (excluindo o duplicado a eliminar):
+- Mover o valor atual de `locality` (que contém nomes de freguesias como Gavieira, Prozelo, Couto, etc.) para o campo `freguesia`
+- Definir `locality = 'Arcos de Valdevez'` em todos
 
 ### Operação
-Uma única instrução SQL `UPDATE` com `CASE WHEN` por `id`, atualizando `birth_date` (e `death_date` para #4) dos 32 registos. Execução via insert tool (operação de dados, não migração de schema).
 
-### Mapeamento completo (id → idade → birth_date calculada)
-
-| # | Nome | Idade | death_date | birth_date (calculada) |
-|---|------|-------|------------|----------------------|
-| 1 | Libertina Lídia dos Santos Lourenço | 72 | 2026-03-17 | 1954-01-17 |
-| 2 | Teresa do Rosário Vieira | 88 | 2026-03-15 | 1938-01-15 |
-| 3 | Maria de Lourdes Carreira Rodrigues Dias | 84 | 2026-03-12 | 1942-01-12 |
-| 4 | Maria da Conceição da Rocha Leal Gomes | 87 | **2026-03-10** (novo) | 1939-01-10 |
-| 5-32 | (restantes 28) | ... | existentes | death_date - age - 2 meses |
+Uma migração SQL com:
+1. `DELETE` dos 3 `ceremony_events` do registo duplicado
+2. `DELETE` do registo duplicado da Libertina
+3. `UPDATE` dos 31 registos: `SET freguesia = locality, locality = 'Arcos de Valdevez'`
 
 ### Ficheiros a alterar
-Nenhum. Apenas operação de dados na tabela `obituaries`.
+Nenhum ficheiro de código. Apenas operação de dados via migração SQL.
 
