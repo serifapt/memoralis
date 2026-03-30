@@ -1,32 +1,24 @@
 
 
-## Alterar cor do logo para branco no footer
+## Corrigir link "Ver todos" na secção Obituário da Home
 
-O logo SVG tem cores fixas (#d85151 e #2d595e). Para o tornar branco no footer escuro, basta adicionar a classe CSS `brightness-0 invert` (Tailwind) ao `<img>` do logo em cada footer.
+### Alteração
 
-### Ficheiros a alterar (9 ficheiros)
+**Ficheiro:** `src/pages/Home.tsx` — linha 175
 
-Em cada ficheiro, localizar `<img src={logo}` dentro do `<footer>` e adicionar `className="h-8 brightness-0 invert"`:
-
-1. `src/pages/Home.tsx`
-2. `src/pages/Blog.tsx`
-3. `src/pages/BlogPost.tsx`
-4. `src/pages/Sobre.tsx`
-5. `src/pages/Contactos.tsx`
-6. `src/pages/FunerariaDetail.tsx`
-7. `src/pages/FunerariaArchive.tsx`
-8. `src/pages/ObituaryArchive.tsx`
-9. `src/pages/ObituaryDetail.tsx`
-
-### Alteração padrão
+Envolver o botão "Ver todos" num `<Link to="/obituarios">` para redirecionar para o arquivo de obituários.
 
 ```tsx
 // Antes
-<img src={logo} alt="Memoralis" className="h-8" />
+<Button variant="ghost" size="sm">
+  Ver todos →
+</Button>
 
 // Depois
-<img src={logo} alt="Memoralis" className="h-8 brightness-0 invert" />
+<Link to="/obituarios">
+  <Button variant="ghost" size="sm">
+    Ver todos →
+  </Button>
+</Link>
 ```
-
-**Nota:** Uma melhoria futura seria extrair o footer para um componente partilhado, evitando duplicação.
 
