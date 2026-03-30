@@ -1,13 +1,15 @@
 
 
-## Alinhar localidade e funerária à esquerda
+## Reduzir altura de linha do nome no card de obituário
 
-Remover `justify-center` das linhas 70 e 79, mantendo o centramento vertical (`flex-1 flex flex-col justify-center` no wrapper) mas com texto alinhado à esquerda como o nome e datas.
+### Alteração em `src/components/obituaries/PublicObituaryCard.tsx`
 
-### Alterações em `src/components/obituaries/PublicObituaryCard.tsx`
+**Linha 62**: Adicionar `leading-tight` ao `<h3>` do nome para reduzir o line-height.
 
-- **Linha 70**: `flex items-center justify-center gap-2` → `flex items-center gap-2`
-- **Linha 79**: `flex items-center justify-center gap-1.5` → `flex items-center gap-1.5`
+```
+font-archivo font-bold text-foreground text-lg mb-1
+→ font-archivo font-bold text-foreground text-lg mb-1 leading-tight
+```
 
 ### Ficheiro editado
 1. `src/components/obituaries/PublicObituaryCard.tsx`
