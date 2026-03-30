@@ -13,8 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
 import { getActiveTag, hasUpcomingMass, type CeremonyEvent } from "@/lib/ceremony-utils";
-import { PublicFunerariaCard, type FunerariaCardData } from "@/components/funerarias/PublicFunerariaCard";
-import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
+import type { FunerariaCardData, FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
+import { getFunerariaImage } from "@/lib/funeraria-utils";
 import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
 const articles = [
