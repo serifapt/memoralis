@@ -105,6 +105,9 @@ export default function FunerariaDetail() {
 
       setFuneraria(data as unknown as FunerariaData);
 
+      // Load stats
+      fetchFunerariaStats([data.id]).then(s => setStats(s[data.id] || null));
+
       // Load public obituaries for this funeraria
       const { data: obits } = await supabase
         .from("obituaries")
