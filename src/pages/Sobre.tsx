@@ -274,7 +274,7 @@ const Sobre = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="mb-4">
-                <img src={logo} alt="Memoralis" className="h-8" />
+                <img src={logo} alt="Memoralis" className="h-8 brightness-0 invert" />
               </div>
               <p className="text-sm opacity-80">
                 Homenagens que eternizam memórias e sentimentos.
