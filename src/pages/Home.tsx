@@ -38,6 +38,9 @@ const articles = [
 export default function Home() {
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loadingObits, setLoadingObits] = useState(true);
+  const [funerarias, setFunerarias] = useState<FunerariaCardData[]>([]);
+  const [funerariaStats, setFunerariaStats] = useState<Record<string, FunerariaStats>>({});
+  const [loadingFunerarias, setLoadingFunerarias] = useState(true);
 
   useEffect(() => {
     const loadObituaries = async () => {
