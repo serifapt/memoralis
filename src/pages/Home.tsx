@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Calendar, Heart, Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { HeroSearchInput, type SearchResult } from "@/components/search/HeroSearchInput";
 import logo from "@/assets/logo-memoralis.svg";
 import heroImage from "@/assets/hero-memorial.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
