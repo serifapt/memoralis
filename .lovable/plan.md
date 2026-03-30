@@ -1,30 +1,39 @@
 
 
-## Adicionar fotos aos óbitos existentes (#07-16)
+## Plano: Capitalizar etiquetas de eventos + Novo tipo "Cortejo Fúnebre"
 
-### Processo
-1. Upload das 10 fotos ao bucket `obituary-photos` (pasta `sjoao-import/`)
-2. Consultar a tabela `obituaries` para confirmar que os 10 registos existem (por nome + funeraria_id)
-3. Atualizar apenas o campo `photo_url` de cada registo correspondente via migração SQL
+### 1. Capitalizar as etiquetas de todos os event types
 
-### Mapeamento foto → nome
-| Foto | display_name (ILIKE) |
-|------|---------------------|
-| 07-joao-carlos-de-brito-galvao.jpg | %Brito Galv% |
-| 08-lourenco-goncalves-cunha.jpg | %Lourenço%Cunha% |
-| 09-maria-monteiro-pereira.jpg | %Monteiro Pereira% |
-| 10-antonio-de-morais-correa.jpg | %Morais Corr% |
-| 11-maria-pereira-dantas.jpg | %Pereira Dantas% |
-| 12-antonio-alberto-dias.jpg | %Alberto Dias% |
-| 13-olinda-esteves-loureiro.jpg | %Esteves Loureiro% |
-| 14-maria-da-conceicao-lopes-pereira-rodrigues.jpg | %Conceição%Rodrigues% |
-| 15-amaro-martins-de-barros.jpg | %Amaro%Barros% |
-| 16-armando-silva-araujo.jpg | %Silva Araújo% |
+Atualizar os mapas de labels em **4 ficheiros** para usar inicial maiúscula consistente:
 
-### Detalhes técnicos
-- Bucket: `obituary-photos` (público, já existe)
-- Path: `sjoao-import/{filename}`
-- URL: `https://oxvpukidtudltzntwlsz.supabase.co/storage/v1/object/public/obituary-photos/sjoao-import/{filename}`
-- Apenas UPDATE no campo `photo_url`, sem criar registos novos
-- Filtro: `funeraria_id = '1dd8e1e1-2c91-49f9-a1b0-1faa7dc4b55d'`
+- **`src/lib/ceremony-utils.ts`** — `TAG_LABELS`: adicionar `velorio: "Velório"` e `cemiterio: "Cemitério"` (e `cortejo`)
+- **`src/pages/ObituaryDetail.tsx`** — `getEventTypeLabel()`: já tem maiúsculas, adicionar `cortejo: "Cortejo Fúnebre"`
+- **`src/pages/Ceremonies.tsx`** — `getEventTypeLabel()`: já tem maiúsculas, adicionar `cortejo: "Cortejo Fúnebre"`
+
+O screenshot mostra "cemiterio" em minúsculas — isto acontece porque o `event_type` guardado na BD é `cemiterio` (sem acento) e os mapas de labels não o incluem, pelo que faz fallback para o valor raw. Corrigir adicionando `cemiterio: "Cemitério"` em todos os mapas.
+
+### 2. Adicionar novo evento "Cortejo Fúnebre" no editor de óbitos
+
+No **`src/pages/NewObituary.tsx`**:
+
+- Adicionar estado toggle `cortejo` + `cortejoEntries` (array com múltiplas entradas, igual ao velório)
+- Adicionar funções `addCortejoEntry`, `removeCortejoEntry`, `updateCortejoEntry`
+- No carregamento de dados existentes, filtrar `event_type === 'cortejo'` e popular as entries
+- No save (tanto no handleSubmit como no auto-save), inserir eventos com `event_type: 'cortejo'`
+- No UI (secção "Informações Fúnebres"), adicionar bloco entre Velório e Funeral com os mesmos inputs: Data, Hora, Local, Link do mapa — com suporte a múltiplas entradas
+
+### 3. Atualizar labels em todos os mapas
+
+Adicionar `cortejo: "Cortejo Fúnebre"` e `cemiterio: "Cemitério"` nos 3 ficheiros com mapas de labels:
+- `ceremony-utils.ts` (TAG_LABELS)
+- `ObituaryDetail.tsx` (getEventTypeLabel)
+- `Ceremonies.tsx` (getEventTypeLabel)
+
+### Ficheiros a alterar
+1. `src/pages/NewObituary.tsx` — estado, UI, load, save do novo tipo cortejo
+2. `src/lib/ceremony-utils.ts` — labels
+3. `src/pages/ObituaryDetail.tsx` — labels
+4. `src/pages/Ceremonies.tsx` — labels
+
+Não são necessárias alterações à BD — o campo `event_type` é texto livre.
 
