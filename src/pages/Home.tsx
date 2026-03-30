@@ -317,12 +317,14 @@ export default function Home() {
               return (
                 <Link key={f.id} to={`/funerarias/${f.slug || f.id}`}>
                   <Card className="flex gap-4 p-4 hover:shadow-lg transition-shadow h-full">
-                    <img
-                      src={getFunerariaImage(f.cover_image_url, f.logo_url)}
-                      alt={f.nome_comercial}
-                      className="w-[110px] h-[110px] rounded-lg object-cover shrink-0"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
-                    />
+                    <div className="w-[110px] h-[110px] rounded-lg shrink-0 bg-muted/50 flex items-center justify-center overflow-hidden">
+                      <img
+                        src={f.logo_url || "/placeholder.svg"}
+                        alt={f.nome_comercial}
+                        className="max-w-full max-h-full object-contain"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+                      />
+                    </div>
                     <div className="flex flex-col flex-1 min-w-0">
                       <h3 className="font-archivo font-bold text-foreground leading-tight">{f.nome_comercial}</h3>
                       {stats && stats.review_count > 0 && (
@@ -338,9 +340,18 @@ export default function Home() {
                           <span className="text-sm truncate">{f.localidade}</span>
                         </div>
                       )}
-                      <div className="mt-auto pt-2">
-                        <Button variant="outline" size="sm" className="text-xs">Ver página</Button>
-                      </div>
+                      {stats && (
+                        <div className="flex items-center gap-3 text-muted-foreground mt-1">
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-3.5 h-3.5" />
+                            <span className="text-sm">{stats.view_count}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span className="text-sm">{stats.review_count}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </Card>
                 </Link>
