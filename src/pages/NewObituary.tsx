@@ -510,6 +510,17 @@ export default function NewObituary() {
               mapLink: e.map_link || "",
             })));
           }
+          // Collect cortejo entries
+          const cortejoEvents = events.filter(e => e.event_type === 'cortejo');
+          if (cortejoEvents.length > 0) {
+            setCortejo(true);
+            setCortejoEntries(cortejoEvents.map(e => ({
+              date: e.event_date || "",
+              time: e.event_time || "",
+              location: e.location || "",
+              mapLink: e.map_link || "",
+            })));
+          }
           
           events.forEach(event => {
             if (event.event_type === 'funeral') {
