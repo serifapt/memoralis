@@ -37,12 +37,61 @@ const articles = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loadingObits, setLoadingObits] = useState(true);
   const [funerarias, setFunerarias] = useState<FunerariaCardData[]>([]);
   const [funerariaStats, setFunerariaStats] = useState<Record<string, FunerariaStats>>({});
   const [loadingFunerarias, setLoadingFunerarias] = useState(true);
+  const [searchNome, setSearchNome] = useState("");
+  const [searchLocal, setSearchLocal] = useState("");
+  const [searchFuneraria, setSearchFuneraria] = useState("");
 
+  const searchByName = useCallback(async (query: string): Promise<SearchResult[]> => {
+    const { data } = await supabase
+      .from("obituaries")
+      .select("id, display_name, locality, funeraria_id, funerarias(slug)")
+      .eq("is_public", true)
+      .ilike("display_name", `%${query}%`)
+      .limit(5);
+    return (data || []).map((o: any) => ({
+      id: o.id,
+      label: o.display_name,
+      sublabel: o.locality || undefined,
+      href: `/obituarios/${o.id}`,
+    }));
+  }, []);
+
+  const searchByLocation = useCallback(async (query: string): Promise<SearchResult[]> => {
+    const { data } = await supabase
+      .from("obituaries")
+      .select("locality")
+      .eq("is_public", true)
+      .ilike("locality", `%${query}%`)
+      .not("locality", "is", null)
+      .limit(20);
+    const unique = [...new Set((data || []).map((d: any) => d.locality).filter(Boolean))].slice(0, 5);
+    return unique.map((loc) => ({
+      id: loc,
+      label: loc,
+      href: `/obituarios?localidade=${encodeURIComponent(loc)}`,
+    }));
+  }, []);
+
+  const searchByFuneraria = useCallback(async (query: string): Promise<SearchResult[]> => {
+    const { data } = await supabase
+      .from("funerarias")
+      .select("id, nome_comercial, localidade, slug")
+      .eq("pagina_publica_visivel", true)
+      .ilike("nome_comercial", `%${query}%`)
+      .limit(5);
+    return (data || []).map((f: any) => ({
+      id: f.id,
+      label: f.nome_comercial,
+      sublabel: f.localidade || undefined,
+      href: `/funerarias/${f.slug || f.id}`,
+    }));
+  }, []);
   useEffect(() => {
     const loadObituaries = async () => {
       // Load recent obituaries
