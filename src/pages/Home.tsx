@@ -86,6 +86,23 @@ export default function Home() {
       setLoadingObits(false);
     };
     loadObituaries();
+
+    const loadFunerarias = async () => {
+      const { data } = await supabase
+        .from("funerarias")
+        .select("id, nome_comercial, localidade, distrito, logo_url, cover_image_url, slug")
+        .eq("pagina_publica_visivel", true)
+        .order("nome_comercial")
+        .limit(6);
+      const items = (data || []) as FunerariaCardData[];
+      setFunerarias(items);
+      if (items.length > 0) {
+        const stats = await fetchFunerariaStats(items.map(f => f.id));
+        setFunerariaStats(stats);
+      }
+      setLoadingFunerarias(false);
+    };
+    loadFunerarias();
   }, []);
 
   return (
