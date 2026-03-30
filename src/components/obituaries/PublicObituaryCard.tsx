@@ -44,7 +44,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
 
   return (
     <Link to={`/obituario/${obit.id}`}>
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+      <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
         <div className="relative">
           <img
             src={obit.photo_url || obituaryPlaceholder}
