@@ -149,8 +149,8 @@ export default function Obituaries() {
       </Card>
 
       {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {[1, 2].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
             <Card key={i} className="p-6">
               <div className="flex gap-4">
                 <Skeleton className="w-24 h-24 rounded-lg" />
@@ -174,7 +174,7 @@ export default function Obituaries() {
           </p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((obituary) => {
             const ceremony = getFirstCeremony(obituary);
 
