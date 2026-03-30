@@ -59,7 +59,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
         </div>
         <CardContent className="p-4 flex flex-col flex-1 space-y-3">
           <div className="flex-1 flex flex-col">
-            <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
+            <h3 className="font-archivo font-bold text-foreground text-lg mb-1 leading-tight">
               {obit.display_name}
             </h3>
             <p className="text-sm text-muted-foreground mb-1">
