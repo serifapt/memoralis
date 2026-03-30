@@ -28,6 +28,9 @@ import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { TestimonialsSection } from "@/components/funeraria/TestimonialsSection";
 import { getActiveTag, type CeremonyEvent } from "@/lib/ceremony-utils";
+import { Star } from "lucide-react";
+import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
+import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
 
 interface FunerariaData {
   id: string;
@@ -71,6 +74,7 @@ export default function FunerariaDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [coverError, setCoverError] = useState(false);
+  const [stats, setStats] = useState<FunerariaStats | null>(null);
 
   useEffect(() => {
     if (id) loadFuneraria();
@@ -100,6 +104,9 @@ export default function FunerariaDetail() {
       }
 
       setFuneraria(data as unknown as FunerariaData);
+
+      // Load stats
+      fetchFunerariaStats([data.id]).then(s => setStats(s[data.id] || null));
 
       // Load public obituaries for this funeraria
       const { data: obits } = await supabase
@@ -199,6 +206,13 @@ export default function FunerariaDetail() {
         {/* Header Info */}
         <div className="mb-8">
           <h1 className="text-4xl font-archivo font-bold text-foreground mb-4">{funeraria.nome_comercial}</h1>
+          {stats && stats.review_count > 0 && (
+            <div className="flex items-center gap-1.5 mb-4">
+              <Star className="w-5 h-5 fill-amber-500 text-amber-500" />
+              <span className="text-lg font-semibold text-foreground">{stats.avg_rating.toFixed(1)}</span>
+              <span className="text-sm text-muted-foreground">({stats.review_count} avaliações)</span>
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
             {fullAddress && (
               <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
@@ -344,6 +358,9 @@ export default function FunerariaDetail() {
               </CardContent>
             </Card>
 
+            {/* Testimonials */}
+            <TestimonialsSection funerariaId={funeraria.id} funerariaName={funeraria.nome_comercial} />
+
             {/* Obituaries */}
             {obituaries.length > 0 && (
               <div>
@@ -358,7 +375,7 @@ export default function FunerariaDetail() {
                     const age = getAge(obit.birth_date, obit.death_date);
                     return (
                       <Link key={obit.id} to={`/obituario/${obit.id}`}>
-                        <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                        <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
                           <div className="relative">
                             <img
                               src={obit.photo_url || "/placeholder.svg"}
@@ -391,9 +408,6 @@ export default function FunerariaDetail() {
                 </div>
               </div>
             )}
-
-            {/* Testimonials */}
-            <TestimonialsSection funerariaId={funeraria.id} funerariaName={funeraria.nome_comercial} />
           </div>
 
           {/* Sidebar */}

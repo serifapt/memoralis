@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Calendar, Heart, Star, Eye, MessageSquare, Flame } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.svg";
 import heroImage from "@/assets/hero-memorial.jpg";
@@ -47,7 +47,7 @@ export default function Home() {
       // Load recent obituaries
       const { data } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funerarias(nome_comercial, slug)")
+        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
@@ -338,18 +338,6 @@ export default function Home() {
                         <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
                           <MapPin className="w-3.5 h-3.5 shrink-0" />
                           <span className="text-sm truncate">{f.localidade}</span>
-                        </div>
-                      )}
-                      {stats && (
-                        <div className="flex items-center gap-3 text-muted-foreground mt-1">
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-3.5 h-3.5" />
-                            <span className="text-sm">{stats.view_count}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MessageSquare className="w-3.5 h-3.5" />
-                            <span className="text-sm">{stats.review_count}</span>
-                          </div>
                         </div>
                       )}
                     </div>
