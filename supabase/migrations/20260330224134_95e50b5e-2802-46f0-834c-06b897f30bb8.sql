@@ -1,0 +1,3 @@
+UPDATE obituaries SET photo_url = 'https://oxvpukidtudltzntwlsz.supabase.co/storage/v1/object/public/obituary-photos/sjoao-import/30-jose-de-araujo-cerqueira.jpg' WHERE id = 'ed525189-d1fe-49e6-a4ab-fe7f58d9672b';
+UPDATE obituaries SET photo_url = 'https://oxvpukidtudltzntwlsz.supabase.co/storage/v1/object/public/obituary-photos/sjoao-import/31-vitor-manuel-de-barros-fernandes.jpg' WHERE id = '6d444d99-47d8-4165-a1bb-c95d4b059fb1';
+UPDATE obituaries SET photo_url = 'https://oxvpukidtudltzntwlsz.supabase.co/storage/v1/object/public/obituary-photos/sjoao-import/32-maria-de-amorim-rodrigues.jpg' WHERE id = '6d3b601b-2061-4c20-8a20-55a82460e924';
