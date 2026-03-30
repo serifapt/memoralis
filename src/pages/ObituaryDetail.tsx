@@ -56,6 +56,7 @@ interface RelatedObituary {
   birth_date: string | null;
   death_date: string | null;
   locality: string | null;
+  freguesia: string | null;
   photo_url: string | null;
 }
 
