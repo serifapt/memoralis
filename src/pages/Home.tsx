@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Calendar, Heart, Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { HeroSearchInput, type SearchResult } from "@/components/search/HeroSearchInput";
 import logo from "@/assets/logo-memoralis.svg";
 import heroImage from "@/assets/hero-memorial.jpg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
@@ -36,12 +37,61 @@ const articles = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loadingObits, setLoadingObits] = useState(true);
   const [funerarias, setFunerarias] = useState<FunerariaCardData[]>([]);
   const [funerariaStats, setFunerariaStats] = useState<Record<string, FunerariaStats>>({});
   const [loadingFunerarias, setLoadingFunerarias] = useState(true);
+  const [searchNome, setSearchNome] = useState("");
+  const [searchLocal, setSearchLocal] = useState("");
+  const [searchFuneraria, setSearchFuneraria] = useState("");
 
+  const searchByName = useCallback(async (query: string): Promise<SearchResult[]> => {
+    const { data } = await supabase
+      .from("obituaries")
+      .select("id, display_name, locality, funeraria_id, funerarias(slug)")
+      .eq("is_public", true)
+      .ilike("display_name", `%${query}%`)
+      .limit(5);
+    return (data || []).map((o: any) => ({
+      id: o.id,
+      label: o.display_name,
+      sublabel: o.locality || undefined,
+      href: `/obituarios/${o.id}`,
+    }));
+  }, []);
+
+  const searchByLocation = useCallback(async (query: string): Promise<SearchResult[]> => {
+    const { data } = await supabase
+      .from("obituaries")
+      .select("locality")
+      .eq("is_public", true)
+      .ilike("locality", `%${query}%`)
+      .not("locality", "is", null)
+      .limit(20);
+    const unique = [...new Set((data || []).map((d: any) => d.locality).filter(Boolean))].slice(0, 5);
+    return unique.map((loc) => ({
+      id: loc,
+      label: loc,
+      href: `/obituarios?localidade=${encodeURIComponent(loc)}`,
+    }));
+  }, []);
+
+  const searchByFuneraria = useCallback(async (query: string): Promise<SearchResult[]> => {
+    const { data } = await supabase
+      .from("funerarias")
+      .select("id, nome_comercial, localidade, slug")
+      .eq("pagina_publica_visivel", true)
+      .ilike("nome_comercial", `%${query}%`)
+      .limit(5);
+    return (data || []).map((f: any) => ({
+      id: f.id,
+      label: f.nome_comercial,
+      sublabel: f.localidade || undefined,
+      href: `/funerarias/${f.slug || f.id}`,
+    }));
+  }, []);
   useEffect(() => {
     const loadObituaries = async () => {
       // Load recent obituaries
@@ -123,34 +173,43 @@ export default function Home() {
             <div className="flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <Input 
-                      placeholder="Nome" 
-                      className="pl-10"
-                    />
-                  </div>
+                  <HeroSearchInput
+                    placeholder="Nome"
+                    icon={<Search className="w-5 h-5" />}
+                    searchFn={searchByName}
+                    value={searchNome}
+                    onChange={setSearchNome}
+                  />
                 </div>
                 <div className="flex-1">
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <Input 
-                      placeholder="Localização" 
-                      className="pl-10"
-                    />
-                  </div>
+                  <HeroSearchInput
+                    placeholder="Localização"
+                    icon={<MapPin className="w-5 h-5" />}
+                    searchFn={searchByLocation}
+                    value={searchLocal}
+                    onChange={setSearchLocal}
+                  />
                 </div>
                 <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <Input 
-                      placeholder="Funerária" 
-                      className="pl-10"
-                    />
-                  </div>
+                  <HeroSearchInput
+                    placeholder="Funerária"
+                    icon={<Search className="w-5 h-5" />}
+                    searchFn={searchByFuneraria}
+                    value={searchFuneraria}
+                    onChange={setSearchFuneraria}
+                  />
                 </div>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              <Button
+                className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (searchNome) params.set("nome", searchNome);
+                  if (searchLocal) params.set("localidade", searchLocal);
+                  if (searchFuneraria) params.set("funeraria", searchFuneraria);
+                  navigate(`/obituarios${params.toString() ? `?${params}` : ""}`);
+                }}
+              >
                 Pesquisar
               </Button>
             </div>
