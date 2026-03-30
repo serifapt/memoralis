@@ -1,25 +1,22 @@
 
 
-## Atualizar cards de funerárias na Home
+## Uniformizar estrela de avaliação nos cards de funerárias
 
-### Alterações em `src/pages/Home.tsx` (linhas 317-347)
+### Problema
+A estrela de avaliação precisa seguir o padrão do anexo: estrela preenchida cor laranja/amber quando há avaliações, com rating e total entre parênteses. Sem avaliações, a estrela não deve aparecer preenchida (ou não aparecer).
 
-1. **Remover** o botão "Ver página" (linha 341-343)
-2. **Usar logo** em vez de cover image: trocar `getFunerariaImage(f.cover_image_url, f.logo_url)` por `f.logo_url || "/placeholder.svg"` com `object-contain` e fundo claro para logos ficarem bem
-3. **Adicionar contador de visualizações**: `Eye` icon + `stats.view_count` ao lado da localidade
-4. **Adicionar contador de avaliações**: já existe rating, adicionar também quando `review_count === 0` de forma discreta ou manter visível só com dados
+### Alterações
 
-Layout atualizado:
-```text
-┌─────────────────────────────────────┐
-│ ┌──────────┐  Nome Comercial        │
-│ │  logo    │  ★ 3.9 (18)           │
-│ │ contain  │  📍 Localidade        │
-│ │          │  👁 392                │
-│ └──────────┘                        │
-└─────────────────────────────────────┘
-```
+#### 1. `src/components/funerarias/PublicFunerariaCard.tsx` (arquivo)
+- Manter lógica atual: só mostra estrela + rating quando `review_count > 0`
+- Mudar cor da estrela de `fill-primary text-primary` para `fill-amber-500 text-amber-500` (laranja como no anexo)
+- Rating em `font-semibold text-foreground`, count em `text-muted-foreground`
 
-### Ficheiro editado
-1. `src/pages/Home.tsx`
+#### 2. `src/pages/Home.tsx` (secção funerárias, linhas 330-336)
+- Mesma alteração de cor: `fill-amber-500 text-amber-500`
+- Manter condição `review_count > 0` para mostrar
+
+### Ficheiros editados
+1. `src/components/funerarias/PublicFunerariaCard.tsx`
+2. `src/pages/Home.tsx`
 
