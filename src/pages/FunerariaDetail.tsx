@@ -28,6 +28,9 @@ import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { TestimonialsSection } from "@/components/funeraria/TestimonialsSection";
 import { getActiveTag, type CeremonyEvent } from "@/lib/ceremony-utils";
+import { Star } from "lucide-react";
+import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
+import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
 
 interface FunerariaData {
   id: string;
