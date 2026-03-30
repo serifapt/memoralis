@@ -67,7 +67,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
             </p>
             <div className="flex-1 flex flex-col justify-center">
               {locationStr && (
-                <div className="flex items-center justify-center gap-2 text-muted-foreground mt-2">
+                <div className="flex items-center gap-2 text-muted-foreground mt-2">
                   <MapPin className="w-3 h-3" />
                   <span className="text-xs">{locationStr}</span>
                 </div>
