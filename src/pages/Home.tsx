@@ -173,34 +173,43 @@ export default function Home() {
             <div className="flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <Input 
-                      placeholder="Nome" 
-                      className="pl-10"
-                    />
-                  </div>
+                  <HeroSearchInput
+                    placeholder="Nome"
+                    icon={<Search className="w-5 h-5" />}
+                    searchFn={searchByName}
+                    value={searchNome}
+                    onChange={setSearchNome}
+                  />
                 </div>
                 <div className="flex-1">
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <Input 
-                      placeholder="Localização" 
-                      className="pl-10"
-                    />
-                  </div>
+                  <HeroSearchInput
+                    placeholder="Localização"
+                    icon={<MapPin className="w-5 h-5" />}
+                    searchFn={searchByLocation}
+                    value={searchLocal}
+                    onChange={setSearchLocal}
+                  />
                 </div>
                 <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <Input 
-                      placeholder="Funerária" 
-                      className="pl-10"
-                    />
-                  </div>
+                  <HeroSearchInput
+                    placeholder="Funerária"
+                    icon={<Search className="w-5 h-5" />}
+                    searchFn={searchByFuneraria}
+                    value={searchFuneraria}
+                    onChange={setSearchFuneraria}
+                  />
                 </div>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              <Button
+                className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (searchNome) params.set("nome", searchNome);
+                  if (searchLocal) params.set("localidade", searchLocal);
+                  if (searchFuneraria) params.set("funeraria", searchFuneraria);
+                  navigate(`/obituarios${params.toString() ? `?${params}` : ""}`);
+                }}
+              >
                 Pesquisar
               </Button>
             </div>
