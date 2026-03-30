@@ -1,31 +1,25 @@
 
 
-## Importação em massa de 32 óbitos - Funerária S. João
+## Adicionar fotos aos óbitos existentes
 
-### Dados disponíveis
-- **Excel**: 32 óbitos com nome, velório (local/data/hora), funeral (local/data/hora), cemitério e observações
-- **Fotos**: 9 fotos para óbitos nº 5, 6, 18, 19, 20, 21, 22, 23, 24
-- **Funerária ID**: `1dd8e1e1-2c91-49f9-b1b0-1faa7dc4b55d`
+### Dados
+10 novas fotos para os óbitos nº 7-16 da importação anterior (Funerária S. João):
+- 07 - João Carlos de Brito Galvão
+- 08 - Lourenço Gonçalves Cunha
+- 09 - Maria Monteiro Pereira
+- 10 - António de Morais Corrêa
+- 11 - Maria Pereira Dantas
+- 12 - António Alberto Dias
+- 13 - Olinda Esteves Loureiro
+- 14 - Maria da Conceição Lopes Pereira Rodrigues
+- 15 - Amaro Martins de Barros
+- 16 - Armando Silva Araújo
 
-### Processo de importação (script Python)
+### Processo (script direto)
+1. Consultar a tabela `obituaries` para obter os IDs dos 10 registos pelo nome
+2. Upload das 10 fotos ao bucket `obituary-photos` (pasta `sjoao-import/`)
+3. Atualizar o campo `photo_url` de cada registo com o URL público do storage
 
-1. **Ler o Excel** com pandas e mapear colunas
-2. **Inserir 32 registos** na tabela `obituaries`:
-   - `display_name` e `full_name` = nome do Excel
-   - `funeraria_id` = ID da Funerária S. João
-   - `death_date` = data do funeral - 1 dia (melhor aproximação disponível)
-   - `is_public = true`, `is_completed = true`
-3. **Upload das 9 fotos** ao bucket `obituary-photos` e atualizar `photo_url` nos registos correspondentes
-4. **Inserir ceremony_events** para cada óbito:
-   - Evento tipo `velorio` (local, data, hora)
-   - Evento tipo `funeral` (local, data, hora)
-   - Evento tipo `cemiterio` (local do cemitério)
-5. Óbitos sem velório (nº 30, 31) ou sem datas (nº 4) serão tratados com os campos disponíveis
-
-### Ficheiros envolvidos
-Nenhuma alteração ao código. Apenas inserção de dados via script direto na base de dados e upload ao storage.
-
-### Notas
-- As datas de nascimento e falecimento não constam no Excel (só datas de cerimónia) - o `death_date` será aproximado pela data do funeral menos 1 dia
-- Os 23 óbitos sem foto ficarão sem imagem (pode adicionar mais fotos depois)
+### Ficheiros do projeto
+Nenhuma alteração ao código. Apenas operações de dados (upload + update).
 
