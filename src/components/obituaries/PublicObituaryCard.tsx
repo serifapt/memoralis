@@ -66,7 +66,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
             </p>
             {locationStr && (
-              <div className="flex items-center gap-2 text-muted-foreground mt-2">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground mt-2">
                 <MapPin className="w-3 h-3" />
                 <span className="text-xs">{locationStr}</span>
               </div>
@@ -75,7 +75,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               <Link
                 to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
                 onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center justify-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Building2 className="w-3 h-3" />
                 <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
