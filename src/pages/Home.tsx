@@ -17,13 +17,6 @@ import { PublicFunerariaCard, type FunerariaCardData } from "@/components/funera
 import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
 import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
-const funeralHomes = Array(6).fill({
-  name: "Funerária S. João",
-  location: "Lisboa, Portugal",
-  rating: 4.8,
-  reviews: 245
-});
-
 const articles = [
   {
     title: "What is lorem ipsum simply text of explained",
