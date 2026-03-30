@@ -320,7 +320,7 @@ export default function ObituaryArchive() {
             <p className="text-lg text-muted-foreground">Nenhum obituário encontrado.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {displayedObituaries.map((obit) => (
               <PublicObituaryCard key={obit.id} obit={obit} />
             ))}
