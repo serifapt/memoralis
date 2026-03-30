@@ -57,8 +57,8 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
             </Badge>
           )}
         </div>
-        <CardContent className="p-4 space-y-3">
-          <div>
+        <CardContent className="p-4 flex flex-col flex-1 space-y-3">
+          <div className="flex-1">
             <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
               {obit.display_name}
             </h3>
