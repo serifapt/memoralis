@@ -1,39 +1,29 @@
 
 
-## Plano: Capitalizar etiquetas de eventos + Novo tipo "Cortejo Fúnebre"
+## Atualizar datas de nascimento e falecimento dos 32 óbitos
 
-### 1. Capitalizar as etiquetas de todos os event types
+### Dados atuais
+- 32 registos da importação S. João, todos com `birth_date = NULL`
+- 1 registo (#4 Maria da Conceição da Rocha Leal Gomes) também sem `death_date` — será atribuída uma data fictícia em 2026
+- 2 registos pré-existentes (Libertina Lourenço, Maria de Lurdes Dias Barbosa) já têm datas — não serão tocados
 
-Atualizar os mapas de labels em **4 ficheiros** para usar inicial maiúscula consistente:
+### Lógica de cálculo
+- **birth_date** = `death_date - age anos - 2 meses` (garante que o aniversário já passou antes do falecimento, resultando na idade correta)
+- **death_date** para #4: `2026-03-10` (fictícia, dentro do intervalo jan-mar 2026)
 
-- **`src/lib/ceremony-utils.ts`** — `TAG_LABELS`: adicionar `velorio: "Velório"` e `cemiterio: "Cemitério"` (e `cortejo`)
-- **`src/pages/ObituaryDetail.tsx`** — `getEventTypeLabel()`: já tem maiúsculas, adicionar `cortejo: "Cortejo Fúnebre"`
-- **`src/pages/Ceremonies.tsx`** — `getEventTypeLabel()`: já tem maiúsculas, adicionar `cortejo: "Cortejo Fúnebre"`
+### Operação
+Uma única instrução SQL `UPDATE` com `CASE WHEN` por `id`, atualizando `birth_date` (e `death_date` para #4) dos 32 registos. Execução via insert tool (operação de dados, não migração de schema).
 
-O screenshot mostra "cemiterio" em minúsculas — isto acontece porque o `event_type` guardado na BD é `cemiterio` (sem acento) e os mapas de labels não o incluem, pelo que faz fallback para o valor raw. Corrigir adicionando `cemiterio: "Cemitério"` em todos os mapas.
+### Mapeamento completo (id → idade → birth_date calculada)
 
-### 2. Adicionar novo evento "Cortejo Fúnebre" no editor de óbitos
-
-No **`src/pages/NewObituary.tsx`**:
-
-- Adicionar estado toggle `cortejo` + `cortejoEntries` (array com múltiplas entradas, igual ao velório)
-- Adicionar funções `addCortejoEntry`, `removeCortejoEntry`, `updateCortejoEntry`
-- No carregamento de dados existentes, filtrar `event_type === 'cortejo'` e popular as entries
-- No save (tanto no handleSubmit como no auto-save), inserir eventos com `event_type: 'cortejo'`
-- No UI (secção "Informações Fúnebres"), adicionar bloco entre Velório e Funeral com os mesmos inputs: Data, Hora, Local, Link do mapa — com suporte a múltiplas entradas
-
-### 3. Atualizar labels em todos os mapas
-
-Adicionar `cortejo: "Cortejo Fúnebre"` e `cemiterio: "Cemitério"` nos 3 ficheiros com mapas de labels:
-- `ceremony-utils.ts` (TAG_LABELS)
-- `ObituaryDetail.tsx` (getEventTypeLabel)
-- `Ceremonies.tsx` (getEventTypeLabel)
+| # | Nome | Idade | death_date | birth_date (calculada) |
+|---|------|-------|------------|----------------------|
+| 1 | Libertina Lídia dos Santos Lourenço | 72 | 2026-03-17 | 1954-01-17 |
+| 2 | Teresa do Rosário Vieira | 88 | 2026-03-15 | 1938-01-15 |
+| 3 | Maria de Lourdes Carreira Rodrigues Dias | 84 | 2026-03-12 | 1942-01-12 |
+| 4 | Maria da Conceição da Rocha Leal Gomes | 87 | **2026-03-10** (novo) | 1939-01-10 |
+| 5-32 | (restantes 28) | ... | existentes | death_date - age - 2 meses |
 
 ### Ficheiros a alterar
-1. `src/pages/NewObituary.tsx` — estado, UI, load, save do novo tipo cortejo
-2. `src/lib/ceremony-utils.ts` — labels
-3. `src/pages/ObituaryDetail.tsx` — labels
-4. `src/pages/Ceremonies.tsx` — labels
-
-Não são necessárias alterações à BD — o campo `event_type` é texto livre.
+Nenhum. Apenas operação de dados na tabela `obituaries`.
 
