@@ -67,6 +67,7 @@ export default function NewObituary() {
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
+  const [cortejo, setCortejo] = useState(false);
   const [funeral, setFuneral] = useState(false);
   const [cremacao, setCremacao] = useState(false);
   const [missa7, setMissa7] = useState(false);
@@ -75,6 +76,9 @@ export default function NewObituary() {
   
   // Velório entries (multiple)
   const [velorioEntries, setVelorioEntries] = useState([{ date: "", time: "", location: "", mapLink: "" }]);
+  
+  // Cortejo Fúnebre entries (multiple)
+  const [cortejoEntries, setCortejoEntries] = useState([{ date: "", time: "", location: "", mapLink: "" }]);
   
   const addVelorioEntry = () => {
     setVelorioEntries(prev => [...prev, { date: "", time: "", location: "", mapLink: "" }]);
@@ -88,6 +92,21 @@ export default function NewObituary() {
   
   const updateVelorioEntry = (index: number, field: string, value: string) => {
     setVelorioEntries(prev => prev.map((entry, i) => i === index ? { ...entry, [field]: value } : entry));
+    setHasUnsavedChanges(true);
+  };
+
+  const addCortejoEntry = () => {
+    setCortejoEntries(prev => [...prev, { date: "", time: "", location: "", mapLink: "" }]);
+    setHasUnsavedChanges(true);
+  };
+  
+  const removeCortejoEntry = (index: number) => {
+    setCortejoEntries(prev => prev.filter((_, i) => i !== index));
+    setHasUnsavedChanges(true);
+  };
+  
+  const updateCortejoEntry = (index: number, field: string, value: string) => {
+    setCortejoEntries(prev => prev.map((entry, i) => i === index ? { ...entry, [field]: value } : entry));
     setHasUnsavedChanges(true);
   };
   
