@@ -1169,7 +1169,7 @@ export default function NewObituary() {
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [formData, isPublic, isCompleted, velorio, velorioEntries, funeral, cremacao, missa7, missa30, missa1ano, hasUnsavedChanges, funerariaId]);
+  }, [formData, isPublic, isCompleted, velorio, velorioEntries, cortejo, cortejoEntries, funeral, cremacao, missa7, missa30, missa1ano, hasUnsavedChanges, funerariaId]);
 
   const handleCreateBudget = () => {
     if (savedObituaryIdRef.current || id) {
