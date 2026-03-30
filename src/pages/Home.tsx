@@ -340,18 +340,6 @@ export default function Home() {
                           <span className="text-sm truncate">{f.localidade}</span>
                         </div>
                       )}
-                      {stats && (
-                        <div className="flex items-center gap-3 text-muted-foreground mt-1">
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-3.5 h-3.5" />
-                            <span className="text-sm">{stats.view_count}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MessageSquare className="w-3.5 h-3.5" />
-                            <span className="text-sm">{stats.review_count}</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </Card>
                 </Link>
