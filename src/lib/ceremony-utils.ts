@@ -1,5 +1,4 @@
 const TAG_LABELS: Record<string, string> = {
-  velorio: "Velório",
   funeral: "Funeral",
   cremacao: "Cremação",
   missa7: "Missa 7º Dia",
@@ -46,7 +45,7 @@ export function getActiveTag(events: CeremonyEvent[]): string | null {
   }
 
   // Check for funeral/cremação/velório with filled fields
-  const primaryTypes = ["funeral", "cremacao", "velorio"];
+  const primaryTypes = ["funeral", "cremacao"];
   const primaryEvent = events.find(
     (e) => primaryTypes.includes(e.event_type) && (e.event_date || e.location)
   );
