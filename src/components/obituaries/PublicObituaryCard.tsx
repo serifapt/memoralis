@@ -58,29 +58,31 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
           )}
         </div>
         <CardContent className="p-4 flex flex-col flex-1 space-y-3">
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col">
             <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
               {obit.display_name}
             </h3>
             <p className="text-sm text-muted-foreground mb-1">
               {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
             </p>
-            {locationStr && (
-              <div className="flex items-center justify-center gap-2 text-muted-foreground mt-2">
-                <MapPin className="w-3 h-3" />
-                <span className="text-xs">{locationStr}</span>
-              </div>
-            )}
-            {obit.funerarias && (
-              <Link
-                to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center justify-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Building2 className="w-3 h-3" />
-                <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
-              </Link>
-            )}
+            <div className="flex-1 flex flex-col justify-center">
+              {locationStr && (
+                <div className="flex items-center justify-center gap-2 text-muted-foreground mt-2">
+                  <MapPin className="w-3 h-3" />
+                  <span className="text-xs">{locationStr}</span>
+                </div>
+              )}
+              {obit.funerarias && (
+                <Link
+                  to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center justify-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Building2 className="w-3 h-3" />
+                  <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Counters */}
