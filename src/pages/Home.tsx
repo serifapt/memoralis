@@ -300,39 +300,22 @@ export default function Home() {
           <h2 className="text-3xl font-archivo font-bold text-foreground">
             Funerárias
           </h2>
-          <Button variant="ghost" size="sm">
-            Ver todos →
-          </Button>
+          <Link to="/funerarias">
+            <Button variant="ghost" size="sm">
+              Ver todos →
+            </Button>
+          </Link>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-          {funeralHomes.map((home, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-4xl font-archivo font-bold">SJ</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-archivo font-semibold text-foreground mb-1">
-                      {home.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {home.location}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-primary text-primary" />
-                        <span className="text-sm font-semibold">{home.rating}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        ({home.reviews} avaliações)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {loadingFunerarias ? (
+            Array(6).fill(null).map((_, i) => <Skeleton key={i} className="h-72 w-full rounded-lg" />)
+          ) : funerarias.length === 0 ? (
+            <p className="text-sm text-muted-foreground col-span-full text-center py-8">Nenhuma funerária disponível</p>
+          ) : (
+            funerarias.map((f) => (
+              <PublicFunerariaCard key={f.id} funeraria={f} stats={funerariaStats[f.id]} />
+            ))
+          )}
         </div>
       </section>
 
