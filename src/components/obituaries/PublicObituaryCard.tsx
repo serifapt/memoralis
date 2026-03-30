@@ -44,7 +44,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
 
   return (
     <Link to={`/obituario/${obit.id}`}>
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+      <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
         <div className="relative">
           <img
             src={obit.photo_url || obituaryPlaceholder}
@@ -57,8 +57,8 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
             </Badge>
           )}
         </div>
-        <CardContent className="p-4 space-y-3">
-          <div>
+        <CardContent className="p-4 flex flex-col flex-1 space-y-3">
+          <div className="flex-1">
             <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
               {obit.display_name}
             </h3>
@@ -66,7 +66,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
             </p>
             {locationStr && (
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <div className="flex items-center gap-2 text-muted-foreground mt-2">
                 <MapPin className="w-3 h-3" />
                 <span className="text-xs">{locationStr}</span>
               </div>
