@@ -157,7 +157,7 @@ export default function FunerariaArchive() {
             <p className="text-muted-foreground">Nenhuma funerária encontrada.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <div className="<div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-12">">
             {filtered.map((home) => (
               <Link key={home.id} to={`/funerarias/${home.slug || home.id}`}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow">

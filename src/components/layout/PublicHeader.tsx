@@ -1,10 +1,29 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
+import { Menu } from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+const NAV_LINKS = [
+  { to: "/", label: "Início" },
+  { to: "/obituario", label: "Obituário" },
+  { to: "/funerarias", label: "Funerárias" },
+  { to: "/sobre", label: "Sobre" },
+  { to: "/blog", label: "Blog" },
+  { to: "/contactos", label: "Contactos" },
+];
 
 export const PublicHeader = () => {
   const location = useLocation();
-  
+  const [open, setOpen] = useState(false);
+
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
@@ -16,71 +35,64 @@ export const PublicHeader = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Memoralis" className="w-[220px]" />
+            <img src={logo} alt="Memoralis" className="w-[165px] md:w-[220px]" />
           </Link>
 
-          {/* Centered Navigation */}
+          {/* Centered Navigation (desktop) */}
           <nav className="hidden md:flex gap-6 absolute left-1/2 transform -translate-x-1/2">
-            <Link 
-              to="/" 
-              className={`text-sm hover:text-primary transition-colors ${
-                isActive("/") && !isActive("/obituario") && !isActive("/funerarias") 
-                  ? "text-foreground font-medium" 
-                  : "text-muted-foreground"
-              }`}
-            >
-              Início
-            </Link>
-            <Link 
-              to="/obituario" 
-              className={`text-sm hover:text-primary transition-colors ${
-                isActive("/obituario") ? "text-foreground font-medium" : "text-muted-foreground"
-              }`}
-            >
-              Obituário
-            </Link>
-            <Link 
-              to="/funerarias" 
-              className={`text-sm hover:text-primary transition-colors ${
-                isActive("/funerarias") ? "text-foreground font-medium" : "text-muted-foreground"
-              }`}
-            >
-              Funerárias
-            </Link>
-            <Link 
-              to="/sobre" 
-              className={`text-sm hover:text-primary transition-colors ${
-                isActive("/sobre") ? "text-foreground font-medium" : "text-muted-foreground"
-              }`}
-            >
-              Sobre
-            </Link>
-            <Link 
-              to="/blog" 
-              className={`text-sm hover:text-primary transition-colors ${
-                isActive("/blog") ? "text-foreground font-medium" : "text-muted-foreground"
-              }`}
-            >
-              Blog
-            </Link>
-            <Link 
-              to="/contactos" 
-              className={`text-sm hover:text-primary transition-colors ${
-                isActive("/contactos") ? "text-foreground font-medium" : "text-muted-foreground"
-              }`}
-            >
-              Contactos
-            </Link>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`text-sm hover:text-primary transition-colors ${
+                  isActive(link.to) && !(link.to === "/" && (isActive("/obituario") || isActive("/funerarias")))
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
-          {/* Auth Buttons */}
+          {/* Right side */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/auth">Entrar</Link>
-            </Button>
-            <Button size="sm" asChild>
+            <Button size="sm" asChild className="hidden md:inline-flex">
               <Link to="/auth">Registar</Link>
             </Button>
+
+            {/* Mobile menu */}
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px]">
+                <SheetHeader>
+                  <SheetTitle>
+                    <img src={logo} alt="Memoralis" className="w-[140px]" />
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-4 mt-6">
+                  {NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setOpen(false)}
+                      className={`text-sm hover:text-primary transition-colors ${
+                        isActive(link.to) ? "text-foreground font-medium" : "text-muted-foreground"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  <Button size="sm" asChild className="mt-4 w-full">
+                    <Link to="/auth" onClick={() => setOpen(false)}>Registar</Link>
+                  </Button>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

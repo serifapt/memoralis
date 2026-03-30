@@ -288,7 +288,7 @@ export default function Home() {
             Ver todos →
           </Button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="<div className="grid grid-cols-2 lg:grid-cols-3 gap-6">">
           {funeralHomes.map((home, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
