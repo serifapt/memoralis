@@ -14,17 +14,9 @@ import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-import { getFunerariaImage } from "@/lib/funeraria-utils";
-
-interface FunerariaListItem {
-  id: string;
-  nome_comercial: string;
-  localidade: string | null;
-  distrito: string | null;
-  logo_url: string | null;
-  cover_image_url: string | null;
-  slug: string | null;
-}
+import { PublicFunerariaCard, type FunerariaCardData } from "@/components/funerarias/PublicFunerariaCard";
+import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
+import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
 export default function FunerariaArchive() {
   const [funerarias, setFunerarias] = useState<FunerariaListItem[]>([]);
