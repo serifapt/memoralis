@@ -635,10 +635,10 @@ export default function ObituaryDetail() {
                       <p className="text-sm text-muted-foreground">
                         {getYear(obit.birth_date)} - {getYear(obit.death_date)}
                       </p>
-                      {obit.locality && (
+                      {(obit.freguesia || obit.locality) && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <MapPin className="w-3 h-3" />
-                          <span className="text-xs">{obit.locality}</span>
+                          <span className="text-xs">{[obit.freguesia, obit.locality].filter(Boolean).join(" - ")}</span>
                         </div>
                       )}
                     </CardContent>
