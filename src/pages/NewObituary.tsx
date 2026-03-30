@@ -1143,7 +1143,7 @@ export default function NewObituary() {
     } finally {
       setIsSaving(false);
     }
-  }, [funerariaId, formData, isPublic, isCompleted, responsibleClientId, photoFile, photoPreview, velorio, velorioEntries, funeral, cremacao, missa7, missa30, missa1ano, hasMinimumFields, findOrCreateClient, navigate, toast, isSaving]);
+  }, [funerariaId, formData, isPublic, isCompleted, responsibleClientId, photoFile, photoPreview, velorio, velorioEntries, cortejo, cortejoEntries, funeral, cremacao, missa7, missa30, missa1ano, hasMinimumFields, findOrCreateClient, navigate, toast, isSaving]);
 
   // Debounced auto-save effect
   useEffect(() => {
