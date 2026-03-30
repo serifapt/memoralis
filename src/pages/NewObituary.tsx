@@ -1691,6 +1691,100 @@ export default function NewObituary() {
                     )}
                   </div>
 
+                  {/* Cortejo Fúnebre */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Switch checked={cortejo} onCheckedChange={setCortejo} />
+                      <Label className="font-medium">Cortejo Fúnebre</Label>
+                    </div>
+                    {cortejo && (
+                      <div className="space-y-3 pl-8">
+                        {cortejoEntries.map((entry, index) => (
+                          <div key={index} className="flex items-end gap-2">
+                            <div className="grid md:grid-cols-4 gap-4 flex-1">
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <CalendarIcon className="w-4 h-4" />
+                                    Data
+                                  </Label>
+                                )}
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !entry.date && "text-muted-foreground")}>
+                                      <CalendarIcon className="mr-2 h-4 w-4" />
+                                      {entry.date ? format(parse(entry.date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar"}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar mode="single" locale={pt} selected={entry.date ? parse(entry.date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => updateCortejoEntry(index, "date", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Clock className="w-4 h-4" />
+                                    Hora
+                                  </Label>
+                                )}
+                                <TimeInput
+                                    value={entry.time}
+                                    onChange={(v) => updateCortejoEntry(index, "time", v)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <MapPin className="w-4 h-4" />
+                                    Local
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.location}
+                                  onChange={(e) => updateCortejoEntry(index, "location", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Map className="w-4 h-4" />
+                                    Link do mapa
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.mapLink}
+                                  onChange={(e) => updateCortejoEntry(index, "mapLink", e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {cortejoEntries.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 text-muted-foreground hover:text-destructive"
+                                onClick={() => removeCortejoEntry(index)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-0 text-muted-foreground"
+                          onClick={addCortejoEntry}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Adicionar horário/local
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Funeral */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
