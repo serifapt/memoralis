@@ -47,7 +47,7 @@ export default function Home() {
       // Load recent obituaries
       const { data } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funerarias(nome_comercial, slug)")
+        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);

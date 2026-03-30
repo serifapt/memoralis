@@ -358,6 +358,9 @@ export default function FunerariaDetail() {
               </CardContent>
             </Card>
 
+            {/* Testimonials */}
+            <TestimonialsSection funerariaId={funeraria.id} funerariaName={funeraria.nome_comercial} />
+
             {/* Obituaries */}
             {obituaries.length > 0 && (
               <div>
@@ -372,7 +375,7 @@ export default function FunerariaDetail() {
                     const age = getAge(obit.birth_date, obit.death_date);
                     return (
                       <Link key={obit.id} to={`/obituario/${obit.id}`}>
-                        <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                        <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
                           <div className="relative">
                             <img
                               src={obit.photo_url || "/placeholder.svg"}
@@ -405,9 +408,6 @@ export default function FunerariaDetail() {
                 </div>
               </div>
             )}
-
-            {/* Testimonials */}
-            <TestimonialsSection funerariaId={funeraria.id} funerariaName={funeraria.nome_comercial} />
           </div>
 
           {/* Sidebar */}

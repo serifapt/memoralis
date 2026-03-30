@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Building2, Eye, MessageSquare, Flame } from "lucide-react";
+import { MapPin, Building2, Eye, MessageSquare, Flame, Flower2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
+import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
 
 export interface PublicObituary {
   id: string;
@@ -41,75 +43,108 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
   const navigate = useNavigate();
   const age = getAge(obit.birth_date, obit.death_date);
   const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
+  const [showFlowers, setShowFlowers] = useState(false);
 
   return (
-    <Link to={`/obituario/${obit.id}`}>
-      <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-        <div className="relative">
-          <img
-            src={obit.photo_url || obituaryPlaceholder}
-            alt={obit.display_name}
-            className="w-full aspect-[3/4] object-cover"
-          />
-          {obit.active_tag && (
-            <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0 text-xs font-medium">
-              {obit.active_tag}
-            </Badge>
-          )}
-        </div>
-        <CardContent className="p-4 flex flex-col flex-1 space-y-3">
-          <div className="flex-1 flex flex-col">
-            <h3 className="font-archivo font-bold text-foreground text-lg mb-1 leading-tight">
-              {obit.display_name}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-1">
-              {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
-            </p>
-            <div className="flex-1 flex flex-col justify-center">
-              {locationStr && (
-                <div className="flex items-center gap-2 text-muted-foreground mt-2">
-                  <MapPin className="w-3 h-3" />
-                  <span className="text-xs">{locationStr}</span>
-                </div>
-              )}
-              {obit.funerarias && (
-                <Link
-                  to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Building2 className="w-3 h-3" />
-                  <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
-                </Link>
-              )}
-            </div>
+    <>
+      <Link to={`/obituario/${obit.id}`}>
+        <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+          <div className="relative">
+            <img
+              src={obit.photo_url || obituaryPlaceholder}
+              alt={obit.display_name}
+              className="w-full aspect-[3/4] object-cover"
+            />
+            {obit.active_tag && (
+              <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0 text-xs font-medium">
+                {obit.active_tag}
+              </Badge>
+            )}
           </div>
+          <CardContent className="p-4 flex flex-col flex-1 space-y-3">
+            <div className="flex-1 flex flex-col">
+              <h3 className="font-archivo font-bold text-foreground text-lg mb-1 leading-tight">
+                {obit.display_name}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-1">
+                {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
+              </p>
+              <div className="flex-1 flex flex-col justify-center">
+                {locationStr && (
+                  <div className="flex items-center gap-2 text-muted-foreground mt-2">
+                    <MapPin className="w-3 h-3" />
+                    <span className="text-xs">{locationStr}</span>
+                  </div>
+                )}
+                {obit.funerarias && (
+                  <Link
+                    to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <Building2 className="w-3 h-3" />
+                    <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
+                  </Link>
+                )}
+              </div>
+            </div>
 
-          {/* Counters */}
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span className="text-xs">{obit.view_count ?? 0}</span>
+            {/* Counters */}
+            <div className="flex items-center gap-4 text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Eye className="w-3.5 h-3.5" />
+                <span className="text-xs">{obit.view_count ?? 0}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span className="text-xs">{obit.condolence_count ?? 0}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Flame className="w-3.5 h-3.5" />
+                <span className="text-xs">{obit.candle_count ?? 0}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span className="text-xs">{obit.condolence_count ?? 0}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Flame className="w-3.5 h-3.5" />
-              <span className="text-xs">{obit.candle_count ?? 0}</span>
-            </div>
-          </div>
 
-          <Button
-            size="sm"
-            className="w-full bg-primary hover:bg-primary/90"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Enviar Flores
-          </Button>
-        </CardContent>
-      </Card>
-    </Link>
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate(`/obituario/${obit.id}#condolencias`);
+                }}
+              >
+                Condolências
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 bg-primary hover:bg-primary/90"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowFlowers(true);
+                }}
+              >
+                <Flower2 className="w-3.5 h-3.5 mr-1" />
+                Flores
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+
+      {obit.funeraria_id && showFlowers && (
+        <SendFlowersModal
+          open={showFlowers}
+          onOpenChange={setShowFlowers}
+          funerariaId={obit.funeraria_id}
+          obituaryId={obit.id}
+          obituaryName={obit.display_name}
+        />
+      )}
+    </>
   );
 }
