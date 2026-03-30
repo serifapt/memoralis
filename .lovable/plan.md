@@ -1,50 +1,30 @@
 
 
-## Adicionar visualizações e avaliações aos cards de funerárias + cards reais na Home
+## Cards de funerárias na Home com layout horizontal (como referência)
 
-### Contexto
-- Os cards de funerárias (arquivo e Home) não mostram visualizações nem avaliações
-- A secção de funerárias na Home usa dados mock (`funeralHomes` array estático)
-- A imagem de referência mostra: imagem, nome, estrela + rating + (count), localidade + eye icon + view count
-
-### Dados necessários
-- **Visualizações**: Não existe tabela `funeraria_views`. Serão agregadas a partir de `obituary_views` via join com `obituaries.funeraria_id`
-- **Avaliações**: Tabela `funeraria_testimonials` com campo `rating` (1-5) e `status = 'approved'`
+O utilizador quer que os cards na secção "Funerárias" da Home usem um layout horizontal (logo à esquerda, info à direita, botão "Ver página") em vez do layout vertical do `PublicFunerariaCard`. Os dados reais já estão a ser carregados — só o layout do card na Home precisa de mudar.
 
 ### Alterações
 
-#### 1. Criar componente `PublicFunerariaCard`
-Novo ficheiro `src/components/funerarias/PublicFunerariaCard.tsx`:
-- Recebe dados da funerária + stats (avg rating, review count, view count)
-- Layout igual ao arquivo: imagem (cover/logo/placeholder), nome, localidade
-- Adiciona linha com: estrela + rating médio + (nº avaliações) à esquerda, eye icon + views à direita
-- Rating só aparece se houver avaliações aprovadas
+#### 1. `src/pages/Home.tsx` — Secção Funerárias (linhas 309-318)
 
-#### 2. Atualizar `src/pages/FunerariaArchive.tsx`
-- Carregar stats de avaliações (`funeraria_testimonials` com `status = approved`, agrupado por `funeraria_id`)
-- Carregar contagem de views (via `obituary_views` + `obituaries` agrupado por `funeraria_id`)
-- Usar o novo componente `PublicFunerariaCard`
+Substituir o uso de `PublicFunerariaCard` por um card horizontal inline com:
+- **Esquerda**: imagem quadrada (logo/cover) com cantos arredondados, ~120px
+- **Direita**: nome comercial, estrela + rating + (count) se houver avaliações, localidade com ícone MapPin
+- **Rodapé**: botão "Ver página" outline
+- Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` para layout responsivo
 
-#### 3. Atualizar `src/pages/Home.tsx`
-- Remover array mock `funeralHomes`
-- Carregar funerárias reais (com `pagina_publica_visivel = true`, limit 6)
-- Carregar stats (ratings + views) da mesma forma
-- Usar o componente `PublicFunerariaCard`
-- Adicionar loading state com Skeleton
-
-### Estrutura do card (referência)
+Layout de referência:
 ```text
-┌──────────────────┐
-│   [imagem 4:3]   │
-├──────────────────┤
-│ Nome Comercial   │
-│ ★ 5.0 (146)      │
-│ 📍 Localidade  👁 392│
-└──────────────────┘
+┌─────────────────────────────────────┐
+│ ┌──────────┐  Nome Comercial        │
+│ │          │  ★ 3.9 (18)           │
+│ │  logo    │  📍 Localidade        │
+│ │          │                        │
+│ └──────────┘  [Ver página]          │
+└─────────────────────────────────────┘
 ```
 
-### Ficheiros editados/criados
-1. **Criar** `src/components/funerarias/PublicFunerariaCard.tsx`
-2. **Editar** `src/pages/FunerariaArchive.tsx` — usar novo componente + carregar stats
-3. **Editar** `src/pages/Home.tsx` — substituir mock por dados reais + usar novo componente
+### Ficheiro editado
+1. `src/pages/Home.tsx`
 
