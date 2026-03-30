@@ -19,7 +19,8 @@ import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard
 import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
 export default function FunerariaArchive() {
-  const [funerarias, setFunerarias] = useState<FunerariaListItem[]>([]);
+  const [funerarias, setFunerarias] = useState<FunerariaCardData[]>([]);
+  const [stats, setStats] = useState<Record<string, FunerariaStats>>({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocality, setSelectedLocality] = useState<string>("all");
