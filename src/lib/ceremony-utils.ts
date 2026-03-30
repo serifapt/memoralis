@@ -1,6 +1,9 @@
 const TAG_LABELS: Record<string, string> = {
+  velorio: "Velório",
+  cortejo: "Cortejo Fúnebre",
   funeral: "Funeral",
   cremacao: "Cremação",
+  cemiterio: "Cemitério",
   missa7: "Missa 7º Dia",
   missa30: "Missa 30º Dia",
   missa1ano: "Missa 1 Ano",
