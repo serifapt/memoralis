@@ -821,8 +821,9 @@ export default function NewObituary() {
               map_link: entry.mapLink || null,
             });
           });
-}
+        }
 
+        if (funeral) {
           eventsToInsert.push({
             obituary_id: obituaryId,
             event_type: 'funeral',
