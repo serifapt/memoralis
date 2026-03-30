@@ -160,7 +160,7 @@ export default function Home() {
               Ver todos →
             </Button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="<div className="grid grid-cols-2 lg:grid-cols-4 gap-6">">
             {loadingObits ? (
               Array(4).fill(null).map((_, i) => <Skeleton key={i} className="h-96 w-full rounded-lg" />)
             ) : obituaries.length === 0 ? (
