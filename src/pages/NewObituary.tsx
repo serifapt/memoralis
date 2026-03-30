@@ -810,7 +810,19 @@ export default function NewObituary() {
           });
         }
 
-        if (funeral) {
+        if (cortejo) {
+          cortejoEntries.forEach(entry => {
+            eventsToInsert.push({
+              obituary_id: obituaryId,
+              event_type: 'cortejo',
+              event_date: entry.date || null,
+              event_time: entry.time || null,
+              location: entry.location || null,
+              map_link: entry.mapLink || null,
+            });
+          });
+}
+
           eventsToInsert.push({
             obituary_id: obituaryId,
             event_type: 'funeral',
