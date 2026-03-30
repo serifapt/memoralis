@@ -1,26 +1,22 @@
 
 
-## Ajustes mobile no header e grids
+## Uniformizar altura dos cards de obituário
 
-### Alterações
+### Problema
+Nomes longos ou localidades com texto extenso fazem com que os cards fiquem com alturas diferentes entre si na mesma linha.
 
-#### 1. `src/components/layout/PublicHeader.tsx`
-- **Logo menor no mobile**: Alterar classe do logo de `w-[220px]` para `w-[165px] md:w-[220px]` (75% = 165px)
-- **Remover botão "Entrar"**: Eliminar o `Button variant="ghost"` com "Entrar" — manter apenas o botão "Registar" em todos os dispositivos
-- **Menu mobile (hamburger)**: Adicionar botão `Menu` (ícone) visível apenas em `md:hidden`. Ao clicar, abre um `Sheet` (lateral) com os links de navegação (Início, Obituário, Funerárias, Sobre, Blog, Contactos) + botão Registar
+### Solução
+No `PublicObituaryCard`, usar `h-full` no Card e `flex flex-col` no CardContent para que o conteúdo se distribua verticalmente. Fixar a altura do bloco de texto (nome + datas + localidade + funerária) com `flex-1` para que ocupe o espaço disponível, empurrando os contadores e o botão para baixo de forma consistente.
 
-#### 2. Grids 2 colunas no mobile
-Alterar os grids de obituários e funerárias de `grid-cols-1 sm:grid-cols-2` para `grid-cols-2` em todos os ficheiros:
+Adicionalmente, separar visualmente a linha de datas/idade da linha de freguesia-localidade com um `mt-1.5` extra.
 
-- **`src/pages/Home.tsx`**:
-  - Secção obituários: `grid-cols-2 lg:grid-cols-4`
-  - Secção funerárias: `grid-cols-2 lg:grid-cols-3`
-- **`src/pages/ObituaryArchive.tsx`**: `grid-cols-2 lg:grid-cols-4`
-- **`src/pages/FunerariaArchive.tsx`**: `grid-cols-2 lg:grid-cols-3`
+### Alterações em `src/components/obituaries/PublicObituaryCard.tsx`
 
-### Ficheiros editados
-1. `src/components/layout/PublicHeader.tsx` — logo menor, menu mobile com Sheet, remover "Entrar"
-2. `src/pages/Home.tsx` — grids 2 colunas
-3. `src/pages/ObituaryArchive.tsx` — grid 2 colunas
-4. `src/pages/FunerariaArchive.tsx` — grid 2 colunas
+1. **Card**: adicionar `h-full flex flex-col`
+2. **CardContent**: trocar `space-y-3` por `flex flex-col flex-1 space-y-3`
+3. **Bloco de info** (div que contém nome, datas, localidade, funerária): adicionar `flex-1` para que absorva a diferença de altura
+4. **Localidade** (`MapPin` div): trocar `mb-1` por `mt-2` para criar separação visual clara da linha de datas
+
+### Ficheiro editado
+1. `src/components/obituaries/PublicObituaryCard.tsx`
 
