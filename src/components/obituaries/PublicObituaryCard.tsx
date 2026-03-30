@@ -128,8 +128,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                   setShowFlowers(true);
                 }}
               >
-                <Flower2 className="w-3.5 h-3.5 mr-1" />
-                Flores
+                Enviar Flores
               </Button>
             </div>
           </CardContent>
