@@ -67,6 +67,7 @@ export default function NewObituary() {
   
   // Ceremony toggles
   const [velorio, setVelorio] = useState(false);
+  const [cortejo, setCortejo] = useState(false);
   const [funeral, setFuneral] = useState(false);
   const [cremacao, setCremacao] = useState(false);
   const [missa7, setMissa7] = useState(false);
@@ -75,6 +76,9 @@ export default function NewObituary() {
   
   // Velório entries (multiple)
   const [velorioEntries, setVelorioEntries] = useState([{ date: "", time: "", location: "", mapLink: "" }]);
+  
+  // Cortejo Fúnebre entries (multiple)
+  const [cortejoEntries, setCortejoEntries] = useState([{ date: "", time: "", location: "", mapLink: "" }]);
   
   const addVelorioEntry = () => {
     setVelorioEntries(prev => [...prev, { date: "", time: "", location: "", mapLink: "" }]);
@@ -88,6 +92,21 @@ export default function NewObituary() {
   
   const updateVelorioEntry = (index: number, field: string, value: string) => {
     setVelorioEntries(prev => prev.map((entry, i) => i === index ? { ...entry, [field]: value } : entry));
+    setHasUnsavedChanges(true);
+  };
+
+  const addCortejoEntry = () => {
+    setCortejoEntries(prev => [...prev, { date: "", time: "", location: "", mapLink: "" }]);
+    setHasUnsavedChanges(true);
+  };
+  
+  const removeCortejoEntry = (index: number) => {
+    setCortejoEntries(prev => prev.filter((_, i) => i !== index));
+    setHasUnsavedChanges(true);
+  };
+  
+  const updateCortejoEntry = (index: number, field: string, value: string) => {
+    setCortejoEntries(prev => prev.map((entry, i) => i === index ? { ...entry, [field]: value } : entry));
     setHasUnsavedChanges(true);
   };
   
@@ -491,6 +510,17 @@ export default function NewObituary() {
               mapLink: e.map_link || "",
             })));
           }
+          // Collect cortejo entries
+          const cortejoEvents = events.filter(e => e.event_type === 'cortejo');
+          if (cortejoEvents.length > 0) {
+            setCortejo(true);
+            setCortejoEntries(cortejoEvents.map(e => ({
+              date: e.event_date || "",
+              time: e.event_time || "",
+              location: e.location || "",
+              mapLink: e.map_link || "",
+            })));
+          }
           
           events.forEach(event => {
             if (event.event_type === 'funeral') {
@@ -780,6 +810,19 @@ export default function NewObituary() {
           });
         }
 
+        if (cortejo) {
+          cortejoEntries.forEach(entry => {
+            eventsToInsert.push({
+              obituary_id: obituaryId,
+              event_type: 'cortejo',
+              event_date: entry.date || null,
+              event_time: entry.time || null,
+              location: entry.location || null,
+              map_link: entry.mapLink || null,
+            });
+          });
+        }
+
         if (funeral) {
           eventsToInsert.push({
             obituary_id: obituaryId,
@@ -1018,6 +1061,18 @@ export default function NewObituary() {
             });
           });
         }
+        if (cortejo) {
+          cortejoEntries.forEach(entry => {
+            eventsToInsert.push({
+              obituary_id: currentId,
+              event_type: 'cortejo',
+              event_date: entry.date || null,
+              event_time: entry.time || null,
+              location: entry.location || null,
+              map_link: entry.mapLink || null,
+            });
+          });
+        }
         if (funeral) {
           eventsToInsert.push({
             obituary_id: currentId, event_type: 'funeral',
@@ -1088,7 +1143,7 @@ export default function NewObituary() {
     } finally {
       setIsSaving(false);
     }
-  }, [funerariaId, formData, isPublic, isCompleted, responsibleClientId, photoFile, photoPreview, velorio, velorioEntries, funeral, cremacao, missa7, missa30, missa1ano, hasMinimumFields, findOrCreateClient, navigate, toast, isSaving]);
+  }, [funerariaId, formData, isPublic, isCompleted, responsibleClientId, photoFile, photoPreview, velorio, velorioEntries, cortejo, cortejoEntries, funeral, cremacao, missa7, missa30, missa1ano, hasMinimumFields, findOrCreateClient, navigate, toast, isSaving]);
 
   // Debounced auto-save effect
   useEffect(() => {
@@ -1114,7 +1169,7 @@ export default function NewObituary() {
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [formData, isPublic, isCompleted, velorio, velorioEntries, funeral, cremacao, missa7, missa30, missa1ano, hasUnsavedChanges, funerariaId]);
+  }, [formData, isPublic, isCompleted, velorio, velorioEntries, cortejo, cortejoEntries, funeral, cremacao, missa7, missa30, missa1ano, hasUnsavedChanges, funerariaId]);
 
   const handleCreateBudget = () => {
     if (savedObituaryIdRef.current || id) {
@@ -1628,6 +1683,100 @@ export default function NewObituary() {
                           size="sm"
                           className="ml-0 text-muted-foreground"
                           onClick={addVelorioEntry}
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Adicionar horário/local
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Cortejo Fúnebre */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Switch checked={cortejo} onCheckedChange={setCortejo} />
+                      <Label className="font-medium">Cortejo Fúnebre</Label>
+                    </div>
+                    {cortejo && (
+                      <div className="space-y-3 pl-8">
+                        {cortejoEntries.map((entry, index) => (
+                          <div key={index} className="flex items-end gap-2">
+                            <div className="grid md:grid-cols-4 gap-4 flex-1">
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <CalendarIcon className="w-4 h-4" />
+                                    Data
+                                  </Label>
+                                )}
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !entry.date && "text-muted-foreground")}>
+                                      <CalendarIcon className="mr-2 h-4 w-4" />
+                                      {entry.date ? format(parse(entry.date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar"}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar mode="single" locale={pt} selected={entry.date ? parse(entry.date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => updateCortejoEntry(index, "date", date ? format(date, "yyyy-MM-dd") : "")} initialFocus className="p-3 pointer-events-auto" />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Clock className="w-4 h-4" />
+                                    Hora
+                                  </Label>
+                                )}
+                                <TimeInput
+                                    value={entry.time}
+                                    onChange={(v) => updateCortejoEntry(index, "time", v)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <MapPin className="w-4 h-4" />
+                                    Local
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.location}
+                                  onChange={(e) => updateCortejoEntry(index, "location", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                {index === 0 && (
+                                  <Label className="flex items-center gap-1.5">
+                                    <Map className="w-4 h-4" />
+                                    Link do mapa
+                                  </Label>
+                                )}
+                                <Input
+                                  value={entry.mapLink}
+                                  onChange={(e) => updateCortejoEntry(index, "mapLink", e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {cortejoEntries.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 text-muted-foreground hover:text-destructive"
+                                onClick={() => removeCortejoEntry(index)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-0 text-muted-foreground"
+                          onClick={addCortejoEntry}
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           Adicionar horário/local

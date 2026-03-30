@@ -87,9 +87,15 @@ export default function Ceremonies() {
   const getEventTypeLabel = (type: string) => {
     const types: Record<string, string> = {
       velorio: "Velório",
+      cortejo: "Cortejo Fúnebre",
       missa: "Missa",
       cremacao: "Cremação",
+      cemiterio: "Cemitério",
       sepultamento: "Sepultamento",
+      funeral: "Funeral",
+      missa7: "Missa 7º Dia",
+      missa30: "Missa 30º Dia",
+      missa1ano: "Missa 1 Ano",
       outro: "Outro",
     };
     return types[type] || type;
