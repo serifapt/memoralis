@@ -14,20 +14,13 @@ import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-import { getFunerariaImage } from "@/lib/funeraria-utils";
-
-interface FunerariaListItem {
-  id: string;
-  nome_comercial: string;
-  localidade: string | null;
-  distrito: string | null;
-  logo_url: string | null;
-  cover_image_url: string | null;
-  slug: string | null;
-}
+import { PublicFunerariaCard, type FunerariaCardData } from "@/components/funerarias/PublicFunerariaCard";
+import type { FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
+import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
 export default function FunerariaArchive() {
-  const [funerarias, setFunerarias] = useState<FunerariaListItem[]>([]);
+  const [funerarias, setFunerarias] = useState<FunerariaCardData[]>([]);
+  const [stats, setStats] = useState<Record<string, FunerariaStats>>({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocality, setSelectedLocality] = useState<string>("all");
@@ -54,6 +47,9 @@ export default function FunerariaArchive() {
         const uniqueDistritos = [...new Set(data.map(f => f.distrito).filter(Boolean) as string[])].sort();
         setLocalities(uniqueLocalities);
         setDistritos(uniqueDistritos);
+
+        const funerariaStats = await fetchFunerariaStats(data.map(f => f.id));
+        setStats(funerariaStats);
       }
     } catch (err) {
       console.error("Error loading funerarias:", err);
@@ -159,31 +155,11 @@ export default function FunerariaArchive() {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {filtered.map((home) => (
-              <Link key={home.id} to={`/funerarias/${home.slug || home.id}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative">
-                    <img
-                      src={getFunerariaImage(home.cover_image_url, home.logo_url)}
-                      alt={home.nome_comercial}
-                      className="w-full aspect-[4/3] object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.svg";
-                      }}
-                    />
-                  </div>
-                  <CardContent className="p-4 space-y-2">
-                    <h3 className="font-archivo font-bold text-foreground text-lg">
-                      {home.nome_comercial}
-                    </h3>
-                    {home.localidade && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-sm">{home.localidade}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
+              <PublicFunerariaCard
+                key={home.id}
+                funeraria={home}
+                stats={stats[home.id]}
+              />
             ))}
           </div>
         )}
