@@ -66,7 +66,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
             </p>
             {locationStr && (
-              <div className="flex items-center gap-2 text-muted-foreground mt-2">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground mt-2">
                 <MapPin className="w-3 h-3" />
                 <span className="text-xs">{locationStr}</span>
               </div>
