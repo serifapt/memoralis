@@ -74,6 +74,7 @@ export default function FunerariaDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [coverError, setCoverError] = useState(false);
+  const [stats, setStats] = useState<FunerariaStats | null>(null);
 
   useEffect(() => {
     if (id) loadFuneraria();
