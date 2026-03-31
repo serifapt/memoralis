@@ -121,7 +121,15 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
     if (selectedTemplate === "profissional") {
       const birthYear = obituaryData.birthDate ? new Date(obituaryData.birthDate).getFullYear() : undefined;
       const deathYear = obituaryData.deathDate ? new Date(obituaryData.deathDate).getFullYear() : undefined;
-      const calcAge = birthYear && deathYear ? deathYear - birthYear : undefined;
+      let calcAge = birthYear && deathYear ? deathYear - birthYear : undefined;
+      if (calcAge !== undefined && obituaryData.birthDate && obituaryData.deathDate) {
+        const birth = new Date(obituaryData.birthDate);
+        const death = new Date(obituaryData.deathDate);
+        const monthDiff = death.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && death.getDate() < birth.getDate())) {
+          calcAge--;
+        }
+      }
 
       if (announcementType === "missa_7") {
         return (
