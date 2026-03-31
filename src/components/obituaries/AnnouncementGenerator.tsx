@@ -269,11 +269,15 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
         }
       });
 
+      // Convert relative URLs to absolute so images load in the print window
+      const absoluteHtml = element.outerHTML.replace(/src="\//g, `src="${window.location.origin}/`);
+
       const html = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <title>Anúncio - ${obituaryData.displayName || "Obituário"}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
 ${cssText}
 @media print {
@@ -282,10 +286,10 @@ ${cssText}
   body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   #obituary-template-a4 { transform: scale(calc(210mm / 595px)); transform-origin: top left; }
 }
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; background: white; }
 </style>
 </head>
-<body>${element.outerHTML}</body>
+<body>${absoluteHtml}</body>
 </html>`;
 
       printWindow.document.open();
@@ -306,8 +310,8 @@ html, body { margin: 0; padding: 0; }
         )
       );
 
-      // Small stabilization delay
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      // Stabilization delay for fonts
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
       printWindow.focus();
       printWindow.print();
