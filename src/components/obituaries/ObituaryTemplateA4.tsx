@@ -104,6 +104,7 @@ export const ObituaryTemplateA4 = ({
               height: "17px",
               objectFit: "contain",
               opacity: 0.3,
+              filter: "grayscale(100%) brightness(0)",
             }}
           />
         </div>
