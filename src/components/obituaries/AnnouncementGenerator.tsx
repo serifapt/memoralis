@@ -42,12 +42,27 @@ interface AnnouncementGeneratorProps {
   };
 }
 
-export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorProps) => {
+export const AnnouncementGenerator = ({ obituaryId, obituaryData }: AnnouncementGeneratorProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>("profissional");
   const [announcementType, setAnnouncementType] = useState<AnnouncementType>("faleceu");
   const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | undefined>(undefined);
+  const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const publicUrl = obituaryId ? `${window.location.origin}/obituario/${obituaryId}` : undefined;
+
+  useEffect(() => {
+    if (!publicUrl) return;
+    const timer = setTimeout(() => {
+      const canvas = qrRef.current?.querySelector("canvas");
+      if (canvas) {
+        setQrCodeDataUrl(canvas.toDataURL("image/png"));
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [publicUrl]);
 
   const formatDatePT = (dateStr: string) => {
     if (!dateStr) return "";
