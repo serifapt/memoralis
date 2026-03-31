@@ -72,7 +72,7 @@ export function HeroSearchInput({ placeholder, icon, searchFn, value, onChange }
                 key={r.id}
                 href={r.href}
                 className={cn(
-                  "block px-3 py-2.5 text-sm "block px-3 py-2.5 text-sm hover:bg-primary/50 hover:text-primary-foreground transition-colors cursor-pointer border-b last:border-b-0 border-border/50" transition-colors cursor-pointer border-b last:border-b-0 border-border/50"
+                  "block px-3 py-2.5 text-sm hover:bg-primary/50 hover:text-primary-foreground transition-colors cursor-pointer border-b last:border-b-0 border-border/50"
                 )}
                 onClick={() => setOpen(false)}
               >
