@@ -10,6 +10,7 @@ export const IconCalendar = ({ className }: IconProps) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
+    style={{ display: "block" }}
   >
     <path
       d="M3.16667 0.583334V2.91667M8.35417 0.583334V2.91667M0.833334 5.25H10.6875M1.41667 1.75H10.1042C10.4263 1.75 10.6875 2.01117 10.6875 2.33333V11.5208C10.6875 11.843 10.4263 12.1042 10.1042 12.1042H1.41667C1.0945 12.1042 0.833334 11.843 0.833334 11.5208V2.33333C0.833334 2.01117 1.0945 1.75 1.41667 1.75Z"
@@ -29,6 +30,7 @@ export const IconClock = ({ className }: IconProps) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
+    style={{ display: "block" }}
   >
     <path
       d="M6.34375 3.5V6.34375L8.09375 7.50958M11.5208 6.34375C11.5208 9.20325 9.20325 11.5208 6.34375 11.5208C3.48425 11.5208 1.16667 9.20325 1.16667 6.34375C1.16667 3.48425 3.48425 1.16667 6.34375 1.16667C9.20325 1.16667 11.5208 3.48425 11.5208 6.34375Z"
@@ -48,6 +50,7 @@ export const IconMapPin = ({ className }: IconProps) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
+    style={{ display: "block" }}
   >
     <path
       d="M6.58333 8.16667C7.87196 8.16667 8.91667 7.12196 8.91667 5.83333C8.91667 4.54471 7.87196 3.5 6.58333 3.5C5.29471 3.5 4.25 4.54471 4.25 5.83333C4.25 7.12196 5.29471 8.16667 6.58333 8.16667Z"
@@ -76,6 +79,7 @@ export const LogoMemoralis = ({ className }: IconProps) => (
     xmlns="http://www.w3.org/2000/svg"
     aria-label="memoralis"
     className={className}
+    style={{ display: "block" }}
   >
     {/* III - three vertical bars */}
     <path
