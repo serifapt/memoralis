@@ -1,7 +1,7 @@
 import React from "react";
 import type { SeventhDayMassTemplateProps } from "./types";
 import { CrossSymbol } from "./icons";
-import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../ObituaryTemplate/icons";
+import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../obituaries/ObituaryIcons";
 
 // ─── Defaults ───────────────────────────────────────────────────────────────
 

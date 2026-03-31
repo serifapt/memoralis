@@ -1,5 +1,5 @@
 import React from "react";
-import { SeventhDayMassTemplate } from "./SeventhDayMassTemplate";
+import { SeventhDayMassTemplate } from "./SeventhDayMassTemplate/SeventhDayMassTemplate";
 import type { SeventhDayMassTemplateProps } from "./SeventhDayMassTemplate/types";
 
 // ─── Props ─────────────────────────────────────────────────────────────────
