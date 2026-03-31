@@ -10,6 +10,21 @@ interface EventSectionProps {
   location?: string;
 }
 
+const IconSlot = ({ children }: { children: React.ReactNode }) => (
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+      width: "14px",
+      height: "18px",
+    }}
+  >
+    {children}
+  </span>
+);
+
 const EventSection = ({ title, date, time, startTime, endTime, location }: EventSectionProps) => {
   const timeDisplay = startTime && endTime
     ? `${startTime} - ${endTime}`
@@ -23,20 +38,20 @@ const EventSection = ({ title, date, time, startTime, endTime, location }: Event
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {date && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconCalendar /></span>
-            <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{date}</span>
+            <IconSlot><IconCalendar /></IconSlot>
+            <span style={{ fontWeight: 400, fontSize: 12, lineHeight: "18px", color: "#4e5562" }}>{date}</span>
           </div>
         )}
         {timeDisplay && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconClock /></span>
-            <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{timeDisplay}</span>
+            <IconSlot><IconClock /></IconSlot>
+            <span style={{ fontWeight: 400, fontSize: 12, lineHeight: "18px", color: "#4e5562" }}>{timeDisplay}</span>
           </div>
         )}
         {location && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconMapPin /></span>
-            <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{location}</span>
+            <IconSlot><IconMapPin /></IconSlot>
+            <span style={{ fontWeight: 400, fontSize: 12, lineHeight: "18px", color: "#4e5562" }}>{location}</span>
           </div>
         )}
       </div>
@@ -79,8 +94,8 @@ export const ObituaryTemplateA4 = ({
       id="obituary-template-a4"
       style={{
         position: "relative",
-        width: 595,
-        height: 842,
+        width: "595px",
+        height: "842px",
         backgroundColor: "#ffffff",
         overflow: "hidden",
         fontFamily: "'Inter', sans-serif",
@@ -88,7 +103,7 @@ export const ObituaryTemplateA4 = ({
     >
       {/* Memoralis logo */}
       {memoralisLogo && (
-        <div style={{ position: "absolute", width: 130, height: 17, top: 24, left: 440, overflow: "hidden", opacity: 0.3 }}>
+        <div style={{ position: "absolute", top: "24px", left: "440px", width: "130px", height: "17px", overflow: "hidden", opacity: 0.3 }}>
           <LogoMemoralis />
         </div>
       )}
@@ -97,15 +112,13 @@ export const ObituaryTemplateA4 = ({
       <div
         style={{
           position: "absolute",
-          top: 40,
-          left: 40.67,
+          top: "40px",
+          left: "40px",
           width: "173px",
-          minWidth: "173px",
           height: "208px",
-          minHeight: "208px",
-          borderRadius: 30,
+          borderRadius: "30px",
           overflow: "hidden",
-          background: "white",
+          background: "#d1d5db",
         }}
       >
         {photo ? (
@@ -114,31 +127,32 @@ export const ObituaryTemplateA4 = ({
             alt={fullName}
             style={{
               display: "block",
-              width: "173px",
-              height: "208px",
+              position: "absolute",
+              top: "0",
+              left: "0",
+              width: "100%",
+              height: "100%",
               objectFit: "cover",
               objectPosition: "center top",
             }}
           />
-        ) : (
-          <div style={{ width: "100%", height: "100%", backgroundColor: "#d1d5db" }} />
-        )}
+        ) : null}
       </div>
 
       {/* Full name */}
       <div
         style={{
           position: "absolute",
-          top: 103,
-          left: 255.78,
-          width: 309.6,
+          top: "103px",
+          left: "256px",
+          width: "310px",
         }}
       >
         <p
           style={{
             fontFamily: "'Roboto', sans-serif",
             fontWeight: 500,
-            fontSize: 32,
+            fontSize: "32px",
             lineHeight: "40px",
             color: "#1d2735",
             margin: 0,
@@ -153,20 +167,20 @@ export const ObituaryTemplateA4 = ({
         <div
           style={{
             position: "absolute",
-            top: 194,
-            left: 255.78,
+            top: "194px",
+            left: "256px",
             display: "flex",
             alignItems: "baseline",
-            gap: 4,
+            gap: "4px",
           }}
         >
           {age && (
-            <span style={{ fontWeight: 600, fontSize: 20, color: "#6c727f" }}>
+            <span style={{ fontWeight: 600, fontSize: "20px", color: "#6c727f" }}>
               {age} anos
             </span>
           )}
           {birthYear && deathYear && (
-            <span style={{ fontWeight: 400, fontSize: 14, color: "#6c727f" }}>
+            <span style={{ fontWeight: 400, fontSize: "14px", color: "#6c727f" }}>
               · {birthYear} - {deathYear}
             </span>
           )}
@@ -178,11 +192,11 @@ export const ObituaryTemplateA4 = ({
         <div
           style={{
             position: "absolute",
-            top: 224,
-            left: 255.78,
+            top: "224px",
+            left: "256px",
           }}
         >
-          <p style={{ fontWeight: 600, fontSize: 16, color: "#1d2735", margin: 0 }}>
+          <p style={{ fontWeight: 600, fontSize: "16px", color: "#1d2735", margin: 0 }}>
             {locality}
           </p>
         </div>
@@ -192,15 +206,15 @@ export const ObituaryTemplateA4 = ({
       <div
         style={{
           position: "absolute",
-          top: 304,
-          left: 40,
-          width: 160,
+          top: "304px",
+          left: "40px",
+          width: "160px",
         }}
       >
         <p
           style={{
             fontWeight: 600,
-            fontSize: 24,
+            fontSize: "24px",
             lineHeight: "32px",
             color: "#6c727f",
             margin: 0,
@@ -220,15 +234,15 @@ export const ObituaryTemplateA4 = ({
         <div
           style={{
             position: "absolute",
-            top: 425.21,
-            left: 40.67,
-            width: 160,
+            top: "425px",
+            left: "40px",
+            width: "160px",
           }}
         >
           <p
             style={{
               fontWeight: 400,
-              fontSize: 12,
+              fontSize: "12px",
               lineHeight: "18px",
               color: "#4e5562",
               margin: 0,
@@ -242,7 +256,7 @@ export const ObituaryTemplateA4 = ({
 
       {/* Velório */}
       {wake && (
-        <div style={{ position: "absolute", top: 307, left: 256.78 }}>
+        <div style={{ position: "absolute", top: "307px", left: "257px" }}>
           <EventSection
             title="Velório"
             date={wake.date}
@@ -255,7 +269,7 @@ export const ObituaryTemplateA4 = ({
 
       {/* Funeral */}
       {funeral && (
-        <div style={{ position: "absolute", top: 422.21, left: 254 }}>
+        <div style={{ position: "absolute", top: "422px", left: "254px" }}>
           <EventSection
             title="Funeral"
             date={funeral.date}
@@ -267,7 +281,7 @@ export const ObituaryTemplateA4 = ({
 
       {/* Cemitério */}
       {cemetery && (
-        <div style={{ position: "absolute", top: 547.42, left: 254 }}>
+        <div style={{ position: "absolute", top: "547px", left: "254px" }}>
           <EventSection
             title="Cemitério"
             location={cemetery.location}
@@ -276,11 +290,11 @@ export const ObituaryTemplateA4 = ({
       )}
 
       {/* Condolences text */}
-      <div style={{ position: "absolute", top: 697.2, left: 40 }}>
+      <div style={{ position: "absolute", top: "697px", left: "40px" }}>
         <p
           style={{
             fontWeight: 400,
-            fontSize: 12,
+            fontSize: "12px",
             color: "#4e5562",
             margin: 0,
             whiteSpace: "pre-wrap",
@@ -294,10 +308,10 @@ export const ObituaryTemplateA4 = ({
       <div
         style={{
           position: "absolute",
-          top: 745,
-          left: 40.7,
-          width: 56.88,
-          height: 56.88,
+          top: "745px",
+          left: "40px",
+          width: "57px",
+          height: "57px",
         }}
       >
         {qrCodeImage ? (
@@ -307,17 +321,17 @@ export const ObituaryTemplateA4 = ({
             style={{ width: "100%", height: "100%", objectFit: "contain" }}
           />
         ) : (
-          <div style={{ width: "100%", height: "100%", backgroundColor: "#d1d5db", borderRadius: 4 }} />
+          <div style={{ width: "100%", height: "100%", backgroundColor: "#d1d5db", borderRadius: "4px" }} />
         )}
       </div>
 
       {/* Funeral home logo */}
       {funeralHomeLogo && (
-        <div style={{ position: "absolute", top: 697.2, left: 254 }}>
+        <div style={{ position: "absolute", top: "697px", left: "254px" }}>
           <img
             src={funeralHomeLogo}
             alt="Funerária"
-            style={{ width: 150, height: 43, objectFit: "contain" }}
+            style={{ width: "150px", height: "43px", objectFit: "contain" }}
           />
         </div>
       )}
@@ -327,10 +341,10 @@ export const ObituaryTemplateA4 = ({
         <div
           style={{
             position: "absolute",
-            top: 754.89,
-            left: 254.58,
+            top: "755px",
+            left: "255px",
             fontWeight: 400,
-            fontSize: 9,
+            fontSize: "9px",
             lineHeight: "18px",
             color: "#4e5562",
           }}
@@ -348,8 +362,8 @@ export const ObituaryTemplateA4 = ({
         <div
           style={{
             position: "absolute",
-            bottom: 0,
-            right: 0,
+            bottom: "0",
+            right: "0",
             width: "250px",
             height: "250px",
             overflow: "hidden",
@@ -360,6 +374,7 @@ export const ObituaryTemplateA4 = ({
             src={flowerImage}
             alt=""
             style={{
+              display: "block",
               width: "100%",
               height: "100%",
               objectFit: "contain",
