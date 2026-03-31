@@ -72,13 +72,13 @@ export function HeroSearchInput({ placeholder, icon, searchFn, value, onChange }
                 key={r.id}
                 href={r.href}
                 className={cn(
-                  "block px-3 py-2.5 text-sm hover:bg-primary/50 hover:text-primary-foreground transition-colors cursor-pointer border-b last:border-b-0 border-border/50"
+                  "group/item block px-3 py-2.5 text-sm hover:bg-primary hover:text-white transition-colors cursor-pointer border-b last:border-b-0 border-border/50"
                 )}
                 onClick={() => setOpen(false)}
               >
-                <span className="font-medium text-foreground">{r.label}</span>
+                <span className="font-medium text-foreground group-hover/item:text-white">{r.label}</span>
                 {r.sublabel && (
-                  <span className="block text-xs text-muted-foreground mt-0.5">{r.sublabel}</span>
+                  <span className="block text-xs text-muted-foreground mt-0.5 group-hover/item:text-white/80">{r.sublabel}</span>
                 )}
               </a>
             ))
