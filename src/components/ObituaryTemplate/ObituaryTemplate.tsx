@@ -208,7 +208,7 @@ export function ObituaryTemplate({
       >
         {photo ? (
           <img
-            src={photo}
+            src={grayscalePhoto || photo}
             alt={fullName}
             style={{
               position: "absolute",
@@ -219,7 +219,7 @@ export function ObituaryTemplate({
               left: "-2.83%",
               objectFit: "cover",
               objectPosition: "center top",
-              filter: "grayscale(100%)",
+              ...(grayscalePhoto ? {} : { filter: "grayscale(100%)" }),
             }}
           />
         ) : (
