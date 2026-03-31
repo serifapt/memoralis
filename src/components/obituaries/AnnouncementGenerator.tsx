@@ -550,7 +550,7 @@ html, body { margin: 0; padding: 0; }
 
       {/* Offscreen template for PDF/image export */}
       {selectedTemplate === "profissional" && (
-        <div style={{ position: "absolute", left: -9999, top: -9999 }}>
+        <div id="obituary-template-a4" style={{ position: "absolute", left: -9999, top: -9999 }}>
           {renderPreview()}
         </div>
       )}
