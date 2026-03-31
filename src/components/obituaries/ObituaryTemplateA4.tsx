@@ -100,7 +100,9 @@ export const ObituaryTemplateA4 = ({
           top: 40,
           left: 40.67,
           width: 173.333,
+          minWidth: 173.333,
           height: 208,
+          minHeight: 208,
           borderRadius: 30,
           overflow: "hidden",
           background: "white",
@@ -111,8 +113,9 @@ export const ObituaryTemplateA4 = ({
             src={photo}
             alt={fullName}
             style={{
-              width: "100%",
-              height: "100%",
+              display: "block",
+              width: 173.333,
+              height: 208,
               objectFit: "cover",
               objectPosition: "center top",
               filter: "grayscale(100%)",
