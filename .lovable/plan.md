@@ -1,70 +1,51 @@
 
 
-## Plano: Substituir templates de anúncio funerário pela versão Figma pixel-perfect
+## Diagnóstico: PDF em branco
 
-### Resumo
-Substituir os templates antigos (`ObituaryTemplateA4`, `SeventhDayMassTemplate`, ícones) pelos novos ficheiros uploaded, e actualizar o `AnnouncementGenerator.tsx` para usar os novos componentes e props.
+### Causa raiz
 
-### Ficheiros a criar (9 — conteúdo exacto dos uploads)
+O container offscreen (linha 523) que serve como alvo de captura para PDF:
 
-| Ficheiro | Origem (upload) |
-|---|---|
-| `src/components/shared/icons.tsx` | `icons-2.tsx` |
-| `src/components/ObituaryTemplate/types.ts` | `types-2.ts` |
-| `src/components/ObituaryTemplate/ObituaryTemplate.tsx` | `ObituaryTemplate.tsx` |
-| `src/components/ObituaryTemplate/index.ts` | `index-2.ts` |
-| `src/components/SeventhDayMassTemplate/types.ts` | `types-3.ts` (substitui o existente) |
-| `src/components/SeventhDayMassTemplate/SeventhDayMassTemplate.tsx` | `SeventhDayMassTemplate-2.tsx` (substitui o existente) |
-| `src/components/SeventhDayMassTemplate/index.ts` | `index-3.ts` (substitui o existente) |
-| `src/components/ObituaryPreview.tsx` | `ObituaryPreview.tsx` |
-| `src/components/SeventhDayMassPreview.tsx` | `SeventhDayMassPreview-2.tsx` (substitui o existente) |
-
-### Ficheiros a apagar
-
-| Ficheiro | Razão |
-|---|---|
-| `src/components/obituaries/ObituaryTemplateA4.tsx` | Substituído por `ObituaryTemplate/` |
-| `src/components/obituaries/ObituaryTypes.ts` | Substituído por `ObituaryTemplate/types.ts` |
-| `src/components/obituaries/ObituaryIcons.tsx` | Substituído por `shared/icons.tsx` |
-| `src/components/SeventhDayMassTemplate/icons.tsx` | CrossSymbol já não é usado |
-
-### Ficheiros a actualizar
-
-**1. `src/components/obituaries/AnnouncementGenerator.tsx`**
-- Substituir import de `ObituaryTemplateA4` → `ObituaryTemplate` de `@/components/ObituaryTemplate`
-- Substituir import de `SeventhDayMassTemplate` de `@/components/SeventhDayMassTemplate`
-- Adicionar campos `cortejoDate`, `cortejoTime`, `cortejoLocation` à interface `obituaryData`
-- Remover `convertToGrayscale` (grayscale é agora aplicado via CSS `filter: grayscale(100%)` no template)
-- Actualizar `renderPreview()` para passar props no novo formato:
-  - `velorio` como objecto `{ date, startTime, endTime, location }`
-  - `funeral` como objecto `{ date, time, location }`
-  - `cemetery` como objecto `{ location }`
-  - `cortejoFunebre` como objecto `{ date, startTime, endTime, location }` (novo)
-  - Usar `photo` directamente (sem grayscale manual)
-
-**2. `index.html`**
-- Google Fonts Inter e Roboto já estão incluídos — nenhuma alteração necessária.
-
-### Secção técnica
-
-Mapeamento de props antigo → novo no `renderPreview()`:
-
-```text
-ANTES (ObituaryTemplateA4)          DEPOIS (ObituaryTemplate)
-─────────────────────────           ─────────────────────────
-fullName                         →  fullName
-photo (grayscale manual)         →  photo (CSS grayscale)
-age, birthYear, deathYear        →  age, birthYear, deathYear
-parish, municipality             →  parish, municipality
-deathCountry (toUpperCase)       →  deathCountry
-familyText                       →  familyText
-wake={{ date, startTime, ... }}  →  velorio={{ date, startTime, ... }}
-funeral={{ date, time, ... }}    →  funeral={{ date, time, ... }}
-cemetery={{ location }}          →  cemetery={{ location }}
-(não existia)                    →  cortejoFunebre={{ date, startTime, endTime, location }}
-qrCodeImage                      →  qrCodeImage
-funeralHomeLogo                  →  funeralHomeLogo
-phone1, phone2, email, website   →  phone1, phone2, email, website
-flowerImage                      →  flowerImage
+```html
+<div id="obituary-template-a4" style="position: absolute; left: -9999px; top: -9999px">
+  <!-- ObituaryTemplate com 595×842px -->
+</div>
 ```
+
+O template novo usa `position: relative` + `overflow: hidden` com dimensões fixas `595×842px`. Quando o `outerHTML` é copiado para a janela de impressão, dois problemas ocorrem:
+
+1. **O wrapper `#obituary-template-a4` não tem dimensões** — é um div genérico sem `width`/`height`, e na nova janela (sem o layout do React) pode colapsar ou clipar o conteúdo.
+2. **Fontes e CSS do Tailwind não carregam a tempo** — o `cssText` é copiado mas as `@font-face` do Google Fonts e as classes Tailwind podem não estar resolvidas na nova janela antes do `print()`.
+3. **Imagens com URLs relativas** — imagens como `/images/flores-obituario.png` ou logos do Supabase Storage podem não carregar na nova janela por falta de base URL.
+
+### Solução
+
+Corrigir o `generatePDF` no `AnnouncementGenerator.tsx`:
+
+1. **Dar dimensões explícitas ao wrapper offscreen** para que o conteúdo não colapse:
+   ```tsx
+   <div id="obituary-template-a4" style={{ position: "absolute", left: "-9999px", top: "-9999px", width: "595px", height: "842px" }}>
+   ```
+
+2. **Incluir os Google Fonts via `<link>` na janela de impressão** em vez de depender apenas do CSS copiado:
+   ```html
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@500&display=swap" rel="stylesheet" />
+   ```
+
+3. **Converter URLs relativas em absolutas** no `outerHTML` antes de injectar na janela de impressão, usando `window.location.origin` como prefixo para `src="/..."`.
+
+4. **Aumentar o delay de estabilização** de 400ms para ~800ms para dar tempo às fontes de carregarem na nova janela.
+
+### Ficheiro a alterar
+
+**`src/components/obituaries/AnnouncementGenerator.tsx`** — duas alterações:
+
+**Alteração A — Wrapper offscreen (linha 523):**
+Adicionar `width: 595px; height: 842px` ao style do div `#obituary-template-a4`.
+
+**Alteração B — `generatePDF` (linhas 241-317):**
+- Injectar `<link>` do Google Fonts no `<head>` do HTML da janela de impressão
+- Substituir URLs relativas (`src="/...`) por absolutas no `outerHTML`
+- Aumentar delay para 800ms
+- Adicionar `background: white` explícito ao body do HTML de impressão
 
