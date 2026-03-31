@@ -124,7 +124,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
         return (
           <SeventhDayMassTemplate
             fullName={obituaryData.displayName}
-            photo={grayscalePhoto || obituaryData.photoUrl}
+            photo={obituaryData.photoUrl}
             age={calcAge}
             birthYear={birthYear}
             deathYear={deathYear}

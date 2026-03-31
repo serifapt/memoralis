@@ -1,5 +1,5 @@
 import React from "react";
-import { SeventhDayMassTemplate } from "./SeventhDayMassTemplate/SeventhDayMassTemplate";
+import { SeventhDayMassTemplate } from "./SeventhDayMassTemplate";
 import type { SeventhDayMassTemplateProps } from "./SeventhDayMassTemplate/types";
 
 // ─── Props ─────────────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@ interface SeventhDayMassPreviewProps {
 // ─── Preview escalado ───────────────────────────────────────────────────────
 
 /**
- * Wrapper escalado para usar no editor/dashboard do Lovable.
+ * Wrapper escalado para usar no editor / dashboard do Lovable.
  * O template A4 (595×842) é reduzido proporcionalmente via CSS transform.
  */
 export function SeventhDayMassPreview({ data, scale = 0.7, className = "" }: SeventhDayMassPreviewProps) {
@@ -43,10 +43,9 @@ export function SeventhDayMassPreview({ data, scale = 0.7, className = "" }: Sev
   );
 }
 
-// ─── Dados de demo (iguais ao Figma "A4 - 3") ──────────────────────────────
+// ─── Dados de demo — "missa 7º dia" (node 5476:20654) ───────────────────────
 
-export const SEVENTH_DAY_MASS_DEMO_DATA: SeventhDayMassTemplateProps = {
-  // memoralisLogo: "/assets/memoralis/logo-memoralis.svg",
+export const SEVENTH_DAY_MASS_DEMO: SeventhDayMassTemplateProps = {
   photo: "/assets/memoralis/photo-demo.png",
   fullName: "Zé Manuel Osório Fernandes",
   age: 55,
@@ -74,8 +73,8 @@ export const SEVENTH_DAY_MASS_DEMO_DATA: SeventhDayMassTemplateProps = {
 export function SeventhDayMassDemoPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-8 py-12">
-      <h1 className="text-2xl font-semibold text-gray-700">Preview — A4 Missa 7º Dia (escala 85%)</h1>
-      <SeventhDayMassPreview data={SEVENTH_DAY_MASS_DEMO_DATA} scale={0.85} />
+      <h1 className="text-2xl font-semibold text-gray-700">Preview — Missa 7º Dia (escala 75%)</h1>
+      <SeventhDayMassPreview data={SEVENTH_DAY_MASS_DEMO} scale={0.75} />
     </div>
   );
 }
