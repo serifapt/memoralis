@@ -1,27 +1,27 @@
 
 
-## Plano: Adicionar template "Missa 7º Dia" (A4-3)
+## Integrar SeventhDayMassTemplate no AnnouncementGenerator
 
-### Ficheiros a criar
+### O que muda
 
-1. **`src/components/SeventhDayMassTemplate/types.ts`** — tipos do template (conteúdo exacto do upload)
+Quando `announcementType === "missa_7"` e `selectedTemplate === "profissional"`, o preview e a exportação PDF devem usar o `SeventhDayMassTemplate` em vez do `ObituaryTemplateA4`.
 
-2. **`src/components/SeventhDayMassTemplate/icons.tsx`** — `CrossSymbol` (conteúdo exacto do upload)
+### Alterações em `src/components/obituaries/AnnouncementGenerator.tsx`
 
-3. **`src/components/SeventhDayMassTemplate/SeventhDayMassTemplate.tsx`** — template A4 595×842 (conteúdo do upload, com import path corrigido: `../obituaries/ObituaryIcons` em vez de `../ObituaryTemplate/icons`)
+1. **Import** do `SeventhDayMassTemplate` de `@/components/SeventhDayMassTemplate`
 
-4. **`src/components/SeventhDayMassTemplate/index.ts`** — barrel exports (conteúdo exacto do upload)
+2. **`renderPreview()`** — dentro do bloco `selectedTemplate === "profissional"`, adicionar condição: se `announcementType === "missa_7"`, renderizar `SeventhDayMassTemplate` com as props mapeadas:
+   - `fullName`, `photo` (grayscale), `age`, `birthYear`, `deathYear`, `parish`, `municipality`
+   - `massDate` ← `formatDatePT(obituaryData.cerimoniaDate)`
+   - `massStartTime` ← `formatTime(obituaryData.cerimoniaTime)`
+   - `massLocation` ← `obituaryData.cerimoniaChurch`
+   - `familyText` ← mensagem pública (mesmo toggle `includeFamilyMessage`)
+   - Contactos da funerária (`funeralHomeLogo`, `phone1`, `phone2`, `email`, `website`)
+   - `flowerImage` ← `/images/flores-obituario.png`
 
-5. **`src/components/SeventhDayMassPreview.tsx`** — preview escalado + dados demo (conteúdo do upload, com import path corrigido)
+3. **`generatePDF()`** — o ID do elemento a capturar para impressão nativa já funciona se o `SeventhDayMassTemplate` usar o mesmo `id="obituary-template-a4"`. Verificar se o componente tem este ID; caso contrário, envolvê-lo num `<div id="obituary-template-a4">`.
 
-### Ajuste de imports
+### Sem novos ficheiros
 
-O código uploaded importa de `../ObituaryTemplate/icons` mas no projecto os ícones estão em `src/components/obituaries/ObituaryIcons.tsx`. O import será corrigido para:
-```ts
-import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../obituaries/ObituaryIcons";
-```
-
-### Sem alterações a ficheiros existentes
-
-O template é autocontido. A integração no `AnnouncementGenerator` (para gerar PDF com este template quando `announcementType === "missa_7"`) pode ser feita num passo posterior.
+Apenas edição do `AnnouncementGenerator.tsx`.
 
