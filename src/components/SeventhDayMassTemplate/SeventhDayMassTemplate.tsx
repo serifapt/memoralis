@@ -201,7 +201,7 @@ export function SeventhDayMassTemplate({
       {funeralHomeLogo && (
         <div
           className="absolute overflow-hidden"
-          style={{ top: "697.2px", left: "254px", width: "150px", height: "43px" }}
+          style={{ top: "697.2px", left: "40.67px", width: "150px", height: "43px" }}
         >
           <img
             src={funeralHomeLogo}
