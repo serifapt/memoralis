@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -628,27 +629,9 @@ export default function ObituaryDetail() {
                 <Link to="/obituario">Ver todos →</Link>
               </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {relatedObituaries.map((obit) => (
-                <Link key={obit.id} to={`/obituario/${obit.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                    <div className="relative">
-                      <img src={obit.photo_url || obituaryPlaceholder} alt={obit.display_name} className="w-full aspect-[3/4] object-cover" />
-                    </div>
-                    <CardContent className="p-4 space-y-2">
-                      <h3 className="font-archivo font-bold text-foreground text-lg">{obit.display_name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {getYear(obit.birth_date)} - {getYear(obit.death_date)}
-                      </p>
-                      {(obit.freguesia || obit.locality) && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="w-3 h-3" />
-                          <span className="text-xs">{[obit.freguesia, obit.locality].filter(Boolean).join(" - ")}</span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
+                <PublicObituaryCard key={obit.id} obit={obit as unknown as PublicObituary} />
               ))}
             </div>
           </section>
