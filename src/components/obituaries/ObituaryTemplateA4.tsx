@@ -59,7 +59,7 @@ export const ObituaryTemplateA4 = ({
   parish,
   municipality,
   deathCountry,
-  familyText = DEFAULT_FAMILY_TEXT,
+  familyText,
   wake,
   funeral,
   cemetery,
