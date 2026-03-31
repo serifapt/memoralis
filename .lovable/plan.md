@@ -1,23 +1,70 @@
 
 
-## Plano: Ajustar preview sem margens + alinhamentos à esquerda
+## Plano: Substituir templates de anúncio funerário pela versão Figma pixel-perfect
 
-### Problemas identificados
+### Resumo
+Substituir os templates antigos (`ObituaryTemplateA4`, `SeventhDayMassTemplate`, ícones) pelos novos ficheiros uploaded, e actualizar o `AnnouncementGenerator.tsx` para usar os novos componentes e props.
 
-1. **Margens brancas no thumbnail**: O container usa `aspect-[3/4]` (0.75) mas o A4 é 595:842 (≈0.707). A escala fixa de 0.28 não preenche o container.
-2. **Logo da funerária e contactos**: No `ObituaryTemplateA4`, estão posicionados a `left: 254px` (coluna direita). Devem alinhar à esquerda (`left: 40px`), consistente com o resto da informação.
+### Ficheiros a criar (9 — conteúdo exacto dos uploads)
 
-### Alterações
+| Ficheiro | Origem (upload) |
+|---|---|
+| `src/components/shared/icons.tsx` | `icons-2.tsx` |
+| `src/components/ObituaryTemplate/types.ts` | `types-2.ts` |
+| `src/components/ObituaryTemplate/ObituaryTemplate.tsx` | `ObituaryTemplate.tsx` |
+| `src/components/ObituaryTemplate/index.ts` | `index-2.ts` |
+| `src/components/SeventhDayMassTemplate/types.ts` | `types-3.ts` (substitui o existente) |
+| `src/components/SeventhDayMassTemplate/SeventhDayMassTemplate.tsx` | `SeventhDayMassTemplate-2.tsx` (substitui o existente) |
+| `src/components/SeventhDayMassTemplate/index.ts` | `index-3.ts` (substitui o existente) |
+| `src/components/ObituaryPreview.tsx` | `ObituaryPreview.tsx` |
+| `src/components/SeventhDayMassPreview.tsx` | `SeventhDayMassPreview-2.tsx` (substitui o existente) |
 
-**1. `src/components/obituaries/TemplateThumbnail.tsx`**
-- Mudar aspect ratio do container de `aspect-[3/4]` para `aspect-[595/842]` (ratio A4 real)
-- Usar escala `calc(100% / 595)` — renderizar o conteúdo escalado com `width: 100%` e `height: 100%` no container, usando `transform: scale()` calculado para preencher toda a largura sem margens
+### Ficheiros a apagar
 
-**2. `src/components/obituaries/ObituaryTemplateA4.tsx`**
-- Mover o logo da funerária de `left: 254px` para `left: 40px`
-- Mover os contactos de `left: 255px` para `left: 40px`
-- Garantir `text-align: left` nos contactos
+| Ficheiro | Razão |
+|---|---|
+| `src/components/obituaries/ObituaryTemplateA4.tsx` | Substituído por `ObituaryTemplate/` |
+| `src/components/obituaries/ObituaryTypes.ts` | Substituído por `ObituaryTemplate/types.ts` |
+| `src/components/obituaries/ObituaryIcons.tsx` | Substituído por `shared/icons.tsx` |
+| `src/components/SeventhDayMassTemplate/icons.tsx` | CrossSymbol já não é usado |
 
-**3. `src/components/SeventhDayMassTemplate/SeventhDayMassTemplate.tsx`**
-- Verificar e confirmar que logo da funerária (`left: 254px`) e contactos (`left: 254.58px`) também passam para `left: 40.67px` (alinhamento esquerdo consistente com o layout)
+### Ficheiros a actualizar
+
+**1. `src/components/obituaries/AnnouncementGenerator.tsx`**
+- Substituir import de `ObituaryTemplateA4` → `ObituaryTemplate` de `@/components/ObituaryTemplate`
+- Substituir import de `SeventhDayMassTemplate` de `@/components/SeventhDayMassTemplate`
+- Adicionar campos `cortejoDate`, `cortejoTime`, `cortejoLocation` à interface `obituaryData`
+- Remover `convertToGrayscale` (grayscale é agora aplicado via CSS `filter: grayscale(100%)` no template)
+- Actualizar `renderPreview()` para passar props no novo formato:
+  - `velorio` como objecto `{ date, startTime, endTime, location }`
+  - `funeral` como objecto `{ date, time, location }`
+  - `cemetery` como objecto `{ location }`
+  - `cortejoFunebre` como objecto `{ date, startTime, endTime, location }` (novo)
+  - Usar `photo` directamente (sem grayscale manual)
+
+**2. `index.html`**
+- Google Fonts Inter e Roboto já estão incluídos — nenhuma alteração necessária.
+
+### Secção técnica
+
+Mapeamento de props antigo → novo no `renderPreview()`:
+
+```text
+ANTES (ObituaryTemplateA4)          DEPOIS (ObituaryTemplate)
+─────────────────────────           ─────────────────────────
+fullName                         →  fullName
+photo (grayscale manual)         →  photo (CSS grayscale)
+age, birthYear, deathYear        →  age, birthYear, deathYear
+parish, municipality             →  parish, municipality
+deathCountry (toUpperCase)       →  deathCountry
+familyText                       →  familyText
+wake={{ date, startTime, ... }}  →  velorio={{ date, startTime, ... }}
+funeral={{ date, time, ... }}    →  funeral={{ date, time, ... }}
+cemetery={{ location }}          →  cemetery={{ location }}
+(não existia)                    →  cortejoFunebre={{ date, startTime, endTime, location }}
+qrCodeImage                      →  qrCodeImage
+funeralHomeLogo                  →  funeralHomeLogo
+phone1, phone2, email, website   →  phone1, phone2, email, website
+flowerImage                      →  flowerImage
+```
 
