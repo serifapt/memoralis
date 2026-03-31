@@ -23,19 +23,19 @@ const EventSection = ({ title, date, time, startTime, endTime, location }: Event
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {date && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconCalendar /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconCalendar /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{date}</span>
           </div>
         )}
         {timeDisplay && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconClock /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconClock /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{timeDisplay}</span>
           </div>
         )}
         {location && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconMapPin /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconMapPin /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{location}</span>
           </div>
         )}
