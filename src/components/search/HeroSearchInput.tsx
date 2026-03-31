@@ -76,9 +76,9 @@ export function HeroSearchInput({ placeholder, icon, searchFn, value, onChange }
                 )}
                 onClick={() => setOpen(false)}
               >
-                <span className="font-medium text-foreground">{r.label}</span>
+                <span className="font-medium text-foreground group-hover/item:text-white">{r.label}</span>
                 {r.sublabel && (
-                  <span className="block text-xs text-muted-foreground mt-0.5">{r.sublabel}</span>
+                  <span className="block text-xs text-muted-foreground mt-0.5 group-hover/item:text-white/80">{r.sublabel}</span>
                 )}
               </a>
             ))
