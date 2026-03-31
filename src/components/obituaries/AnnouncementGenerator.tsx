@@ -158,6 +158,11 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           municipality={obituaryData.municipality}
           deathCountry={obituaryData.deathLocation?.toUpperCase()}
           familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
+          cortejoFunebre={obituaryData.cortejoDate ? {
+            date: formatDatePT(obituaryData.cortejoDate),
+            startTime: formatTime(obituaryData.cortejoTime),
+            location: obituaryData.cortejoLocation,
+          } : undefined}
           velorio={obituaryData.velorioDate ? {
             date: formatDatePT(obituaryData.velorioDate),
             startTime: formatTime(obituaryData.velorioTime),

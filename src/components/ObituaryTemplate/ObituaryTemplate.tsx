@@ -250,8 +250,8 @@ export function ObituaryTemplate({
           width: "309.6px",
           fontFamily: "'Roboto', 'Inter', sans-serif",
           fontWeight: 500,
-          fontSize: "32px",
-          lineHeight: "40px",
+          fontSize: nameFontSize,
+          lineHeight: nameLineHeight,
           color: "#1d2735",
           margin: 0,
         }}
