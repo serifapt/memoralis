@@ -66,12 +66,6 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
     return () => clearTimeout(timer);
   }, [publicUrl]);
 
-  useEffect(() => {
-    if (!obituaryData.photoUrl) return;
-    convertToGrayscale(obituaryData.photoUrl)
-      .then(setGrayscalePhoto)
-      .catch(() => setGrayscalePhoto(obituaryData.photoUrl));
-  }, [obituaryData.photoUrl]);
 
   const formatDatePT = (dateStr: string) => {
     if (!dateStr) return "";
