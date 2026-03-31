@@ -217,27 +217,29 @@ export const ObituaryTemplateA4 = ({
       </div>
 
       {/* Family text */}
-      <div
-        style={{
-          position: "absolute",
-          top: 425.21,
-          left: 40.67,
-          width: 160,
-        }}
-      >
-        <p
+      {familyText && (
+        <div
           style={{
-            fontWeight: 400,
-            fontSize: 12,
-            lineHeight: "18px",
-            color: "#4e5562",
-            margin: 0,
-            whiteSpace: "pre-wrap",
+            position: "absolute",
+            top: 425.21,
+            left: 40.67,
+            width: 160,
           }}
         >
-          {familyText}
-        </p>
-      </div>
+          <p
+            style={{
+              fontWeight: 400,
+              fontSize: 12,
+              lineHeight: "18px",
+              color: "#4e5562",
+              margin: 0,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {familyText}
+          </p>
+        </div>
+      )}
 
       {/* Velório */}
       {wake && (

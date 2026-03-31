@@ -152,7 +152,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       return (
         <ObituaryTemplateA4
           fullName={obituaryData.displayName}
-          photo={obituaryData.photoUrl}
+          photo={grayscalePhoto || obituaryData.photoUrl}
           age={calcAge}
           birthYear={birthYear}
           deathYear={deathYear}
