@@ -550,12 +550,22 @@ html, body { margin: 0; padding: 0; }
         </div>
       </Card>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Preview do Anúncio</h3>
-        <div className="max-w-2xl mx-auto">
+      {/* Offscreen template for PDF/image export */}
+      {selectedTemplate === "profissional" && (
+        <div style={{ position: "absolute", left: -9999, top: -9999 }}>
           {renderPreview()}
         </div>
-      </Card>
+      )}
+
+      {/* Non-profissional preview */}
+      {selectedTemplate !== "profissional" && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Preview do Anúncio</h3>
+          <div className="max-w-2xl mx-auto">
+            {renderPreview()}
+          </div>
+        </Card>
+      )}
 
       {/* Hidden QR code canvas for generating data URL */}
       {publicUrl && (

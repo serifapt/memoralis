@@ -1,3 +1,4 @@
+import { type ReactNode } from "react";
 import { type TemplateType } from "./types";
 
 interface TemplateThumbnailProps {
@@ -6,10 +7,27 @@ interface TemplateThumbnailProps {
   description: string;
   isSelected: boolean;
   onClick: () => void;
+  /** When provided for "profissional", renders the real template scaled down instead of the static wireframe */
+  previewContent?: ReactNode;
 }
 
-export const TemplateThumbnail = ({ type, name, description, isSelected, onClick }: TemplateThumbnailProps) => {
+export const TemplateThumbnail = ({ type, name, description, isSelected, onClick, previewContent }: TemplateThumbnailProps) => {
   const renderContent = () => {
+    if (type === "profissional" && previewContent) {
+      return (
+        <div className="w-full h-full overflow-hidden relative bg-white">
+          <div style={{
+            transform: 'scale(0.28)',
+            transformOrigin: 'top left',
+            width: '595px',
+            height: '842px',
+          }}>
+            {previewContent}
+          </div>
+        </div>
+      );
+    }
+
     if (type === "profissional") {
       return (
         <div className="w-full h-full bg-white relative overflow-hidden" style={{ padding: '6%' }}>
