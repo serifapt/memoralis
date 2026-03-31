@@ -1,10 +1,10 @@
 
 
-## Mostrar os 5 obituários mais recentes da mesma funerária
+## Hover vermelho com 50% opacidade
 
 ### Alteração
 
-**`src/pages/ObituaryDetail.tsx`** — query de obituários relacionados
+**`src/components/search/HeroSearchInput.tsx`** — linha 75
 
-Manter o filtro `.eq("funeraria_id", obit.funeraria_id)` e garantir que a ordenação é `.order("created_at", { ascending: false })` com `.limit(5)`. Se a query já está assim, não há alteração necessária — apenas confirmar que o comportamento actual já cumpre o pedido.
+Substituir `hover:bg-primary` por `hover:bg-primary/50` para aplicar a cor primária (vermelha) com 50% de opacidade no hover dos resultados de pesquisa.
 
