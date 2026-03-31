@@ -1,76 +1,45 @@
 
 
-## Corrigir PDF para corresponder ao design original
+## Implementar solução de geração PDF com mapeamento correcto
 
-### Problemas identificados (comparando PDF gerado vs referência)
-
-1. **Foto não fica em grayscale** — `html2canvas` não suporta `filter: grayscale(100%)`. A foto sai a cores com tonalidade azul.
-2. **Nome longo sobrepõe a idade/anos** — nomes como "Maria de Lourdes Carreira Rodrigues Dias" ultrapassam o espaço do nome e colidem com "· 1942 - 2026".
-3. **Cortejo Fúnebre não é passado** — os dados de `cortejoEntries` existem no formulário mas não são enviados ao `AnnouncementGenerator`.
+A solução proposta é sólida. Vou adaptar as melhorias ao código existente, mantendo a estrutura actual do `AnnouncementGenerator`.
 
 ### Alterações
 
-**1. `src/components/ObituaryTemplate/ObituaryTemplate.tsx`**
+**Ficheiro: `src/components/obituaries/AnnouncementGenerator.tsx`**
 
-- Pré-processar a foto para grayscale via Canvas API (criar `useEffect` que converte a imagem para grayscale usando um canvas invisível e gera um data URL em preto-e-branco). Remover `filter: grayscale(100%)` do CSS e usar a imagem já convertida.
-- Reduzir o `fontSize` do nome automaticamente quando o texto é longo (>25 chars → 26px, >35 chars → 22px) para evitar sobreposição com a linha de idade/localidade.
+1. **Corrigir `generatePDF`** — usar `px` como unidade no jsPDF com `hotfixes: ["px_scaling"]`, formato `[595, 842]`, e `PNG` em vez de `JPEG`. Adicionar `width: 595, height: 842` explícitos no `html2canvas` para garantir captura exacta do contentor A4:
 
-**2. `src/components/obituaries/AnnouncementGenerator.tsx`**
+```typescript
+const canvas = await html2canvas(element, {
+  scale: 2,
+  useCORS: true,
+  allowTaint: false,
+  backgroundColor: "#ffffff",
+  width: 595,
+  height: 842,
+});
 
-- Adicionar campos `cortejoDate`, `cortejoTime`, `cortejoLocation` à interface `obituaryData`.
-- No `renderPreview()`, passar estes dados como `cortejoFunebre` ao `ObituaryTemplate`:
-```tsx
-cortejoFunebre={obituaryData.cortejoDate ? {
-  date: formatDatePT(obituaryData.cortejoDate),
-  startTime: formatTime(obituaryData.cortejoTime),
-  location: obituaryData.cortejoLocation,
-} : undefined}
+const imgData = canvas.toDataURL("image/png");
+const pdf = new jsPDF({
+  unit: "px",
+  format: [595, 842],
+  hotfixes: ["px_scaling"],
+});
+pdf.addImage(imgData, "PNG", 0, 0, 595, 842);
 ```
 
-**3. `src/pages/NewObituary.tsx`**
+2. **Corrigir cálculo de idade** — implementar o cálculo preciso (ajustar se ainda não fez anos no ano de falecimento), em vez do simples `deathYear - birthYear`.
 
-- Adicionar os campos de cortejo ao `obituaryData`:
-```tsx
-cortejoDate: cortejoEntries[0]?.date || "",
-cortejoTime: cortejoEntries[0]?.time || "",
-cortejoLocation: cortejoEntries[0]?.location || "",
-```
+3. **Manter tudo o resto** — o mapeamento de dados no `NewObituary.tsx` e a estrutura de `renderPreview()` já estão correctos desde as alterações anteriores. Não é necessário criar um componente `PDFRenderer` separado — o div offscreen actual cumpre a mesma função.
 
-### Secção técnica — Conversão grayscale
+### Secção técnica
 
-Em vez de depender do CSS filter (que `html2canvas` ignora), converter a imagem para grayscale via Canvas API antes de a renderizar:
-
-```tsx
-// Dentro de ObituaryTemplate
-const [grayscalePhoto, setGrayscalePhoto] = useState<string | undefined>();
-
-useEffect(() => {
-  if (!photo) return;
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-  img.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(img, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      const avg = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
-      data[i] = data[i+1] = data[i+2] = avg;
-    }
-    ctx.putImageData(imageData, 0, 0);
-    setGrayscalePhoto(canvas.toDataURL("image/jpeg", 0.95));
-  };
-  img.src = photo;
-}, [photo]);
-```
-
-Usar `grayscalePhoto || photo` como `src` da imagem no template.
-
-### Resultado esperado
-- Foto renderiza em grayscale fiel no PDF
-- Nomes longos ajustam-se automaticamente sem sobreposição
-- Cortejo Fúnebre aparece no template quando preenchido
+| Aspecto | Actual (problema) | Proposto (fix) |
+|---|---|---|
+| Unidade jsPDF | `mm` com formato `a4` | `px` com `[595, 842]` + `hotfixes` |
+| Formato imagem | JPEG | PNG (melhor qualidade, sem artefactos) |
+| Dimensões html2canvas | Sem `width/height` explícitos | `width: 595, height: 842` |
+| Escala | 3x (pesado) | 2x (suficiente para impressão) |
+| Cálculo idade | `deathYear - birthYear` | Ajustado por mês/dia |
 
