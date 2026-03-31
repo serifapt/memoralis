@@ -354,7 +354,7 @@ export const ObituaryTemplateA4 = ({
           style={{
             position: "absolute",
             top: "755px",
-            left: "255px",
+            left: "40px",
             fontWeight: 400,
             fontSize: "9px",
             lineHeight: "18px",

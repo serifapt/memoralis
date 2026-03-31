@@ -111,7 +111,7 @@ export const TemplateThumbnail = ({ type, name, description, isSelected, onClick
           : "border-border hover:border-primary/50"
       }`}
     >
-      <div className="aspect-[3/4] bg-muted">
+      <div className="aspect-[595/842] bg-muted">
         {renderContent()}
       </div>
       <div className={`p-2 text-center ${
