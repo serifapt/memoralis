@@ -1,67 +1,75 @@
 
 
-## Diagnóstico: PDF em branco (persistente)
+## Corrigir geração de PDF — abordagem unificada com html2canvas
 
-### Causa raiz
+### Problema
 
-O `ObituaryTemplate` usa extensivamente classes Tailwind (`bg-white`, `absolute`, `flex`, `items-center`, `shrink-0`, `overflow-hidden`, `whitespace-nowrap`, `whitespace-pre-wrap`, `rounded-[30px]`, etc.) em conjunto com inline styles.
-
-Quando o `outerHTML` é copiado para a janela de impressão:
-- O CSS do Vite/Tailwind é gerado dinamicamente e muitas vezes não é copiável via `document.styleSheets` (SecurityError em sheets cross-origin, ou sheets injetadas pelo HMR)
-- Resultado: as classes Tailwind não resolvem → layout colapsa → página branca
+1. O template "Profissional" usa `window.print()` que abre uma nova janela — os estilos inline podem não renderizar corretamente neste contexto e o utilizador tem que manualmente "Guardar como PDF"
+2. Os campos `cerimoniaDate`, `cerimoniaTime`, `cerimoniaChurch` nunca são passados ao `AnnouncementGenerator` — o formulário usa `formData.missa7Date`, `formData.missa7Time`, `formData.missa7Location` etc.
 
 ### Solução
 
-Substituir **todas** as classes Tailwind no `ObituaryTemplate.tsx` e `SeventhDayMassTemplate.tsx` por inline styles equivalentes, tornando o HTML auto-contido e independente de qualquer stylesheet externo.
+**Ficheiro 1: `src/pages/NewObituary.tsx`** (linhas ~2620-2643)
 
-### Ficheiros a alterar
+Adicionar os campos de missa ao `obituaryData` passado ao `AnnouncementGenerator`:
+```tsx
+cerimoniaDate: formData.missa7Date || "",
+cerimoniaTime: formData.missa7Time || "",
+cerimoniaChurch: formData.missa7Location || "",
+```
 
-**1. `src/components/ObituaryTemplate/ObituaryTemplate.tsx`**
+**Ficheiro 2: `src/components/obituaries/AnnouncementGenerator.tsx`**
 
-Converter cada `className` Tailwind para o `style` equivalente:
+Substituir o `generatePDF` para usar `html2canvas + jsPDF` para **todos** os templates (incluindo "profissional"):
 
-| Classe Tailwind | Style inline equivalente |
+```tsx
+const generatePDF = async () => {
+  setIsGenerating(true);
+  try {
+    const elementId = selectedTemplate === "profissional" 
+      ? "obituary-template-a4" 
+      : "announcement-preview";
+    const element = document.getElementById(elementId);
+    if (!element) throw new Error("Template não encontrado");
+
+    // Aguardar imagens
+    const images = element.querySelectorAll("img");
+    await Promise.all(Array.from(images).map(img =>
+      img.complete ? Promise.resolve() : new Promise<void>(r => { img.onload = () => r(); img.onerror = () => r(); })
+    ));
+    await new Promise(r => setTimeout(r, 500));
+
+    const canvas = await html2canvas(element, {
+      scale: 3,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const w = pdf.internal.pageSize.getWidth();
+    const h = pdf.internal.pageSize.getHeight();
+    pdf.addImage(imgData, "JPEG", 0, 0, w, h);
+    pdf.save(`anuncio-${obituaryData.displayName || "obituario"}.pdf`);
+
+    toast({ title: "PDF gerado com sucesso" });
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    toast({ title: "Erro ao gerar PDF", variant: "destructive" });
+  } finally {
+    setIsGenerating(false);
+  }
+};
+```
+
+Isto elimina completamente a dependência do `window.print()` e usa o mesmo mecanismo fiável para todos os templates. O download do PDF é automático.
+
+### Resumo de alterações
+
+| Ficheiro | Alteração |
 |---|---|
-| `bg-white` | `backgroundColor: "#fff"` |
-| `relative` | `position: "relative"` |
-| `absolute` | `position: "absolute"` |
-| `overflow-hidden` | `overflow: "hidden"` |
-| `overflow-clip` | `overflow: "clip"` |
-| `flex` | `display: "flex"` |
-| `flex-col` | `flexDirection: "column"` |
-| `items-center` | `alignItems: "center"` |
-| `items-start` | `alignItems: "flex-start"` |
-| `justify-center` | `justifyContent: "center"` |
-| `shrink-0` | `flexShrink: 0` |
-| `whitespace-nowrap` | `whiteSpace: "nowrap"` |
-| `whitespace-pre-wrap` | `whiteSpace: "pre-wrap"` |
-| `rounded-[30px]` | `borderRadius: "30px"` |
-| `w-full h-full` | `width: "100%", height: "100%"` |
-| `size-full` | `width: "100%", height: "100%"` |
-| `max-w-none` | `maxWidth: "none"` |
-| `pointer-events-none` | `pointerEvents: "none"` |
-| `bg-gray-200` | `backgroundColor: "#e5e7eb"` |
-| `text-gray-400` | `color: "#9ca3af"` |
-| `text-xs` | `fontSize: "12px"` |
-| `text-[7px]` | `fontSize: "7px"` |
-| `border border-gray-300` | `border: "1px solid #d1d5db"` |
-
-Eliminar completamente os atributos `className` — mover tudo para `style`.
-
-**2. `src/components/SeventhDayMassTemplate/SeventhDayMassTemplate.tsx`**
-
-Mesma conversão: todas as classes Tailwind → inline styles.
-
-**3. `src/components/shared/icons.tsx`**
-
-Verificar se os SVG icons usam classes Tailwind e converter para inline styles se necessário.
-
-### Não alterar
-
-- `AnnouncementGenerator.tsx` — as alterações anteriores (wrapper dimensions, font injection, URL absolutas, delay 800ms) mantêm-se
-- `ObituaryPreview.tsx` / `SeventhDayMassPreview.tsx` — estes são wrappers de UI e podem manter Tailwind (não são exportados para PDF)
-
-### Resultado esperado
-
-O HTML do template será 100% auto-contido (inline styles + Google Fonts via `<link>`), garantindo renderização fiel na janela de impressão independentemente do Tailwind/Vite.
+| `NewObituary.tsx` | Passar `cerimoniaDate/Time/Church` com dados de `missa7*` |
+| `AnnouncementGenerator.tsx` | Unificar `generatePDF` com `html2canvas + jsPDF` para todos os templates |
 
