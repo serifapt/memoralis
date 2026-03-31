@@ -237,9 +237,9 @@ export default function Home() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {loadingObits ? (
-              Array(6).fill(null).map((_, i) => <Skeleton key={i} className="h-96 w-full rounded-lg" />)
+              Array(5).fill(null).map((_, i) => <Skeleton key={i} className="h-96 w-full rounded-lg" />)
             ) : obituaries.length === 0 ? (
               <p className="text-sm text-muted-foreground col-span-full text-center py-8">Nenhum obituário publicado</p>
             ) : (

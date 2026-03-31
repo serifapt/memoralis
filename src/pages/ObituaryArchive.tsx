@@ -310,8 +310,8 @@ export default function ObituaryArchive() {
 
         {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-            {Array(6).fill(null).map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+            {Array(5).fill(null).map((_, i) => (
               <Skeleton key={i} className="h-96 w-full rounded-lg" />
             ))}
           </div>
@@ -320,7 +320,7 @@ export default function ObituaryArchive() {
             <p className="text-lg text-muted-foreground">Nenhum obituário encontrado.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
             {displayedObituaries.map((obit) => (
               <PublicObituaryCard key={obit.id} obit={obit} />
             ))}
