@@ -68,9 +68,10 @@ export const IconMapPin = ({ className }: IconProps) => (
 
 export const LogoMemoralis = ({ className }: IconProps) => (
   <svg
-    width="99"
-    height="13"
+    width="100%"
+    height="100%"
     viewBox="0 0 99 12.6727"
+    preserveAspectRatio="xMidYMid meet"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     aria-label="memoralis"
