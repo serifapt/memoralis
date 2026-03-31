@@ -146,6 +146,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           phone2={obituaryData.funerariaPhone2}
           email={obituaryData.funerariaEmail}
           website={obituaryData.funerariaWebsite}
+          qrCodeImage={qrCodeDataUrl}
         />
       );
     }
