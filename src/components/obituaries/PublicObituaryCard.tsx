@@ -106,11 +106,11 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="flex-1 text-xs px-2 h-8"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -121,7 +121,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               </Button>
               <Button
                 size="sm"
-                className="flex-1 bg-primary hover:bg-primary/90"
+                className="flex-1 text-xs px-2 h-8 bg-primary hover:bg-primary/90"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
