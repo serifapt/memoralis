@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { ObituaryTemplateProps, EventDetails } from "./types";
 import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../shared/icons";
 
