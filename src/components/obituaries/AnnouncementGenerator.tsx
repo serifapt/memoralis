@@ -24,6 +24,9 @@ interface AnnouncementGeneratorProps {
     velorioDate?: string;
     velorioTime?: string;
     velorioLocation?: string;
+    cortejoDate?: string;
+    cortejoTime?: string;
+    cortejoLocation?: string;
     cerimoniaDate?: string;
     cerimoniaTime?: string;
     cerimoniaChurch?: string;
