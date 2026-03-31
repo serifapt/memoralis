@@ -310,8 +310,9 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
 ${cssText}
 @media print {
   @page { size: A4 portrait; margin: 0; }
-  html, body { margin: 0; padding: 0; width: 595px; height: 842px; }
+  html, body { margin: 0; padding: 0; width: 210mm; height: 297mm; overflow: hidden; }
   body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  #obituary-template-a4 { transform: scale(calc(210mm / 595px)); transform-origin: top left; }
 }
 html, body { margin: 0; padding: 0; }
 </style>
