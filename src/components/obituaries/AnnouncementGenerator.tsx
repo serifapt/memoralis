@@ -12,6 +12,7 @@ import html2canvas from "html2canvas";
 import { TemplateThumbnail } from "./TemplateThumbnail";
 import { type TemplateType, type AnnouncementType } from "./types";
 import { ObituaryTemplateA4 } from "./ObituaryTemplateA4";
+import { SeventhDayMassTemplate } from "@/components/SeventhDayMassTemplate";
 
 interface AnnouncementGeneratorProps {
   obituaryId?: string;
@@ -148,6 +149,32 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       const birthYear = obituaryData.birthDate ? new Date(obituaryData.birthDate).getFullYear() : undefined;
       const deathYear = obituaryData.deathDate ? new Date(obituaryData.deathDate).getFullYear() : undefined;
       const calcAge = birthYear && deathYear ? deathYear - birthYear : undefined;
+
+      if (announcementType === "missa_7") {
+        return (
+          <div id="obituary-template-a4">
+            <SeventhDayMassTemplate
+              fullName={obituaryData.displayName}
+              photo={grayscalePhoto || obituaryData.photoUrl}
+              age={calcAge}
+              birthYear={birthYear}
+              deathYear={deathYear}
+              parish={obituaryData.parish}
+              municipality={obituaryData.municipality}
+              massDate={obituaryData.cerimoniaDate ? formatDatePT(obituaryData.cerimoniaDate) : undefined}
+              massStartTime={formatTime(obituaryData.cerimoniaTime)}
+              massLocation={obituaryData.cerimoniaChurch}
+              familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
+              funeralHomeLogo={obituaryData.funerariaLogoUrl}
+              phone1={obituaryData.funerariaPhone}
+              phone2={obituaryData.funerariaPhone2}
+              email={obituaryData.funerariaEmail}
+              website={obituaryData.funerariaWebsite}
+              flowerImage="/images/flores-obituario.png"
+            />
+          </div>
+        );
+      }
 
       return (
         <ObituaryTemplateA4
