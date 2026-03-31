@@ -12,6 +12,7 @@ import html2canvas from "html2canvas";
 import { TemplateThumbnail } from "./TemplateThumbnail";
 import { type TemplateType, type AnnouncementType } from "./types";
 import { ObituaryTemplateA4 } from "./ObituaryTemplateA4";
+import { SeventhDayMassTemplate } from "@/components/SeventhDayMassTemplate";
 
 interface AnnouncementGeneratorProps {
   obituaryId?: string;
