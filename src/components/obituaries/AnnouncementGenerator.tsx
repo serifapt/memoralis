@@ -244,15 +244,88 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   };
 
   const generatePDF = async () => {
-    setIsGenerating(true);
-    try {
-      const elementId = selectedTemplate === "profissional" ? "obituary-template-a4" : "announcement-preview";
-      const element = document.getElementById(elementId);
+    if (selectedTemplate === "profissional") {
+      // Native print approach – opens a new window with the template and triggers print
+      const element = document.getElementById("obituary-template-a4");
       if (!element) {
-        throw new Error("Preview element not found");
+        toast({ title: "Erro ao gerar PDF", description: "Template não encontrado", variant: "destructive" });
+        return;
       }
 
-      // Wait for all images inside the element to be fully loaded
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        toast({ title: "Erro ao gerar PDF", description: "Não foi possível abrir a janela de impressão. Verifique se o bloqueador de pop-ups está desativado.", variant: "destructive" });
+        return;
+      }
+
+      // Collect all stylesheets from the current page for font imports etc.
+      const styleSheets = Array.from(document.styleSheets);
+      let cssText = "";
+      styleSheets.forEach((sheet) => {
+        try {
+          Array.from(sheet.cssRules).forEach((rule) => {
+            cssText += rule.cssText + "\n";
+          });
+        } catch {
+          // External sheets may throw SecurityError – import via link instead
+          if (sheet.href) {
+            cssText += `@import url("${sheet.href}");\n`;
+          }
+        }
+      });
+
+      const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Anúncio - ${obituaryData.displayName || "Obituário"}</title>
+<style>
+${cssText}
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  html, body { margin: 0; padding: 0; width: 595px; height: 842px; }
+  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+html, body { margin: 0; padding: 0; }
+</style>
+</head>
+<body>${element.outerHTML}</body>
+</html>`;
+
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+
+      // Wait for all images in the print window to load
+      const imgs = printWindow.document.querySelectorAll("img");
+      await Promise.all(
+        Array.from(imgs).map(
+          (img) =>
+            img.complete && img.naturalWidth > 0
+              ? Promise.resolve()
+              : new Promise<void>((resolve) => {
+                  img.onload = () => resolve();
+                  img.onerror = () => resolve();
+                })
+        )
+      );
+
+      // Small stabilization delay
+      await new Promise((resolve) => setTimeout(resolve, 400));
+
+      printWindow.focus();
+      printWindow.print();
+
+      toast({ title: "PDF pronto", description: "Use 'Guardar como PDF' no diálogo de impressão." });
+      return;
+    }
+
+    // Fallback for other templates: use html2canvas + jsPDF
+    setIsGenerating(true);
+    try {
+      const element = document.getElementById("announcement-preview");
+      if (!element) throw new Error("Preview element not found");
+
       const images = element.querySelectorAll("img");
       await Promise.all(
         Array.from(images).map(
@@ -265,8 +338,6 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
                 })
         )
       );
-
-      // Short stabilization delay for layout to settle
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       const canvas = await html2canvas(element, {
@@ -277,29 +348,16 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       });
 
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`anuncio-${obituaryData.displayName || 'obituario'}.pdf`);
+      pdf.save(`anuncio-${obituaryData.displayName || "obituario"}.pdf`);
 
-      toast({
-        title: "PDF gerado com sucesso",
-        description: "O anúncio foi exportado em formato A4",
-      });
+      toast({ title: "PDF gerado com sucesso", description: "O anúncio foi exportado em formato A4" });
     } catch (error) {
       console.error("Error generating PDF:", error);
-      toast({
-        title: "Erro ao gerar PDF",
-        description: "Não foi possível gerar o PDF do anúncio",
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao gerar PDF", description: "Não foi possível gerar o PDF do anúncio", variant: "destructive" });
     } finally {
       setIsGenerating(false);
     }
