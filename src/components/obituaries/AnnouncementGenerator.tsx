@@ -152,27 +152,25 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
 
       if (announcementType === "missa_7") {
         return (
-          <div id="obituary-template-a4">
-            <SeventhDayMassTemplate
-              fullName={obituaryData.displayName}
-              photo={grayscalePhoto || obituaryData.photoUrl}
-              age={calcAge}
-              birthYear={birthYear}
-              deathYear={deathYear}
-              parish={obituaryData.parish}
-              municipality={obituaryData.municipality}
-              massDate={obituaryData.cerimoniaDate ? formatDatePT(obituaryData.cerimoniaDate) : undefined}
-              massStartTime={formatTime(obituaryData.cerimoniaTime)}
-              massLocation={obituaryData.cerimoniaChurch}
-              familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
-              funeralHomeLogo={obituaryData.funerariaLogoUrl}
-              phone1={obituaryData.funerariaPhone}
-              phone2={obituaryData.funerariaPhone2}
-              email={obituaryData.funerariaEmail}
-              website={obituaryData.funerariaWebsite}
-              flowerImage="/images/flores-obituario.png"
-            />
-          </div>
+          <SeventhDayMassTemplate
+            fullName={obituaryData.displayName}
+            photo={grayscalePhoto || obituaryData.photoUrl}
+            age={calcAge}
+            birthYear={birthYear}
+            deathYear={deathYear}
+            parish={obituaryData.parish}
+            municipality={obituaryData.municipality}
+            massDate={obituaryData.cerimoniaDate ? formatDatePT(obituaryData.cerimoniaDate) : undefined}
+            massStartTime={formatTime(obituaryData.cerimoniaTime)}
+            massLocation={obituaryData.cerimoniaChurch}
+            familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
+            funeralHomeLogo={obituaryData.funerariaLogoUrl}
+            phone1={obituaryData.funerariaPhone}
+            phone2={obituaryData.funerariaPhone2}
+            email={obituaryData.funerariaEmail}
+            website={obituaryData.funerariaWebsite}
+            flowerImage="/images/flores-obituario.png"
+          />
         );
       }
 
@@ -496,6 +494,7 @@ html, body { margin: 0; padding: 0; }
                   description={template.description}
                   isSelected={selectedTemplate === template.type}
                   onClick={() => setSelectedTemplate(template.type)}
+                  previewContent={template.type === "profissional" ? renderPreview() : undefined}
                 />
               ))}
             </div>
@@ -549,12 +548,22 @@ html, body { margin: 0; padding: 0; }
         </div>
       </Card>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Preview do Anúncio</h3>
-        <div className="max-w-2xl mx-auto">
+      {/* Offscreen template for PDF/image export */}
+      {selectedTemplate === "profissional" && (
+        <div id="obituary-template-a4" style={{ position: "absolute", left: -9999, top: -9999 }}>
           {renderPreview()}
         </div>
-      </Card>
+      )}
+
+      {/* Non-profissional preview */}
+      {selectedTemplate !== "profissional" && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Preview do Anúncio</h3>
+          <div className="max-w-2xl mx-auto">
+            {renderPreview()}
+          </div>
+        </Card>
+      )}
 
       {/* Hidden QR code canvas for generating data URL */}
       {publicUrl && (

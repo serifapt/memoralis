@@ -82,7 +82,6 @@ export const ObituaryTemplateA4 = ({
 
   return (
     <div
-      id="obituary-template-a4"
       style={{
         position: "relative",
         width: "595px",
