@@ -1,28 +1,28 @@
 
-Objetivo: corrigir o layout final do A4 para que o PDF saia como o modelo: foto a preencher a máscara sem encolher, logótipo Memoralis sem deformação e linhas de cerimónia alinhadas com os ícones.
+Objetivo: alinhar o PDF gerado com o screenshot de referência (`Screenshot_2026-03-31_at_12.34.13.png`) e eliminar os desvios que ainda aparecem no output actual.
 
-1. Corrigir a foto no template
-- Em `src/components/obituaries/ObituaryTemplateA4.tsx`, substituir o bloco actual da foto por uma máscara fixa com dimensões e raio explícitos em px.
-- Em vez de usar o `<img>` como “caixa”, usar um wrapper interno a ocupar 100% da máscara (`position: absolute`, `inset: 0`, `width: "100%"`, `height: "100%"`) e a imagem com `display: "block"`, `width: "100%"`, `height: "100%"`, `objectFit: "cover"`.
-- Aplicar o mesmo `borderRadius` ao wrapper e à imagem para evitar clipping/rasterização inconsistente no export.
-- Manter a foto processada a preto e branco no gerador; aqui a correcção é estrutural.
+1. Refazer o bloco superior com base na referência
+- Em `src/components/obituaries/ObituaryTemplateA4.tsx`, reajustar foto, nome, idade e localidade com medidas e posições fixas em px.
+- Substituir a foto actual por uma máscara dedicada com wrapper interno absoluto, `overflow: hidden` e o mesmo `borderRadius` aplicado ao wrapper e à imagem.
+- Ajustar `objectPosition` da foto para preservar enquadramento sem deformação no PDF.
 
-2. Corrigir o logótipo da Memoralis
-- Em `src/components/obituaries/ObituaryIcons.tsx`, tornar `LogoMemoralis` dimensionável pelo container, em vez de ficar preso aos atributos actuais `width="99"` e `height="13"`.
-- Fazer o SVG usar `width="100%"`, `height="100%"` e `preserveAspectRatio="xMidYMid meet"`.
-- Em `ObituaryTemplateA4.tsx`, ajustar a caixa do logo para uma proporção exacta e manter `opacity: 0.3`, evitando squash horizontal no PDF.
-- Se necessário, trocar o SVG inline pelo asset oficial `src/assets/logo-memoralis.svg` já existente, com renderização a preto e 30% de opacidade.
+2. Trocar o logo Memoralis pelo asset oficial
+- Deixar de usar o `LogoMemoralis` inline no template.
+- Importar `src/assets/logo-memoralis.svg` e renderizar como imagem com caixa fixa e `objectFit: "contain"`.
+- Manter opacidade reduzida e uma proporção exacta para impedir deformação no html2canvas.
 
-3. Alinhar texto com ícones
-- Reestruturar o `EventSection` em `src/components/obituaries/ObituaryTemplateA4.tsx` para cada linha usar uma célula fixa para o ícone e outra para o texto.
-- Remover o alinhamento por `paddingTop` manual.
-- Definir `lineHeight: "18px"` explicitamente no texto das datas/horas/localizações e dar ao “slot” do ícone altura igual à linha de texto.
-- Uniformizar os três SVGs para encaixarem visualmente no mesmo box, sem compensações diferentes por ícone.
+3. Reestruturar as linhas com ícones
+- Em `src/components/obituaries/ObituaryTemplateA4.tsx`, substituir as rows actuais por um `DetailRow` com grelha de 2 colunas: slot fixo para o ícone + coluna de texto.
+- Dar `lineHeight` explícito ao texto e usar ícones com `display: block`, removendo dependência de alinhamento inline/baseline.
+- Em `src/components/obituaries/ObituaryIcons.tsx`, normalizar visualmente os 3 ícones para o mesmo box.
 
-4. Garantir fidelidade no export
-- Rever `src/components/obituaries/AnnouncementGenerator.tsx` para garantir que o PDF é gerado só depois de QR code, foto processada e imagens do template estarem carregadas.
-- Manter `html2canvas` com `useCORS: true`, `allowTaint: false`, `scale: 2`, `backgroundColor: "#ffffff"`.
-- Se o preview ficar correcto mas o PDF não, ajustar o timing da captura em vez de voltar a mexer no layout.
+4. Estabilizar a captura do PDF
+- Em `src/components/obituaries/AnnouncementGenerator.tsx`, garantir que a captura só acontece depois de foto grayscale, QR, logo da funerária, flores e logo Memoralis estarem carregados.
+- Adicionar uma espera curta de estabilização do layout antes de chamar `html2canvas`, para reduzir diferenças entre preview e PDF.
+
+5. Validar contra a referência
+- Comparar preview e PDF com o screenshot de referência enviado.
+- Confirmar: foto preenchida sem deformação, logo Memoralis com proporção correcta, primeira linha do texto alinhada com cada ícone.
 
 Ficheiros a actualizar
 - `src/components/obituaries/ObituaryTemplateA4.tsx`
@@ -31,18 +31,13 @@ Ficheiros a actualizar
 
 Detalhes técnicos
 ```text
-Antes
-foto/logótipo = elementos com sizing frágil para html2canvas
-ícones = alinhamento por ajuste manual
-PDF = captura antes de o layout estar totalmente estável
+Causas mais prováveis
+- a foto ainda não está presa a uma máscara estrutural idêntica ao modelo
+- o logo inline continua sensível ao redimensionamento/rasterização
+- o alinhamento depende do comportamento inline dos SVGs
 
-Depois
-foto = máscara fixa + imagem a preencher 100% com cover
-logo = SVG responsivo ao container + proporção preservada
-ícones = coluna fixa + line-height explícita
-PDF = captura só após todos os assets estarem prontos
+Ajuste
+- máscara fixa para a foto
+- logo oficial como imagem com proporção natural
+- rows em grid com icon slot fixo e line-height controlado
 ```
-
-Validação
-- Comparar preview e PDF do mesmo óbito.
-- Confirmar: foto cheia sem encolher, logo sem deformação, primeira linha do texto alinhada com o centro óptico de cada ícone.
