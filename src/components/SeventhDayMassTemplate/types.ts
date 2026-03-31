@@ -1,18 +1,23 @@
+/**
+ * Tipos do SeventhDayMassTemplate
+ * Frame Figma: "missa 7º dia" (node 5476:20654)
+ */
+
 export interface SeventhDayMassTemplateProps {
   // ── Branding ──────────────────────────────────────────────────────────
-  /** URL to the "III memoralis" logo (SVG or PNG). Falls back to SVG inline. */
+  /** URL do logo memoralis (101×13 px, top-right). Fallback: SVG inline. */
   memoralisLogo?: string;
 
   // ── Falecido ──────────────────────────────────────────────────────────
-  /** URL da foto — exibida em escala de cinza com border-radius: 30px */
+  /** URL da foto — grayscale automático, border-radius 30px */
   photo?: string;
   /** Nome completo, ex: "Zé Manuel Osório Fernandes" */
   fullName?: string;
-  /** Idade em anos */
+  /** Idade em anos, ex: 55 */
   age?: number;
-  /** Ano de nascimento */
+  /** Ano de nascimento, ex: 1970 */
   birthYear?: number;
-  /** Ano de falecimento */
+  /** Ano de falecimento, ex: 2025 */
   deathYear?: number;
   /** Freguesia, ex: "Couto" */
   parish?: string;
@@ -30,16 +35,26 @@ export interface SeventhDayMassTemplateProps {
   massLocation?: string;
 
   // ── Texto familiar ────────────────────────────────────────────────────
-  /** Mensagem de agradecimento e comunicação da missa. Suporta \n para parágrafos. */
+  /**
+   * Mensagem de agradecimento + comunicação da missa.
+   * Aparece na coluna DIREITA (ao contrário do ObituaryTemplate).
+   * Suporta \n\n para parágrafos.
+   */
   familyText?: string;
+
+  // ── Condolências ──────────────────────────────────────────────────────
+  /** Texto do convite de condolências. Suporta \n. */
+  condolencesText?: string;
+  /** URL da imagem do QR code */
+  qrCodeImage?: string;
 
   // ── Funerária ─────────────────────────────────────────────────────────
   /** URL do logótipo da funerária */
   funeralHomeLogo?: string;
-  phone1?: string;   // ex: "962 766 625"
-  phone2?: string;   // ex: "258 515 233"
-  email?: string;    // ex: "funeraria.s.joao@gmail.com"
-  website?: string;  // ex: "funerariasjoao.pt"
+  phone1?: string;
+  phone2?: string;
+  email?: string;
+  website?: string;
 
   // ── Decorativo ────────────────────────────────────────────────────────
   /** URL da imagem decorativa de flores (canto inferior direito) */

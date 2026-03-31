@@ -175,9 +175,9 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       }
 
       return (
-        <ObituaryTemplateA4
+        <ObituaryTemplate
           fullName={obituaryData.displayName}
-          photo={grayscalePhoto || obituaryData.photoUrl}
+          photo={obituaryData.photoUrl}
           age={calcAge}
           birthYear={birthYear}
           deathYear={deathYear}
@@ -185,7 +185,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           municipality={obituaryData.municipality}
           deathCountry={obituaryData.deathLocation?.toUpperCase()}
           familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
-          wake={obituaryData.velorioDate ? {
+          velorio={obituaryData.velorioDate ? {
             date: formatDatePT(obituaryData.velorioDate),
             startTime: formatTime(obituaryData.velorioTime),
             location: obituaryData.velorioLocation,
