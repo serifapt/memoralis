@@ -1,20 +1,10 @@
 
 
-## Alterar grelha de obituários para 6 colunas
+## Mostrar os 5 obituários mais recentes da mesma funerária
 
-### Alterações
+### Alteração
 
-**1. `src/pages/Home.tsx`** — linha 240
-```
-grid grid-cols-2 lg:grid-cols-4 gap-6
-→ grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4
-```
-Ajustar também o skeleton para gerar 6 itens em vez de 4.
+**`src/pages/ObituaryDetail.tsx`** — query de obituários relacionados
 
-**2. `src/pages/ObituaryArchive.tsx`** — linhas 313 e 323
-```
-grid grid-cols-2 lg:grid-cols-4 gap-6
-→ grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4
-```
-Ajustar skeleton para 6 itens.
+Manter o filtro `.eq("funeraria_id", obit.funeraria_id)` e garantir que a ordenação é `.order("created_at", { ascending: false })` com `.limit(5)`. Se a query já está assim, não há alteração necessária — apenas confirmar que o comportamento actual já cumpre o pedido.
 
