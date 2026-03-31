@@ -1,9 +1,23 @@
 /**
- * Tipos do SeventhDayMassTemplate
- * Frame Figma: "missa 7º dia" (node 5476:20654)
+ * Tipos do ObituaryTemplate — cobre as variantes:
+ *   "faleceu"          (node 7348:10707)  → deathCountry ausente
+ *   "faleceu em local" (node 5476:9925)   → deathCountry preenchido
  */
 
-export interface SeventhDayMassTemplateProps {
+export interface EventDetails {
+  /** Data, ex: "Sexta-Feira, 15 Setembro 2025" */
+  date?: string;
+  /** Hora de início, ex: "16:00" (para Cortejo / Velório) */
+  startTime?: string;
+  /** Hora de fim, ex: "18:00" (para Cortejo / Velório) */
+  endTime?: string;
+  /** Hora única, ex: "19:00" (para Funeral) */
+  time?: string;
+  /** Local, ex: "Igreja Matriz de Arcos de Valdevez" */
+  location?: string;
+}
+
+export interface ObituaryTemplateProps {
   // ── Branding ──────────────────────────────────────────────────────────
   /** URL do logo memoralis (101×13 px, top-right). Fallback: SVG inline. */
   memoralisLogo?: string;
@@ -23,29 +37,31 @@ export interface SeventhDayMassTemplateProps {
   parish?: string;
   /** Município, ex: "Arcos de Valdevez" */
   municipality?: string;
-
-  // ── Missa 7º Dia ──────────────────────────────────────────────────────
-  /** Data da missa, ex: "Sexta-Feira, 15 Setembro 2025" */
-  massDate?: string;
-  /** Hora de início, ex: "16:00" */
-  massStartTime?: string;
-  /** Hora de fim, ex: "18:00" */
-  massEndTime?: string;
-  /** Local da missa, ex: "Casa Mortuária de Arcos de Valdevez" */
-  massLocation?: string;
+  /**
+   * País onde faleceu (MAIÚSCULAS).
+   * Se preenchido → "FALECEU EM {país}".
+   * Se omitido   → "FALECEU".
+   */
+  deathCountry?: string;
 
   // ── Texto familiar ────────────────────────────────────────────────────
-  /**
-   * Mensagem de agradecimento + comunicação da missa.
-   * Aparece na coluna DIREITA (ao contrário do ObituaryTemplate).
-   * Suporta \n\n para parágrafos.
-   */
+  /** Texto do anúncio familiar. Suporta \n\n para parágrafos. */
   familyText?: string;
+
+  // ── Eventos ───────────────────────────────────────────────────────────
+  /** Cortejo Fúnebre: date, startTime, endTime, location */
+  cortejoFunebre?: EventDetails;
+  /** Velório: date, startTime, endTime, location */
+  velorio?: EventDetails;
+  /** Funeral: date, time (hora única), location */
+  funeral?: EventDetails;
+  /** Cemitério: apenas location */
+  cemetery?: Pick<EventDetails, "location">;
 
   // ── Condolências ──────────────────────────────────────────────────────
   /** Texto do convite de condolências. Suporta \n. */
   condolencesText?: string;
-  /** URL da imagem do QR code */
+  /** URL da imagem do QR code (ex: gerado via qrcode.react) */
   qrCodeImage?: string;
 
   // ── Funerária ─────────────────────────────────────────────────────────

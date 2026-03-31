@@ -11,7 +11,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { TemplateThumbnail } from "./TemplateThumbnail";
 import { type TemplateType, type AnnouncementType } from "./types";
-import { ObituaryTemplateA4 } from "./ObituaryTemplateA4";
+import { ObituaryTemplate } from "@/components/ObituaryTemplate";
 import { SeventhDayMassTemplate } from "@/components/SeventhDayMassTemplate";
 
 interface AnnouncementGeneratorProps {
@@ -43,37 +43,13 @@ interface AnnouncementGeneratorProps {
   };
 }
 
-const convertToGrayscale = (imageUrl: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return reject("No canvas context");
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < imageData.data.length; i += 4) {
-        const avg = (imageData.data[i] * 0.299 + imageData.data[i + 1] * 0.587 + imageData.data[i + 2] * 0.114);
-        imageData.data[i] = imageData.data[i + 1] = imageData.data[i + 2] = avg;
-      }
-      ctx.putImageData(imageData, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
-    };
-    img.onerror = reject;
-    img.src = imageUrl;
-  });
-};
-
 export const AnnouncementGenerator = ({ obituaryId, obituaryData }: AnnouncementGeneratorProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>("profissional");
   const [announcementType, setAnnouncementType] = useState<AnnouncementType>("faleceu");
   const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | undefined>(undefined);
-  const [grayscalePhoto, setGrayscalePhoto] = useState<string | undefined>(undefined);
+  
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -90,12 +66,6 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
     return () => clearTimeout(timer);
   }, [publicUrl]);
 
-  useEffect(() => {
-    if (!obituaryData.photoUrl) return;
-    convertToGrayscale(obituaryData.photoUrl)
-      .then(setGrayscalePhoto)
-      .catch(() => setGrayscalePhoto(obituaryData.photoUrl));
-  }, [obituaryData.photoUrl]);
 
   const formatDatePT = (dateStr: string) => {
     if (!dateStr) return "";
@@ -154,7 +124,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
         return (
           <SeventhDayMassTemplate
             fullName={obituaryData.displayName}
-            photo={grayscalePhoto || obituaryData.photoUrl}
+            photo={obituaryData.photoUrl}
             age={calcAge}
             birthYear={birthYear}
             deathYear={deathYear}
@@ -175,9 +145,9 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       }
 
       return (
-        <ObituaryTemplateA4
+        <ObituaryTemplate
           fullName={obituaryData.displayName}
-          photo={grayscalePhoto || obituaryData.photoUrl}
+          photo={obituaryData.photoUrl}
           age={calcAge}
           birthYear={birthYear}
           deathYear={deathYear}
@@ -185,7 +155,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           municipality={obituaryData.municipality}
           deathCountry={obituaryData.deathLocation?.toUpperCase()}
           familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
-          wake={obituaryData.velorioDate ? {
+          velorio={obituaryData.velorioDate ? {
             date: formatDatePT(obituaryData.velorioDate),
             startTime: formatTime(obituaryData.velorioTime),
             location: obituaryData.velorioLocation,

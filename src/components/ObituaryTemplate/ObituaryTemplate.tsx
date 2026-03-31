@@ -1,17 +1,23 @@
 import React from "react";
-import type { SeventhDayMassTemplateProps } from "./types";
+import type { ObituaryTemplateProps, EventDetails } from "./types";
 import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../shared/icons";
 
 // ─── Defaults ───────────────────────────────────────────────────────────────
 
 const DEFAULT_FAMILY_TEXT =
-  "A família agradece a todas as pessoas que participaram nos atos religiosos do funeral do seu ente querido, ou que de alguma forma manifestaram o seu pesar, e comunica a missa de 7º dia.\n\nAntecipadamente, a Família reconhecida agradece!";
+  "Sua Família cumpre o doloroso dever de participar a todas as pessoas das suas relações e amizade o seu falecimento.\n\nAntecipadamente, a Família reconhecida agradece!";
 
 const DEFAULT_CONDOLENCES = "Deixe uma mensagem\nde condolências.";
 
-// ─── EventRow helper ────────────────────────────────────────────────────────
+// ─── EventRow — linha com ícone + texto ─────────────────────────────────────
 
-function EventRow({ icon, text }: { icon: React.ReactNode; text: string }) {
+function EventRow({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) {
   return (
     <div className="flex items-center" style={{ gap: "3.68px" }}>
       <div className="shrink-0 overflow-clip">{icon}</div>
@@ -31,9 +37,66 @@ function EventRow({ icon, text }: { icon: React.ReactNode; text: string }) {
   );
 }
 
+// ─── EventSection — bloco de evento (Cortejo / Velório / Funeral / Cemitério) ─
+
+interface EventSectionProps {
+  title: string;
+  event: EventDetails | Pick<EventDetails, "location"> | undefined;
+  /** true = só localização (Cemitério) */
+  locationOnly?: boolean;
+}
+
+function EventSection({ title, event, locationOnly = false }: EventSectionProps) {
+  if (!event) return null;
+
+  const ev = event as EventDetails;
+  const timeDisplay =
+    ev.startTime && ev.endTime
+      ? `${ev.startTime} - ${ev.endTime}`
+      : ev.startTime || ev.endTime || ev.time;
+
+  return (
+    <div
+      className="flex flex-col items-start justify-center not-italic"
+      style={{ gap: "3.68px" }}
+    >
+      <p
+        className="shrink-0 whitespace-nowrap"
+        style={{
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: 600,
+          fontSize: "12.88px",
+          lineHeight: "20.241px",
+          color: "#1d2735",
+        }}
+      >
+        {title}
+      </p>
+      {!locationOnly && ev.date && (
+        <EventRow icon={<IconCalendar />} text={ev.date} />
+      )}
+      {!locationOnly && timeDisplay && (
+        <EventRow icon={<IconClock />} text={timeDisplay} />
+      )}
+      {ev.location && (
+        <EventRow icon={<IconMapPin />} text={ev.location} />
+      )}
+    </div>
+  );
+}
+
 // ─── Main component ─────────────────────────────────────────────────────────
 
-export function SeventhDayMassTemplate({
+/**
+ * ObituaryTemplate — frame A4 (595 × 842 px).
+ *
+ * Cobre as variantes Figma:
+ *   • "faleceu"          (node 7348:10707) → deathCountry omitido
+ *   • "faleceu em local" (node 5476:9925)  → deathCountry preenchido
+ *
+ * Para pré-visualização escalada usa ObituaryPreview.
+ */
+export function ObituaryTemplate({
   memoralisLogo,
   photo,
   fullName = "Nome Completo",
@@ -42,11 +105,12 @@ export function SeventhDayMassTemplate({
   deathYear,
   parish,
   municipality,
-  massDate,
-  massStartTime,
-  massEndTime,
-  massLocation,
+  deathCountry,
   familyText = DEFAULT_FAMILY_TEXT,
+  cortejoFunebre,
+  velorio,
+  funeral,
+  cemetery,
   condolencesText = DEFAULT_CONDOLENCES,
   qrCodeImage,
   funeralHomeLogo,
@@ -55,17 +119,17 @@ export function SeventhDayMassTemplate({
   email,
   website,
   flowerImage,
-}: SeventhDayMassTemplateProps) {
+}: ObituaryTemplateProps) {
   const locationLine = [parish, municipality].filter(Boolean).join(" · ");
   const phoneDisplay = [phone1, phone2].filter(Boolean).join(" | ");
-  const timeDisplay = [massStartTime, massEndTime].filter(Boolean).join(" - ");
+  const deathLabel = deathCountry ? `FALECEU EM ${deathCountry}` : "FALECEU";
 
   return (
     <div
       className="bg-white relative overflow-hidden"
       style={{ width: "595px", height: "842px", fontFamily: "'Inter', sans-serif" }}
     >
-      {/* ── Logo memoralis — top right (101×13 px) */}
+      {/* ── Logo memoralis — top right (101×13 px) ─────────────────────── */}
       <div
         className="absolute overflow-clip"
         style={{ left: "453.4px", top: "27px", width: "101px", height: "13px" }}
@@ -77,7 +141,7 @@ export function SeventhDayMassTemplate({
         )}
       </div>
 
-      {/* ── Fotografia — top left (173.333×208 px, radius 30 px) */}
+      {/* ── Fotografia — top left (173.333×208 px, radius 30 px) ────────── */}
       <div
         className="absolute rounded-[30px] overflow-hidden"
         style={{ left: "40.67px", top: "40px", width: "173.333px", height: "208px" }}
@@ -104,11 +168,11 @@ export function SeventhDayMassTemplate({
         )}
       </div>
 
-      {/* ── Nome completo — Roboto Medium 32/40 */}
+      {/* ── Nome completo — Roboto Medium 32/40 ────────────────────────── */}
       <p
         className="absolute not-italic"
         style={{
-          left: "255.78px",
+          left: "262.78px",
           top: "103px",
           width: "309.6px",
           fontFamily: "'Roboto', 'Inter', sans-serif",
@@ -121,10 +185,10 @@ export function SeventhDayMassTemplate({
         {fullName}
       </p>
 
-      {/* ── Idade + Anos + Localidade */}
+      {/* ── Idade + Anos + Localidade ───────────────────────────────────── */}
       <div
         className="absolute flex flex-col items-start not-italic"
-        style={{ left: "255.78px", top: "194px", width: "204px", gap: "4px" }}
+        style={{ left: "262.78px", top: "194px", width: "204px", gap: "4px" }}
       >
         {(age !== undefined || (birthYear && deathYear)) && (
           <p style={{ fontSize: "0px", lineHeight: 0, color: "#6c727f" }}>
@@ -150,12 +214,12 @@ export function SeventhDayMassTemplate({
         )}
       </div>
 
-      {/* ── MISSA 7º DIA — coluna esquerda */}
+      {/* ── FALECEU / FALECEU EM [PAÍS] — coluna esquerda ──────────────── */}
       <p
         className="absolute not-italic"
         style={{
-          left: "40.67px",
-          top: "349.34px",
+          left: "40px",
+          top: "298.6px",
           width: "160px",
           fontWeight: 600,
           fontSize: "24px",
@@ -163,26 +227,16 @@ export function SeventhDayMassTemplate({
           color: "#6c727f",
         }}
       >
-        MISSA 7º DIA
+        {deathLabel}
       </p>
 
-      {/* ── Detalhes da missa — coluna direita */}
-      <div
-        className="absolute flex flex-col items-start justify-center not-italic"
-        style={{ left: "256.78px", top: "351.44px", width: "214.367px", gap: "3.68px" }}
-      >
-        {massDate && <EventRow icon={<IconCalendar />} text={massDate} />}
-        {timeDisplay && <EventRow icon={<IconClock />} text={timeDisplay} />}
-        {massLocation && <EventRow icon={<IconMapPin />} text={massLocation} />}
-      </div>
-
-      {/* ── Texto familiar — coluna DIREITA */}
+      {/* ── Texto familiar — coluna esquerda ───────────────────────────── */}
       <div
         className="absolute not-italic whitespace-pre-wrap"
         style={{
-          left: "259.53px",
-          top: "454.55px",
-          width: "239.093px",
+          left: "40.67px",
+          top: "404.91px",
+          width: "173.333px",
           fontWeight: 400,
           fontSize: "11px",
           lineHeight: "0px",
@@ -191,13 +245,53 @@ export function SeventhDayMassTemplate({
       >
         {familyText.split("\n\n").map((paragraph, pi) => (
           <React.Fragment key={pi}>
-            {pi > 0 && <p style={{ lineHeight: "18px", marginBottom: 0 }}>&nbsp;</p>}
-            <p style={{ lineHeight: "18px", marginBottom: 0 }}>{paragraph}</p>
+            {pi > 0 && <p style={{ lineHeight: "16px", marginBottom: 0 }}>&nbsp;</p>}
+            <p style={{ lineHeight: "16px", marginBottom: 0 }}>{paragraph}</p>
           </React.Fragment>
         ))}
       </div>
 
-      {/* ── Logo funerária — bottom left (150×43 px) */}
+      {/* ── Cortejo Fúnebre — coluna direita, top=298.6 ─────────────────── */}
+      {cortejoFunebre && (
+        <div
+          className="absolute"
+          style={{ left: "261px", top: "298.6px", width: "214.367px", height: "80.963px" }}
+        >
+          <EventSection title="Cortejo Fúnebre" event={cortejoFunebre} />
+        </div>
+      )}
+
+      {/* ── Velório — coluna direita, top=399.91 ────────────────────────── */}
+      {velorio && (
+        <div
+          className="absolute"
+          style={{ left: "261px", top: "399.91px", width: "214.367px", height: "80.963px" }}
+        >
+          <EventSection title="Velório" event={velorio} />
+        </div>
+      )}
+
+      {/* ── Funeral — coluna direita, top=501.22 ────────────────────────── */}
+      {funeral && (
+        <div
+          className="absolute"
+          style={{ left: "261px", top: "501.22px", width: "199.646px", height: "80.963px" }}
+        >
+          <EventSection title="Funeral" event={funeral} />
+        </div>
+      )}
+
+      {/* ── Cemitério — coluna direita, top=602.53 ──────────────────────── */}
+      {cemetery && (
+        <div
+          className="absolute"
+          style={{ left: "261px", top: "602.53px", width: "184.926px", height: "40.481px" }}
+        >
+          <EventSection title="Cemitério" event={cemetery} locationOnly />
+        </div>
+      )}
+
+      {/* ── Logo funerária — bottom left (150×43 px) ────────────────────── */}
       {funeralHomeLogo && (
         <div
           className="absolute overflow-hidden"
@@ -212,7 +306,7 @@ export function SeventhDayMassTemplate({
         </div>
       )}
 
-      {/* ── Contactos — bottom left */}
+      {/* ── Contactos — bottom left, abaixo do logo ──────────────────────── */}
       {(phoneDisplay || email || website) && (
         <div
           className="absolute flex flex-col items-start not-italic"
@@ -233,7 +327,8 @@ export function SeventhDayMassTemplate({
         </div>
       )}
 
-      {/* ── QR code — bottom center-left (≈45×45 px) */}
+      {/* ── QR code — bottom center-left (≈45×45 px) ───────────────────── */}
+      {/* inset Figma: top=90.84%×842=765px, left=44.25%×595=263.3px, w≈45px, h≈45px */}
       <div
         className="absolute"
         style={{ left: "263.3px", top: "765px", width: "45px", height: "45px" }}
@@ -247,7 +342,7 @@ export function SeventhDayMassTemplate({
         )}
       </div>
 
-      {/* ── Texto condolências — ao lado do QR */}
+      {/* ── Texto condolências — ao lado do QR ──────────────────────────── */}
       <div
         className="absolute not-italic"
         style={{
@@ -265,7 +360,7 @@ export function SeventhDayMassTemplate({
         ))}
       </div>
 
-      {/* ── Flores decorativas — bottom right */}
+      {/* ── Flores decorativas — bottom right ───────────────────────────── */}
       {flowerImage && (
         <div
           className="absolute overflow-hidden"
