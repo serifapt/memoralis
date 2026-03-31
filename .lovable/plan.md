@@ -1,26 +1,25 @@
 
 
-## Melhorias no Gerador de Anúncios
+## Correções no Anúncio A4
 
-### 1. Mensagem da família vem do campo `publicMessage`
-A lógica actual já usa `obituaryData.publicMessage` — que corresponde ao campo "Mensagem Pública / Mensagem da família". Confirmar que a prop `familyText` no `ObituaryTemplateA4` recebe esse valor correctamente (já acontece na linha 113 do AnnouncementGenerator). Sem alteração necessária aqui.
+### 1. Mensagem da família aparece sem dados
+**Problema**: `familyText` tem valor default `DEFAULT_FAMILY_TEXT` na prop (linha 62 do template). Quando o `AnnouncementGenerator` passa `undefined` (sem mensagem pública), o default é usado.
 
-### 2. Foto com máscara sem deformar
-**`ObituaryTemplateA4.tsx`** — A foto já usa `object-fit: cover` e `object-position: center top`, o que não deforma. O problema visível na screenshot é que a área da foto (173x208px) pode estar a encolher a imagem. Vou garantir que o container mantém as dimensões fixas e a imagem preenche via `cover` sem deformação. Se necessário, ajustar o container para usar `min-width`/`min-height` para evitar colapso.
+**Solução**: No `ObituaryTemplateA4.tsx`, remover o default da prop `familyText` e só renderizar a secção se `familyText` tiver conteúdo. Alterar `familyText = DEFAULT_FAMILY_TEXT` para `familyText` sem default, e envolver o bloco da família num condicional `{familyText && ...}`.
 
-### 3. Logo Memoralis a preto com 30% opacidade
-**`ObituaryTemplateA4.tsx`** — Adicionar `style={{ opacity: 0.3 }}` ao container do `LogoMemoralis` e alterar as cores do SVG em `ObituaryIcons.tsx` de `#d85151` (vermelho) e `#2d595e` (verde) para `#000000` (preto) nas paths do `LogoMemoralis`.
+### 2. Texto não alinhado com os ícones
+**Problema**: Os ícones SVG têm tamanhos diferentes (14px vs 16px) e não têm `flexShrink: 0` nem `minWidth`, causando desalinhamento visual.
 
-### 4. QR Code gerado automaticamente
-- Instalar a biblioteca `qrcode.react` para gerar QR codes em React
-- Adicionar `obituaryId` ao interface `AnnouncementGeneratorProps` e passá-lo do `NewObituary.tsx`
-- No `AnnouncementGenerator`, gerar o URL público (`https://memoralis.lovable.app/obituario/{id}`) e renderizar o QR code via `<QRCodeCanvas>` convertido para data URL
-- Passar o data URL como prop `qrCodeImage` ao `ObituaryTemplateA4`
+**Solução**: No `EventSection`, adicionar `style={{ flexShrink: 0, width: 14, height: 14 }}` a cada wrapper de ícone e garantir que o `IconMapPin` usa `width="14" height="14"` em vez de 16px. Adicionar `alignItems: "flex-start"` em vez de `"center"` e `paddingTop: 2` no ícone para alinhar com a primeira linha de texto.
+
+### 3. Foto sai a cores no PDF
+**Problema**: `html2canvas` não suporta correctamente o filtro CSS `filter: grayscale(100%)`. A foto aparece a preto e branco no browser mas a cores no PDF exportado.
+
+**Solução**: Aplicar o grayscale via canvas antes de passar ao template. No `AnnouncementGenerator.tsx`, criar uma função que carrega a imagem num canvas offscreen, aplica grayscale manualmente (manipulação de pixels), e devolve um data URL em grayscale. Usar este data URL processado como prop `photo` em vez do URL original.
 
 ### Ficheiros a editar
-- `src/components/obituaries/ObituaryIcons.tsx` — cores do LogoMemoralis para preto
-- `src/components/obituaries/ObituaryTemplateA4.tsx` — opacidade 30% no logo, verificar foto
-- `src/components/obituaries/AnnouncementGenerator.tsx` — adicionar `obituaryId` à interface, gerar QR code
-- `src/pages/NewObituary.tsx` — passar `obituaryId={id}` ao AnnouncementGenerator
-- Instalar: `qrcode.react`
+- `src/components/obituaries/ObituaryTemplateA4.tsx` — remover default do `familyText`, condicionar renderização
+- `src/components/obituaries/ObituaryTemplateA4.tsx` — alinhar ícones com texto no `EventSection`
+- `src/components/obituaries/ObituaryIcons.tsx` — uniformizar tamanho do `IconMapPin` para 14px
+- `src/components/obituaries/AnnouncementGenerator.tsx` — converter foto para grayscale via canvas antes de renderizar
 
