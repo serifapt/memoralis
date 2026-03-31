@@ -1,30 +1,27 @@
 
 
-## Exportação PDF via Impressão Nativa
+## Plano: Adicionar template "Missa 7º Dia" (A4-3)
 
-Substituir completamente o fluxo `html2canvas` + `jsPDF` pela impressão nativa do browser, que reproduz fielmente o que está no preview.
+### Ficheiros a criar
 
-### Abordagem
+1. **`src/components/SeventhDayMassTemplate/types.ts`** — tipos do template (conteúdo exacto do upload)
 
-1. **Botão "Gerar PDF"** abre uma nova janela com apenas o template A4 e estilos `@media print` que definem o tamanho A4 sem margens.
-2. A nova janela chama `window.print()` automaticamente — o utilizador escolhe "Guardar como PDF" no diálogo do browser.
-3. Elimina-se a dependência do `html2canvas` para o template profissional (mantém-se para os outros templates e para a geração de imagens story/post).
+2. **`src/components/SeventhDayMassTemplate/icons.tsx`** — `CrossSymbol` (conteúdo exacto do upload)
 
-### Correcção do logo Memoralis
+3. **`src/components/SeventhDayMassTemplate/SeventhDayMassTemplate.tsx`** — template A4 595×842 (conteúdo do upload, com import path corrigido: `../obituaries/ObituaryIcons` em vez de `../ObituaryTemplate/icons`)
 
-Adicionar `filter: "grayscale(100%) brightness(0)"` ao `<img>` do logo na `ObituaryTemplateA4.tsx` para que apareça sempre a preto, independentemente do método de exportação.
+4. **`src/components/SeventhDayMassTemplate/index.ts`** — barrel exports (conteúdo exacto do upload)
 
-### Ficheiros a alterar
+5. **`src/components/SeventhDayMassPreview.tsx`** — preview escalado + dados demo (conteúdo do upload, com import path corrigido)
 
-- **`src/components/obituaries/ObituaryTemplateA4.tsx`** — adicionar `filter` ao logo para ficar a preto
-- **`src/components/obituaries/AnnouncementGenerator.tsx`** — substituir `generatePDF` por um fluxo que:
-  1. Cria uma janela nova com `window.open()`
-  2. Escreve o HTML do template com estilos inline + `@media print { @page { size: A4; margin: 0; } }`
-  3. Aguarda que as imagens carreguem
-  4. Chama `printWindow.print()`
-  5. Fecha a janela após impressão
+### Ajuste de imports
 
-### Resultado esperado
+O código uploaded importa de `../ObituaryTemplate/icons` mas no projecto os ícones estão em `src/components/obituaries/ObituaryIcons.tsx`. O import será corrigido para:
+```ts
+import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../obituaries/ObituaryIcons";
+```
 
-O PDF gerado será idêntico ao preview, sem distorções de foto, logo ou alinhamento, porque o browser renderiza nativamente o mesmo HTML/CSS.
+### Sem alterações a ficheiros existentes
+
+O template é autocontido. A integração no `AnnouncementGenerator` (para gerar PDF com este template quando `announcementType === "missa_7"`) pode ser feita num passo posterior.
 
