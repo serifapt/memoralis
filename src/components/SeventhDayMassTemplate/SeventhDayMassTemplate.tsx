@@ -201,7 +201,7 @@ export function SeventhDayMassTemplate({
       {funeralHomeLogo && (
         <div
           className="absolute overflow-hidden"
-          style={{ top: "697.2px", left: "254px", width: "150px", height: "43px" }}
+          style={{ top: "697.2px", left: "40.67px", width: "150px", height: "43px" }}
         >
           <img
             src={funeralHomeLogo}
@@ -216,7 +216,7 @@ export function SeventhDayMassTemplate({
       {(phoneDisplay || email || website) && (
         <div
           className="absolute flex flex-col items-start font-normal text-[#4e5562] not-italic leading-[18px]"
-          style={{ top: "754.89px", left: "254.58px", width: "207.617px", fontSize: "9px", paddingBottom: "2px" }}
+          style={{ top: "754.89px", left: "40.67px", width: "207.617px", fontSize: "9px", paddingBottom: "2px" }}
         >
           {phoneDisplay && <p className="w-full">{phoneDisplay}</p>}
           {email && <p className="w-full">{email}</p>}

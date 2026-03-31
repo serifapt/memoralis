@@ -338,7 +338,7 @@ export const ObituaryTemplateA4 = ({
 
       {/* Funeral home logo */}
       {funeralHomeLogo && (
-        <div style={{ position: "absolute", top: "697px", left: "254px", width: "150px", height: "43px" }}>
+        <div style={{ position: "absolute", top: "697px", left: "40px", width: "150px", height: "43px" }}>
           <img
             src={funeralHomeLogo}
             alt="Funerária"
@@ -354,7 +354,7 @@ export const ObituaryTemplateA4 = ({
           style={{
             position: "absolute",
             top: "755px",
-            left: "255px",
+            left: "40px",
             fontWeight: 400,
             fontSize: "9px",
             lineHeight: "18px",
