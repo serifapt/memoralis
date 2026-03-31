@@ -1,27 +1,28 @@
 
 
-## Integrar SeventhDayMassTemplate no AnnouncementGenerator
+## Plano: Preview embutido no card do template + remover preview em baixo
 
 ### O que muda
 
-Quando `announcementType === "missa_7"` e `selectedTemplate === "profissional"`, o preview e a exportação PDF devem usar o `SeventhDayMassTemplate` em vez do `ObituaryTemplateA4`.
+1. O card do template "Profissional" deixa de mostrar um wireframe estático e passa a renderizar uma versão miniatura do template real (ObituaryTemplateA4 ou SeventhDayMassTemplate), escalada para caber no thumbnail — mudando automaticamente consoante o `announcementType`.
 
-### Alterações em `src/components/obituaries/AnnouncementGenerator.tsx`
+2. O terceiro Card "Preview do Anúncio" (linhas 552-557) é removido do layout.
 
-1. **Import** do `SeventhDayMassTemplate` de `@/components/SeventhDayMassTemplate`
+3. O template real continua a existir no DOM (escondido fora do viewport) para que `generatePDF()` e `generateImage()` possam capturá-lo via `document.getElementById("obituary-template-a4")`.
 
-2. **`renderPreview()`** — dentro do bloco `selectedTemplate === "profissional"`, adicionar condição: se `announcementType === "missa_7"`, renderizar `SeventhDayMassTemplate` com as props mapeadas:
-   - `fullName`, `photo` (grayscale), `age`, `birthYear`, `deathYear`, `parish`, `municipality`
-   - `massDate` ← `formatDatePT(obituaryData.cerimoniaDate)`
-   - `massStartTime` ← `formatTime(obituaryData.cerimoniaTime)`
-   - `massLocation` ← `obituaryData.cerimoniaChurch`
-   - `familyText` ← mensagem pública (mesmo toggle `includeFamilyMessage`)
-   - Contactos da funerária (`funeralHomeLogo`, `phone1`, `phone2`, `email`, `website`)
-   - `flowerImage` ← `/images/flores-obituario.png`
+### Alterações
 
-3. **`generatePDF()`** — o ID do elemento a capturar para impressão nativa já funciona se o `SeventhDayMassTemplate` usar o mesmo `id="obituary-template-a4"`. Verificar se o componente tem este ID; caso contrário, envolvê-lo num `<div id="obituary-template-a4">`.
+**`src/components/obituaries/TemplateThumbnail.tsx`**
+- Aceitar nova prop opcional `previewContent?: React.ReactNode`
+- Quando `previewContent` é fornecido e `type === "profissional"`, renderizar esse conteúdo escalado (via `transform: scale()` + `transform-origin: top left`) dentro do aspect-ratio container, em vez do wireframe actual
+- O container usa `overflow-hidden` e dimensões fixas para enquadrar o A4 miniaturizado
 
-### Sem novos ficheiros
+**`src/components/obituaries/AnnouncementGenerator.tsx`**
+- Construir o `previewContent` (o template real com dados) numa variável e passá-lo ao `TemplateThumbnail` do tipo "profissional"
+- Mover o template real para um div offscreen (`position: absolute; left: -9999px`) com o `id="obituary-template-a4"` para manter a funcionalidade de exportação PDF/imagem
+- Remover o Card "Preview do Anúncio" (linhas 552-557)
 
-Apenas edição do `AnnouncementGenerator.tsx`.
+### Resultado
+
+Ao trocar o tipo de anúncio, o card "Profissional" actualiza-se imediatamente com a miniatura do template correcto. Os outros dois templates (Elegante, Clássico) mantêm os wireframes actuais.
 
