@@ -14,6 +14,7 @@ import { type TemplateType, type AnnouncementType } from "./types";
 import { ObituaryTemplateA4 } from "./ObituaryTemplateA4";
 
 interface AnnouncementGeneratorProps {
+  obituaryId?: string;
   obituaryData: {
     displayName: string;
     birthDate: string;
