@@ -348,10 +348,10 @@ export const ObituaryTemplateA4 = ({
         <div
           style={{
             position: "absolute",
-            top: 568.42,
-            left: 326.25,
-            width: 275.298,
-            height: 313.631,
+            bottom: 0,
+            right: 0,
+            width: "250px",
+            height: "250px",
             overflow: "hidden",
             pointerEvents: "none",
           }}
@@ -360,10 +360,10 @@ export const ObituaryTemplateA4 = ({
             src={flowerImage}
             alt=""
             style={{
-              width: 204.885,
-              height: 263.908,
-              transform: "rotate(17.66deg)",
+              width: "100%",
+              height: "100%",
               objectFit: "contain",
+              objectPosition: "bottom right",
             }}
           />
         </div>

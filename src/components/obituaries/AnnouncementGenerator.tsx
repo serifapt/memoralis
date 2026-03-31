@@ -179,6 +179,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           email={obituaryData.funerariaEmail}
           website={obituaryData.funerariaWebsite}
           qrCodeImage={qrCodeDataUrl}
+          flowerImage="/images/flores-obituario.png"
         />
       );
     }
