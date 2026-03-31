@@ -1,75 +1,76 @@
 
 
-## Corrigir geração de PDF — abordagem unificada com html2canvas
+## Corrigir PDF para corresponder ao design original
 
-### Problema
+### Problemas identificados (comparando PDF gerado vs referência)
 
-1. O template "Profissional" usa `window.print()` que abre uma nova janela — os estilos inline podem não renderizar corretamente neste contexto e o utilizador tem que manualmente "Guardar como PDF"
-2. Os campos `cerimoniaDate`, `cerimoniaTime`, `cerimoniaChurch` nunca são passados ao `AnnouncementGenerator` — o formulário usa `formData.missa7Date`, `formData.missa7Time`, `formData.missa7Location` etc.
+1. **Foto não fica em grayscale** — `html2canvas` não suporta `filter: grayscale(100%)`. A foto sai a cores com tonalidade azul.
+2. **Nome longo sobrepõe a idade/anos** — nomes como "Maria de Lourdes Carreira Rodrigues Dias" ultrapassam o espaço do nome e colidem com "· 1942 - 2026".
+3. **Cortejo Fúnebre não é passado** — os dados de `cortejoEntries` existem no formulário mas não são enviados ao `AnnouncementGenerator`.
 
-### Solução
+### Alterações
 
-**Ficheiro 1: `src/pages/NewObituary.tsx`** (linhas ~2620-2643)
+**1. `src/components/ObituaryTemplate/ObituaryTemplate.tsx`**
 
-Adicionar os campos de missa ao `obituaryData` passado ao `AnnouncementGenerator`:
+- Pré-processar a foto para grayscale via Canvas API (criar `useEffect` que converte a imagem para grayscale usando um canvas invisível e gera um data URL em preto-e-branco). Remover `filter: grayscale(100%)` do CSS e usar a imagem já convertida.
+- Reduzir o `fontSize` do nome automaticamente quando o texto é longo (>25 chars → 26px, >35 chars → 22px) para evitar sobreposição com a linha de idade/localidade.
+
+**2. `src/components/obituaries/AnnouncementGenerator.tsx`**
+
+- Adicionar campos `cortejoDate`, `cortejoTime`, `cortejoLocation` à interface `obituaryData`.
+- No `renderPreview()`, passar estes dados como `cortejoFunebre` ao `ObituaryTemplate`:
 ```tsx
-cerimoniaDate: formData.missa7Date || "",
-cerimoniaTime: formData.missa7Time || "",
-cerimoniaChurch: formData.missa7Location || "",
+cortejoFunebre={obituaryData.cortejoDate ? {
+  date: formatDatePT(obituaryData.cortejoDate),
+  startTime: formatTime(obituaryData.cortejoTime),
+  location: obituaryData.cortejoLocation,
+} : undefined}
 ```
 
-**Ficheiro 2: `src/components/obituaries/AnnouncementGenerator.tsx`**
+**3. `src/pages/NewObituary.tsx`**
 
-Substituir o `generatePDF` para usar `html2canvas + jsPDF` para **todos** os templates (incluindo "profissional"):
-
+- Adicionar os campos de cortejo ao `obituaryData`:
 ```tsx
-const generatePDF = async () => {
-  setIsGenerating(true);
-  try {
-    const elementId = selectedTemplate === "profissional" 
-      ? "obituary-template-a4" 
-      : "announcement-preview";
-    const element = document.getElementById(elementId);
-    if (!element) throw new Error("Template não encontrado");
-
-    // Aguardar imagens
-    const images = element.querySelectorAll("img");
-    await Promise.all(Array.from(images).map(img =>
-      img.complete ? Promise.resolve() : new Promise<void>(r => { img.onload = () => r(); img.onerror = () => r(); })
-    ));
-    await new Promise(r => setTimeout(r, 500));
-
-    const canvas = await html2canvas(element, {
-      scale: 3,
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      allowTaint: false,
-      logging: false,
-    });
-
-    const imgData = canvas.toDataURL("image/jpeg", 1.0);
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const w = pdf.internal.pageSize.getWidth();
-    const h = pdf.internal.pageSize.getHeight();
-    pdf.addImage(imgData, "JPEG", 0, 0, w, h);
-    pdf.save(`anuncio-${obituaryData.displayName || "obituario"}.pdf`);
-
-    toast({ title: "PDF gerado com sucesso" });
-  } catch (error) {
-    console.error("Error generating PDF:", error);
-    toast({ title: "Erro ao gerar PDF", variant: "destructive" });
-  } finally {
-    setIsGenerating(false);
-  }
-};
+cortejoDate: cortejoEntries[0]?.date || "",
+cortejoTime: cortejoEntries[0]?.time || "",
+cortejoLocation: cortejoEntries[0]?.location || "",
 ```
 
-Isto elimina completamente a dependência do `window.print()` e usa o mesmo mecanismo fiável para todos os templates. O download do PDF é automático.
+### Secção técnica — Conversão grayscale
 
-### Resumo de alterações
+Em vez de depender do CSS filter (que `html2canvas` ignora), converter a imagem para grayscale via Canvas API antes de a renderizar:
 
-| Ficheiro | Alteração |
-|---|---|
-| `NewObituary.tsx` | Passar `cerimoniaDate/Time/Church` com dados de `missa7*` |
-| `AnnouncementGenerator.tsx` | Unificar `generatePDF` com `html2canvas + jsPDF` para todos os templates |
+```tsx
+// Dentro de ObituaryTemplate
+const [grayscalePhoto, setGrayscalePhoto] = useState<string | undefined>();
+
+useEffect(() => {
+  if (!photo) return;
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
+      data[i] = data[i+1] = data[i+2] = avg;
+    }
+    ctx.putImageData(imageData, 0, 0);
+    setGrayscalePhoto(canvas.toDataURL("image/jpeg", 0.95));
+  };
+  img.src = photo;
+}, [photo]);
+```
+
+Usar `grayscalePhoto || photo` como `src` da imagem no template.
+
+### Resultado esperado
+- Foto renderiza em grayscale fiel no PDF
+- Nomes longos ajustam-se automaticamente sem sobreposição
+- Cortejo Fúnebre aparece no template quando preenchido
 
