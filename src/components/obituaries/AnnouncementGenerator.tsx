@@ -152,27 +152,25 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
 
       if (announcementType === "missa_7") {
         return (
-          <div id="obituary-template-a4">
-            <SeventhDayMassTemplate
-              fullName={obituaryData.displayName}
-              photo={grayscalePhoto || obituaryData.photoUrl}
-              age={calcAge}
-              birthYear={birthYear}
-              deathYear={deathYear}
-              parish={obituaryData.parish}
-              municipality={obituaryData.municipality}
-              massDate={obituaryData.cerimoniaDate ? formatDatePT(obituaryData.cerimoniaDate) : undefined}
-              massStartTime={formatTime(obituaryData.cerimoniaTime)}
-              massLocation={obituaryData.cerimoniaChurch}
-              familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
-              funeralHomeLogo={obituaryData.funerariaLogoUrl}
-              phone1={obituaryData.funerariaPhone}
-              phone2={obituaryData.funerariaPhone2}
-              email={obituaryData.funerariaEmail}
-              website={obituaryData.funerariaWebsite}
-              flowerImage="/images/flores-obituario.png"
-            />
-          </div>
+          <SeventhDayMassTemplate
+            fullName={obituaryData.displayName}
+            photo={grayscalePhoto || obituaryData.photoUrl}
+            age={calcAge}
+            birthYear={birthYear}
+            deathYear={deathYear}
+            parish={obituaryData.parish}
+            municipality={obituaryData.municipality}
+            massDate={obituaryData.cerimoniaDate ? formatDatePT(obituaryData.cerimoniaDate) : undefined}
+            massStartTime={formatTime(obituaryData.cerimoniaTime)}
+            massLocation={obituaryData.cerimoniaChurch}
+            familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
+            funeralHomeLogo={obituaryData.funerariaLogoUrl}
+            phone1={obituaryData.funerariaPhone}
+            phone2={obituaryData.funerariaPhone2}
+            email={obituaryData.funerariaEmail}
+            website={obituaryData.funerariaWebsite}
+            flowerImage="/images/flores-obituario.png"
+          />
         );
       }
 
