@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { QRCodeCanvas } from "qrcode.react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +14,7 @@ import { type TemplateType, type AnnouncementType } from "./types";
 import { ObituaryTemplateA4 } from "./ObituaryTemplateA4";
 
 interface AnnouncementGeneratorProps {
+  obituaryId?: string;
   obituaryData: {
     displayName: string;
     birthDate: string;
@@ -40,12 +42,27 @@ interface AnnouncementGeneratorProps {
   };
 }
 
-export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorProps) => {
+export const AnnouncementGenerator = ({ obituaryId, obituaryData }: AnnouncementGeneratorProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>("profissional");
   const [announcementType, setAnnouncementType] = useState<AnnouncementType>("faleceu");
   const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | undefined>(undefined);
+  const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const publicUrl = obituaryId ? `${window.location.origin}/obituario/${obituaryId}` : undefined;
+
+  useEffect(() => {
+    if (!publicUrl) return;
+    const timer = setTimeout(() => {
+      const canvas = qrRef.current?.querySelector("canvas");
+      if (canvas) {
+        setQrCodeDataUrl(canvas.toDataURL("image/png"));
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [publicUrl]);
 
   const formatDatePT = (dateStr: string) => {
     if (!dateStr) return "";
@@ -129,6 +146,7 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
           phone2={obituaryData.funerariaPhone2}
           email={obituaryData.funerariaEmail}
           website={obituaryData.funerariaWebsite}
+          qrCodeImage={qrCodeDataUrl}
         />
       );
     }
@@ -401,6 +419,13 @@ export const AnnouncementGenerator = ({ obituaryData }: AnnouncementGeneratorPro
           {renderPreview()}
         </div>
       </Card>
+
+      {/* Hidden QR code canvas for generating data URL */}
+      {publicUrl && (
+        <div ref={qrRef} style={{ position: "absolute", left: -9999, top: -9999 }}>
+          <QRCodeCanvas value={publicUrl} size={120} />
+        </div>
+      )}
     </div>
   );
 };

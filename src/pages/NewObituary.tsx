@@ -2617,7 +2617,8 @@ export default function NewObituary() {
                 <p className="text-sm text-muted-foreground mb-6">
                   Gere automaticamente anúncios para impressão e redes sociais a partir dos dados do óbito.
                 </p>
-                <AnnouncementGenerator 
+                <AnnouncementGenerator
+                  obituaryId={isEditing ? id : undefined}
                   obituaryData={{
                     displayName: formData.displayName,
                     birthDate: formData.birthDate,
