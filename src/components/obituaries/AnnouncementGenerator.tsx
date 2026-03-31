@@ -49,7 +49,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | undefined>(undefined);
-  const [grayscalePhoto, setGrayscalePhoto] = useState<string | undefined>(undefined);
+  
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
