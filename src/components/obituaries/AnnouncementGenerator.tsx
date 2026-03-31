@@ -239,119 +239,41 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   };
 
   const generatePDF = async () => {
-    if (selectedTemplate === "profissional") {
-      // Native print approach – opens a new window with the template and triggers print
-      const element = document.getElementById("obituary-template-a4");
-      if (!element) {
-        toast({ title: "Erro ao gerar PDF", description: "Template não encontrado", variant: "destructive" });
-        return;
-      }
-
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) {
-        toast({ title: "Erro ao gerar PDF", description: "Não foi possível abrir a janela de impressão. Verifique se o bloqueador de pop-ups está desativado.", variant: "destructive" });
-        return;
-      }
-
-      // Collect all stylesheets from the current page for font imports etc.
-      const styleSheets = Array.from(document.styleSheets);
-      let cssText = "";
-      styleSheets.forEach((sheet) => {
-        try {
-          Array.from(sheet.cssRules).forEach((rule) => {
-            cssText += rule.cssText + "\n";
-          });
-        } catch {
-          // External sheets may throw SecurityError – import via link instead
-          if (sheet.href) {
-            cssText += `@import url("${sheet.href}");\n`;
-          }
-        }
-      });
-
-      // Convert relative URLs to absolute so images load in the print window
-      const absoluteHtml = element.outerHTML.replace(/src="\//g, `src="${window.location.origin}/`);
-
-      const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Anúncio - ${obituaryData.displayName || "Obituário"}</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
-<style>
-${cssText}
-@media print {
-  @page { size: A4 portrait; margin: 0; }
-  html, body { margin: 0; padding: 0; width: 210mm; height: 297mm; overflow: hidden; }
-  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  #obituary-template-a4 { transform: scale(calc(210mm / 595px)); transform-origin: top left; }
-}
-html, body { margin: 0; padding: 0; background: white; }
-</style>
-</head>
-<body>${absoluteHtml}</body>
-</html>`;
-
-      printWindow.document.open();
-      printWindow.document.write(html);
-      printWindow.document.close();
-
-      // Wait for all images in the print window to load
-      const imgs = printWindow.document.querySelectorAll("img");
-      await Promise.all(
-        Array.from(imgs).map(
-          (img) =>
-            img.complete && img.naturalWidth > 0
-              ? Promise.resolve()
-              : new Promise<void>((resolve) => {
-                  img.onload = () => resolve();
-                  img.onerror = () => resolve();
-                })
-        )
-      );
-
-      // Stabilization delay for fonts
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      printWindow.focus();
-      printWindow.print();
-
-      toast({ title: "PDF pronto", description: "Use 'Guardar como PDF' no diálogo de impressão." });
-      return;
-    }
-
-    // Fallback for other templates: use html2canvas + jsPDF
     setIsGenerating(true);
     try {
-      const element = document.getElementById("announcement-preview");
-      if (!element) throw new Error("Preview element not found");
+      const elementId = selectedTemplate === "profissional" 
+        ? "obituary-template-a4" 
+        : "announcement-preview";
+      const element = document.getElementById(elementId);
+      if (!element) throw new Error("Template não encontrado");
 
+      // Wait for all images to load
       const images = element.querySelectorAll("img");
       await Promise.all(
-        Array.from(images).map(
-          (img) =>
-            img.complete && img.naturalWidth > 0
-              ? Promise.resolve()
-              : new Promise<void>((resolve) => {
-                  img.onload = () => resolve();
-                  img.onerror = () => resolve();
-                })
+        Array.from(images).map((img) =>
+          img.complete && img.naturalWidth > 0
+            ? Promise.resolve()
+            : new Promise<void>((resolve) => {
+                img.onload = () => resolve();
+                img.onerror = () => resolve();
+              })
         )
       );
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         backgroundColor: "#ffffff",
         useCORS: true,
         allowTaint: false,
+        logging: false,
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      const w = pdf.internal.pageSize.getWidth();
+      const h = pdf.internal.pageSize.getHeight();
+      pdf.addImage(imgData, "JPEG", 0, 0, w, h);
       pdf.save(`anuncio-${obituaryData.displayName || "obituario"}.pdf`);
 
       toast({ title: "PDF gerado com sucesso", description: "O anúncio foi exportado em formato A4" });
