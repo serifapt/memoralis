@@ -496,6 +496,7 @@ html, body { margin: 0; padding: 0; }
                   description={template.description}
                   isSelected={selectedTemplate === template.type}
                   onClick={() => setSelectedTemplate(template.type)}
+                  previewContent={template.type === "profissional" ? renderPreview() : undefined}
                 />
               ))}
             </div>
