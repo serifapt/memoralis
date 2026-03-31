@@ -278,18 +278,23 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 2,
         backgroundColor: "#ffffff",
         useCORS: true,
         allowTaint: false,
         logging: false,
+        width: 595,
+        height: 842,
       });
 
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const w = pdf.internal.pageSize.getWidth();
-      const h = pdf.internal.pageSize.getHeight();
-      pdf.addImage(imgData, "JPEG", 0, 0, w, h);
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [595, 842],
+        hotfixes: ["px_scaling"],
+      });
+      pdf.addImage(imgData, "PNG", 0, 0, 595, 842);
       pdf.save(`anuncio-${obituaryData.displayName || "obituario"}.pdf`);
 
       toast({ title: "PDF gerado com sucesso", description: "O anúncio foi exportado em formato A4" });
