@@ -22,20 +22,20 @@ const EventSection = ({ title, date, time, startTime, endTime, location }: Event
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {date && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <IconCalendar />
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconCalendar /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{date}</span>
           </div>
         )}
         {timeDisplay && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <IconClock />
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconClock /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{timeDisplay}</span>
           </div>
         )}
         {location && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <IconMapPin />
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconMapPin /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{location}</span>
           </div>
         )}
@@ -59,7 +59,7 @@ export const ObituaryTemplateA4 = ({
   parish,
   municipality,
   deathCountry,
-  familyText = DEFAULT_FAMILY_TEXT,
+  familyText,
   wake,
   funeral,
   cemetery,
@@ -118,7 +118,6 @@ export const ObituaryTemplateA4 = ({
               height: 208,
               objectFit: "cover",
               objectPosition: "center top",
-              filter: "grayscale(100%)",
             }}
           />
         ) : (
@@ -217,27 +216,29 @@ export const ObituaryTemplateA4 = ({
       </div>
 
       {/* Family text */}
-      <div
-        style={{
-          position: "absolute",
-          top: 425.21,
-          left: 40.67,
-          width: 160,
-        }}
-      >
-        <p
+      {familyText && (
+        <div
           style={{
-            fontWeight: 400,
-            fontSize: 12,
-            lineHeight: "18px",
-            color: "#4e5562",
-            margin: 0,
-            whiteSpace: "pre-wrap",
+            position: "absolute",
+            top: 425.21,
+            left: 40.67,
+            width: 160,
           }}
         >
-          {familyText}
-        </p>
-      </div>
+          <p
+            style={{
+              fontWeight: 400,
+              fontSize: 12,
+              lineHeight: "18px",
+              color: "#4e5562",
+              margin: 0,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {familyText}
+          </p>
+        </div>
+      )}
 
       {/* Velório */}
       {wake && (
