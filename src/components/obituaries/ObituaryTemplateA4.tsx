@@ -23,19 +23,19 @@ const EventSection = ({ title, date, time, startTime, endTime, location }: Event
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {date && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconCalendar /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconCalendar /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{date}</span>
           </div>
         )}
         {timeDisplay && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconClock /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconClock /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{timeDisplay}</span>
           </div>
         )}
         {location && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <span style={{ flexShrink: 0, width: 14, height: 14, paddingTop: 2 }}><IconMapPin /></span>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "14px", height: "14px", paddingTop: 1 }}><IconMapPin /></span>
             <span style={{ fontWeight: 400, fontSize: 12, color: "#4e5562" }}>{location}</span>
           </div>
         )}
@@ -99,10 +99,10 @@ export const ObituaryTemplateA4 = ({
           position: "absolute",
           top: 40,
           left: 40.67,
-          width: 173.333,
-          minWidth: 173.333,
-          height: 208,
-          minHeight: 208,
+          width: "173px",
+          minWidth: "173px",
+          height: "208px",
+          minHeight: "208px",
           borderRadius: 30,
           overflow: "hidden",
           background: "white",
@@ -114,8 +114,8 @@ export const ObituaryTemplateA4 = ({
             alt={fullName}
             style={{
               display: "block",
-              width: 173.333,
-              height: 208,
+              width: "173px",
+              height: "208px",
               objectFit: "cover",
               objectPosition: "center top",
             }}
@@ -348,10 +348,10 @@ export const ObituaryTemplateA4 = ({
         <div
           style={{
             position: "absolute",
-            top: 568.42,
-            left: 326.25,
-            width: 275.298,
-            height: 313.631,
+            bottom: 0,
+            right: 0,
+            width: "250px",
+            height: "250px",
             overflow: "hidden",
             pointerEvents: "none",
           }}
@@ -360,10 +360,10 @@ export const ObituaryTemplateA4 = ({
             src={flowerImage}
             alt=""
             style={{
-              width: 204.885,
-              height: 263.908,
-              transform: "rotate(17.66deg)",
+              width: "100%",
+              height: "100%",
               objectFit: "contain",
+              objectPosition: "bottom right",
             }}
           />
         </div>
