@@ -118,7 +118,6 @@ export const ObituaryTemplateA4 = ({
               height: 208,
               objectFit: "cover",
               objectPosition: "center top",
-              filter: "grayscale(100%)",
             }}
           />
         ) : (
