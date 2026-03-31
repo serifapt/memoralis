@@ -114,8 +114,8 @@ export const ObituaryTemplateA4 = ({
             alt={fullName}
             style={{
               display: "block",
-              width: 173.333,
-              height: 208,
+              width: "173px",
+              height: "208px",
               objectFit: "cover",
               objectPosition: "center top",
             }}
