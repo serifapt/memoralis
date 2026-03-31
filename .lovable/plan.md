@@ -1,51 +1,67 @@
 
 
-## Diagnóstico: PDF em branco
+## Diagnóstico: PDF em branco (persistente)
 
 ### Causa raiz
 
-O container offscreen (linha 523) que serve como alvo de captura para PDF:
+O `ObituaryTemplate` usa extensivamente classes Tailwind (`bg-white`, `absolute`, `flex`, `items-center`, `shrink-0`, `overflow-hidden`, `whitespace-nowrap`, `whitespace-pre-wrap`, `rounded-[30px]`, etc.) em conjunto com inline styles.
 
-```html
-<div id="obituary-template-a4" style="position: absolute; left: -9999px; top: -9999px">
-  <!-- ObituaryTemplate com 595×842px -->
-</div>
-```
-
-O template novo usa `position: relative` + `overflow: hidden` com dimensões fixas `595×842px`. Quando o `outerHTML` é copiado para a janela de impressão, dois problemas ocorrem:
-
-1. **O wrapper `#obituary-template-a4` não tem dimensões** — é um div genérico sem `width`/`height`, e na nova janela (sem o layout do React) pode colapsar ou clipar o conteúdo.
-2. **Fontes e CSS do Tailwind não carregam a tempo** — o `cssText` é copiado mas as `@font-face` do Google Fonts e as classes Tailwind podem não estar resolvidas na nova janela antes do `print()`.
-3. **Imagens com URLs relativas** — imagens como `/images/flores-obituario.png` ou logos do Supabase Storage podem não carregar na nova janela por falta de base URL.
+Quando o `outerHTML` é copiado para a janela de impressão:
+- O CSS do Vite/Tailwind é gerado dinamicamente e muitas vezes não é copiável via `document.styleSheets` (SecurityError em sheets cross-origin, ou sheets injetadas pelo HMR)
+- Resultado: as classes Tailwind não resolvem → layout colapsa → página branca
 
 ### Solução
 
-Corrigir o `generatePDF` no `AnnouncementGenerator.tsx`:
+Substituir **todas** as classes Tailwind no `ObituaryTemplate.tsx` e `SeventhDayMassTemplate.tsx` por inline styles equivalentes, tornando o HTML auto-contido e independente de qualquer stylesheet externo.
 
-1. **Dar dimensões explícitas ao wrapper offscreen** para que o conteúdo não colapse:
-   ```tsx
-   <div id="obituary-template-a4" style={{ position: "absolute", left: "-9999px", top: "-9999px", width: "595px", height: "842px" }}>
-   ```
+### Ficheiros a alterar
 
-2. **Incluir os Google Fonts via `<link>` na janela de impressão** em vez de depender apenas do CSS copiado:
-   ```html
-   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@500&display=swap" rel="stylesheet" />
-   ```
+**1. `src/components/ObituaryTemplate/ObituaryTemplate.tsx`**
 
-3. **Converter URLs relativas em absolutas** no `outerHTML` antes de injectar na janela de impressão, usando `window.location.origin` como prefixo para `src="/..."`.
+Converter cada `className` Tailwind para o `style` equivalente:
 
-4. **Aumentar o delay de estabilização** de 400ms para ~800ms para dar tempo às fontes de carregarem na nova janela.
+| Classe Tailwind | Style inline equivalente |
+|---|---|
+| `bg-white` | `backgroundColor: "#fff"` |
+| `relative` | `position: "relative"` |
+| `absolute` | `position: "absolute"` |
+| `overflow-hidden` | `overflow: "hidden"` |
+| `overflow-clip` | `overflow: "clip"` |
+| `flex` | `display: "flex"` |
+| `flex-col` | `flexDirection: "column"` |
+| `items-center` | `alignItems: "center"` |
+| `items-start` | `alignItems: "flex-start"` |
+| `justify-center` | `justifyContent: "center"` |
+| `shrink-0` | `flexShrink: 0` |
+| `whitespace-nowrap` | `whiteSpace: "nowrap"` |
+| `whitespace-pre-wrap` | `whiteSpace: "pre-wrap"` |
+| `rounded-[30px]` | `borderRadius: "30px"` |
+| `w-full h-full` | `width: "100%", height: "100%"` |
+| `size-full` | `width: "100%", height: "100%"` |
+| `max-w-none` | `maxWidth: "none"` |
+| `pointer-events-none` | `pointerEvents: "none"` |
+| `bg-gray-200` | `backgroundColor: "#e5e7eb"` |
+| `text-gray-400` | `color: "#9ca3af"` |
+| `text-xs` | `fontSize: "12px"` |
+| `text-[7px]` | `fontSize: "7px"` |
+| `border border-gray-300` | `border: "1px solid #d1d5db"` |
 
-### Ficheiro a alterar
+Eliminar completamente os atributos `className` — mover tudo para `style`.
 
-**`src/components/obituaries/AnnouncementGenerator.tsx`** — duas alterações:
+**2. `src/components/SeventhDayMassTemplate/SeventhDayMassTemplate.tsx`**
 
-**Alteração A — Wrapper offscreen (linha 523):**
-Adicionar `width: 595px; height: 842px` ao style do div `#obituary-template-a4`.
+Mesma conversão: todas as classes Tailwind → inline styles.
 
-**Alteração B — `generatePDF` (linhas 241-317):**
-- Injectar `<link>` do Google Fonts no `<head>` do HTML da janela de impressão
-- Substituir URLs relativas (`src="/...`) por absolutas no `outerHTML`
-- Aumentar delay para 800ms
-- Adicionar `background: white` explícito ao body do HTML de impressão
+**3. `src/components/shared/icons.tsx`**
+
+Verificar se os SVG icons usam classes Tailwind e converter para inline styles se necessário.
+
+### Não alterar
+
+- `AnnouncementGenerator.tsx` — as alterações anteriores (wrapper dimensions, font injection, URL absolutas, delay 800ms) mantêm-se
+- `ObituaryPreview.tsx` / `SeventhDayMassPreview.tsx` — estes são wrappers de UI e podem manter Tailwind (não são exportados para PDF)
+
+### Resultado esperado
+
+O HTML do template será 100% auto-contido (inline styles + Google Fonts via `<link>`), garantindo renderização fiel na janela de impressão independentemente do Tailwind/Vite.
 
