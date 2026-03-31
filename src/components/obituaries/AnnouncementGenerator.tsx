@@ -252,12 +252,12 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
         throw new Error("Preview element not found");
       }
 
-      // Wait for all images inside the element to be loaded
+      // Wait for all images inside the element to be fully loaded
       const images = element.querySelectorAll("img");
       await Promise.all(
         Array.from(images).map(
           (img) =>
-            img.complete
+            img.complete && img.naturalWidth > 0
               ? Promise.resolve()
               : new Promise<void>((resolve) => {
                   img.onload = () => resolve();
@@ -265,6 +265,9 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
                 })
         )
       );
+
+      // Short stabilization delay for layout to settle
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       const canvas = await html2canvas(element, {
         scale: 2,
