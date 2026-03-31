@@ -419,6 +419,13 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           {renderPreview()}
         </div>
       </Card>
+
+      {/* Hidden QR code canvas for generating data URL */}
+      {publicUrl && (
+        <div ref={qrRef} style={{ position: "absolute", left: -9999, top: -9999 }}>
+          <QRCodeCanvas value={publicUrl} size={120} />
+        </div>
+      )}
     </div>
   );
 };
