@@ -350,7 +350,7 @@ export function SeventhDayMassTemplate({
           <img
             src={flowerImage}
             alt=""
-            style={{ position: "absolute", maxWidth: "none", pointerEvents: "none", top: "0.25%", left: "14.58%", width: "85.42%", height: "99.49%" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain", objectPosition: "right bottom", pointerEvents: "none" }}
           />
         </div>
       )}
