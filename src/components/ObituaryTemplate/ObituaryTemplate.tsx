@@ -187,10 +187,10 @@ export function ObituaryTemplate({
           <img
             src={memoralisLogo}
             alt="memoralis"
-            style={{ position: "absolute", display: "block", maxWidth: "none", width: "100%", height: "100%" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }}
           />
         ) : (
-          <LogoMemoralis style={{ position: "absolute", display: "block", maxWidth: "none", width: "100%", height: "100%" }} />
+          <LogoMemoralis style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
         )}
       </div>
 
