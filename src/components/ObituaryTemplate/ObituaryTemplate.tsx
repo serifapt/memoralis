@@ -301,9 +301,9 @@ export function ObituaryTemplate({
           style={{
             position: "absolute",
             left: "40px",
-            top: "707px",
-            width: "150px",
-            height: "43px",
+            top: "700px",
+            width: "180px",
+            height: "50px",
             backgroundImage: `url(${funeralHomeLogo})`,
             backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
