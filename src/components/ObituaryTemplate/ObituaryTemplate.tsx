@@ -379,7 +379,7 @@ export function ObituaryTemplate({
           <img
             src={funeralHomeLogo}
             alt="Funerária"
-            style={{ position: "absolute", maxWidth: "none", pointerEvents: "none", width: "123.17%", height: "131.16%", top: "-14.88%", left: "-11.46%" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
           />
         </div>
       )}
