@@ -113,12 +113,9 @@ export function SeventhDayMassTemplate({
             src={photo}
             alt={fullName}
             style={{
-              position: "absolute",
-              maxWidth: "none",
-              width: "107.67%",
-              height: "134.58%",
-              top: "-0.56%",
-              left: "-2.83%",
+              display: "block",
+              width: "100%",
+              height: "100%",
               objectFit: "cover",
               objectPosition: "center top",
               filter: "grayscale(100%)",
