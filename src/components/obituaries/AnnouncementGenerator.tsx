@@ -467,7 +467,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
 
       {/* Offscreen template for PDF/image export */}
       {selectedTemplate === "profissional" && (
-        <div id="obituary-template-a4" style={{ position: "absolute", left: -9999, top: -9999, width: "595px", height: "842px" }}>
+        <div id="obituary-template-a4" style={{ position: "fixed", left: "-9999px", top: 0, width: "595px", height: "842px" }}>
           {renderPreview()}
         </div>
       )}
