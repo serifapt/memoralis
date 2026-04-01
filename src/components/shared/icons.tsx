@@ -1,18 +1,24 @@
 /**
  * Inline SVG icons — pixel-exact, extraídos do Figma Memoralis.
- * 100% inline styles (zero className) para compatibilidade html2canvas.
+ *
+ * IMPORTANTE:
+ * - Sem className — tudo inline style para compatibilidade html2canvas
+ * - Todos usam display: inline-block + vertical-align: middle para alinhar com texto
+ * - Tamanho normalizado: 13×13px
  */
 
 import React from "react";
 
-export function IconCalendar({ style }: { style?: React.CSSProperties }) {
+export function IconCalendar() {
   return (
     <svg
-      style={{ width: "13px", height: "13px", flexShrink: 0, display: "block", ...style }}
+      width="13"
+      height="13"
       viewBox="0 0 11.5208 12.6875"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      style={{ display: "inline-block", verticalAlign: "middle", width: "13px", height: "13px" }}
     >
       <path
         fillRule="evenodd"
@@ -24,14 +30,16 @@ export function IconCalendar({ style }: { style?: React.CSSProperties }) {
   );
 }
 
-export function IconClock({ style }: { style?: React.CSSProperties }) {
+export function IconClock() {
   return (
     <svg
-      style={{ width: "13px", height: "13px", flexShrink: 0, display: "block", ...style }}
+      width="13"
+      height="13"
       viewBox="0 0 12.6875 12.6875"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      style={{ display: "inline-block", verticalAlign: "middle", width: "13px", height: "13px" }}
     >
       <path
         d="M6.85417 2.84375C6.85417 2.56185 6.62564 2.33333 6.34375 2.33333C6.06185 2.33333 5.83333 2.56185 5.83333 2.84375V6.34375C5.83333 6.53708 5.94256 6.71382 6.11548 6.80028L8.44882 7.96695C8.70095 8.09301 9.00755 7.99082 9.13361 7.73868C9.25968 7.48655 9.15748 7.17995 8.90535 7.05389L6.85417 6.0283V2.84375Z"
@@ -47,14 +55,16 @@ export function IconClock({ style }: { style?: React.CSSProperties }) {
   );
 }
 
-export function IconMapPin({ style }: { style?: React.CSSProperties }) {
+export function IconMapPin() {
   return (
     <svg
-      style={{ width: "13px", height: "13px", flexShrink: 0, display: "block", ...style }}
+      width="13"
+      height="13"
       viewBox="0 0 13.1667 15.8332"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      style={{ display: "inline-block", verticalAlign: "middle", width: "13px", height: "13px" }}
     >
       <path
         fillRule="evenodd"
@@ -75,20 +85,18 @@ export function IconMapPin({ style }: { style?: React.CSSProperties }) {
 /**
  * Logo "III memoralis" — SVG inline com cores da marca.
  */
-export function LogoMemoralis({ style }: { style?: React.CSSProperties }) {
+export function LogoMemoralis({ style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg
-      style={{ width: "100%", height: "100%", display: "block", ...style }}
+      style={{ display: "block", width: "100%", height: "100%", ...style }}
       viewBox="0 0 256.9 34.3"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="memoralis"
     >
-      {/* III — vermelho #d85151 */}
       <path d="M.7,33.6c-.4,0-.7-.3-.7-.8V.9C0,.4.2.1.7.1h.5C2.6.1,3.9.7,4.9,1.9c1,1.2,1.6,2.9,1.6,4.9v26c0,.5-.2.8-.7.8H.7Z" fill="#d85151"/>
       <path d="M26.7,33.6c-.4,0-.7-.3-.7-.8V6.9c0-2.1.5-3.7,1.6-4.9,1-1.2,2.3-1.8,3.8-1.8h.5c.4,0,.7.3.7.8v31.9c0,.5-.2.8-.7.8h-5.2,0Z" fill="#d85151"/>
       <path d="M16.3,6.7h0c1.8,0,3.3,1.5,3.3,3.3v22.5c0,.6-.5,1-1,1h-4.5c-.6,0-1-.5-1-1V10.1c0-1.8,1.5-3.3,3.3-3.3h0Z" fill="#d85151"/>
-      {/* memoralis — verde escuro #2d595e */}
       <path d="M59.1,14.3c.6-.9,1.5-1.7,2.6-2.4,1.2-.7,2.5-1,4.2-1s3.3.4,4.6,1.1,2.3,1.7,3.1,3c.7-1.1,1.7-2,3-2.8,1.3-.9,2.8-1.3,4.8-1.3,2.9,0,5.1.9,6.7,2.6,1.6,1.7,2.4,4.1,2.4,7.1v12.5c0,.4-.2.5-.5.5h-3.5c-.3,0-.5-.2-.5-.5v-11.7c0-2.1-.5-3.7-1.4-4.8s-2.3-1.5-3.9-1.5-3.1.5-4.1,1.6c-1,1.1-1.5,2.7-1.5,4.9v11.5c0,.4-.2.5-.5.5h-3.6c-.3,0-.5-.2-.5-.5v-11.7c0-2.1-.5-3.7-1.4-4.8-.9-1-2.3-1.5-3.9-1.5s-3.2.5-4.2,1.6c-1,1.1-1.5,2.7-1.5,4.9v11.5c0,.4-.1.5-.4.5h-3.6c-.3,0-.5-.2-.5-.5V11.9c0-.3.2-.5.5-.5h.3c2,0,3.2,1,3.6,3h0Z" fill="#2d595e"/>
       <path d="M97.7,24.1c.2,2.1,1,3.6,2.3,4.6,1.3,1,3,1.5,5.1,1.5s3.1-.2,4.1-.7c1-.4,1.9-1,2.8-1.6.2,0,.3-.2.4-.3.1-.1.3-.2.4-.2.2,0,.3,0,.4.3s.2.4.2.6c0,.9-.3,1.7-1,2.6s-1.7,1.7-3,2.3-2.9.9-4.9.9-3.8-.4-5.5-1.2-3.1-2.1-4.2-3.8c-1.1-1.7-1.6-3.9-1.6-6.6s.4-4.3,1.3-6,2.1-3.1,3.7-4.1c1.6-1,3.4-1.5,5.5-1.5s4.3.5,5.8,1.5,2.5,2.3,3.2,3.8c.7,1.5,1,3.2,1,4.9s0,1,0,1.3,0,.7,0,1c0,.5-.3.7-.9.7h-15,0ZM97.8,20.7h11.4c0-.9,0-1.8-.4-2.7s-.9-1.6-1.7-2.2-2-.9-3.4-.9-3.1.5-4.1,1.5-1.6,2.5-1.9,4.3Z" fill="#2d595e"/>
       <path d="M120.9,14.3c.6-.9,1.5-1.7,2.6-2.4,1.1-.7,2.5-1,4.1-1s3.3.4,4.6,1.1c1.3.7,2.3,1.7,3.1,3,.7-1.1,1.7-2,3-2.8,1.3-.9,2.9-1.3,4.8-1.3,2.9,0,5.1.9,6.7,2.6,1.6,1.7,2.4,4.1,2.4,7.1v12.5c0,.4-.2.5-.5.5h-3.5c-.3,0-.5-.2-.5-.5v-11.7c0-2.1-.5-3.7-1.4-4.8s-2.3-1.5-3.9-1.5-3.1.5-4.1,1.6c-1,1.1-1.5,2.7-1.5,4.9v11.5c0,.4-.2.5-.5.5h-3.6c-.3,0-.5-.2-.5-.5v-11.7c0-2.1-.5-3.7-1.4-4.8-.9-1-2.2-1.5-3.9-1.5s-3.2.5-4.2,1.6c-1,1.1-1.5,2.7-1.5,4.9v11.5c0,.4-.1.5-.4.5h-3.6c-.3,0-.5-.2-.5-.5V11.9c0-.3.2-.5.5-.5h.3c2,0,3.2,1,3.6,3h0Z" fill="#2d595e"/>
