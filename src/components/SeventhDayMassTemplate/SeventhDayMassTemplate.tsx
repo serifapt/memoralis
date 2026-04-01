@@ -13,16 +13,19 @@ const DEFAULT_CONDOLENCES = "Deixe uma mensagem\nde condolências.";
 
 function EventRow({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <div className="flex items-center" style={{ gap: "3.68px" }}>
-      <div className="shrink-0 overflow-clip">{icon}</div>
+    <div style={{ display: "flex", alignItems: "center", gap: "3.68px" }}>
+      <div style={{ flexShrink: 0, overflow: "hidden" }}>{icon}</div>
       <p
-        className="shrink-0 not-italic whitespace-nowrap"
         style={{
+          flexShrink: 0,
+          fontStyle: "normal",
+          whiteSpace: "nowrap",
           fontFamily: "'Inter', sans-serif",
           fontWeight: 400,
           fontSize: "11.04px",
           lineHeight: "16.561px",
           color: "#4e5562",
+          margin: 0,
         }}
       >
         {text}
@@ -33,19 +36,6 @@ function EventRow({ icon, text }: { icon: React.ReactNode; text: string }) {
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
-/**
- * SeventhDayMassTemplate — frame A4 (595 × 842 px).
- *
- * Frame Figma: "missa 7º dia" (node 5476:20654).
- *
- * Diferenças vs ObituaryTemplate:
- *   • "MISSA 7º DIA" em vez de "FALECEU"
- *   • Só um bloco de evento (sem título de secção), na coluna direita
- *   • Texto familiar na coluna DIREITA (não esquerda)
- *   • Logo memoralis e QR mantêm as mesmas posições
- *
- * Para pré-visualização escalada usa SeventhDayMassPreview.
- */
 export function SeventhDayMassTemplate({
   memoralisLogo,
   photo,
@@ -75,13 +65,18 @@ export function SeventhDayMassTemplate({
 
   return (
     <div
-      className="bg-white relative overflow-hidden"
-      style={{ width: "595px", height: "842px", fontFamily: "'Inter', sans-serif" }}
+      style={{
+        background: "#ffffff",
+        position: "relative",
+        overflow: "hidden",
+        width: "595px",
+        height: "842px",
+        fontFamily: "'Inter', sans-serif",
+      }}
     >
-      {/* ── Logo memoralis — top right (101×13 px) ─────────────────────── */}
+      {/* ── Logo memoralis — top right ─────────────────────── */}
       <div
-        className="absolute overflow-clip"
-        style={{ left: "453.4px", top: "27px", width: "101px", height: "13px" }}
+        style={{ position: "absolute", overflow: "hidden", left: "453.4px", top: "27px", width: "101px", height: "13px" }}
       >
         {memoralisLogo ? (
           <img
@@ -90,14 +85,21 @@ export function SeventhDayMassTemplate({
             style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }}
           />
         ) : (
-          <LogoMemoralis className="w-full h-full" />
+          <LogoMemoralis />
         )}
       </div>
 
-      {/* ── Fotografia — top left (173.333×208 px, radius 30 px) ────────── */}
+      {/* ── Fotografia ────────────────────────────────────── */}
       <div
-        className="absolute rounded-[30px] overflow-hidden"
-        style={{ left: "40.67px", top: "40px", width: "173.333px", height: "208px" }}
+        style={{
+          position: "absolute",
+          borderRadius: "30px",
+          overflow: "hidden",
+          left: "40.67px",
+          top: "40px",
+          width: "173.333px",
+          height: "208px",
+        }}
       >
         {photo ? (
           <img
@@ -113,17 +115,28 @@ export function SeventhDayMassTemplate({
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              background: "#e5e7eb",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#9ca3af",
+              fontSize: "12px",
+            }}
+          >
             Foto
           </div>
         )}
       </div>
 
-      {/* ── Nome completo — Roboto Medium 32/40 ────────────────────────── */}
-      {/* Nota: left=255.78px (ligeiramente diferente do Obituary 262.78px) */}
+      {/* ── Nome completo ─────────────────────────────────── */}
       <p
-        className="absolute not-italic"
         style={{
+          position: "absolute",
+          fontStyle: "normal",
           left: "255.78px",
           top: "103px",
           width: "309.6px",
@@ -132,18 +145,28 @@ export function SeventhDayMassTemplate({
           fontSize: "32px",
           lineHeight: "40px",
           color: "#1d2735",
+          margin: 0,
         }}
       >
         {fullName}
       </p>
 
-      {/* ── Idade + Anos + Localidade ───────────────────────────────────── */}
+      {/* ── Idade + Anos + Localidade ─────────────────────── */}
       <div
-        className="absolute flex flex-col items-start not-italic"
-        style={{ left: "255.78px", top: "194px", width: "204px", gap: "4px" }}
+        style={{
+          position: "absolute",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          fontStyle: "normal",
+          left: "255.78px",
+          top: "194px",
+          width: "204px",
+          gap: "4px",
+        }}
       >
         {(age !== undefined || (birthYear && deathYear)) && (
-          <p style={{ fontSize: "0px", lineHeight: 0, color: "#6c727f" }}>
+          <p style={{ fontSize: "0px", lineHeight: 0, color: "#6c727f", margin: 0 }}>
             {age !== undefined && (
               <span style={{ fontWeight: 600, fontSize: "20px", lineHeight: "28px", color: "#6c727f" }}>
                 {age} anos
@@ -160,17 +183,17 @@ export function SeventhDayMassTemplate({
           </p>
         )}
         {locationLine && (
-          <p style={{ fontWeight: 600, fontSize: "16px", lineHeight: "22px", color: "#1d2735" }}>
+          <p style={{ fontWeight: 600, fontSize: "16px", lineHeight: "22px", color: "#1d2735", margin: 0 }}>
             {locationLine}
           </p>
         )}
       </div>
 
-      {/* ── MISSA 7º DIA — coluna esquerda ──────────────────────────────── */}
-      {/* Nota: top=349.34px (mais baixo que "FALECEU" em 298.6px) */}
+      {/* ── MISSA 7º DIA ──────────────────────────────────── */}
       <p
-        className="absolute not-italic"
         style={{
+          position: "absolute",
+          fontStyle: "normal",
           left: "40.67px",
           top: "349.34px",
           width: "160px",
@@ -178,27 +201,38 @@ export function SeventhDayMassTemplate({
           fontSize: "24px",
           lineHeight: "32px",
           color: "#6c727f",
+          margin: 0,
         }}
       >
         MISSA 7º DIA
       </p>
 
-      {/* ── Detalhes da missa — coluna direita (SEM título de secção) ────── */}
-      {/* Nota: left=256.78px, top=351.44px */}
+      {/* ── Detalhes da missa ─────────────────────────────── */}
       <div
-        className="absolute flex flex-col items-start justify-center not-italic"
-        style={{ left: "256.78px", top: "351.44px", width: "214.367px", gap: "3.68px" }}
+        style={{
+          position: "absolute",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          fontStyle: "normal",
+          left: "256.78px",
+          top: "351.44px",
+          width: "214.367px",
+          gap: "3.68px",
+        }}
       >
         {massDate && <EventRow icon={<IconCalendar />} text={massDate} />}
         {timeDisplay && <EventRow icon={<IconClock />} text={timeDisplay} />}
         {massLocation && <EventRow icon={<IconMapPin />} text={massLocation} />}
       </div>
 
-      {/* ── Texto familiar — coluna DIREITA (ao contrário do Obituary) ────── */}
-      {/* Nota: left=259.53px, top=454.55px, w=239.093px, leading=18px */}
+      {/* ── Texto familiar ────────────────────────────────── */}
       <div
-        className="absolute not-italic whitespace-pre-wrap"
         style={{
+          position: "absolute",
+          fontStyle: "normal",
+          whiteSpace: "pre-wrap",
           left: "259.53px",
           top: "454.55px",
           width: "239.093px",
@@ -216,12 +250,9 @@ export function SeventhDayMassTemplate({
         ))}
       </div>
 
-      {/* ── Logo funerária — bottom left (150×43 px) ────────────────────── */}
+      {/* ── Logo funerária ────────────────────────────────── */}
       {funeralHomeLogo && (
-        <div
-          className="absolute overflow-hidden"
-          style={{ left: "40.67px", top: "707.2px", width: "150px", height: "43px" }}
-        >
+        <div style={{ position: "absolute", overflow: "hidden", left: "40.67px", top: "707.2px", width: "150px", height: "43px" }}>
           <img
             src={funeralHomeLogo}
             alt="Funerária"
@@ -237,11 +268,15 @@ export function SeventhDayMassTemplate({
         </div>
       )}
 
-      {/* ── Contactos — bottom left ──────────────────────────────────────── */}
+      {/* ── Contactos ─────────────────────────────────────── */}
       {(phoneDisplay || email || website) && (
         <div
-          className="absolute flex flex-col items-start not-italic"
           style={{
+            position: "absolute",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            fontStyle: "normal",
             left: "41.24px",
             top: "764.89px",
             width: "207.617px",
@@ -252,17 +287,14 @@ export function SeventhDayMassTemplate({
             paddingBottom: "2px",
           }}
         >
-          {phoneDisplay && <p className="w-full">{phoneDisplay}</p>}
-          {email && <p className="w-full">{email}</p>}
-          {website && <p className="w-full">{website}</p>}
+          {phoneDisplay && <p style={{ width: "100%", margin: 0 }}>{phoneDisplay}</p>}
+          {email && <p style={{ width: "100%", margin: 0 }}>{email}</p>}
+          {website && <p style={{ width: "100%", margin: 0 }}>{website}</p>}
         </div>
       )}
 
-      {/* ── QR code — bottom center-left (≈45×45 px) ───────────────────── */}
-      <div
-        className="absolute"
-        style={{ left: "263.3px", top: "765px", width: "45px", height: "45px" }}
-      >
+      {/* ── QR code ───────────────────────────────────────── */}
+      <div style={{ position: "absolute", left: "263.3px", top: "765px", width: "45px", height: "45px" }}>
         {qrCodeImage ? (
           <img
             src={qrCodeImage}
@@ -270,16 +302,28 @@ export function SeventhDayMassTemplate({
             style={{ display: "block", width: "100%", height: "100%" }}
           />
         ) : (
-          <div className="w-full h-full border border-gray-300 flex items-center justify-center text-[7px] text-gray-400">
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "1px solid #d1d5db",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "7px",
+              color: "#9ca3af",
+            }}
+          >
             QR
           </div>
         )}
       </div>
 
-      {/* ── Texto condolências — ao lado do QR ──────────────────────────── */}
+      {/* ── Texto condolências ────────────────────────────── */}
       <div
-        className="absolute not-italic"
         style={{
+          position: "absolute",
+          fontStyle: "normal",
           left: "322.51px",
           top: "766.89px",
           width: "99.672px",
@@ -294,12 +338,9 @@ export function SeventhDayMassTemplate({
         ))}
       </div>
 
-      {/* ── Flores decorativas — bottom right (mesma posição que Obituary) ─ */}
+      {/* ── Flores decorativas ────────────────────────────── */}
       {flowerImage && (
-        <div
-          className="absolute overflow-hidden"
-          style={{ left: "379px", top: "582.01px", width: "204.885px", height: "263.908px" }}
-        >
+        <div style={{ position: "absolute", overflow: "hidden", left: "379px", top: "582.01px", width: "204.885px", height: "263.908px" }}>
           <img
             src={flowerImage}
             alt=""

@@ -1,17 +1,14 @@
 /**
  * Inline SVG icons — pixel-exact, extraídos do Figma Memoralis.
- *
- * Tamanhos Figma:
- *   calendar / clock → 12.88 × 12.88 px
- *   map-pin          → 14.72 × 14.72 px
+ * 100% inline styles (zero className) para compatibilidade html2canvas.
  */
 
-export function IconCalendar({ className }: { className?: string }) {
+import React from "react";
+
+export function IconCalendar({ style }: { style?: React.CSSProperties }) {
   return (
     <svg
-      className={className}
-      width="12.88"
-      height="12.88"
+      style={{ width: "13px", height: "13px", flexShrink: 0, display: "block", ...style }}
       viewBox="0 0 11.5208 12.6875"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -27,12 +24,10 @@ export function IconCalendar({ className }: { className?: string }) {
   );
 }
 
-export function IconClock({ className }: { className?: string }) {
+export function IconClock({ style }: { style?: React.CSSProperties }) {
   return (
     <svg
-      className={className}
-      width="12.88"
-      height="12.88"
+      style={{ width: "13px", height: "13px", flexShrink: 0, display: "block", ...style }}
       viewBox="0 0 12.6875 12.6875"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -52,12 +47,10 @@ export function IconClock({ className }: { className?: string }) {
   );
 }
 
-export function IconMapPin({ className }: { className?: string }) {
+export function IconMapPin({ style }: { style?: React.CSSProperties }) {
   return (
     <svg
-      className={className}
-      width="14.72"
-      height="14.72"
+      style={{ width: "13px", height: "13px", flexShrink: 0, display: "block", ...style }}
       viewBox="0 0 13.1667 15.8332"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -81,13 +74,11 @@ export function IconMapPin({ className }: { className?: string }) {
 
 /**
  * Logo "III memoralis" — SVG inline com cores da marca.
- * Dimensões Figma: 101 × 13 px (top-right de todos os templates).
  */
-export function LogoMemoralis({ className, style }: { className?: string; style?: React.CSSProperties }) {
+export function LogoMemoralis({ style }: { style?: React.CSSProperties }) {
   return (
     <svg
-      className={className}
-      style={style}
+      style={{ width: "100%", height: "100%", display: "block", ...style }}
       viewBox="0 0 256.9 34.3"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
