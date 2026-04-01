@@ -278,7 +278,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         backgroundColor: "#ffffff",
         useCORS: true,
         allowTaint: false,
@@ -323,7 +323,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       const height = Math.round(width / aspectRatio);
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         backgroundColor: "#ffffff",
         useCORS: true,
         allowTaint: false,

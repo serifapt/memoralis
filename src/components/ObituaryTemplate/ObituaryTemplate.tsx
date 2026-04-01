@@ -204,7 +204,7 @@ export function ObituaryTemplate({
         style={{
           position: "absolute",
           left: "263px",
-          top: "194px",
+          top: "210px",
           width: "204px",
         }}
       >
@@ -301,9 +301,9 @@ export function ObituaryTemplate({
           style={{
             position: "absolute",
             left: "40px",
-            top: "707px",
-            width: "150px",
-            height: "43px",
+            top: "700px",
+            width: "180px",
+            height: "50px",
             backgroundImage: `url(${funeralHomeLogo})`,
             backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
@@ -394,14 +394,14 @@ export function ObituaryTemplate({
         <div
           style={{
             position: "absolute",
-            left: "379px",
-            top: "582px",
+            left: "390px",
+            top: "578px",
             width: "205px",
             height: "264px",
             backgroundImage: `url(${flowerImage})`,
             backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
-            backgroundPosition: "right top",
+            backgroundPosition: "right bottom",
           }}
         />
       )}
