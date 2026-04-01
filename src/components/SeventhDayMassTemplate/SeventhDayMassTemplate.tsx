@@ -9,27 +9,27 @@ const DEFAULT_FAMILY_TEXT =
 
 const DEFAULT_CONDOLENCES = "Deixe uma mensagem\nde condolências.";
 
-// ─── EventRow helper ────────────────────────────────────────────────────────
+// ─── EventRow — ícone + texto (inline-block para html2canvas) ───────────────
 
 function EventRow({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "3.68px" }}>
-      <div style={{ flexShrink: 0, overflow: "hidden" }}>{icon}</div>
-      <p
+    <div style={{ lineHeight: "17px", marginTop: "4px" }}>
+      <span style={{ display: "inline-block", verticalAlign: "middle", width: "13px", height: "13px", marginRight: "4px" }}>
+        {icon}
+      </span>
+      <span
         style={{
-          flexShrink: 0,
-          fontStyle: "normal",
-          whiteSpace: "nowrap",
+          display: "inline",
+          verticalAlign: "middle",
           fontFamily: "'Inter', sans-serif",
           fontWeight: 400,
-          fontSize: "11.04px",
-          lineHeight: "16.561px",
+          fontSize: "11px",
+          lineHeight: "17px",
           color: "#4e5562",
-          margin: 0,
         }}
       >
         {text}
-      </p>
+      </span>
     </div>
   );
 }
@@ -66,60 +66,67 @@ export function SeventhDayMassTemplate({
   return (
     <div
       style={{
-        background: "#ffffff",
         position: "relative",
-        overflow: "hidden",
         width: "595px",
         height: "842px",
+        backgroundColor: "#ffffff",
+        overflow: "hidden",
         fontFamily: "'Inter', sans-serif",
       }}
     >
-      {/* ── Logo memoralis — top right ─────────────────────── */}
+      {/* ── Logo memoralis — top right ─────────────────────────────────── */}
       <div
-        style={{ position: "absolute", overflow: "hidden", left: "453.4px", top: "27px", width: "101px", height: "13px" }}
+        style={{
+          position: "absolute",
+          left: "453px",
+          top: "27px",
+          width: "101px",
+          height: "13px",
+          overflow: "hidden",
+        }}
       >
         {memoralisLogo ? (
-          <img
-            src={memoralisLogo}
-            alt="memoralis"
-            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }}
+          <div
+            style={{
+              width: "101px",
+              height: "13px",
+              backgroundImage: `url(${memoralisLogo})`,
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+            }}
           />
         ) : (
           <LogoMemoralis />
         )}
       </div>
 
-      {/* ── Fotografia ────────────────────────────────────── */}
+      {/* ── Fotografia — top left (background-image para html2canvas) ──── */}
       <div
         style={{
           position: "absolute",
+          left: "41px",
+          top: "40px",
+          width: "173px",
+          height: "208px",
           borderRadius: "30px",
           overflow: "hidden",
-          left: "40.67px",
-          top: "40px",
-          width: "173.333px",
-          height: "208px",
+          backgroundColor: "#e5e7eb",
+          ...(photo
+            ? {
+                backgroundImage: `url(${photo})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center 20%",
+                filter: "grayscale(100%)",
+              }
+            : {}),
         }}
       >
-        {photo ? (
-          <img
-            src={photo}
-            alt={fullName}
-            style={{
-              display: "block",
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: "center 20%",
-              filter: "grayscale(100%)",
-            }}
-          />
-        ) : (
+        {!photo && (
           <div
             style={{
-              width: "100%",
-              height: "100%",
-              background: "#e5e7eb",
+              width: "173px",
+              height: "208px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -132,94 +139,78 @@ export function SeventhDayMassTemplate({
         )}
       </div>
 
-      {/* ── Nome completo ─────────────────────────────────── */}
+      {/* ── Nome completo ──────────────────────────────────────────────── */}
       <p
         style={{
           position: "absolute",
-          fontStyle: "normal",
-          left: "255.78px",
+          left: "263px",
           top: "103px",
-          width: "309.6px",
+          width: "310px",
+          margin: 0,
           fontFamily: "'Roboto', 'Inter', sans-serif",
           fontWeight: 500,
           fontSize: "32px",
           lineHeight: "40px",
           color: "#1d2735",
-          margin: 0,
         }}
       >
         {fullName}
       </p>
 
-      {/* ── Idade + Anos + Localidade ─────────────────────── */}
+      {/* ── Idade + Anos + Localidade ──────────────────────────────────── */}
       <div
         style={{
           position: "absolute",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          fontStyle: "normal",
-          left: "255.78px",
+          left: "263px",
           top: "194px",
           width: "204px",
-          gap: "4px",
         }}
       >
         {(age !== undefined || (birthYear && deathYear)) && (
-          <p style={{ fontSize: "0px", lineHeight: 0, color: "#6c727f", margin: 0 }}>
+          <div style={{ marginBottom: "4px" }}>
             {age !== undefined && (
               <span style={{ fontWeight: 600, fontSize: "20px", lineHeight: "28px", color: "#6c727f" }}>
                 {age} anos
               </span>
             )}
             {birthYear && deathYear && (
-              <>
-                <span style={{ fontWeight: 600, fontSize: "14px", lineHeight: "22px", color: "#6c727f" }}>{" "}</span>
-                <span style={{ fontWeight: 400, fontSize: "14px", lineHeight: "22px", color: "#6c727f" }}>
-                  · {birthYear} - {deathYear}
-                </span>
-              </>
+              <span style={{ fontWeight: 400, fontSize: "14px", lineHeight: "22px", color: "#6c727f" }}>
+                {age !== undefined ? " " : ""}· {birthYear} - {deathYear}
+              </span>
             )}
-          </p>
+          </div>
         )}
         {locationLine && (
-          <p style={{ fontWeight: 600, fontSize: "16px", lineHeight: "22px", color: "#1d2735", margin: 0 }}>
+          <p style={{ margin: 0, fontWeight: 600, fontSize: "16px", lineHeight: "22px", color: "#1d2735" }}>
             {locationLine}
           </p>
         )}
       </div>
 
-      {/* ── MISSA 7º DIA ──────────────────────────────────── */}
+      {/* ── MISSA 7º DIA — coluna esquerda ─────────────────────────────── */}
       <p
         style={{
           position: "absolute",
-          fontStyle: "normal",
-          left: "40.67px",
-          top: "349.34px",
-          width: "160px",
+          left: "41px",
+          top: "349px",
+          width: "180px",
+          margin: 0,
           fontWeight: 600,
           fontSize: "24px",
           lineHeight: "32px",
           color: "#6c727f",
-          margin: 0,
         }}
       >
         MISSA 7º DIA
       </p>
 
-      {/* ── Detalhes da missa ─────────────────────────────── */}
+      {/* ── Detalhes da missa — coluna direita ─────────────────────────── */}
       <div
         style={{
           position: "absolute",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
-          fontStyle: "normal",
-          left: "256.78px",
-          top: "351.44px",
-          width: "214.367px",
-          gap: "3.68px",
+          left: "261px",
+          top: "351px",
+          width: "295px",
         }}
       >
         {massDate && <EventRow icon={<IconCalendar />} text={massDate} />}
@@ -227,85 +218,90 @@ export function SeventhDayMassTemplate({
         {massLocation && <EventRow icon={<IconMapPin />} text={massLocation} />}
       </div>
 
-      {/* ── Texto familiar ────────────────────────────────── */}
+      {/* ── Texto familiar — coluna direita ────────────────────────────── */}
       <div
         style={{
           position: "absolute",
-          fontStyle: "normal",
-          whiteSpace: "pre-wrap",
-          left: "259.53px",
-          top: "454.55px",
-          width: "239.093px",
+          left: "260px",
+          top: "455px",
+          width: "239px",
           fontWeight: 400,
           fontSize: "11px",
-          lineHeight: "0px",
+          lineHeight: "16px",
           color: "#4e5562",
         }}
       >
         {familyText.split("\n\n").map((paragraph, pi) => (
           <React.Fragment key={pi}>
-            {pi > 0 && <p style={{ lineHeight: "18px", marginBottom: 0 }}>&nbsp;</p>}
-            <p style={{ lineHeight: "18px", marginBottom: 0 }}>{paragraph}</p>
+            {pi > 0 && <p style={{ lineHeight: "16px", margin: 0 }}>&nbsp;</p>}
+            <p style={{ lineHeight: "16px", margin: 0 }}>{paragraph}</p>
           </React.Fragment>
         ))}
       </div>
 
-      {/* ── Logo funerária ────────────────────────────────── */}
+      {/* ── Logo funerária — bottom left (background-image) ────────────── */}
       {funeralHomeLogo && (
-        <div style={{ position: "absolute", overflow: "hidden", left: "40.67px", top: "707.2px", width: "150px", height: "43px" }}>
-          <img
-            src={funeralHomeLogo}
-            alt="Funerária"
-            style={{
-              display: "block",
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              objectPosition: "left center",
-              pointerEvents: "none",
-            }}
-          />
-        </div>
+        <div
+          style={{
+            position: "absolute",
+            left: "40px",
+            top: "707px",
+            width: "150px",
+            height: "43px",
+            backgroundImage: `url(${funeralHomeLogo})`,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "left center",
+          }}
+        />
       )}
 
-      {/* ── Contactos ─────────────────────────────────────── */}
+      {/* ── Contactos — bottom left ────────────────────────────────────── */}
       {(phoneDisplay || email || website) && (
         <div
           style={{
             position: "absolute",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            fontStyle: "normal",
-            left: "41.24px",
-            top: "764.89px",
-            width: "207.617px",
+            left: "40px",
+            top: "765px",
+            width: "208px",
             fontWeight: 400,
             fontSize: "9px",
-            lineHeight: "18px",
+            lineHeight: "14px",
             color: "#4e5562",
-            paddingBottom: "2px",
           }}
         >
-          {phoneDisplay && <p style={{ width: "100%", margin: 0 }}>{phoneDisplay}</p>}
-          {email && <p style={{ width: "100%", margin: 0 }}>{email}</p>}
-          {website && <p style={{ width: "100%", margin: 0 }}>{website}</p>}
+          {phoneDisplay && <p style={{ margin: 0 }}>{phoneDisplay}</p>}
+          {email && <p style={{ margin: 0 }}>{email}</p>}
+          {website && <p style={{ margin: 0 }}>{website}</p>}
         </div>
       )}
 
-      {/* ── QR code ───────────────────────────────────────── */}
-      <div style={{ position: "absolute", left: "263.3px", top: "765px", width: "45px", height: "45px" }}>
+      {/* ── QR code — bottom center ────────────────────────────────────── */}
+      <div
+        style={{
+          position: "absolute",
+          left: "263px",
+          top: "765px",
+          width: "45px",
+          height: "45px",
+        }}
+      >
         {qrCodeImage ? (
-          <img
-            src={qrCodeImage}
-            alt="QR condolências"
-            style={{ display: "block", width: "100%", height: "100%" }}
+          <div
+            style={{
+              width: "45px",
+              height: "45px",
+              backgroundImage: `url(${qrCodeImage})`,
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+            }}
           />
         ) : (
           <div
             style={{
-              width: "100%",
-              height: "100%",
+              width: "45px",
+              height: "45px",
               border: "1px solid #d1d5db",
               display: "flex",
               alignItems: "center",
@@ -319,41 +315,39 @@ export function SeventhDayMassTemplate({
         )}
       </div>
 
-      {/* ── Texto condolências ────────────────────────────── */}
+      {/* ── Texto condolências — ao lado do QR ─────────────────────────── */}
       <div
         style={{
           position: "absolute",
-          fontStyle: "normal",
-          left: "322.51px",
-          top: "766.89px",
-          width: "99.672px",
+          left: "323px",
+          top: "767px",
+          width: "100px",
           fontWeight: 400,
-          fontSize: "10.976px",
-          lineHeight: "0px",
+          fontSize: "11px",
+          lineHeight: "15px",
           color: "#4e5562",
         }}
       >
         {condolencesText.split("\n").map((line, i) => (
-          <p key={i} style={{ lineHeight: "15.366px", marginBottom: 0 }}>{line}</p>
+          <p key={i} style={{ margin: 0, lineHeight: "15px" }}>{line}</p>
         ))}
       </div>
 
-      {/* ── Flores decorativas ────────────────────────────── */}
+      {/* ── Flores decorativas — bottom right (background-image) ───────── */}
       {flowerImage && (
-        <div style={{ position: "absolute", overflow: "hidden", left: "379px", top: "582.01px", width: "204.885px", height: "263.908px" }}>
-          <img
-            src={flowerImage}
-            alt=""
-            style={{
-              display: "block",
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              objectPosition: "right top",
-              pointerEvents: "none",
-            }}
-          />
-        </div>
+        <div
+          style={{
+            position: "absolute",
+            left: "379px",
+            top: "582px",
+            width: "205px",
+            height: "264px",
+            backgroundImage: `url(${flowerImage})`,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right top",
+          }}
+        />
       )}
     </div>
   );
