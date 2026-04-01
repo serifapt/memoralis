@@ -285,6 +285,8 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
         logging: false,
         width: 595,
         height: 842,
+        windowWidth: 595,
+        windowHeight: 842,
       });
 
       const imgData = canvas.toDataURL("image/png");
