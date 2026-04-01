@@ -204,7 +204,7 @@ export function ObituaryTemplate({
         style={{
           position: "absolute",
           left: "263px",
-          top: "194px",
+          top: "210px",
           width: "204px",
         }}
       >
