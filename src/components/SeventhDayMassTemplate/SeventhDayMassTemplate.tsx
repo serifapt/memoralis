@@ -89,10 +89,10 @@ export function SeventhDayMassTemplate({
           <img
             src={memoralisLogo}
             alt="memoralis"
-            style={{ position: "absolute", display: "block", maxWidth: "none", width: "100%", height: "100%" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }}
           />
         ) : (
-          <LogoMemoralis style={{ position: "absolute", display: "block", maxWidth: "none", width: "100%", height: "100%" }} />
+          <LogoMemoralis style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
         )}
       </div>
 
@@ -113,12 +113,9 @@ export function SeventhDayMassTemplate({
             src={photo}
             alt={fullName}
             style={{
-              position: "absolute",
-              maxWidth: "none",
-              width: "107.67%",
-              height: "134.58%",
-              top: "-0.56%",
-              left: "-2.83%",
+              display: "block",
+              width: "100%",
+              height: "100%",
               objectFit: "cover",
               objectPosition: "center top",
               filter: "grayscale(100%)",
@@ -268,7 +265,7 @@ export function SeventhDayMassTemplate({
           <img
             src={funeralHomeLogo}
             alt="Funerária"
-            style={{ position: "absolute", maxWidth: "none", pointerEvents: "none", width: "123.17%", height: "131.16%", top: "-14.88%", left: "-11.46%" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }}
           />
         </div>
       )}
@@ -306,7 +303,7 @@ export function SeventhDayMassTemplate({
           <img
             src={qrCodeImage}
             alt="QR condolências"
-            style={{ position: "absolute", display: "block", maxWidth: "none", width: "100%", height: "100%" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }}
           />
         ) : (
           <div
@@ -353,7 +350,7 @@ export function SeventhDayMassTemplate({
           <img
             src={flowerImage}
             alt=""
-            style={{ position: "absolute", maxWidth: "none", pointerEvents: "none", top: "0.25%", left: "14.58%", width: "85.42%", height: "99.49%" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "contain", objectPosition: "right bottom", pointerEvents: "none" }}
           />
         </div>
       )}
