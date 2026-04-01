@@ -61,6 +61,7 @@ export const SEVENTH_DAY_MASS_DEMO: SeventhDayMassTemplateProps = {
 
   funeralHomeLogo: "/assets/memoralis/funeraria-sjoao-logo.png",
   flowerImage: "/assets/memoralis/flowers.png",
+  // qrCodeImage: "/assets/memoralis/qr-demo.png",
   phone1: "962 766 625",
   phone2: "258 515 233",
   email: "funeraria.s.joao@gmail.com",
