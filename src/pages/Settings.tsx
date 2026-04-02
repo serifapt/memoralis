@@ -102,6 +102,9 @@ export default function Settings() {
           setLogoUrl(data.logo_url);
           setLogoPreview(data.logo_url);
         }
+        if (data.servicos && Array.isArray(data.servicos)) {
+          setSelectedServices(data.servicos);
+        }
       }
     } catch (err) {
       console.error("Error loading company data:", err);
