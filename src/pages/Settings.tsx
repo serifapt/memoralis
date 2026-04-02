@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Building2, Users, Bell, Flower, Loader2, Upload, X, Crop, Image } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Building2, Users, Bell, Flower, Loader2, Upload, X, Crop, Image, Plus, Trash2 } from "lucide-react";
 import { useFlowerService } from "@/hooks/useFlowerService";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,21 @@ import { PublicPageTab } from "@/components/settings/PublicPageTab";
 import { LogoCropper } from "@/components/settings/LogoCropper";
 import { useFunerariaRole } from "@/hooks/useFunerariaRole";
 import { MembersTab } from "@/components/settings/MembersTab";
+
+const DEFAULT_SERVICES = [
+  "Funerais e Cerimónias",
+  "Cremação",
+  "Tanatopraxia",
+  "Transporte Nacional",
+  "Transporte Internacional",
+  "Repatriamento",
+  "Trasladação",
+  "Exumação",
+  "Velório",
+  "Florista",
+  "Apoio Administrativo",
+  "Apoio ao Luto",
+];
 
 interface CompanyData {
   nome_comercial: string;
@@ -52,6 +68,11 @@ export default function Settings() {
   const [showCropper, setShowCropper] = useState(false);
   const [cropSource, setCropSource] = useState<string>("");
 
+  // Services state
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [customServiceInput, setCustomServiceInput] = useState("");
+  const [savingServices, setSavingServices] = useState(false);
+
   useEffect(() => {
     loadCompanyData();
   }, []);
@@ -63,7 +84,7 @@ export default function Settings() {
 
       const { data } = await supabase
         .from("funerarias")
-        .select("nome_comercial, nif, telefone, email, morada, logo_url, localidade, codigo_postal")
+        .select("nome_comercial, nif, telefone, email, morada, logo_url, localidade, codigo_postal, servicos")
         .eq("user_id", user.id)
         .single();
 
@@ -80,6 +101,9 @@ export default function Settings() {
         if (data.logo_url) {
           setLogoUrl(data.logo_url);
           setLogoPreview(data.logo_url);
+        }
+        if (data.servicos && Array.isArray(data.servicos)) {
+          setSelectedServices(data.servicos);
         }
       }
     } catch (err) {
@@ -243,6 +267,50 @@ export default function Settings() {
     }
   };
 
+  const handleToggleService = (service: string) => {
+    setSelectedServices(prev =>
+      prev.includes(service) ? prev.filter(s => s !== service) : [...prev, service]
+    );
+  };
+
+  const handleAddCustomService = () => {
+    const trimmed = customServiceInput.trim();
+    if (!trimmed) return;
+    if (selectedServices.includes(trimmed)) {
+      toast.error("Este serviço já foi adicionado");
+      return;
+    }
+    setSelectedServices(prev => [...prev, trimmed]);
+    setCustomServiceInput("");
+  };
+
+  const handleRemoveCustomService = (service: string) => {
+    setSelectedServices(prev => prev.filter(s => s !== service));
+  };
+
+  const handleSaveServices = async () => {
+    if (!funerariaId) {
+      toast.error("Funerária não encontrada");
+      return;
+    }
+    setSavingServices(true);
+    try {
+      const { error } = await supabase
+        .from("funerarias")
+        .update({ servicos: selectedServices })
+        .eq("id", funerariaId);
+      if (error) throw error;
+      toast.success("Serviços guardados com sucesso");
+    } catch (err) {
+      console.error("Error saving services:", err);
+      toast.error("Erro ao guardar os serviços");
+    } finally {
+      setSavingServices(false);
+    }
+  };
+
+  const customServices = selectedServices.filter(s => !DEFAULT_SERVICES.includes(s));
+
   return (
     <div className="p-8 space-y-6">
       <div>
@@ -357,7 +425,59 @@ export default function Settings() {
           <PublicPageTab funerariaId={funerariaId} />
         </TabsContent>
 
-        <TabsContent value="services">
+        <TabsContent value="services" className="space-y-6">
+          {/* Services offered by the funeraria */}
+          <Card className="p-6">
+            <h3 className="text-lg font-archivo font-semibold text-foreground mb-2">Serviços Prestados</h3>
+            <p className="text-sm text-muted-foreground mb-4">Selecione os serviços que a sua funerária oferece. Estes serão apresentados na sua página pública.</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {DEFAULT_SERVICES.map(service => (
+                <label key={service} className="flex items-center gap-2 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors">
+                  <Checkbox
+                    checked={selectedServices.includes(service)}
+                    onCheckedChange={() => handleToggleService(service)}
+                  />
+                  <span className="text-sm text-foreground">{service}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Custom services */}
+            <div className="space-y-3">
+              <Label>Adicionar outro serviço</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={customServiceInput}
+                  onChange={(e) => setCustomServiceInput(e.target.value)}
+                  placeholder="Ex: Serviço de Catering"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddCustomService())}
+                />
+                <Button variant="outline" onClick={handleAddCustomService} disabled={!customServiceInput.trim()}>
+                  <Plus className="w-4 h-4 mr-1" />
+                  Adicionar
+                </Button>
+              </div>
+              {customServices.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {customServices.map(service => (
+                    <span key={service} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm">
+                      {service}
+                      <button onClick={() => handleRemoveCustomService(service)} className="hover:text-destructive transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Button className="bg-primary hover:bg-primary/90 mt-6" onClick={handleSaveServices} disabled={savingServices || !funerariaId}>
+              {savingServices && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Guardar Serviços
+            </Button>
+          </Card>
+
+          {/* Flower service toggle */}
           <Card className="p-6">
             <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Serviços Opcionais</h3>
             <div className="space-y-6">
@@ -378,11 +498,6 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">
                     O serviço de flores está ativo. Aceda ao <strong>Catálogo de Flores</strong> no menu lateral para gerir os seus produtos.
                   </p>
-                </div>
-              )}
-              {!funerariaId && (
-                <div className="bg-destructive/10 p-4 rounded-lg">
-                  <p className="text-sm text-destructive">Não foi possível carregar os dados da funerária. Por favor, recarregue a página.</p>
                 </div>
               )}
             </div>
