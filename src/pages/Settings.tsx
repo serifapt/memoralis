@@ -68,6 +68,11 @@ export default function Settings() {
   const [showCropper, setShowCropper] = useState(false);
   const [cropSource, setCropSource] = useState<string>("");
 
+  // Services state
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [customServiceInput, setCustomServiceInput] = useState("");
+  const [savingServices, setSavingServices] = useState(false);
+
   useEffect(() => {
     loadCompanyData();
   }, []);
