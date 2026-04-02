@@ -425,7 +425,59 @@ export default function Settings() {
           <PublicPageTab funerariaId={funerariaId} />
         </TabsContent>
 
-        <TabsContent value="services">
+        <TabsContent value="services" className="space-y-6">
+          {/* Services offered by the funeraria */}
+          <Card className="p-6">
+            <h3 className="text-lg font-archivo font-semibold text-foreground mb-2">Serviços Prestados</h3>
+            <p className="text-sm text-muted-foreground mb-4">Selecione os serviços que a sua funerária oferece. Estes serão apresentados na sua página pública.</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {DEFAULT_SERVICES.map(service => (
+                <label key={service} className="flex items-center gap-2 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors">
+                  <Checkbox
+                    checked={selectedServices.includes(service)}
+                    onCheckedChange={() => handleToggleService(service)}
+                  />
+                  <span className="text-sm text-foreground">{service}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Custom services */}
+            <div className="space-y-3">
+              <Label>Adicionar outro serviço</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={customServiceInput}
+                  onChange={(e) => setCustomServiceInput(e.target.value)}
+                  placeholder="Ex: Serviço de Catering"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddCustomService())}
+                />
+                <Button variant="outline" onClick={handleAddCustomService} disabled={!customServiceInput.trim()}>
+                  <Plus className="w-4 h-4 mr-1" />
+                  Adicionar
+                </Button>
+              </div>
+              {customServices.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {customServices.map(service => (
+                    <span key={service} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm">
+                      {service}
+                      <button onClick={() => handleRemoveCustomService(service)} className="hover:text-destructive transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Button className="bg-primary hover:bg-primary/90 mt-6" onClick={handleSaveServices} disabled={savingServices || !funerariaId}>
+              {savingServices && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Guardar Serviços
+            </Button>
+          </Card>
+
+          {/* Flower service toggle */}
           <Card className="p-6">
             <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Serviços Opcionais</h3>
             <div className="space-y-6">
@@ -446,11 +498,6 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">
                     O serviço de flores está ativo. Aceda ao <strong>Catálogo de Flores</strong> no menu lateral para gerir os seus produtos.
                   </p>
-                </div>
-              )}
-              {!funerariaId && (
-                <div className="bg-destructive/10 p-4 rounded-lg">
-                  <p className="text-sm text-destructive">Não foi possível carregar os dados da funerária. Por favor, recarregue a página.</p>
                 </div>
               )}
             </div>
