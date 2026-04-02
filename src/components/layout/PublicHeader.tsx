@@ -57,8 +57,11 @@ export const PublicHeader = () => {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            <Button size="sm" variant="outline" asChild className="hidden md:inline-flex">
+              <Link to="/login">Entrar</Link>
+            </Button>
             <Button size="sm" asChild className="hidden md:inline-flex">
-              <Link to="/auth">Registar</Link>
+              <Link to="/funeraria/register">Registar</Link>
             </Button>
 
             {/* Mobile menu */}
