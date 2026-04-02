@@ -1689,6 +1689,7 @@ export default function NewObituary() {
                         </Button>
                       </div>
                     )}
+                  </div>
 
                   {/* Velório */}
                   <div className="space-y-4">
