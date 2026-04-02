@@ -49,7 +49,13 @@ export default function Auth() {
           if (isAdmin) {
             navigate("/admin/funerarias");
           } else if (isFuneraria) {
-            navigate("/dashboard");
+            const { data: funeraria } = await supabase
+              .from("funerarias")
+              .select("morada, localidade, codigo_postal")
+              .eq("user_id", session.user.id)
+              .maybeSingle();
+            const isComplete = funeraria && funeraria.morada && funeraria.localidade && funeraria.codigo_postal;
+            navigate(isComplete ? "/dashboard" : "/settings");
           } else if (isTechnician) {
             navigate("/field/tasks");
           } else {
