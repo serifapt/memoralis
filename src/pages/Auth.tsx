@@ -84,6 +84,18 @@ export default function Auth() {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
+  // Check if funeraria profile is complete
+  const checkFunerariaProfileComplete = async (userId: string): Promise<boolean> => {
+    const { data: funeraria } = await supabase
+      .from("funerarias")
+      .select("morada, localidade, codigo_postal")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!funeraria) return true; // fallback: don't block
+    return Boolean(funeraria.morada && funeraria.localidade && funeraria.codigo_postal);
+  };
+
   // Helper function to redirect based on role
   const redirectBasedOnRole = async (userId: string) => {
     const [adminRes, funerariaRes, technicianRes] = await Promise.all([
@@ -111,11 +123,11 @@ export default function Auth() {
     if (isAdmin) {
       navigate("/admin/funerarias");
     } else if (isFuneraria) {
-      navigate("/dashboard");
+      const isComplete = await checkFunerariaProfileComplete(userId);
+      navigate(isComplete ? "/dashboard" : "/settings");
     } else if (isTechnician) {
       navigate("/field/tasks");
     } else {
-      // No valid role, sign out
       console.warn("User logged in but has no valid role");
       await supabase.auth.signOut();
       toast({
