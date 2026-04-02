@@ -267,6 +267,50 @@ export default function Settings() {
     }
   };
 
+  const handleToggleService = (service: string) => {
+    setSelectedServices(prev =>
+      prev.includes(service) ? prev.filter(s => s !== service) : [...prev, service]
+    );
+  };
+
+  const handleAddCustomService = () => {
+    const trimmed = customServiceInput.trim();
+    if (!trimmed) return;
+    if (selectedServices.includes(trimmed)) {
+      toast.error("Este serviço já foi adicionado");
+      return;
+    }
+    setSelectedServices(prev => [...prev, trimmed]);
+    setCustomServiceInput("");
+  };
+
+  const handleRemoveCustomService = (service: string) => {
+    setSelectedServices(prev => prev.filter(s => s !== service));
+  };
+
+  const handleSaveServices = async () => {
+    if (!funerariaId) {
+      toast.error("Funerária não encontrada");
+      return;
+    }
+    setSavingServices(true);
+    try {
+      const { error } = await supabase
+        .from("funerarias")
+        .update({ servicos: selectedServices })
+        .eq("id", funerariaId);
+      if (error) throw error;
+      toast.success("Serviços guardados com sucesso");
+    } catch (err) {
+      console.error("Error saving services:", err);
+      toast.error("Erro ao guardar os serviços");
+    } finally {
+      setSavingServices(false);
+    }
+  };
+
+  const customServices = selectedServices.filter(s => !DEFAULT_SERVICES.includes(s));
+
   return (
     <div className="p-8 space-y-6">
       <div>
