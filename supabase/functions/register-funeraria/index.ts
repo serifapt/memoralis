@@ -135,7 +135,38 @@ Deno.serve(async (req) => {
 
       if (roleError) throw roleError;
 
-      // 7. Create funeraria record
+      // 7. Generate unique slug from nome_comercial
+      const generateSlug = (name: string): string => {
+        return name
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .join("-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+      };
+
+      let baseSlug = generateSlug(data.nome_comercial);
+      if (!baseSlug) baseSlug = "funeraria";
+      
+      let slug = baseSlug;
+      let suffix = 2;
+      while (true) {
+        const { data: existing } = await supabase
+          .from("funerarias")
+          .select("id")
+          .eq("slug", slug)
+          .maybeSingle();
+        if (!existing) break;
+        slug = `${baseSlug}-${suffix}`;
+        suffix++;
+      }
+
+      // 8. Create funeraria record
       const { data: funerariaData, error: funerariaError } = await supabase
         .from("funerarias")
         .insert({
@@ -147,6 +178,8 @@ Deno.serve(async (req) => {
           declaro_representacao_legal: data.declaro_representacao_legal,
           aceito_termos: data.aceito_termos,
           status: "pendente",
+          pagina_publica_visivel: true,
+          slug: slug,
         })
         .select()
         .single();
