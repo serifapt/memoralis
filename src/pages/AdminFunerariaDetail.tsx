@@ -81,7 +81,7 @@ export default function AdminFunerariaDetail() {
 
       const { data: logsData, error: logsError } = await supabase
         .from("audit_logs")
-        .select("*, profiles(full_name)")
+        .select("*")
         .eq("entidade", "funeraria")
         .eq("entidade_id", id)
         .order("created_at", { ascending: false });
