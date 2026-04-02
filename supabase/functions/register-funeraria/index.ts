@@ -186,7 +186,7 @@ Deno.serve(async (req) => {
 
       if (funerariaError) throw funerariaError;
 
-      // 8. Create certidao record if codigo provided
+      // 9. Create certidao record if codigo provided
       if (data.certidao?.tipo === "codigo" && data.certidao.codigo_acesso) {
         const { error: docError } = await supabase
           .from("funeraria_docs")
