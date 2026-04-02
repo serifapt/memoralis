@@ -16,6 +16,21 @@ import { LogoCropper } from "@/components/settings/LogoCropper";
 import { useFunerariaRole } from "@/hooks/useFunerariaRole";
 import { MembersTab } from "@/components/settings/MembersTab";
 
+const DEFAULT_SERVICES = [
+  "Funerais e Cerimónias",
+  "Cremação",
+  "Tanatopraxia",
+  "Transporte Nacional",
+  "Transporte Internacional",
+  "Repatriamento",
+  "Trasladação",
+  "Exumação",
+  "Velório",
+  "Florista",
+  "Apoio Administrativo",
+  "Apoio ao Luto",
+];
+
 interface CompanyData {
   nome_comercial: string;
   nif: string;
