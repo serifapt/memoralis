@@ -89,8 +89,35 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               </div>
             </div>
 
+            {/* Action Buttons */}
+            <div className="flex gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate(`/obituario/${obit.id}#condolencias`);
+                }}
+              >
+                <span className="truncate">Condolências</span>
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0 bg-primary hover:bg-primary/90"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowFlowers(true);
+                }}
+              >
+                <span className="truncate">Enviar Flores</span>
+              </Button>
+            </div>
+
             {/* Counters */}
-            <div className="flex items-center gap-4 text-muted-foreground">
+            <div className="flex items-center justify-between text-muted-foreground border-t border-border pt-3">
               <div className="flex items-center gap-1">
                 <Eye className="w-3.5 h-3.5" />
                 <span className="text-xs">{obit.view_count ?? 0}</span>
@@ -103,33 +130,6 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                 <Flame className="w-3.5 h-3.5" />
                 <span className="text-xs">{obit.candle_count ?? 0}</span>
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-1.5">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-xs px-2 h-8"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  navigate(`/obituario/${obit.id}#condolencias`);
-                }}
-              >
-                Condolências
-              </Button>
-              <Button
-                size="sm"
-                className="flex-1 text-xs px-2 h-8 bg-primary hover:bg-primary/90"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowFlowers(true);
-                }}
-              >
-                Enviar Flores
-              </Button>
             </div>
           </CardContent>
         </Card>
