@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, X, Globe, ExternalLink } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Upload, X, Globe, ExternalLink, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -51,7 +52,9 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
   const [newService, setNewService] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState("");
+  const [slugConflict, setSlugConflict] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const slugSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (funerariaId) loadData();
@@ -61,14 +64,16 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
     try {
       const { data: f } = await supabase
         .from("funerarias")
-        .select("pagina_publica_visivel, slug, descricao, cover_image_url, telefone_secundario, website, facebook_url, instagram_url, linkedin_url, horario, servicos")
+        .select("pagina_publica_visivel, slug, descricao, cover_image_url, telefone_secundario, website, facebook_url, instagram_url, linkedin_url, horario, servicos, nome_comercial")
         .eq("id", funerariaId!)
         .single();
 
       if (f) {
+        const currentSlug = f.slug || "";
+        
         setData({
           pagina_publica_visivel: f.pagina_publica_visivel || false,
-          slug: f.slug || "",
+          slug: currentSlug,
           descricao: f.descricao || "",
           cover_image_url: f.cover_image_url || "",
           telefone_secundario: f.telefone_secundario || "",
@@ -82,6 +87,22 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           servicos: (f.servicos as string[]) || [],
         });
         if (f.cover_image_url) setCoverPreview(f.cover_image_url);
+
+        // Check for slug conflicts
+        if (currentSlug) {
+          const { data: conflicts } = await supabase
+            .from("funerarias")
+            .select("id")
+            .eq("slug", currentSlug)
+            .neq("id", funerariaId!);
+
+          if (conflicts && conflicts.length > 0) {
+            setSlugConflict(true);
+            setTimeout(() => {
+              slugSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 300);
+          }
+        }
       }
     } catch (err) {
       console.error("Error loading public page data:", err);
@@ -130,6 +151,24 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
       return;
     }
 
+    // Check slug uniqueness before saving
+    if (data.slug) {
+      const { data: conflicts } = await supabase
+        .from("funerarias")
+        .select("id")
+        .eq("slug", data.slug)
+        .neq("id", funerariaId);
+
+      if (conflicts && conflicts.length > 0) {
+        toast.error("Este link já está a ser utilizado por outra funerária. Escolha outro.");
+        setSlugConflict(true);
+        setTimeout(() => {
+          slugSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       let coverUrl = data.cover_image_url;
@@ -174,6 +213,7 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
 
       setData(prev => ({ ...prev, cover_image_url: coverUrl }));
       setCoverFile(null);
+      setSlugConflict(false);
       toast.success("Página pública guardada com sucesso");
     } catch (err) {
       console.error("Error saving public page:", err);
@@ -195,45 +235,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Visibility & Link */}
-      <Card className="p-6">
-        <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Visibilidade e Link</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-lg border border-border">
-            <div>
-              <p className="font-medium text-foreground">Página pública visível</p>
-              <p className="text-sm text-muted-foreground">Quando ativa, a página da sua funerária fica visível ao público</p>
-            </div>
-            <Switch
-              checked={data.pagina_publica_visivel}
-              onCheckedChange={(checked) => setData(prev => ({ ...prev, pagina_publica_visivel: checked }))}
-              disabled={loading}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="slug">Link personalizado</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">memoralis.lovable.app/funerarias/</span>
-              <Input
-                id="slug"
-                value={data.slug}
-                onChange={(e) => setData(prev => ({ ...prev, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") }))}
-                placeholder="funeraria-s-joao"
-                disabled={loading}
-              />
-            </div>
-            {publicUrl && (
-              <div className="flex items-center gap-2 text-sm text-primary">
-                <Globe className="w-4 h-4" />
-                <a href={`https://${publicUrl}`} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
-                  {publicUrl} <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
-      </Card>
-
       {/* Cover Image */}
       <Card className="p-6">
         <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Imagem de Capa</h3>
@@ -342,6 +343,57 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           rows={4}
           disabled={loading}
         />
+      </Card>
+
+      {/* Visibility & Link — moved to bottom */}
+      <Card className="p-6" ref={slugSectionRef}>
+        <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Visibilidade e Link</h3>
+        <div className="space-y-4">
+          {slugConflict && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                O link atual da sua página já está a ser utilizado por outra funerária. Por favor, defina um novo link personalizado abaixo.
+              </AlertDescription>
+            </Alert>
+          )}
+          <div className="flex items-center justify-between p-4 rounded-lg border border-border">
+            <div>
+              <p className="font-medium text-foreground">Página pública visível</p>
+              <p className="text-sm text-muted-foreground">Quando ativa, a página da sua funerária fica visível ao público</p>
+            </div>
+            <Switch
+              checked={data.pagina_publica_visivel}
+              onCheckedChange={(checked) => setData(prev => ({ ...prev, pagina_publica_visivel: checked }))}
+              disabled={loading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slug">Link personalizado</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">memoralis.lovable.app/funerarias/</span>
+              <Input
+                id="slug"
+                value={data.slug}
+                onChange={(e) => {
+                  setData(prev => ({ ...prev, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") }));
+                  setSlugConflict(false);
+                }}
+                placeholder="funeraria-s-joao"
+                disabled={loading}
+                className={slugConflict ? "border-destructive" : ""}
+              />
+            </div>
+            {publicUrl && (
+              <div className="flex items-center gap-2 text-sm text-primary">
+                <Globe className="w-4 h-4" />
+                <a href={`https://${publicUrl}`} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
+                  {publicUrl} <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
       </Card>
 
       <Button className="bg-primary hover:bg-primary/90" onClick={handleSave} disabled={saving || loading}>
