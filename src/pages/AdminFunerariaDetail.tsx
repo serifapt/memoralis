@@ -191,6 +191,10 @@ export default function AdminFunerariaDetail() {
 
       if (!selectedDoc) throw new Error("Selecione um documento");
 
+      // Find selected document type
+      const selectedDocument = documents.find((d) => d.id === selectedDoc);
+      const documentType = selectedDocument ? getTipoLabel(selectedDocument.tipo) : "Documento";
+
       const { error: updateError } = await supabase
         .from("funeraria_docs")
         .update({
@@ -208,14 +212,27 @@ export default function AdminFunerariaDetail() {
           entidade: "funeraria_doc",
           entidade_id: selectedDoc,
           acao: "request_changes",
-          detalhes: { motivo },
+          detalhes: { motivo, document_type: documentType },
         });
 
       if (logError) throw logError;
 
+      // Send email notification via edge function
+      try {
+        await supabase.functions.invoke("notify-funeraria-correction", {
+          body: {
+            funeraria_id: id,
+            document_type: documentType,
+            motivo,
+          },
+        });
+      } catch (emailError) {
+        console.error("Erro ao enviar notificação:", emailError);
+      }
+
       toast({
         title: "Correção solicitada",
-        description: "A funerária será notificada",
+        description: "A funerária foi notificada por email",
       });
 
       setShowRequestChangesDialog(false);
