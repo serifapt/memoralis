@@ -112,7 +112,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
     if (userRole === "funeraria") {
       return <Navigate to="/dashboard" replace />;
     } else {
-      return <Navigate to="/auth" replace />;
+      return <Navigate to="/login" replace />;
     }
   }
 
