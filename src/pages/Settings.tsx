@@ -84,7 +84,7 @@ export default function Settings() {
 
       const { data } = await supabase
         .from("funerarias")
-        .select("nome_comercial, nif, telefone, email, morada, logo_url, localidade, codigo_postal")
+        .select("nome_comercial, nif, telefone, email, morada, logo_url, localidade, codigo_postal, servicos")
         .eq("user_id", user.id)
         .single();
 
