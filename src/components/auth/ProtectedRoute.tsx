@@ -71,11 +71,13 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
     };
 
     // Subscribe first to avoid missing a fast SIGNED_IN event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      // Defer to avoid potential auth state timing issues
-      setTimeout(() => {
-        fetchRolesForSession(nextSession);
-      }, 0);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      // Only react to actual sign-in/sign-out, not token refreshes
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        setTimeout(() => {
+          fetchRolesForSession(nextSession);
+        }, 0);
+      }
     });
 
     // Initial load
