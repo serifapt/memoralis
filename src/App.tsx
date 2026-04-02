@@ -53,7 +53,13 @@ import AdminCareTechnicians from "./pages/AdminCareTechnicians";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import TechnicianAuth from "./pages/TechnicianAuth";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
