@@ -22,7 +22,7 @@ export default function FunerariaStatus() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        navigate("/auth");
+        navigate("/login");
         return;
       }
 
@@ -57,7 +57,7 @@ export default function FunerariaStatus() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/auth");
+    navigate("/login");
   };
 
   if (loading) {

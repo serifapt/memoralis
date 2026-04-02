@@ -124,9 +124,18 @@ export default function AdminFunerariaDetail() {
 
       if (logError) throw logError;
 
+      // Send activation email notification
+      try {
+        await supabase.functions.invoke("notify-funeraria-activation", {
+          body: { funeraria_id: id },
+        });
+      } catch (emailError) {
+        console.error("Erro ao enviar notificação de ativação:", emailError);
+      }
+
       toast({
         title: "Funerária aprovada",
-        description: "A conta foi ativada com sucesso",
+        description: "A conta foi ativada com sucesso e a funerária foi notificada por email",
       });
 
       setShowApproveDialog(false);

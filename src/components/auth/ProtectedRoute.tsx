@@ -102,7 +102,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   }
 
   if (!session) {
-    const loginPath = requireRole === "admin" ? "/admin/auth" : "/auth";
+    const loginPath = requireRole === "admin" ? "/admin/auth" : "/login";
     return <Navigate to={loginPath} replace />;
   }
 
@@ -112,7 +112,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
     if (userRole === "funeraria") {
       return <Navigate to="/dashboard" replace />;
     } else {
-      return <Navigate to="/auth" replace />;
+      return <Navigate to="/login" replace />;
     }
   }
 

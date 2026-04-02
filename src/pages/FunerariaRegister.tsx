@@ -149,7 +149,7 @@ export default function FunerariaRegister() {
         <div className="mt-6 text-center">
           <Button
             variant="ghost"
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/login")}
           >
             Já tem conta? Entrar
           </Button>

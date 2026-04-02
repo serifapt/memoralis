@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.register-funeraria]
 verify_jwt = false
+
+[functions.notify-funeraria-activation]
+verify_jwt = true
