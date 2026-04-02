@@ -1,39 +1,23 @@
 
 
-## Plano: Email de ativação, renomear /auth para /login, botões no header
+## Redirecionar funerárias para Configurações no primeiro login
 
-### 1. Renomear rota `/auth` para `/login`
+### Lógica
+Quando um utilizador com role `funeraria` faz login, verificar se campos essenciais da funerária (morada, localidade, codigo_postal) estão preenchidos. Se não estiverem, redirecionar para `/settings` em vez de `/dashboard`.
 
-**Ficheiros a editar:**
-- `src/App.tsx` — mudar `path="/auth"` para `path="/login"`
-- `src/components/auth/ProtectedRoute.tsx` — mudar redirects de `/auth` para `/login`
-- `src/pages/ForgotPassword.tsx` — mudar navegação para `/login`
-- `src/pages/ResetPassword.tsx` — mudar navegação para `/login`
-- `src/pages/FunerariaStatus.tsx` — mudar navegação para `/login`
-- `src/pages/FunerariaRegister.tsx` — mudar navegação para `/login`
-- `src/pages/AdminDashboard.tsx`, `AdminFunerarias.tsx`, `AdminUsers.tsx`, `AdminChat.tsx` — mudar navegação para `/login`
+### Alterações
 
-### 2. Atualizar botões do PublicHeader
+**Ficheiro: `src/pages/Auth.tsx`**
+Na função `redirectBasedOnRole`, quando `isFuneraria` é true:
+1. Buscar os dados da funerária do utilizador (`morada`, `localidade`, `codigo_postal`)
+2. Se algum destes campos estiver vazio/null → `navigate("/settings")`
+3. Caso contrário → `navigate("/dashboard")` (comportamento atual)
 
-**Ficheiro:** `src/components/layout/PublicHeader.tsx`
-- Botão "Registar" → link para `/funeraria/register`
-- Adicionar botão "Entrar" (variant outline) → link para `/login`
-- No mobile (Sheet), adicionar ambos os botões
+Aplicar a mesma lógica no `checkSessionAndRedirect` (useEffect) que já faz redirect automático.
 
-### 3. Enviar email de ativação após aprovação
+**Ficheiro: `src/pages/Auth.tsx` — checkSessionAndRedirect (useEffect)**
+Mesma verificação: quando `isFuneraria`, consultar campos da funerária antes de decidir o destino.
 
-Como não há domínio de email configurado, vou reutilizar a edge function `notify-funeraria-correction` expandindo-a, ou criar uma nova edge function dedicada.
-
-**Abordagem:** Criar nova edge function `notify-funeraria-activation/index.ts`
-- Recebe `funeraria_id`
-- Valida admin
-- Busca email do `user_id` da funerária via `auth.admin.getUserById()`
-- Loga o email e dados (tal como a função de correção — email real será enviado quando domínio for configurado)
-
-**Ficheiro:** `src/pages/AdminFunerariaDetail.tsx`
-- No `handleApprove`, após sucesso do update, invocar `notify-funeraria-activation` com `funeraria_id`
-
-### Ficheiros a criar/editar
-- **Criar:** `supabase/functions/notify-funeraria-activation/index.ts`
-- **Editar:** `src/App.tsx`, `src/components/auth/ProtectedRoute.tsx`, `src/components/layout/PublicHeader.tsx`, `src/pages/AdminFunerariaDetail.tsx`, `src/pages/ForgotPassword.tsx`, `src/pages/ResetPassword.tsx`, `src/pages/FunerariaStatus.tsx`, `src/pages/FunerariaRegister.tsx`, `src/pages/AdminDashboard.tsx`, `src/pages/AdminFunerarias.tsx`, `src/pages/AdminUsers.tsx`, `src/pages/AdminChat.tsx`
+### Sem alterações de base de dados
+Usa apenas os campos já existentes na tabela `funerarias`.
 
