@@ -267,17 +267,17 @@ export function ObituaryTemplate({
         ))}
       </div>
 
-      {/* ── Cortejo Fúnebre — coluna direita ───────────────────────────── */}
-      {cortejoFunebre && (
+      {/* ── Velório — coluna direita ───────────────────────────────────── */}
+      {velorio && (
         <div style={{ position: "absolute", left: "261px", top: "299px", width: "295px" }}>
-          <EventSection title="Cortejo Fúnebre" event={cortejoFunebre} />
+          <EventSection title="Velório" event={velorio} />
         </div>
       )}
 
-      {/* ── Velório — coluna direita ───────────────────────────────────── */}
-      {velorio && (
+      {/* ── Cortejo Fúnebre — coluna direita ───────────────────────────── */}
+      {cortejoFunebre && (
         <div style={{ position: "absolute", left: "261px", top: "400px", width: "295px" }}>
-          <EventSection title="Velório" event={velorio} />
+          <EventSection title="Cortejo Fúnebre" event={cortejoFunebre} />
         </div>
       )}
 
