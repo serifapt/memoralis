@@ -105,7 +105,7 @@ export default function ResetPassword() {
 
       // Sign out and redirect to login
       await supabase.auth.signOut();
-      setTimeout(() => navigate("/auth"), 1000);
+      setTimeout(() => navigate("/login"), 1000);
     } catch (error: any) {
       console.error("Erro ao redefinir palavra-passe:", error);
       toast({

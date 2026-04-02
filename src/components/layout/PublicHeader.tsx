@@ -90,8 +90,11 @@ export const PublicHeader = () => {
                       {link.label}
                     </Link>
                   ))}
-                  <Button size="sm" asChild className="mt-4 w-full">
-                    <Link to="/auth" onClick={() => setOpen(false)}>Registar</Link>
+                  <Button size="sm" variant="outline" asChild className="mt-4 w-full">
+                    <Link to="/login" onClick={() => setOpen(false)}>Entrar</Link>
+                  </Button>
+                  <Button size="sm" asChild className="w-full">
+                    <Link to="/funeraria/register" onClick={() => setOpen(false)}>Registar</Link>
                   </Button>
                 </nav>
               </SheetContent>

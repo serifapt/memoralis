@@ -72,7 +72,7 @@ export default function ForgotPassword() {
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => navigate("/auth")}
+              onClick={() => navigate("/login")}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar ao login
@@ -112,7 +112,7 @@ export default function ForgotPassword() {
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => navigate("/auth")}
+              onClick={() => navigate("/login")}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar ao login

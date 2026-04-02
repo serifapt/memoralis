@@ -102,7 +102,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   }
 
   if (!session) {
-    const loginPath = requireRole === "admin" ? "/admin/auth" : "/auth";
+    const loginPath = requireRole === "admin" ? "/admin/auth" : "/login";
     return <Navigate to={loginPath} replace />;
   }
 

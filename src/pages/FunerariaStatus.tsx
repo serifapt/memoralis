@@ -57,7 +57,7 @@ export default function FunerariaStatus() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/auth");
+    navigate("/login");
   };
 
   if (loading) {
