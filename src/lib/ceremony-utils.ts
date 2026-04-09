@@ -68,10 +68,6 @@ export function getActiveTag(events: CeremonyEvent[]): string | null {
 }
 
 /**
- * Checks if an obituary has an upcoming mass (within 2 days) that should
- * boost it to the top of recent listings.
- */
-/**
  * Checks if flower orders are still open for an obituary.
  * Returns true only if there is a funeral/cremation event in the future
  * AND the current time is before (eventDatetime - limiteHoras).
