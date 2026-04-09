@@ -1,20 +1,43 @@
 
 
-## Plano: Tab "Pendentes" primeiro quando há pendentes
+## Correção: Email do proprietário não aparece para admins da plataforma
 
-### Alteração em `src/pages/AdminFunerarias.tsx`
+### Problema
+A Edge Function `get-member-emails` verifica se o utilizador que faz o pedido é membro da funerária via `get_funeraria_member_role`. Os administradores da plataforma (tabela `user_roles` com role `admin`) não estão na tabela `funeraria_members`, pelo que recebem um erro 403 e o email nunca é devolvido.
 
-1. Ao carregar, fazer uma query rápida para contar funerárias com `status = 'pendente'`
-2. Se `count > 0`, definir o estado inicial do filtro como `"pendente"` em vez de `"todos"`
-3. Implementar com um `useEffect` inicial que verifica a contagem e define o `filter` antes do primeiro carregamento de dados
+### Solução
+Atualizar a Edge Function `get-member-emails` para também permitir o acesso a utilizadores com role `admin` na tabela `user_roles`. Depois de verificar `get_funeraria_member_role`, se não tiver role, verificar `has_role(caller.id, 'admin')` via query à tabela `user_roles`.
 
-Alternativa mais simples: carregar todas as funerárias uma vez no mount, verificar se alguma é pendente, e se sim mudar o tab para "pendente". Isto evita uma query extra.
+### Alteração
 
-### Implementação
-- No `useEffect` inicial, fazer `supabase.from("funerarias").select("id", { count: "exact" }).eq("status", "pendente")`
-- Se count > 0, chamar `setFilter("pendente")` — o que vai disparar o `useEffect` existente que carrega os dados filtrados
-- Adicionar um estado `initialCheckDone` para evitar carregar dados antes de saber o tab correto
+**Ficheiro**: `supabase/functions/get-member-emails/index.ts`
 
-### Ficheiro
-- **Editar**: `src/pages/AdminFunerarias.tsx`
+Substituir o bloco de verificação de permissão (linhas ~48-61) por:
+
+```typescript
+// Check caller is member of this funeraria OR platform admin
+const { data: callerRole } = await adminClient.rpc(
+  "get_funeraria_member_role",
+  { _user_id: caller.id, _funeraria_id: funeraria_id }
+);
+
+let isAuthorized = !!callerRole;
+
+if (!isAuthorized) {
+  const { data: isAdmin } = await adminClient.rpc(
+    "has_role",
+    { _user_id: caller.id, _role: "admin" }
+  );
+  isAuthorized = !!isAdmin;
+}
+
+if (!isAuthorized) {
+  return new Response(
+    JSON.stringify({ error: "Sem permissão" }),
+    { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
+```
+
+Sem outras alterações necessárias — o frontend já trata a resposta corretamente.
 
