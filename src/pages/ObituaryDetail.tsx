@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isFlowerOrderOpen } from "@/lib/ceremony-utils";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import logo from "@/assets/logo-memoralis.svg";
 
@@ -479,10 +480,11 @@ export default function ObituaryDetail() {
                         <Flame className="w-4 h-4 mr-2" />
                         {lightingCandle ? "A acender..." : "Acender Vela"}
                       </Button>
-                      <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
-                        Enviar Flores
-                      </Button>
-                    </div>
+                      {funeraria?.servico_flores_ativo && isFlowerOrderOpen(events, funeraria.flores_limite_horas) && (
+                        <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
+                          Enviar Flores
+                        </Button>
+                      )}
                   </div>
                 </div>
               </CardContent>
