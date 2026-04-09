@@ -74,6 +74,31 @@ export default function FlowerCatalog() {
   const [limiteHoras, setLimiteHoras] = useState<number>(funeraria?.flores_limite_horas ?? 4);
   const [savingLimite, setSavingLimite] = useState(false);
 
+  // Sync limiteHoras when funeraria data loads
+  useState(() => {
+    if (funeraria?.flores_limite_horas !== undefined) {
+      setLimiteHoras(funeraria.flores_limite_horas);
+    }
+  });
+
+  const handleSaveLimite = async () => {
+    if (!funerariaId) return;
+    setSavingLimite(true);
+    try {
+      const { error } = await supabase
+        .from("funerarias")
+        .update({ flores_limite_horas: limiteHoras })
+        .eq("id", funerariaId);
+      if (error) throw error;
+      toast.success("Limite de horas atualizado");
+      queryClient.invalidateQueries({ queryKey: ["funeraria-flower-service"] });
+    } catch {
+      toast.error("Erro ao guardar limite de horas");
+    } finally {
+      setSavingLimite(false);
+    }
+  };
+
   const filteredProducts = products?.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
