@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
@@ -13,7 +13,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   const [loading, setLoading] = useState(true);
   const [hasRole, setHasRole] = useState(false);
   const [userRole, setUserRole] = useState<"admin" | "funeraria" | null>(null);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const initialLoadDoneRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -27,12 +27,12 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
         setHasRole(false);
         setUserRole(null);
         setLoading(false);
-        setInitialLoadDone(true);
+        initialLoadDoneRef.current = true;
         return;
       }
 
       // Only show loading spinner on initial load, not on background re-checks
-      if (!initialLoadDone) {
+      if (!initialLoadDoneRef.current) {
         setLoading(true);
       }
 
@@ -73,7 +73,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
       }
 
       setLoading(false);
-      setInitialLoadDone(true);
+      initialLoadDoneRef.current = true;
     };
 
     // Subscribe first to avoid missing a fast SIGNED_IN event
