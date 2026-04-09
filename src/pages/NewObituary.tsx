@@ -1119,8 +1119,6 @@ export default function NewObituary() {
             .eq("id", fromQuoteId);
           fetchLinkedQuotes();
         }
-        // Navigate to edit URL without reload
-        navigate(`/obituaries/${currentId}/edit`, { replace: true });
       }
 
       // Save ceremony events
