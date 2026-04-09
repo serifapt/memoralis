@@ -63,7 +63,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               </Badge>
             )}
           </div>
-          <CardContent className="p-3 flex flex-col flex-1 space-y-2">
+          <CardContent className="p-4 flex flex-col flex-1 space-y-3">
             <div className="flex-1 flex flex-col">
               <h3 className="font-archivo font-bold text-foreground text-lg mb-1 leading-tight">
                 {obit.display_name}
@@ -81,14 +81,14 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               {locationStr && (
                 <p className="text-xs text-muted-foreground">{locationStr}</p>
               )}
-              <div className="flex flex-col justify-end mt-1">
+              <div className="flex-1 flex flex-col justify-end">
                 {obit.funerarias && (
                   <Link
                     to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
                     onClick={(e) => e.stopPropagation()}
-                    className="text-muted-foreground hover:text-primary transition-colors mt-auto my-0"
+                    className="text-muted-foreground hover:text-primary transition-colors mt-auto"
                   >
-                    <span className="text-xs leading-[0.9] hover:underline mx-0">{obit.funerarias.nome_comercial}</span>
+                    <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
                   </Link>
                 )}
               </div>
@@ -122,7 +122,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
             </div>
 
             {/* Counters */}
-            <div className="flex items-center justify-between text-muted-foreground border-t border-border pt-2">
+            <div className="flex items-center justify-between text-muted-foreground border-t border-border pt-3">
               <div className="flex items-center gap-1">
                 <Eye className="w-3.5 h-3.5" />
                 <span className="text-xs">{obit.view_count ?? 0}</span>
