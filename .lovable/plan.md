@@ -1,36 +1,34 @@
 
 
-## Plano: Página pública ativa por defeito, slug automático, alerta de duplicados
+## Plano: Gestão admin de dados da funerária
 
-### 1. Gerar slug automático no registo (`register-funeraria/index.ts`)
+### Contexto
+A página `AdminFunerariaDetail` é read-only. O admin precisa de editar dados da funerária, credenciais de acesso e validar documentação.
 
-Ao criar a funerária, gerar automaticamente um slug baseado nos dois primeiros nomes do `nome_comercial`:
-- Normalizar (remover acentos, lowercase, substituir espaços por hífens)
-- Extrair os 2 primeiros "tokens" (ou 1 se só tiver 1)
-- Verificar se o slug já existe na tabela `funerarias`; se sim, adicionar sufixo numérico (`-2`, `-3`, etc.)
-- Definir `pagina_publica_visivel: true` por defeito
-- Guardar o slug gerado no insert
+### Alterações
 
-### 2. Mover secção "Visibilidade e Link" para o fundo (`PublicPageTab.tsx`)
+**1. Nova Edge Function `admin-update-funeraria/index.ts`**
+- Verifica que o caller tem role `admin` (platform admin)
+- Aceita: `funeraria_id`, `email`, `password`, `responsavel_nome`, `telefone`, `nome_comercial`, `nif`, `status`
+- Atualiza credenciais auth via `admin.updateUserById` (email/password do `user_id` da funerária)
+- Atualiza campos da tabela `funerarias` (nome_comercial, nif, responsavel_nome, telefone)
+- Regista alterações em `audit_logs`
 
-Reordenar o layout do componente:
-1. Imagem de Capa
-2. Sobre
-3. Serviços
-4. Contactos Adicionais
-5. Redes Sociais
-6. Horário
-7. **Visibilidade e Link** (movido para o final)
-8. Botão Guardar
+**2. Atualizar `AdminFunerariaDetail.tsx`**
+- Adicionar secção "Editar Dados" com formulário inline (campos editáveis para nome comercial, NIF, responsável, telefone)
+- Adicionar secção "Credenciais de Acesso" com campos para email e nova password (chama a edge function)
+- Nos documentos, adicionar botões para o admin poder marcar cada documento como "válido" diretamente (update `funeraria_docs.estado_validacao`)
+- Buscar e mostrar o email atual do utilizador via `get-member-emails` (já existe)
+- Todos os campos editáveis com botão "Guardar" por secção
 
-### 3. Verificação de slug duplicado com alerta (`PublicPageTab.tsx`)
+**3. Validação de documentos pelo admin**
+- Em cada documento, adicionar botão "Validar" que marca `estado_validacao = 'valido'`
+- Já existe RLS policy para admins atualizarem `funeraria_docs`
 
-- Ao carregar dados (`loadData`), verificar se o slug atual já é usado por outra funerária
-- Se houver conflito, mostrar um alerta (banner de aviso) na secção "Visibilidade e Link" a pedir ao utilizador para definir um novo slug
-- Usar `useRef` + `scrollIntoView` para fazer scroll automático até essa secção quando há conflito
-- Também buscar o `nome_comercial` para gerar slug sugerido caso esteja vazio
+### Ficheiros a criar/editar
+- **Criar**: `supabase/functions/admin-update-funeraria/index.ts`
+- **Editar**: `src/pages/AdminFunerariaDetail.tsx`
 
-### Ficheiros a editar
-- **`supabase/functions/register-funeraria/index.ts`** — gerar slug e definir `pagina_publica_visivel: true`
-- **`src/components/settings/PublicPageTab.tsx`** — reordenar secções, adicionar verificação de duplicados com alerta e scroll automático
+### Sem alterações de base de dados
+Usa tabelas e RLS existentes. A edge function usa service role para atualizar auth.
 
