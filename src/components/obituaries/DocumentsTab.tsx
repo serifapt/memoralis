@@ -123,7 +123,20 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
+  const [pendingAutoDoc, setPendingAutoDoc] = useState<string | null>(null);
+  const [pendingMissingFields, setPendingMissingFields] = useState<string[]>([]);
 
+  const FIELD_LABELS: Record<string, string> = {
+    fullName: "Nome Completo",
+    deathDate: "Data de Falecimento",
+    familyName: "Nome do Cliente",
+    familyNiss: "NISS do Cliente",
+    familyNif: "NIF do Cliente",
+    familyPhone: "Telefone do Cliente",
+    familyRelationship: "Parentesco",
+    familyAddress: "Morada do Cliente",
+    familyIban: "IBAN do Cliente",
+  };
   useEffect(() => {
     loadUploadedDocuments();
     initializeAutoDocuments();
