@@ -88,7 +88,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                     onClick={(e) => e.stopPropagation()}
                     className="text-muted-foreground hover:text-primary transition-colors mt-auto my-0"
                   >
-                    <span className="text-xs leading-none hover:underline mx-0">{obit.funerarias.nome_comercial}</span>
+                    <span className="text-xs leading-[0.9] hover:underline mx-0">{obit.funerarias.nome_comercial}</span>
                   </Link>
                 )}
               </div>
