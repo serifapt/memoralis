@@ -534,6 +534,29 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           <QRCodeCanvas value={publicUrl} size={120} />
         </div>
       )}
+
+      <AlertDialog open={pendingGeneration !== null} onOpenChange={(open) => { if (!open) { setPendingGeneration(null); setMissingFieldsList([]); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Campos por preencher</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                <p className="mb-2">Os seguintes campos não estão preenchidos:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  {missingFieldsList.map((field) => (
+                    <li key={field}>{field}</li>
+                  ))}
+                </ul>
+                <p className="mt-3">Quer gerar na mesma?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmGeneration}>Gerar na mesma</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
