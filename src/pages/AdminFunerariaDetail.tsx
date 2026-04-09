@@ -566,7 +566,7 @@ export default function AdminFunerariaDetail() {
         </Card>
 
         {/* Ações */}
-        {funeraria.status === "pendente" && (
+        {(funeraria.status === "pendente" || funeraria.status === "correção_pendente") && (
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Ações</h2>
             <div className="flex gap-3">
@@ -583,18 +583,35 @@ export default function AdminFunerariaDetail() {
           </Card>
         )}
 
-        {/* Auditoria */}
+        {/* Histórico de Comunicações */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Histórico de Auditoria</h2>
+          <h2 className="text-xl font-semibold mb-4">Histórico de Comunicações e Auditoria</h2>
           {auditLogs.length === 0 ? (
             <p className="text-muted-foreground">Sem histórico</p>
           ) : (
-            <div className="space-y-2">
-              {auditLogs.map((log) => (
-                <div key={log.id} className="text-sm">
-                  <span className="font-medium">{log.acao}</span> – {new Date(log.created_at).toLocaleString("pt-PT")}
-                </div>
-              ))}
+            <div className="space-y-3">
+              {auditLogs.map((log) => {
+                const detalhes = log.detalhes as any;
+                const isCorrection = log.acao === "pedido_correcao" || log.acao === "request_changes";
+                const isRejection = log.acao === "rejected";
+                return (
+                  <div key={log.id} className={`text-sm border rounded-lg p-3 ${isCorrection ? "border-yellow-300 bg-yellow-50 dark:bg-yellow-950/20" : isRejection ? "border-red-300 bg-red-50 dark:bg-red-950/20" : "border-border"}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium">{getAcaoLabel(log.acao)}</span>
+                      <span className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString("pt-PT")}</span>
+                    </div>
+                    {detalhes?.document_type && (
+                      <p className="text-muted-foreground">Documento: <span className="font-medium text-foreground">{detalhes.document_type}</span></p>
+                    )}
+                    {(detalhes?.motivo || detalhes?.status) && (
+                      <p className="text-muted-foreground mt-1">
+                        {detalhes.motivo ? <>Mensagem: <span className="text-foreground">{detalhes.motivo}</span></> : null}
+                        {detalhes.status && !detalhes.motivo ? <>Status: <span className="text-foreground">{detalhes.status}</span></> : null}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </Card>
