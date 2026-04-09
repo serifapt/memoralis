@@ -1111,6 +1111,14 @@ export default function NewObituary() {
         if (error) throw error;
         currentId = data.id;
         savedObituaryIdRef.current = currentId;
+        // Link budget quote if created from a quote
+        if (fromQuoteId) {
+          await supabase
+            .from("budget_quotes")
+            .update({ obituary_id: currentId })
+            .eq("id", fromQuoteId);
+          fetchLinkedQuotes();
+        }
         // Navigate to edit URL without reload
         navigate(`/obituaries/${currentId}/edit`, { replace: true });
       }
@@ -2796,54 +2804,66 @@ export default function NewObituary() {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
-              {(isEditing || savedObituaryIdRef.current) && (
-                linkedQuotes.length === 0 ? (
-                  <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
-                    <Receipt className="w-4 h-4" />
-                    Criar Orçamento
-                  </Button>
-                ) : linkedQuotes.length === 1 ? (
-                  <Button variant="outline" className="w-full gap-2" onClick={() => navigate(`/budgets/${linkedQuotes[0].id}`)}>
-                    <Receipt className="w-4 h-4" />
-                    Ver Orçamento
-                  </Button>
-                ) : (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full gap-2">
-                        <Receipt className="w-4 h-4" />
-                        Ver Orçamento
-                        <ChevronDown className="w-4 h-4 ml-auto" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-72 p-2" align="start">
-                      <div className="space-y-1">
-                        {linkedQuotes.map((q) => {
-                          const st = quoteStatusLabels[q.status] || { label: q.status, color: "bg-muted text-muted-foreground" };
-                          return (
+              {(isEditing || savedObituaryIdRef.current) && (() => {
+                const hasAcceptedQuote = linkedQuotes.some(q => q.status === 'ACCEPTED');
+                
+                if (linkedQuotes.length === 0) {
+                  return (
+                    <Button variant="outline" className="w-full gap-2" onClick={handleCreateBudget}>
+                      <Receipt className="w-4 h-4" />
+                      Criar Orçamento
+                    </Button>
+                  );
+                } else if (linkedQuotes.length === 1) {
+                  return (
+                    <Button variant="outline" className="w-full gap-2" onClick={() => navigate(`/budgets/${linkedQuotes[0].id}`)}>
+                      <Receipt className="w-4 h-4" />
+                      Ver Orçamento
+                    </Button>
+                  );
+                } else {
+                  return (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full gap-2">
+                          <Receipt className="w-4 h-4" />
+                          Ver Orçamento
+                          <ChevronDown className="w-4 h-4 ml-auto" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 p-2" align="start">
+                        <div className="space-y-1">
+                          {linkedQuotes.map((q) => {
+                            const st = quoteStatusLabels[q.status] || { label: q.status, color: "bg-muted text-muted-foreground" };
+                            return (
+                              <button
+                                key={q.id}
+                                className="w-full flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-primary/10 hover:text-primary transition-colors"
+                                onClick={() => navigate(`/budgets/${q.id}`)}
+                              >
+                                <span className="font-medium">Orçamento #{q.quote_number}</span>
+                                <Badge className={`${st.color} pointer-events-none text-[10px]`}>{st.label}</Badge>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {!hasAcceptedQuote && (
+                          <>
+                            <Separator className="my-2" />
                             <button
-                              key={q.id}
-                              className="w-full flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-primary/10 hover:text-primary transition-colors"
-                              onClick={() => navigate(`/budgets/${q.id}`)}
+                              className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-primary/10 hover:text-primary transition-colors"
+                              onClick={handleCreateBudget}
                             >
-                              <span className="font-medium">Orçamento #{q.quote_number}</span>
-                              <Badge className={`${st.color} pointer-events-none text-[10px]`}>{st.label}</Badge>
+                              <Plus className="w-3.5 h-3.5" />
+                              Criar Novo Orçamento
                             </button>
-                          );
-                        })}
-                      </div>
-                      <Separator className="my-2" />
-                      <button
-                        className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-primary/10 hover:text-primary transition-colors"
-                        onClick={handleCreateBudget}
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        Criar Novo Orçamento
-                      </button>
-                    </PopoverContent>
-                  </Popover>
-                )
-              )}
+                          </>
+                        )}
+                      </PopoverContent>
+                    </Popover>
+                  );
+                }
+              })()}
               {(isEditing || savedObituaryIdRef.current) && (
                 isPublic ? (
                   <Link to={`/obituario/${savedObituaryIdRef.current || id}`} target="_blank">
