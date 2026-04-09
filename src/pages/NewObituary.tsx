@@ -1117,7 +1117,7 @@ export default function NewObituary() {
             .from("budget_quotes")
             .update({ obituary_id: currentId })
             .eq("id", fromQuoteId);
-          fetchLinkedQuotes(currentId);
+          fetchLinkedQuotes();
         }
         // Navigate to edit URL without reload
         navigate(`/obituaries/${currentId}/edit`, { replace: true });
