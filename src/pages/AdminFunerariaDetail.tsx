@@ -753,6 +753,20 @@ export default function AdminFunerariaDetail() {
   );
 }
 
+function getAcaoLabel(acao: string) {
+  const labels: Record<string, string> = {
+    pedido_correcao: "📝 Pedido de Correção",
+    request_changes: "📝 Pedido de Correção",
+    approved: "✅ Aprovação",
+    rejected: "❌ Rejeição",
+    validated: "✓ Documento Validado",
+    deleted: "🗑️ Eliminação",
+    desativacao: "⏸️ Desativação",
+    ativacao: "▶️ Ativação",
+  };
+  return labels[acao] || acao;
+}
+
 function getTipoLabel(tipo: string) {
   const labels: Record<string, string> = {
     licenca_atividade: "Licença de Atividade",
