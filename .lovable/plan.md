@@ -1,26 +1,17 @@
 
 
-## Mover localidade para junto do nome/idade
+## Reduzir espaço entre linhas no card (desktop)
 
-### Alteração em `src/components/obituaries/PublicObituaryCard.tsx`
+### Alterações em `src/components/obituaries/PublicObituaryCard.tsx`
 
-Mover a localidade (linhas 82-86) para imediatamente após a linha da idade (linha 80), removendo-a do bloco inferior. Isto agrupa nome + idade + localidade, e deixa o nome da funerária visualmente separado.
+O problema é o `space-y-3` no `CardContent` (linha 66) e o `flex-1` no div interior (linha 67/84) que expande o espaço entre a localidade e o nome da funerária.
 
-**Antes (estrutura):**
-- Nome
-- Idade/anos
-- *(espaço)*
-- Localidade
-- Funerária
+**Correções:**
+1. **Linha 66**: Reduzir `space-y-3` para `space-y-2` no CardContent
+2. **Linha 66**: Reduzir padding de `p-4` para `p-3`
+3. **Linha 84**: Remover `flex-1` do div da funerária — usar apenas `mt-1` para um pequeno espaço controlado em vez de expandir
+4. **Linha 67**: Manter `flex-1` apenas no div exterior para que o card continue a ocupar a altura total, mas o espaço extra fica antes dos botões (não entre localidade e funerária)
+5. **Linha 125**: Reduzir `pt-3` para `pt-2` nos contadores
 
-**Depois:**
-- Nome
-- Idade/anos
-- Localidade
-- *(espaço)*
-- Funerária
-
-Concretamente:
-- Após `</p>` da idade (linha 80), adicionar a localidade como `<p className="text-xs text-muted-foreground">{locationStr}</p>` (sem `mt-2`, inline com o bloco do nome)
-- No bloco `flex-1 flex flex-col justify-center` (linhas 81-96), remover o bloco da localidade e manter apenas a funerária com um `mt-auto` para a empurrar para baixo
+Resultado: espaçamento mais compacto e consistente entre localidade e nome da funerária.
 
