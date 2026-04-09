@@ -13,6 +13,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   const [loading, setLoading] = useState(true);
   const [hasRole, setHasRole] = useState(false);
   const [userRole, setUserRole] = useState<"admin" | "funeraria" | null>(null);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -26,10 +27,14 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
         setHasRole(false);
         setUserRole(null);
         setLoading(false);
+        setInitialLoadDone(true);
         return;
       }
 
-      setLoading(true);
+      // Only show loading spinner on initial load, not on background re-checks
+      if (!initialLoadDone) {
+        setLoading(true);
+      }
 
       const [adminRes, funerariaRes, memberRes] = await Promise.all([
         supabase.rpc("has_role", { _user_id: nextSession.user.id, _role: "admin" }),
