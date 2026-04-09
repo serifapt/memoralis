@@ -27,12 +27,12 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
         setHasRole(false);
         setUserRole(null);
         setLoading(false);
-        setInitialLoadDone(true);
+        initialLoadDoneRef.current = true;
         return;
       }
 
       // Only show loading spinner on initial load, not on background re-checks
-      if (!initialLoadDone) {
+      if (!initialLoadDoneRef.current) {
         setLoading(true);
       }
 
@@ -73,7 +73,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
       }
 
       setLoading(false);
-      setInitialLoadDone(true);
+      initialLoadDoneRef.current = true;
     };
 
     // Subscribe first to avoid missing a fast SIGNED_IN event
