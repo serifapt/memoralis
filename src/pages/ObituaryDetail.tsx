@@ -443,13 +443,13 @@ export default function ObituaryDetail() {
                       <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.print()}><Printer className="w-4 h-4" /></Button>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
-                      {!obituary.hide_condolences && <Button variant="outline" onClick={() => document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' })}>Condolências</Button>}
-                      <Button variant="outline" onClick={handleLightCandle} disabled={lightingCandle}>
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+                      {!obituary.hide_condolences && <Button variant="outline" className="w-full sm:w-auto" onClick={() => document.getElementById('condolencias')?.scrollIntoView({ behavior: 'smooth' })}>Condolências</Button>}
+                      <Button variant="outline" className="w-full sm:w-auto" onClick={handleLightCandle} disabled={lightingCandle}>
                         <Flame className="w-4 h-4 mr-2" />
                         {lightingCandle ? "A acender..." : "Acender Vela"}
                       </Button>
-                      <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
+                      <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
                         Enviar Flores
                       </Button>
                     </div>
