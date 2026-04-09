@@ -1,20 +1,26 @@
 
 
-## Ajustes visuais nos cards de obituário
+## Mover localidade para junto do nome/idade
 
-### Alterações em `src/components/obituaries/PublicObituaryCard.tsx`
+### Alteração em `src/components/obituaries/PublicObituaryCard.tsx`
 
-**1. Remover ícones de localidade e funerária (todos os ecrãs)**
-- Linhas 75-90: remover os ícones `MapPin` e `Building2`, mantendo apenas o texto da localidade e o link da funerária (sem ícone)
+Mover a localidade (linhas 82-86) para imediatamente após a linha da idade (linha 80), removendo-a do bloco inferior. Isto agrupa nome + idade + localidade, e deixa o nome da funerária visualmente separado.
 
-**2. Mobile: mostrar apenas idade (sem anos de nascimento/falecimento)**
-- Linha 71-73: usar classes responsivas para esconder os anos no mobile e mostrar apenas a idade
-  - Mobile: `88 Anos`
-  - Desktop: `1970 - 2025 | 88 Anos`
+**Antes (estrutura):**
+- Nome
+- Idade/anos
+- *(espaço)*
+- Localidade
+- Funerária
 
-**3. Mobile: botões em coluna (empilhados)**
-- Linha 95: alterar de `flex gap-1.5` para `flex flex-col sm:flex-row gap-1.5` para que no mobile fiquem um por baixo do outro
+**Depois:**
+- Nome
+- Idade/anos
+- Localidade
+- *(espaço)*
+- Funerária
 
-**4. Limpar imports não utilizados**
-- Remover `MapPin` e `Building2` dos imports do lucide-react
+Concretamente:
+- Após `</p>` da idade (linha 80), adicionar a localidade como `<p className="text-xs text-muted-foreground">{locationStr}</p>` (sem `mt-2`, inline com o bloco do nome)
+- No bloco `flex-1 flex flex-col justify-center` (linhas 81-96), remover o bloco da localidade e manter apenas a funerária com um `mt-auto` para a empurrar para baixo
 
