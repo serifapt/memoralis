@@ -123,7 +123,20 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
+  const [pendingAutoDoc, setPendingAutoDoc] = useState<string | null>(null);
+  const [pendingMissingFields, setPendingMissingFields] = useState<string[]>([]);
 
+  const FIELD_LABELS: Record<string, string> = {
+    fullName: "Nome Completo",
+    deathDate: "Data de Falecimento",
+    familyName: "Nome do Cliente",
+    familyNiss: "NISS do Cliente",
+    familyNif: "NIF do Cliente",
+    familyPhone: "Telefone do Cliente",
+    familyRelationship: "Parentesco",
+    familyAddress: "Morada do Cliente",
+    familyIban: "IBAN do Cliente",
+  };
   useEffect(() => {
     loadUploadedDocuments();
     initializeAutoDocuments();
@@ -381,13 +394,18 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
 
     const missingFields = checkRequiredFields(docConfig);
     if (missingFields.length > 0) {
-      toast({
-        title: "Campos obrigatórios em falta",
-        description: `Por favor preencha: ${missingFields.join(", ")}`,
-        variant: "destructive",
-      });
+      const translatedFields = missingFields.map(f => FIELD_LABELS[f] || f);
+      setPendingMissingFields(translatedFields);
+      setPendingAutoDoc(docType);
       return;
     }
+
+    executeAutoDocGeneration(docType);
+  };
+
+  const executeAutoDocGeneration = async (docType: string) => {
+    const docConfig = AUTO_DOCUMENT_TYPES.find((d) => d.id === docType);
+    if (!docConfig) return;
 
     setGeneratingDoc(docType);
 
@@ -765,6 +783,35 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           })}
         </div>
       </Card>
+
+      <AlertDialog open={pendingAutoDoc !== null} onOpenChange={(open) => { if (!open) { setPendingAutoDoc(null); setPendingMissingFields([]); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Campos por preencher</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                <p className="mb-2">Os seguintes campos não estão preenchidos:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  {pendingMissingFields.map((field) => (
+                    <li key={field}>{field}</li>
+                  ))}
+                </ul>
+                <p className="mt-3">Quer gerar o documento na mesma?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (pendingAutoDoc) {
+                executeAutoDocGeneration(pendingAutoDoc);
+              }
+              setPendingAutoDoc(null);
+              setPendingMissingFields([]);
+            }}>Gerar na mesma</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

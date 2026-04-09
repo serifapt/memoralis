@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { QRCodeCanvas } from "qrcode.react";
@@ -11,6 +11,16 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { TemplateThumbnail } from "./TemplateThumbnail";
 import { type TemplateType, type AnnouncementType } from "./types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ObituaryTemplate } from "@/components/ObituaryTemplate";
 import { SeventhDayMassTemplate } from "@/components/SeventhDayMassTemplate";
 
@@ -52,9 +62,43 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | undefined>(undefined);
+  const [pendingGeneration, setPendingGeneration] = useState<"pdf" | "story" | "post" | null>(null);
+  const [missingFieldsList, setMissingFieldsList] = useState<string[]>([]);
   
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const getMissingAnnouncementFields = useCallback(() => {
+    const missing: string[] = [];
+    if (!obituaryData.displayName?.trim()) missing.push("Nome");
+    if (!obituaryData.birthDate) missing.push("Data de Nascimento");
+    if (!obituaryData.deathDate) missing.push("Data de Falecimento");
+    if (!obituaryData.photoUrl) missing.push("Foto");
+    return missing;
+  }, [obituaryData]);
+
+  const tryGenerate = (action: "pdf" | "story" | "post") => {
+    const missing = getMissingAnnouncementFields();
+    if (missing.length > 0) {
+      setMissingFieldsList(missing);
+      setPendingGeneration(action);
+    } else {
+      executeGeneration(action);
+    }
+  };
+
+  const executeGeneration = (action: "pdf" | "story" | "post") => {
+    if (action === "pdf") generatePDF();
+    else generateImage(action);
+  };
+
+  const handleConfirmGeneration = () => {
+    if (pendingGeneration) {
+      executeGeneration(pendingGeneration);
+    }
+    setPendingGeneration(null);
+    setMissingFieldsList([]);
+  };
 
   const publicUrl = obituaryId ? `${window.location.origin}/obituario/${obituaryId}` : undefined;
 
@@ -424,7 +468,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
 
           <div className="flex flex-wrap gap-3">
             <Button 
-              onClick={generatePDF} 
+              onClick={() => tryGenerate("pdf")} 
               disabled={isGenerating}
               className="gap-2"
             >
@@ -437,7 +481,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
             </Button>
             
             <Button 
-              onClick={() => generateImage("story")} 
+              onClick={() => tryGenerate("story")} 
               disabled={isGenerating}
               variant="secondary"
               className="gap-2"
@@ -451,7 +495,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
             </Button>
             
             <Button 
-              onClick={() => generateImage("post")} 
+              onClick={() => tryGenerate("post")} 
               disabled={isGenerating}
               variant="secondary"
               className="gap-2"
@@ -490,6 +534,29 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           <QRCodeCanvas value={publicUrl} size={120} />
         </div>
       )}
+
+      <AlertDialog open={pendingGeneration !== null} onOpenChange={(open) => { if (!open) { setPendingGeneration(null); setMissingFieldsList([]); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Campos por preencher</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                <p className="mb-2">Os seguintes campos não estão preenchidos:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  {missingFieldsList.map((field) => (
+                    <li key={field}>{field}</li>
+                  ))}
+                </ul>
+                <p className="mt-3">Quer gerar na mesma?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmGeneration}>Gerar na mesma</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
