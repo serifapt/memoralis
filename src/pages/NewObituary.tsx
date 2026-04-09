@@ -23,9 +23,9 @@ import { Camera, Eye, Upload, Building2, MessageSquare, Flame, Calendar as Calen
 import { getActiveTag, type CeremonyEvent } from "@/lib/ceremony-utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { pt } from "date-fns/locale/pt";
-import { cn } from "@/lib/utils";
+import { cn, parseDateString } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
