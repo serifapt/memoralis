@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -74,12 +74,11 @@ export default function FlowerCatalog() {
   const [limiteHoras, setLimiteHoras] = useState<number>(funeraria?.flores_limite_horas ?? 4);
   const [savingLimite, setSavingLimite] = useState(false);
 
-  // Sync limiteHoras when funeraria data loads
-  useState(() => {
+  useEffect(() => {
     if (funeraria?.flores_limite_horas !== undefined) {
       setLimiteHoras(funeraria.flores_limite_horas);
     }
-  });
+  }, [funeraria?.flores_limite_horas]);
 
   const handleSaveLimite = async () => {
     if (!funerariaId) return;
