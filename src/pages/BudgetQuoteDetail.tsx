@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useFunerariaRole } from "@/hooks/useFunerariaRole";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,6 +91,7 @@ export default function BudgetQuoteDetail() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { isEditor, loading: roleLoading } = useFunerariaRole();
   const isNew = !id;
@@ -223,7 +224,7 @@ export default function BudgetQuoteDetail() {
 
     loadData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isNew, obituaryId]);
+  }, [id, isNew, obituaryId, location.key]);
 
   const reloadQuote = async () => {
     if (!quote) return;
