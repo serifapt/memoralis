@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
-import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
+
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
@@ -67,7 +67,7 @@ interface RelatedObituary {
 
 export default function ObituaryDetail() {
   const { id } = useParams();
-  const [isFlowersModalOpen, setIsFlowersModalOpen] = useState(false);
+  
   const [loading, setLoading] = useState(true);
   const [obituary, setObituary] = useState<Obituary | null>(null);
   const [events, setEvents] = useState<CeremonyEvent[]>([]);
@@ -481,8 +481,8 @@ export default function ObituaryDetail() {
                         {lightingCandle ? "A acender..." : "Acender Vela"}
                       </Button>
                       {funeraria?.servico_flores_ativo && isFlowerOrderOpen(events, funeraria.flores_limite_horas) && (
-                        <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90" onClick={() => setIsFlowersModalOpen(true)}>
-                          Enviar Flores
+                        <Button asChild className="w-full sm:w-auto bg-primary hover:bg-primary/90">
+                          <Link to={`/obituario/${id}/flores`}>Enviar Flores</Link>
                         </Button>
                       )}
                     </div>
@@ -708,14 +708,6 @@ export default function ObituaryDetail() {
           </div>
         </div>
       </footer>
-
-      <SendFlowersModal
-        open={isFlowersModalOpen}
-        onOpenChange={setIsFlowersModalOpen}
-        obituaryId={obituary.id}
-        obituaryName={obituary.display_name}
-        funerariaId={obituary.funeraria_id}
-      />
 
     </div>
   );

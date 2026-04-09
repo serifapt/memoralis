@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import ObituaryDetail from "./pages/ObituaryDetail";
 import ObituaryArchive from "./pages/ObituaryArchive";
+import ObituaryFlowers from "./pages/ObituaryFlowers";
 import FunerariaArchive from "./pages/FunerariaArchive";
 import FunerariaDetail from "./pages/FunerariaDetail";
 import Dashboard from "./pages/Dashboard";
@@ -71,6 +72,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/obituario" element={<ObituaryArchive />} />
           <Route path="/obituario/:id" element={<ObituaryDetail />} />
+          <Route path="/obituario/:id/flores" element={<ObituaryFlowers />} />
           <Route path="/funerarias" element={<FunerariaArchive />} />
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
           <Route path="/blog" element={<Blog />} />
