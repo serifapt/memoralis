@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Plus, UserPlus } from "lucide-react";
@@ -76,9 +77,8 @@ export default function AdminCareTechnicians() {
               </div>
               <div>
                 <Label htmlFor="tech-password">Palavra-passe *</Label>
-                <Input
+                <PasswordInput
                   id="tech-password"
-                  type="password"
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                   placeholder="Mínimo 6 caracteres"

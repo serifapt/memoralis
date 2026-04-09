@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { EnhancedChatButton } from "@/components/chat/EnhancedChatButton";
 import {
   Dialog,
@@ -445,7 +446,7 @@ export default function AdminFunerariaDetail() {
             </div>
             <div>
               <Label>Nova Password</Label>
-              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Deixe vazio para manter" />
+              <PasswordInput value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Deixe vazio para manter" />
             </div>
           </div>
           <div className="mt-4 flex justify-end">
@@ -725,7 +726,7 @@ export default function AdminFunerariaDetail() {
             </div>
             <div>
               <Label>Nova Password</Label>
-              <Input type="password" value={memberEditData.password} onChange={(e) => setMemberEditData({ ...memberEditData, password: e.target.value })} placeholder="Deixe vazio para manter" />
+              <PasswordInput value={memberEditData.password} onChange={(e) => setMemberEditData({ ...memberEditData, password: e.target.value })} placeholder="Deixe vazio para manter" />
             </div>
             <div>
               <Label>Papel</Label>

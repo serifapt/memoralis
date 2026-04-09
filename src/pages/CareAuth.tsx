@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Loader2 } from "lucide-react";
@@ -121,9 +122,8 @@ export default function CareAuth() {
                 </div>
                 <div>
                   <Label htmlFor="login-password">Palavra-passe</Label>
-                  <Input
+                  <PasswordInput
                     id="login-password"
-                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -161,9 +161,8 @@ export default function CareAuth() {
                 </div>
                 <div>
                   <Label htmlFor="signup-password">Palavra-passe</Label>
-                  <Input
+                  <PasswordInput
                     id="signup-password"
-                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Mínimo 6 caracteres"

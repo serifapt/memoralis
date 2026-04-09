@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -141,9 +142,8 @@ export function RegisterForm({ onSubmit, isSubmitting }: RegisterFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="password">Password *</Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               {...register("password")}
               placeholder="••••••••"
             />
@@ -154,9 +154,8 @@ export function RegisterForm({ onSubmit, isSubmitting }: RegisterFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirmar Password *</Label>
-            <Input
+            <PasswordInput
               id="confirmPassword"
-              type="password"
               {...register("confirmPassword")}
               placeholder="••••••••"
             />

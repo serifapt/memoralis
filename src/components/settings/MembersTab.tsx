@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -464,9 +465,8 @@ export function MembersTab({ funerariaId }: MembersTabProps) {
             </div>
             <div>
               <Label htmlFor="edit-password">Nova Password</Label>
-              <Input
+              <PasswordInput
                 id="edit-password"
-                type="password"
                 value={editPassword}
                 onChange={(e) => setEditPassword(e.target.value)}
                 placeholder="Deixe vazio para não alterar"
