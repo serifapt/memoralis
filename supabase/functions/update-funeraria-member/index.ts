@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { member_user_id, funeraria_id, email, password, full_name, phone } = await req.json();
+    const { member_user_id, funeraria_id, email, password, full_name, phone, role } = await req.json();
 
     if (!member_user_id || !funeraria_id) {
       return new Response(
