@@ -394,13 +394,18 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
 
     const missingFields = checkRequiredFields(docConfig);
     if (missingFields.length > 0) {
-      toast({
-        title: "Campos obrigatórios em falta",
-        description: `Por favor preencha: ${missingFields.join(", ")}`,
-        variant: "destructive",
-      });
+      const translatedFields = missingFields.map(f => FIELD_LABELS[f] || f);
+      setPendingMissingFields(translatedFields);
+      setPendingAutoDoc(docType);
       return;
     }
+
+    executeAutoDocGeneration(docType);
+  };
+
+  const executeAutoDocGeneration = async (docType: string) => {
+    const docConfig = AUTO_DOCUMENT_TYPES.find((d) => d.id === docType);
+    if (!docConfig) return;
 
     setGeneratingDoc(docType);
 
