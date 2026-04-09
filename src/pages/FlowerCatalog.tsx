@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,6 +39,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { Label } from "@/components/ui/label";
 import {
   Plus,
   Search,
@@ -70,6 +71,32 @@ export default function FlowerCatalog() {
   );
   const [deleteProduct, setDeleteProduct] = useState<FlowerProduct | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [limiteHoras, setLimiteHoras] = useState<number>(funeraria?.flores_limite_horas ?? 4);
+  const [savingLimite, setSavingLimite] = useState(false);
+
+  useEffect(() => {
+    if (funeraria?.flores_limite_horas !== undefined) {
+      setLimiteHoras(funeraria.flores_limite_horas);
+    }
+  }, [funeraria?.flores_limite_horas]);
+
+  const handleSaveLimite = async () => {
+    if (!funerariaId) return;
+    setSavingLimite(true);
+    try {
+      const { error } = await supabase
+        .from("funerarias")
+        .update({ flores_limite_horas: limiteHoras })
+        .eq("id", funerariaId);
+      if (error) throw error;
+      toast.success("Limite de horas atualizado");
+      queryClient.invalidateQueries({ queryKey: ["funeraria-flower-service"] });
+    } catch {
+      toast.error("Erro ao guardar limite de horas");
+    } finally {
+      setSavingLimite(false);
+    }
+  };
 
   const filteredProducts = products?.filter((product) => {
     const matchesSearch = product.name
@@ -172,6 +199,38 @@ export default function FlowerCatalog() {
           Novo Produto
         </Button>
       </div>
+
+      {/* Limite de horas */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-end gap-4">
+            <div className="flex-1 max-w-[300px]">
+              <Label htmlFor="limite-horas" className="text-sm font-medium">
+                Limite de pedidos antes do funeral (horas)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Os pedidos de flores ficam indisponíveis X horas antes do funeral.
+              </p>
+              <Input
+                id="limite-horas"
+                type="number"
+                min={0}
+                max={72}
+                value={limiteHoras}
+                onChange={(e) => setLimiteHoras(Number(e.target.value))}
+                className="w-[120px]"
+              />
+            </div>
+            <Button
+              onClick={handleSaveLimite}
+              disabled={savingLimite || limiteHoras === funeraria?.flores_limite_horas}
+              size="sm"
+            >
+              {savingLimite ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Filters */}
       <Card>

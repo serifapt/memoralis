@@ -1,0 +1,1 @@
+ALTER TABLE public.funerarias ADD COLUMN flores_limite_horas integer NOT NULL DEFAULT 4;

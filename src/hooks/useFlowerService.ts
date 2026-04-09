@@ -7,6 +7,7 @@ export interface Funeraria {
   user_id: string;
   nome_comercial: string;
   servico_flores_ativo: boolean;
+  flores_limite_horas: number;
 }
 
 export interface FlowerProduct {
@@ -79,7 +80,7 @@ export function useFlowerService() {
 
       const { data, error } = await supabase
         .from("funerarias")
-        .select("id, user_id, nome_comercial, servico_flores_ativo")
+        .select("id, user_id, nome_comercial, servico_flores_ativo, flores_limite_horas")
         .eq("user_id", user.id)
         .maybeSingle();
 

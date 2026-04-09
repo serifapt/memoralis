@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
-import { getActiveTag, hasUpcomingMass, type CeremonyEvent } from "@/lib/ceremony-utils";
+import { getActiveTag, hasUpcomingMass, isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
 
 const PAGE_SIZE = 12;
 
@@ -94,7 +94,7 @@ export default function ObituaryArchive() {
     try {
       let query = supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, funerarias(nome_comercial, slug)", { count: "exact" })
+        .select("id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)", { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {
@@ -151,6 +151,9 @@ export default function ObituaryArchive() {
           ...o,
           ...counts[o.id],
           active_tag: getActiveTag(eventsMap[o.id] || []),
+          servico_flores_ativo: (o as any).funerarias?.servico_flores_ativo ?? false,
+          flores_limite_horas: (o as any).funerarias?.flores_limite_horas ?? 4,
+          ceremony_events: eventsMap[o.id] || [],
         }));
 
         if (sortBy === "recent") {

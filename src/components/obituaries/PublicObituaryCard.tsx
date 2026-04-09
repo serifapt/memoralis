@@ -6,6 +6,7 @@ import { MapPin, Building2, Eye, MessageSquare, Flame, Flower2 } from "lucide-re
 import { Link, useNavigate } from "react-router-dom";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
+import { isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
 
 export interface PublicObituary {
   id: string;
@@ -21,6 +22,9 @@ export interface PublicObituary {
   condolence_count?: number;
   candle_count?: number;
   active_tag?: string | null;
+  servico_flores_ativo?: boolean;
+  flores_limite_horas?: number;
+  ceremony_events?: CeremonyEvent[];
 }
 
 function getYear(dateStr: string | null) {
@@ -44,6 +48,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
   const age = getAge(obit.birth_date, obit.death_date);
   const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
   const [showFlowers, setShowFlowers] = useState(false);
+  const showFlowerButton = obit.servico_flores_ativo && isFlowerOrderOpen(obit.ceremony_events || [], obit.flores_limite_horas ?? 4);
 
   return (
     <>
@@ -103,17 +108,19 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               >
                 <span className="truncate">Condolências</span>
               </Button>
-              <Button
-                size="sm"
-                className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0 bg-primary hover:bg-primary/90"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowFlowers(true);
-                }}
-              >
-                <span className="truncate">Enviar Flores</span>
-              </Button>
+              {showFlowerButton && (
+                <Button
+                  size="sm"
+                  className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0 bg-primary hover:bg-primary/90"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowFlowers(true);
+                  }}
+                >
+                  <span className="truncate">Enviar Flores</span>
+                </Button>
+              )}
             </div>
 
             {/* Counters */}
