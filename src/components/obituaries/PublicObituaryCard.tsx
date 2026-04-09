@@ -86,9 +86,9 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                   <Link
                     to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
                     onClick={(e) => e.stopPropagation()}
-                    className="text-muted-foreground hover:text-primary transition-colors mt-auto"
+                    className="text-muted-foreground hover:text-primary transition-colors mt-auto my-0"
                   >
-                    <span className="text-xs leading-none hover:underline">{obit.funerarias.nome_comercial}</span>
+                    <span className="text-xs leading-none hover:underline mx-0">{obit.funerarias.nome_comercial}</span>
                   </Link>
                 )}
               </div>
