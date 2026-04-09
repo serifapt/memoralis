@@ -125,6 +125,7 @@ export default function AdminFunerarias() {
         <Tabs value={filter} onValueChange={setFilter}>
           <TabsList>
             <TabsTrigger value="pendente">Pendentes</TabsTrigger>
+            <TabsTrigger value="correção_pendente">Correção</TabsTrigger>
             <TabsTrigger value="ativo">Ativos</TabsTrigger>
             <TabsTrigger value="desativado">Desativados</TabsTrigger>
             <TabsTrigger value="rejeitado">Rejeitados</TabsTrigger>

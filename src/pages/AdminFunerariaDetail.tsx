@@ -343,9 +343,16 @@ export default function AdminFunerariaDetail() {
       const selectedDocument = documents.find((d) => d.id === selectedDoc);
       const documentType = selectedDocument ? getTipoLabel(selectedDocument.tipo) : "Documento";
       await supabase.from("funeraria_docs").update({ estado_validacao: "invalido", observacoes: motivo }).eq("id", selectedDoc);
-      await supabase.from("audit_logs").insert({ actor_id: user.id, entidade: "funeraria_doc", entidade_id: selectedDoc, acao: "request_changes", detalhes: { motivo, document_type: documentType } });
-      try { await supabase.functions.invoke("notify-funeraria-correction", { body: { funeraria_id: id, document_type: documentType, motivo } }); } catch {}
-      toast({ title: "Correção solicitada" });
+      await supabase.from("audit_logs").insert({ actor_id: user.id, entidade: "funeraria", entidade_id: id!, acao: "pedido_correcao", detalhes: { motivo, document_type: documentType, doc_id: selectedDoc } });
+      
+      const { data: notifyResult, error: notifyError } = await supabase.functions.invoke("notify-funeraria-correction", { body: { funeraria_id: id, document_type: documentType, motivo } });
+      if (notifyError) {
+        console.error("Erro ao notificar:", notifyError);
+        toast({ title: "Correção registada", description: "A correção foi registada mas houve um erro ao notificar a funerária.", variant: "default" });
+      } else {
+        toast({ title: "Correção solicitada", description: "A funerária foi notificada" });
+      }
+      
       setShowRequestChangesDialog(false);
       setSelectedDoc(null);
       setMotivo("");
@@ -559,7 +566,7 @@ export default function AdminFunerariaDetail() {
         </Card>
 
         {/* Ações */}
-        {funeraria.status === "pendente" && (
+        {(funeraria.status === "pendente" || funeraria.status === "correção_pendente") && (
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Ações</h2>
             <div className="flex gap-3">
@@ -576,18 +583,35 @@ export default function AdminFunerariaDetail() {
           </Card>
         )}
 
-        {/* Auditoria */}
+        {/* Histórico de Comunicações */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Histórico de Auditoria</h2>
+          <h2 className="text-xl font-semibold mb-4">Histórico de Comunicações e Auditoria</h2>
           {auditLogs.length === 0 ? (
             <p className="text-muted-foreground">Sem histórico</p>
           ) : (
-            <div className="space-y-2">
-              {auditLogs.map((log) => (
-                <div key={log.id} className="text-sm">
-                  <span className="font-medium">{log.acao}</span> – {new Date(log.created_at).toLocaleString("pt-PT")}
-                </div>
-              ))}
+            <div className="space-y-3">
+              {auditLogs.map((log) => {
+                const detalhes = log.detalhes as any;
+                const isCorrection = log.acao === "pedido_correcao" || log.acao === "request_changes";
+                const isRejection = log.acao === "rejected";
+                return (
+                  <div key={log.id} className={`text-sm border rounded-lg p-3 ${isCorrection ? "border-yellow-300 bg-yellow-50 dark:bg-yellow-950/20" : isRejection ? "border-red-300 bg-red-50 dark:bg-red-950/20" : "border-border"}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium">{getAcaoLabel(log.acao)}</span>
+                      <span className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString("pt-PT")}</span>
+                    </div>
+                    {detalhes?.document_type && (
+                      <p className="text-muted-foreground">Documento: <span className="font-medium text-foreground">{detalhes.document_type}</span></p>
+                    )}
+                    {(detalhes?.motivo || detalhes?.status) && (
+                      <p className="text-muted-foreground mt-1">
+                        {detalhes.motivo ? <>Mensagem: <span className="text-foreground">{detalhes.motivo}</span></> : null}
+                        {detalhes.status && !detalhes.motivo ? <>Status: <span className="text-foreground">{detalhes.status}</span></> : null}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </Card>
@@ -727,6 +751,20 @@ export default function AdminFunerariaDetail() {
       {funeraria && <EnhancedChatButton funerariaId={funeraria.id} userType="admin" />}
     </>
   );
+}
+
+function getAcaoLabel(acao: string) {
+  const labels: Record<string, string> = {
+    pedido_correcao: "📝 Pedido de Correção",
+    request_changes: "📝 Pedido de Correção",
+    approved: "✅ Aprovação",
+    rejected: "❌ Rejeição",
+    validated: "✓ Documento Validado",
+    deleted: "🗑️ Eliminação",
+    desativacao: "⏸️ Desativação",
+    ativacao: "▶️ Ativação",
+  };
+  return labels[acao] || acao;
 }
 
 function getTipoLabel(tipo: string) {
