@@ -434,6 +434,8 @@ export default function NewObituary() {
   useEffect(() => {
     const loadObituaryData = async () => {
       if (!isEditing || !id) return;
+      // Skip reload if we just created this obituary and already have data in state
+      if (savedObituaryIdRef.current === id) return;
       
       try {
         const { data, error } = await supabase
@@ -1119,8 +1121,6 @@ export default function NewObituary() {
             .eq("id", fromQuoteId);
           fetchLinkedQuotes();
         }
-        // Navigate to edit URL without reload
-        navigate(`/obituaries/${currentId}/edit`, { replace: true });
       }
 
       // Save ceremony events
@@ -1193,6 +1193,12 @@ export default function NewObituary() {
         if (eventsToInsert.length > 0) {
           await supabase.from('ceremony_events').insert(eventsToInsert);
         }
+      }
+
+      // Navigate to edit URL AFTER all data (including events) is persisted
+      if (!isEditing && currentId) {
+        isInitialLoadRef.current = true;
+        navigate(`/obituaries/${currentId}/edit`, { replace: true });
       }
 
       setHasUnsavedChanges(false);
