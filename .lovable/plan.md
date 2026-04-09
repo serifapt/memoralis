@@ -1,22 +1,35 @@
 
 
-## Adicionar botão "Guardar" após "Adicionar Secção"
+## Corrigir integração Orçamento ↔ Óbito após aceitação
 
-### O que muda
+### Problema
+Quando um orçamento é aceite e cria automaticamente um óbito, o `obituary_id` é gravado no orçamento. No entanto, na ficha do óbito, o botão continua a mostrar opções para criar novos orçamentos mesmo quando já existe um orçamento aceite vinculado. Deveria apenas permitir ver o orçamento existente.
 
-No ficheiro `src/pages/BudgetQuoteDetail.tsx`, logo após o botão "Adicionar Secção" (linha 714), adicionar um botão "Guardar" que:
+### Verificação atual
+O código em `NewObituary.tsx` (linha ~2800) já distingue entre 0 quotes (mostra "Criar Orçamento"), 1 quote (mostra "Ver Orçamento") e múltiplos (mostra popover). A `fetchLinkedQuotes` busca todos os `budget_quotes` com `obituary_id` igual ao óbito.
 
-1. Chama a mesma função `handleSave` já existente
-2. Após guardar com sucesso, faz scroll automático até ao topo da página (`window.scrollTo({ top: 0, behavior: 'smooth' })`)
-3. Visualmente: botão com ícone `Save`, variante `default` (primário), largura total (`w-full`), para se destacar do botão "Adicionar Secção" que é `outline`
-4. Desabilitado quando `saving` ou `isArchived` (mesma lógica do botão de topo)
-5. Escondido quando `isArchived` (mesmo wrapper do botão "Adicionar Secção")
+### O que já funciona
+- Ao marcar como ACCEPTED, navega para `/obituaries/new?fromQuoteId=...`
+- O `NewObituary.tsx` preenche os dados do orçamento e, ao gravar, atualiza `budget_quotes.obituary_id`
 
-### Implementação
+### O que precisa de ser corrigido
 
-- Modificar `handleSave` para fazer scroll ao topo após sucesso (ou criar wrapper `handleSaveAndScroll` que chama `handleSave` e depois faz scroll)
-- Inserir o novo botão entre a linha 714 e 715, dentro do bloco `!isArchived`
+#### 1. Na ficha do óbito: Bloquear criação de novos orçamentos quando há orçamento aceite
+No ficheiro `src/pages/NewObituary.tsx`, na zona do botão de orçamento (~linha 2798-2840):
+- Verificar se existe algum `linkedQuote` com status `ACCEPTED`
+- Se sim, mostrar apenas o botão "Ver Orçamento" (sem opção de criar novo)
+- Se existem múltiplos orçamentos mas algum é aceite, mostrar o popover mas sem o item "Criar Novo Orçamento"
+
+#### 2. Garantir que o `obituary_id` é gravado no orçamento ao criar óbito
+Isto já acontece (linha ~970). Verificar que após gravação, o `fetchLinkedQuotes` é chamado para atualizar o estado.
+
+#### 3. Garantir que o `fromQuoteId` vincula corretamente no auto-save (rascunho)
+Atualmente o `obituary_id` só é gravado no `handleSubmit` (gravação manual, linha 970). Se o óbito é criado via auto-save, o vínculo pode não acontecer. Corrigir o auto-save para também fazer o `update` do `budget_quotes.obituary_id` quando `fromQuoteId` está presente.
 
 ### Ficheiro a alterar
-- `src/pages/BudgetQuoteDetail.tsx`
+- `src/pages/NewObituary.tsx`
+
+### Resumo das alterações
+1. No auto-save: após criar o óbito (insert), se `fromQuoteId` existe, atualizar `budget_quotes.obituary_id` imediatamente
+2. Na UI do botão de orçamento: se algum `linkedQuote` tem status `ACCEPTED`, esconder a opção "Criar Orçamento" / "Criar Novo Orçamento" — mostrar apenas "Ver Orçamento"
 
