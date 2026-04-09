@@ -28,12 +28,29 @@ export function getActiveTag(events: CeremonyEvent[]): string | null {
   if (!events || events.length === 0) return null;
 
   const now = new Date();
-  const twoDaysFromNow = new Date();
-  twoDaysFromNow.setDate(now.getDate() + 2);
   const twoDaysAgo = new Date();
   twoDaysAgo.setDate(now.getDate() - 2);
 
-  // Check for upcoming masses first (event_date within -2 days to future)
+  // 1. Check for primary events (funeral, cremação) with future dates first
+  const primaryTypes = ["funeral", "cremacao"];
+  const primaryEvent = events.find(
+    (e) => primaryTypes.includes(e.event_type) && (e.event_date || e.location)
+  );
+
+  if (primaryEvent) {
+    if (primaryEvent.event_date) {
+      const eventDate = new Date(primaryEvent.event_date + "T23:59:59");
+      if (eventDate >= now) {
+        // Primary event hasn't passed yet — show its tag
+        return getEventTagLabel(primaryEvent.event_type);
+      }
+    } else {
+      // Has location but no date — show tag
+      return getEventTagLabel(primaryEvent.event_type);
+    }
+  }
+
+  // 2. Primary events have passed (or don't exist) — check for upcoming masses
   const massTypes = ["missa7", "missa30", "missa1ano"];
   const upcomingMasses = events
     .filter((e) => {
@@ -45,22 +62,6 @@ export function getActiveTag(events: CeremonyEvent[]): string | null {
 
   if (upcomingMasses.length > 0) {
     return getEventTagLabel(upcomingMasses[0].event_type);
-  }
-
-  // Check for funeral/cremação/velório with filled fields
-  const primaryTypes = ["funeral", "cremacao"];
-  const primaryEvent = events.find(
-    (e) => primaryTypes.includes(e.event_type) && (e.event_date || e.location)
-  );
-
-  if (primaryEvent) {
-    if (primaryEvent.event_date) {
-      const eventDate = new Date(primaryEvent.event_date + "T23:59:59");
-      if (eventDate < now) {
-        return null;
-      }
-    }
-    return getEventTagLabel(primaryEvent.event_type);
   }
 
   return null;
