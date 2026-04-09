@@ -1,32 +1,21 @@
 
 
-## Corrigir campos de data que não persistem o valor selecionado
+## Alinhar card de pré-visualização com o PublicObituaryCard
 
-### Problema identificado
-Ao analisar o código em `src/pages/NewObituary.tsx`, encontrei uma **race condition** na primeira gravação automática de um obituário novo:
-
-1. O auto-save insere o obituário na BD e faz `navigate(/obituaries/${id}/edit, { replace: true })` (linha 1123)
-2. O `navigate` altera o `id` nos params, o que faz o `useEffect` de carregamento (linha 434) re-executar
-3. Este efeito recarrega TODOS os dados do formulário a partir da BD — mas as ceremony events (datas de funeral, missa, etc.) **ainda não foram gravadas** (linhas 1127-1195 executam DEPOIS do navigate)
-4. O `isInitialLoadRef` já foi definido como `false` no mount inicial, por isso o auto-save pode voltar a disparar com dados parciais
-
-Resultado: as datas selecionadas pelo utilizador são substituídas por valores vazios vindos da BD.
+### Problema
+O card de pré-visualização no editor de obituários (`NewObituary.tsx`, linhas 2913-2985) tem um design diferente do `PublicObituaryCard` usado no frontend público: ícones diferentes (Heart vs Flame, MessageCircle vs MessageSquare), layout ligeiramente diferente, valores hardcoded, e falta o ícone MapPin/Building2.
 
 ### Solução
+Reescrever o bloco de pré-visualização em `NewObituary.tsx` (linhas 2913-2985) para replicar exatamente a estrutura e estilos do `PublicObituaryCard`:
 
-No ficheiro `src/pages/NewObituary.tsx`:
-
-1. **Mover o `navigate` para DEPOIS de gravar as ceremony events** — garantir que todos os dados (obituário + eventos) estão na BD antes de alterar o URL. Mover a chamada `navigate(...)` da linha 1123 para depois do bloco de inserção de eventos (após linha 1195).
-
-2. **Definir `isInitialLoadRef.current = true` ANTES do navigate** — para que quando o `loadObituaryData` effect disparar (após mudança de `id`), o auto-save effect ignore essa mudança de formData como se fosse um carregamento inicial.
-
-3. **Evitar recarregamento desnecessário**: como os dados já estão no state do componente, adicionar uma condição no `loadObituaryData` effect para não re-executar se `savedObituaryIdRef.current` já corresponde ao `id` (ou seja, o componente já tem os dados corretos do obituário que acabou de criar).
+1. **Imagem**: manter o `aspect-[3/4]` com a foto ou placeholder (Camera icon)
+2. **Tag/Badge**: usar `Badge` com `active_tag` dinâmico baseado nos eventos de cerimónia do formulário (em vez de "Funeral" hardcoded)
+3. **Nome + Datas**: manter a lógica atual de formData mas com a mesma estrutura HTML
+4. **Localização**: usar ícone `MapPin` (Lucide) em vez de emoji 📍
+5. **Funerária**: usar ícone `Building2` com o nome real da funerária do utilizador
+6. **Botões**: usar a mesma estrutura de 2 botões flex com as classes `h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs`
+7. **Contadores**: usar os ícones corretos — `Eye`, `MessageSquare`, `Flame` — com as mesmas classes `w-3.5 h-3.5`
 
 ### Ficheiro a alterar
-- `src/pages/NewObituary.tsx`
-
-### Resumo
-- Mover `navigate()` para depois de gravar todos os dados (incluindo eventos de cerimónia)
-- Proteger o efeito de carregamento contra re-execuções desnecessárias após o primeiro auto-save
-- Resetar `isInitialLoadRef` antes do navigate para bloquear auto-save espúrio
+- `src/pages/NewObituary.tsx` — reescrever linhas ~2913-2985 para espelhar o `PublicObituaryCard`
 
