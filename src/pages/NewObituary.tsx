@@ -434,6 +434,8 @@ export default function NewObituary() {
   useEffect(() => {
     const loadObituaryData = async () => {
       if (!isEditing || !id) return;
+      // Skip reload if we just created this obituary and already have data in state
+      if (savedObituaryIdRef.current === id) return;
       
       try {
         const { data, error } = await supabase
