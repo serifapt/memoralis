@@ -733,6 +733,20 @@ export default function NewObituary() {
         return;
       }
 
+      // Validate public fields if trying to save as public
+      if (isPublic) {
+        const missing = getMissingPublicFields();
+        if (missing.length > 0) {
+          toast({
+            title: "Campos obrigatórios em falta",
+            description: `Para publicar, preencha: ${missing.join(", ")}`,
+            variant: "destructive",
+          });
+          setIsSaving(false);
+          return;
+        }
+      }
+
       // 1. First, sync client if family data is provided
       let clientId = responsibleClientId;
       if (formData.familyName && formData.familyName.trim() !== "") {
@@ -2944,6 +2958,22 @@ export default function NewObituary() {
           </div>
         </div>
       </div>
+      <AlertDialog open={showNoCeremonyConfirm} onOpenChange={setShowNoCeremonyConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publicar sem informação fúnebre?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Não tem qualquer informação fúnebre preenchida (velório, funeral, cremação, missas). Quer publicar na mesma?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPublishWithoutCeremony}>
+              Publicar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
