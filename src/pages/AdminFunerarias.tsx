@@ -20,7 +20,7 @@ import {
 
 export default function AdminFunerarias() {
   const [funerarias, setFunerarias] = useState<any[]>([]);
-  const [filter, setFilter] = useState("pendente");
+  const [filter, setFilter] = useState("todos");
   const [loading, setLoading] = useState(true);
   const [toggleFunerariaId, setToggleFunerariaId] = useState<string | null>(null);
   const [toggleAction, setToggleAction] = useState<"desativar" | "ativar">("desativar");
@@ -124,12 +124,12 @@ export default function AdminFunerarias() {
 
         <Tabs value={filter} onValueChange={setFilter}>
           <TabsList>
+            <TabsTrigger value="todos">Todos</TabsTrigger>
             <TabsTrigger value="pendente">Pendentes</TabsTrigger>
             <TabsTrigger value="correção_pendente">Correção</TabsTrigger>
             <TabsTrigger value="ativo">Ativos</TabsTrigger>
             <TabsTrigger value="desativado">Desativados</TabsTrigger>
             <TabsTrigger value="rejeitado">Rejeitados</TabsTrigger>
-            <TabsTrigger value="todos">Todos</TabsTrigger>
           </TabsList>
         </Tabs>
 
