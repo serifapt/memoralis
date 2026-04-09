@@ -88,7 +88,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                     onClick={(e) => e.stopPropagation()}
                     className="text-muted-foreground hover:text-primary transition-colors mt-auto"
                   >
-                    <span className="text-xs hover:underline" style={{ lineHeight: '1.1' }}>{obit.funerarias.nome_comercial}</span>
+                    <span className="text-xs hover:underline" style={{ lineHeight: '0.8' }}>{obit.funerarias.nome_comercial}</span>
                   </Link>
                 )}
               </div>
