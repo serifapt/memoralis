@@ -22,14 +22,31 @@ export default function AdminFunerarias() {
   const [funerarias, setFunerarias] = useState<any[]>([]);
   const [filter, setFilter] = useState("todos");
   const [loading, setLoading] = useState(true);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
   const [toggleFunerariaId, setToggleFunerariaId] = useState<string | null>(null);
   const [toggleAction, setToggleAction] = useState<"desativar" | "ativar">("desativar");
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkInitialTab = async () => {
+      const { count } = await supabase
+        .from("funerarias")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pendente");
+      if (count && count > 0) {
+        setFilter("pendente");
+      }
+      setInitialCheckDone(true);
+    };
     checkAdminAccess();
-    loadFunerarias();
-  }, [filter]);
+    checkInitialTab();
+  }, []);
+
+  useEffect(() => {
+    if (initialCheckDone) {
+      loadFunerarias();
+    }
+  }, [filter, initialCheckDone]);
 
   const checkAdminAccess = async () => {
     const { data: { user } } = await supabase.auth.getUser();
