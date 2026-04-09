@@ -487,6 +487,7 @@ export default function ObituaryDetail() {
                       )}
                     </div>
                   </div>
+                </div>
               </CardContent>
             </Card>
 
