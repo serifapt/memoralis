@@ -590,11 +590,11 @@ export default function BudgetQuoteDetail() {
                   <PopoverTrigger asChild>
                     <Button variant="outline" disabled={isArchived} className={cn("w-full justify-start text-left font-normal", !formData.death_date && "text-muted-foreground")}>
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.death_date ? format(parse(formData.death_date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                      {formData.death_date ? format(parseDateString(formData.death_date)!, "dd/MM/yyyy") : "Selecionar data"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" locale={pt} selected={formData.death_date ? parse(formData.death_date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => setFormData(prev => ({ ...prev, death_date: date ? format(date, "yyyy-MM-dd") : "" }))} initialFocus className="p-3 pointer-events-auto" />
+                    <Calendar mode="single" locale={pt} selected={formData.death_date ? parseDateString(formData.death_date)! : undefined} onSelect={(date) => setFormData(prev => ({ ...prev, death_date: date ? format(date, "yyyy-MM-dd") : "" }))} initialFocus className="p-3 pointer-events-auto" />
                   </PopoverContent>
                 </Popover>
               </div>
@@ -608,11 +608,11 @@ export default function BudgetQuoteDetail() {
                   <PopoverTrigger asChild>
                     <Button variant="outline" disabled={isArchived} className={cn("w-full justify-start text-left font-normal", !formData.funeral_date && "text-muted-foreground")}>
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.funeral_date ? format(parse(formData.funeral_date, "yyyy-MM-dd", new Date()), "dd/MM/yyyy") : "Selecionar data"}
+                      {formData.funeral_date ? format(parseDateString(formData.funeral_date)!, "dd/MM/yyyy") : "Selecionar data"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" locale={pt} selected={formData.funeral_date ? parse(formData.funeral_date, "yyyy-MM-dd", new Date()) : undefined} onSelect={(date) => setFormData(prev => ({ ...prev, funeral_date: date ? format(date, "yyyy-MM-dd") : "" }))} initialFocus className="p-3 pointer-events-auto" />
+                    <Calendar mode="single" locale={pt} selected={formData.funeral_date ? parseDateString(formData.funeral_date)! : undefined} onSelect={(date) => setFormData(prev => ({ ...prev, funeral_date: date ? format(date, "yyyy-MM-dd") : "" }))} initialFocus className="p-3 pointer-events-auto" />
                   </PopoverContent>
                 </Popover>
               </div>
