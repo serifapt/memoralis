@@ -71,6 +71,27 @@ export function getActiveTag(events: CeremonyEvent[]): string | null {
  * Checks if an obituary has an upcoming mass (within 2 days) that should
  * boost it to the top of recent listings.
  */
+/**
+ * Checks if flower orders are still open for an obituary.
+ * Returns true only if there is a funeral/cremation event in the future
+ * AND the current time is before (eventDatetime - limiteHoras).
+ * If no funeral/cremation event exists, returns false.
+ */
+export function isFlowerOrderOpen(events: CeremonyEvent[], limiteHoras: number): boolean {
+  if (!events || events.length === 0) return false;
+
+  const primaryTypes = ["funeral", "cremacao"];
+  const primaryEvent = events.find((e) => primaryTypes.includes(e.event_type) && e.event_date);
+
+  if (!primaryEvent || !primaryEvent.event_date) return false;
+
+  const timePart = primaryEvent.event_time || "00:00:00";
+  const eventDatetime = new Date(`${primaryEvent.event_date}T${timePart}`);
+  const deadline = new Date(eventDatetime.getTime() - limiteHoras * 60 * 60 * 1000);
+
+  return new Date() < deadline;
+}
+
 export function hasUpcomingMass(events: CeremonyEvent[]): boolean {
   if (!events || events.length === 0) return false;
   const now = new Date();
