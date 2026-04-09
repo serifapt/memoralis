@@ -590,6 +590,16 @@ export default function ObituaryDetail() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Botão voltar ao arquivo - mobile only */}
+            <div className="lg:hidden">
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/obituario">
+                  <ChevronRight className="w-4 h-4 mr-2 rotate-180" />
+                  Voltar ao Obituário
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Sidebar */}
