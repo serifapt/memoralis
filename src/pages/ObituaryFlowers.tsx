@@ -172,8 +172,8 @@ export default function ObituaryFlowers() {
       <div className="min-h-screen bg-background">
         <PublicHeader />
         <div className="container mx-auto px-4 py-16 text-center space-y-6">
-          <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-            <Check className="w-10 h-10 text-green-600" />
+          <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+            <Check className="w-10 h-10 text-primary" />
           </div>
           <h1 className="text-2xl font-archivo font-bold text-foreground">Pedido Confirmado!</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
