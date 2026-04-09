@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
-import { getActiveTag, hasUpcomingMass, type CeremonyEvent } from "@/lib/ceremony-utils";
+import { getActiveTag, hasUpcomingMass, isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
 import type { FunerariaCardData, FunerariaStats } from "@/components/funerarias/PublicFunerariaCard";
 import { getFunerariaImage } from "@/lib/funeraria-utils";
 import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
@@ -97,7 +97,7 @@ export default function Home() {
       // Load recent obituaries
       const { data } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)")
+        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
@@ -124,6 +124,9 @@ export default function Home() {
           ...o,
           ...counts[o.id],
           active_tag: getActiveTag(eventsMap[o.id] || []),
+          servico_flores_ativo: (o as any).funerarias?.servico_flores_ativo ?? false,
+          flores_limite_horas: (o as any).funerarias?.flores_limite_horas ?? 4,
+          ceremony_events: eventsMap[o.id] || [],
         }));
 
         // Boost obituaries with upcoming masses to the top
