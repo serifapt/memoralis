@@ -47,17 +47,24 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Check caller is admin of this funeraria
-    const { data: callerRole } = await adminClient.rpc(
-      "get_funeraria_member_role",
-      { _user_id: caller.id, _funeraria_id: funeraria_id }
-    );
+    // Check caller is platform admin OR funeraria admin
+    const { data: isPlatformAdmin } = await adminClient.rpc("has_role", {
+      _user_id: caller.id,
+      _role: "admin",
+    });
 
-    if (callerRole !== "admin") {
-      return new Response(
-        JSON.stringify({ error: "Apenas administradores podem editar membros" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    if (!isPlatformAdmin) {
+      const { data: callerRole } = await adminClient.rpc(
+        "get_funeraria_member_role",
+        { _user_id: caller.id, _funeraria_id: funeraria_id }
       );
+
+      if (callerRole !== "admin") {
+        return new Response(
+          JSON.stringify({ error: "Apenas administradores podem editar membros" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Check target user is member of this funeraria
