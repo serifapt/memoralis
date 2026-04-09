@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame, Phone } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
@@ -436,11 +437,38 @@ export default function ObituaryDetail() {
                     {/* Share */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
                       <span className="text-sm font-medium text-foreground">Partilhar</span>
-                      <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank', 'width=600,height=400')}><Facebook className="w-4 h-4" /></Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Homenagem a ${obituary.display_name} ${window.location.href}`)}`, '_blank')}><MessageCircle className="w-4 h-4" /></Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.open(`mailto:?subject=${encodeURIComponent(`Homenagem a ${obituary.display_name}`)}&body=${encodeURIComponent(`Veja a homenagem a ${obituary.display_name}: ${window.location.href}`)}`)}><Mail className="w-4 h-4" /></Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success("Link copiado!"); }}><LinkIcon className="w-4 h-4" /></Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.print()}><Printer className="w-4 h-4" /></Button>
+                      <TooltipProvider delayDuration={300}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank', 'width=600,height=400')}><Facebook className="w-4 h-4" /></Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Facebook</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Homenagem a ${obituary.display_name} ${window.location.href}`)}`, '_blank')}><MessageCircle className="w-4 h-4" /></Button>
+                          </TooltipTrigger>
+                          <TooltipContent>WhatsApp</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.open(`mailto:?subject=${encodeURIComponent(`Homenagem a ${obituary.display_name}`)}&body=${encodeURIComponent(`Veja a homenagem a ${obituary.display_name}: ${window.location.href}`)}`)}><Mail className="w-4 h-4" /></Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Email</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success("Link copiado!"); }}><LinkIcon className="w-4 h-4" /></Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Copiar link</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => window.print()}><Printer className="w-4 h-4" /></Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Imprimir</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
 
                     <div className="flex flex-col sm:flex-row flex-wrap gap-3">
