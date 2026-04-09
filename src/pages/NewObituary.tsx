@@ -1,6 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { TimeInput } from "@/components/ui/time-input";
@@ -40,7 +50,8 @@ export default function NewObituary() {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const isValidUuid = id ? uuidRegex.test(id) : false;
   const isEditing = !!id && isValidUuid;
-  const [isPublic, setIsPublic] = useState(true);
+  const [isPublic, setIsPublic] = useState(false);
+  const [showNoCeremonyConfirm, setShowNoCeremonyConfirm] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [funerariaId, setFunerariaId] = useState<string>("");
   const [funerariaInfo, setFunerariaInfo] = useState<{
@@ -213,8 +224,54 @@ export default function NewObituary() {
     setAutoSaveStatus("idle");
   };
 
+  // Validation: required fields to make obituary public
+  const getMissingPublicFields = useCallback(() => {
+    const missing: string[] = [];
+    if (!formData.displayName.trim()) missing.push("Nome (perfil público)");
+    if (!formData.birthDate) missing.push("Data de Nascimento");
+    if (!formData.deathDate) missing.push("Data de Falecimento");
+    if (!formData.freguesia.trim()) missing.push("Freguesia");
+    if (!formData.locality.trim()) missing.push("Localidade");
+    if (!photoPreview) missing.push("Foto");
+    return missing;
+  }, [formData, photoPreview]);
+
+  // Check if any ceremony has meaningful data filled
+  const hasCeremonyInfo = useCallback(() => {
+    if (velorio && velorioEntries.some(e => e.date || e.time || e.location)) return true;
+    if (cortejo && cortejoEntries.some(e => e.date || e.time || e.location)) return true;
+    if (funeral && (formData.funeralDate || formData.funeralTime || formData.funeralCemetery)) return true;
+    if (cremacao && (formData.cremacaoDate || formData.cremacaoTime || formData.cremacaoCemetery)) return true;
+    if (missa7 && (formData.missa7Date || formData.missa7Time || formData.missa7Location)) return true;
+    if (missa30 && (formData.missa30Date || formData.missa30Time || formData.missa30Location)) return true;
+    if (missa1ano && (formData.missa1anoDate || formData.missa1anoTime || formData.missa1anoLocation)) return true;
+    return false;
+  }, [velorio, velorioEntries, cortejo, cortejoEntries, funeral, cremacao, missa7, missa30, missa1ano, formData]);
+
   const handlePublicChange = (val: boolean) => {
+    if (val) {
+      const missing = getMissingPublicFields();
+      if (missing.length > 0) {
+        toast({
+          title: "Campos obrigatórios em falta",
+          description: `Para publicar, preencha: ${missing.join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!hasCeremonyInfo()) {
+        setShowNoCeremonyConfirm(true);
+        return;
+      }
+    }
     setIsPublic(val);
+    setHasUnsavedChanges(true);
+    setAutoSaveStatus("idle");
+  };
+
+  const confirmPublishWithoutCeremony = () => {
+    setShowNoCeremonyConfirm(false);
+    setIsPublic(true);
     setHasUnsavedChanges(true);
     setAutoSaveStatus("idle");
   };
@@ -676,6 +733,20 @@ export default function NewObituary() {
         return;
       }
 
+      // Validate public fields if trying to save as public
+      if (isPublic) {
+        const missing = getMissingPublicFields();
+        if (missing.length > 0) {
+          toast({
+            title: "Campos obrigatórios em falta",
+            description: `Para publicar, preencha: ${missing.join(", ")}`,
+            variant: "destructive",
+          });
+          setIsSaving(false);
+          return;
+        }
+      }
+
       // 1. First, sync client if family data is provided
       let clientId = responsibleClientId;
       if (formData.familyName && formData.familyName.trim() !== "") {
@@ -922,7 +993,7 @@ export default function NewObituary() {
     if (!formData.displayName.trim()) return;
 
     // For new obituaries, require minimum fields before first save
-    if (!savedObituaryIdRef.current && !hasMinimumFields()) return;
+    if (!savedObituaryIdRef.current && !formData.displayName.trim()) return;
 
     if (silent) {
       setAutoSaveStatus("saving");
@@ -2887,6 +2958,22 @@ export default function NewObituary() {
           </div>
         </div>
       </div>
+      <AlertDialog open={showNoCeremonyConfirm} onOpenChange={setShowNoCeremonyConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publicar sem informação fúnebre?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Não tem qualquer informação fúnebre preenchida (velório, funeral, cremação, missas). Quer publicar na mesma?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPublishWithoutCeremony}>
+              Publicar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
