@@ -116,7 +116,22 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Also retrieve emails for the response
+    // Update role if provided
+    if (role && (role === "admin" || role === "editor")) {
+      const { error: roleError } = await adminClient
+        .from("funeraria_members")
+        .update({ role })
+        .eq("user_id", member_user_id)
+        .eq("funeraria_id", funeraria_id);
+
+      if (roleError) {
+        return new Response(
+          JSON.stringify({ error: `Erro ao atualizar role: ${roleError.message}` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, message: "Dados atualizados com sucesso" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
