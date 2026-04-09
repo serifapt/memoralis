@@ -468,7 +468,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
 
           <div className="flex flex-wrap gap-3">
             <Button 
-              onClick={generatePDF} 
+              onClick={() => tryGenerate("pdf")} 
               disabled={isGenerating}
               className="gap-2"
             >
@@ -481,7 +481,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
             </Button>
             
             <Button 
-              onClick={() => generateImage("story")} 
+              onClick={() => tryGenerate("story")} 
               disabled={isGenerating}
               variant="secondary"
               className="gap-2"
@@ -495,7 +495,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
             </Button>
             
             <Button 
-              onClick={() => generateImage("post")} 
+              onClick={() => tryGenerate("post")} 
               disabled={isGenerating}
               variant="secondary"
               className="gap-2"
