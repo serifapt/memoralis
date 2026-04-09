@@ -1,21 +1,20 @@
 
 
-## Correção: Adicionar "desativado" à constraint de status
+## Plano: Tab "Pendentes" primeiro quando há pendentes
 
-### Problema
-A constraint `funerarias_status_check` na tabela `funerarias` só permite `('pendente', 'ativo', 'rejeitado')`. O código em `AdminFunerarias.tsx` tenta definir o status como `desativado`, o que viola a constraint.
+### Alteração em `src/pages/AdminFunerarias.tsx`
 
-### Solução
-Uma migração SQL para substituir a constraint existente por uma que inclua `desativado`:
+1. Ao carregar, fazer uma query rápida para contar funerárias com `status = 'pendente'`
+2. Se `count > 0`, definir o estado inicial do filtro como `"pendente"` em vez de `"todos"`
+3. Implementar com um `useEffect` inicial que verifica a contagem e define o `filter` antes do primeiro carregamento de dados
 
-```sql
-ALTER TABLE public.funerarias DROP CONSTRAINT funerarias_status_check;
-ALTER TABLE public.funerarias ADD CONSTRAINT funerarias_status_check 
-  CHECK (status = ANY (ARRAY['pendente', 'ativo', 'rejeitado', 'desativado']));
-```
+Alternativa mais simples: carregar todas as funerárias uma vez no mount, verificar se alguma é pendente, e se sim mudar o tab para "pendente". Isto evita uma query extra.
 
-### Ficheiros
-- **Nova migração SQL** — atualizar a constraint
+### Implementação
+- No `useEffect` inicial, fazer `supabase.from("funerarias").select("id", { count: "exact" }).eq("status", "pendente")`
+- Se count > 0, chamar `setFilter("pendente")` — o que vai disparar o `useEffect` existente que carrega os dados filtrados
+- Adicionar um estado `initialCheckDone` para evitar carregar dados antes de saber o tab correto
 
-Sem alterações de código, o frontend já usa os valores corretos.
+### Ficheiro
+- **Editar**: `src/pages/AdminFunerarias.tsx`
 
