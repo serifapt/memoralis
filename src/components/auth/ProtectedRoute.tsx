@@ -73,6 +73,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
       }
 
       setLoading(false);
+      setInitialLoadDone(true);
     };
 
     // Subscribe first to avoid missing a fast SIGNED_IN event
