@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { member_user_id, funeraria_id, email, password, full_name, phone } = await req.json();
+    const { member_user_id, funeraria_id, email, password, full_name, phone, role } = await req.json();
 
     if (!member_user_id || !funeraria_id) {
       return new Response(
@@ -47,17 +47,24 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Check caller is admin of this funeraria
-    const { data: callerRole } = await adminClient.rpc(
-      "get_funeraria_member_role",
-      { _user_id: caller.id, _funeraria_id: funeraria_id }
-    );
+    // Check caller is platform admin OR funeraria admin
+    const { data: isPlatformAdmin } = await adminClient.rpc("has_role", {
+      _user_id: caller.id,
+      _role: "admin",
+    });
 
-    if (callerRole !== "admin") {
-      return new Response(
-        JSON.stringify({ error: "Apenas administradores podem editar membros" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    if (!isPlatformAdmin) {
+      const { data: callerRole } = await adminClient.rpc(
+        "get_funeraria_member_role",
+        { _user_id: caller.id, _funeraria_id: funeraria_id }
       );
+
+      if (callerRole !== "admin") {
+        return new Response(
+          JSON.stringify({ error: "Apenas administradores podem editar membros" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Check target user is member of this funeraria
@@ -109,7 +116,22 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Also retrieve emails for the response
+    // Update role if provided
+    if (role && (role === "admin" || role === "editor")) {
+      const { error: roleError } = await adminClient
+        .from("funeraria_members")
+        .update({ role })
+        .eq("user_id", member_user_id)
+        .eq("funeraria_id", funeraria_id);
+
+      if (roleError) {
+        return new Response(
+          JSON.stringify({ error: `Erro ao atualizar role: ${roleError.message}` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, message: "Dados atualizados com sucesso" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
