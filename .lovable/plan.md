@@ -1,22 +1,32 @@
 
 
-## Corrigir prioridade da tag de missa vs eventos primários
+## Corrigir campos de data que não persistem o valor selecionado
 
-### Problema
-Na função `getActiveTag` em `src/lib/ceremony-utils.ts`, as missas são verificadas **antes** dos eventos primários (funeral, cremação). Isto faz com que a tag "Missa 7º Dia" apareça mesmo quando o funeral ainda não aconteceu.
+### Problema identificado
+Ao analisar o código em `src/pages/NewObituary.tsx`, encontrei uma **race condition** na primeira gravação automática de um obituário novo:
+
+1. O auto-save insere o obituário na BD e faz `navigate(/obituaries/${id}/edit, { replace: true })` (linha 1123)
+2. O `navigate` altera o `id` nos params, o que faz o `useEffect` de carregamento (linha 434) re-executar
+3. Este efeito recarrega TODOS os dados do formulário a partir da BD — mas as ceremony events (datas de funeral, missa, etc.) **ainda não foram gravadas** (linhas 1127-1195 executam DEPOIS do navigate)
+4. O `isInitialLoadRef` já foi definido como `false` no mount inicial, por isso o auto-save pode voltar a disparar com dados parciais
+
+Resultado: as datas selecionadas pelo utilizador são substituídas por valores vazios vindos da BD.
 
 ### Solução
-Inverter a lógica: verificar primeiro se existem eventos primários (funeral, cremação, velório) com datas futuras. Se existirem e ainda não tiverem passado, mostrar a tag do evento primário. Só depois, se todos os eventos primários já tiverem passado (ou não existirem), verificar se há missas futuras para mostrar.
 
-### Alteração no ficheiro `src/lib/ceremony-utils.ts`
+No ficheiro `src/pages/NewObituary.tsx`:
 
-Na função `getActiveTag`:
-1. **Primeiro**: verificar se há eventos primários (funeral, cremação) com data futura — se sim, retornar essa tag
-2. **Segundo**: só se não houver eventos primários futuros, verificar se há missas futuras (dentro de -2 dias a futuro) — se sim, retornar essa tag
-3. Se nenhum dos dois, retornar `null`
+1. **Mover o `navigate` para DEPOIS de gravar as ceremony events** — garantir que todos os dados (obituário + eventos) estão na BD antes de alterar o URL. Mover a chamada `navigate(...)` da linha 1123 para depois do bloco de inserção de eventos (após linha 1195).
 
-Essencialmente, trocar a ordem dos dois blocos e ajustar a condição das missas para incluir a verificação de que os eventos primários já passaram.
+2. **Definir `isInitialLoadRef.current = true` ANTES do navigate** — para que quando o `loadObituaryData` effect disparar (após mudança de `id`), o auto-save effect ignore essa mudança de formData como se fosse um carregamento inicial.
+
+3. **Evitar recarregamento desnecessário**: como os dados já estão no state do componente, adicionar uma condição no `loadObituaryData` effect para não re-executar se `savedObituaryIdRef.current` já corresponde ao `id` (ou seja, o componente já tem os dados corretos do obituário que acabou de criar).
 
 ### Ficheiro a alterar
-- `src/lib/ceremony-utils.ts` — reordenar lógica na função `getActiveTag`
+- `src/pages/NewObituary.tsx`
+
+### Resumo
+- Mover `navigate()` para depois de gravar todos os dados (incluindo eventos de cerimónia)
+- Proteger o efeito de carregamento contra re-execuções desnecessárias após o primeiro auto-save
+- Resetar `isInitialLoadRef` antes do navigate para bloquear auto-save espúrio
 
