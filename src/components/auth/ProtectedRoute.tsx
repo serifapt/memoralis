@@ -13,7 +13,7 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   const [loading, setLoading] = useState(true);
   const [hasRole, setHasRole] = useState(false);
   const [userRole, setUserRole] = useState<"admin" | "funeraria" | null>(null);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const initialLoadDoneRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
