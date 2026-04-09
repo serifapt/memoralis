@@ -343,9 +343,16 @@ export default function AdminFunerariaDetail() {
       const selectedDocument = documents.find((d) => d.id === selectedDoc);
       const documentType = selectedDocument ? getTipoLabel(selectedDocument.tipo) : "Documento";
       await supabase.from("funeraria_docs").update({ estado_validacao: "invalido", observacoes: motivo }).eq("id", selectedDoc);
-      await supabase.from("audit_logs").insert({ actor_id: user.id, entidade: "funeraria_doc", entidade_id: selectedDoc, acao: "request_changes", detalhes: { motivo, document_type: documentType } });
-      try { await supabase.functions.invoke("notify-funeraria-correction", { body: { funeraria_id: id, document_type: documentType, motivo } }); } catch {}
-      toast({ title: "Correção solicitada" });
+      await supabase.from("audit_logs").insert({ actor_id: user.id, entidade: "funeraria", entidade_id: id!, acao: "pedido_correcao", detalhes: { motivo, document_type: documentType, doc_id: selectedDoc } });
+      
+      const { data: notifyResult, error: notifyError } = await supabase.functions.invoke("notify-funeraria-correction", { body: { funeraria_id: id, document_type: documentType, motivo } });
+      if (notifyError) {
+        console.error("Erro ao notificar:", notifyError);
+        toast({ title: "Correção registada", description: "A correção foi registada mas houve um erro ao notificar a funerária.", variant: "default" });
+      } else {
+        toast({ title: "Correção solicitada", description: "A funerária foi notificada" });
+      }
+      
       setShowRequestChangesDialog(false);
       setSelectedDoc(null);
       setMotivo("");
