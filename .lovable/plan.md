@@ -1,24 +1,20 @@
 
 
-## Botão "Voltar ao Obituário" no mobile
+## Ajustes visuais nos cards de obituário
 
-### Alteração
+### Alterações em `src/components/obituaries/PublicObituaryCard.tsx`
 
-**`src/pages/ObituaryDetail.tsx`**
+**1. Remover ícones de localidade e funerária (todos os ecrãs)**
+- Linhas 75-90: remover os ícones `MapPin` e `Building2`, mantendo apenas o texto da localidade e o link da funerária (sem ícone)
 
-Adicionar um botão visível apenas no mobile (`lg:hidden`) entre a secção de condolências (que termina na linha ~592) e a sidebar da funerária (linha ~596). No layout atual, em desktop é uma grid de 2 colunas (`lg:grid-cols-[1fr_350px]`), mas no mobile a sidebar aparece por baixo do conteúdo principal. O botão será inserido dentro da coluna principal, após o card de condolências e antes do fecho da `div.space-y-8`.
+**2. Mobile: mostrar apenas idade (sem anos de nascimento/falecimento)**
+- Linha 71-73: usar classes responsivas para esconder os anos no mobile e mostrar apenas a idade
+  - Mobile: `88 Anos`
+  - Desktop: `1970 - 2025 | 88 Anos`
 
-```tsx
-{/* Botão voltar ao arquivo - mobile only */}
-<div className="lg:hidden">
-  <Button variant="outline" className="w-full" asChild>
-    <Link to="/obituario">
-      <ChevronRight className="w-4 h-4 mr-2 rotate-180" />
-      Voltar ao Obituário
-    </Link>
-  </Button>
-</div>
-```
+**3. Mobile: botões em coluna (empilhados)**
+- Linha 95: alterar de `flex gap-1.5` para `flex flex-col sm:flex-row gap-1.5` para que no mobile fiquem um por baixo do outro
 
-Inserido na linha ~593 (após o fecho do card de condolências `</Card>` e do `)}`, antes do `</div>` que fecha a coluna principal).
+**4. Limpar imports não utilizados**
+- Remover `MapPin` e `Building2` dos imports do lucide-react
 
