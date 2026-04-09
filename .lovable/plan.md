@@ -1,37 +1,44 @@
 
 
-## Mudança de fluxo: Rascunho automático + publicação com validação simplificada
+## Alertas de campos em falta: Anúncios e Documentos automáticos
 
-### Alterações em `src/pages/NewObituary.tsx`
+### Contexto atual
 
-#### 1. Estado inicial privado
-- Linha 43: `useState(true)` → `useState(false)` para novos obituários (manter o valor carregado da BD quando em edição)
+- **Documentos automáticos** (`DocumentsTab.tsx`, linha 382-390): Já verifica `requiredFields` mas **bloqueia** a geração — mostra toast e não avança. Os nomes dos campos são técnicos (ex: `fullName`, `familyNiss`).
+- **Anúncios** (`AnnouncementGenerator.tsx`): Não tem qualquer validação — gera PDF/imagem mesmo sem dados essenciais (nome, datas, foto).
 
-#### 2. Auto-save com apenas `displayName`
-- Linha 925: Substituir `!hasMinimumFields()` por `!formData.displayName.trim()` — basta ter o nome para criar o rascunho privado, sem exigir todos os campos
+### Alterações
 
-#### 3. Campos obrigatórios para publicação (reduzidos)
-Criar função `getMissingPublicFields()` que verifica apenas:
-- Nome (perfil público) — `displayName`
-- Data de Nascimento — `birthDate`
-- Data de Falecimento — `deathDate`
-- Freguesia — `freguesia`
-- Localidade — `locality`
-- Foto — `photoPreview` (com ou sem `photoFile`)
+#### 1. `AnnouncementGenerator.tsx` — Validação antes de gerar PDF/imagem
 
-#### 4. Validação ao ativar "Público" (`handlePublicChange`)
-Quando `val === true`:
-1. Verificar `getMissingPublicFields()` — se faltam campos, mostrar toast com lista e **não ativar** o switch
-2. Se campos obrigatórios OK mas **nenhuma cerimónia** tem informação preenchida (nenhum toggle ativo, ou toggles ativos sem dados), mostrar diálogo de confirmação: "Não tem qualquer informação fúnebre preenchida. Quer publicar na mesma?"
-   - Se confirmar → ativa o switch
-   - Se cancelar → não ativa
+Adicionar função `getMissingAnnouncementFields()` que verifica:
+- `displayName` → "Nome"
+- `birthDate` → "Data de Nascimento"  
+- `deathDate` → "Data de Falecimento"
+- `photoUrl` → "Foto"
 
-#### 5. Mesma validação no `handleSubmit` (gravação manual)
-Se `isPublic === true`, aplicar a mesma lógica antes de gravar.
+Nos handlers `generatePDF` e `generateImage`:
+- Se faltam campos → mostrar `AlertDialog` com lista dos campos em falta e a pergunta "Quer gerar na mesma?"
+- Se confirmar → prossegue com a geração
+- Se cancelar → não gera
 
-### Resultado
-- Rascunhos gravados imediatamente com apenas o nome
-- Publicação requer: nome, datas, freguesia, localidade e foto
-- Aviso amigável quando não há informações fúnebres, mas permite publicar se o utilizador confirmar
-- Dados do cliente e cerimónias **não são bloqueantes** para publicação
+Implementação: adicionar estado `pendingGeneration` para guardar a ação pendente (pdf/story/post) e mostrar o diálogo de confirmação.
+
+#### 2. `DocumentsTab.tsx` — Mudar de bloqueio para aviso com confirmação
+
+Na função `handleGenerateAutoDoc` (linha 382-390):
+- Em vez de bloquear com toast, mostrar `AlertDialog` com os campos em falta traduzidos para português:
+  - `fullName` → "Nome Completo"
+  - `deathDate` → "Data de Falecimento"
+  - `familyName` → "Nome do Cliente"
+  - `familyNiss` → "NISS do Cliente"
+- Pergunta: "Há campos por preencher. Quer gerar o documento na mesma?"
+- Se confirmar → prossegue com a geração
+- Se cancelar → não gera
+
+Implementação: adicionar estado `pendingAutoDoc` e um `AlertDialog` ao componente. Criar mapa de tradução `FIELD_LABELS` para converter nomes técnicos em labels legíveis.
+
+### Ficheiros a alterar
+- `src/components/obituaries/AnnouncementGenerator.tsx`
+- `src/components/obituaries/DocumentsTab.tsx`
 
