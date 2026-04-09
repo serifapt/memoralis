@@ -1193,6 +1193,12 @@ export default function NewObituary() {
         }
       }
 
+      // Navigate to edit URL AFTER all data (including events) is persisted
+      if (!isEditing && currentId) {
+        isInitialLoadRef.current = true;
+        navigate(`/obituaries/${currentId}/edit`, { replace: true });
+      }
+
       setHasUnsavedChanges(false);
       setAutoSaveStatus("saved");
 
