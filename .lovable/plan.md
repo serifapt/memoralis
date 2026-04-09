@@ -1,44 +1,22 @@
 
 
-## Alertas de campos em falta: Anúncios e Documentos automáticos
+## Adicionar botão "Guardar" após "Adicionar Secção"
 
-### Contexto atual
+### O que muda
 
-- **Documentos automáticos** (`DocumentsTab.tsx`, linha 382-390): Já verifica `requiredFields` mas **bloqueia** a geração — mostra toast e não avança. Os nomes dos campos são técnicos (ex: `fullName`, `familyNiss`).
-- **Anúncios** (`AnnouncementGenerator.tsx`): Não tem qualquer validação — gera PDF/imagem mesmo sem dados essenciais (nome, datas, foto).
+No ficheiro `src/pages/BudgetQuoteDetail.tsx`, logo após o botão "Adicionar Secção" (linha 714), adicionar um botão "Guardar" que:
 
-### Alterações
+1. Chama a mesma função `handleSave` já existente
+2. Após guardar com sucesso, faz scroll automático até ao topo da página (`window.scrollTo({ top: 0, behavior: 'smooth' })`)
+3. Visualmente: botão com ícone `Save`, variante `default` (primário), largura total (`w-full`), para se destacar do botão "Adicionar Secção" que é `outline`
+4. Desabilitado quando `saving` ou `isArchived` (mesma lógica do botão de topo)
+5. Escondido quando `isArchived` (mesmo wrapper do botão "Adicionar Secção")
 
-#### 1. `AnnouncementGenerator.tsx` — Validação antes de gerar PDF/imagem
+### Implementação
 
-Adicionar função `getMissingAnnouncementFields()` que verifica:
-- `displayName` → "Nome"
-- `birthDate` → "Data de Nascimento"  
-- `deathDate` → "Data de Falecimento"
-- `photoUrl` → "Foto"
+- Modificar `handleSave` para fazer scroll ao topo após sucesso (ou criar wrapper `handleSaveAndScroll` que chama `handleSave` e depois faz scroll)
+- Inserir o novo botão entre a linha 714 e 715, dentro do bloco `!isArchived`
 
-Nos handlers `generatePDF` e `generateImage`:
-- Se faltam campos → mostrar `AlertDialog` com lista dos campos em falta e a pergunta "Quer gerar na mesma?"
-- Se confirmar → prossegue com a geração
-- Se cancelar → não gera
-
-Implementação: adicionar estado `pendingGeneration` para guardar a ação pendente (pdf/story/post) e mostrar o diálogo de confirmação.
-
-#### 2. `DocumentsTab.tsx` — Mudar de bloqueio para aviso com confirmação
-
-Na função `handleGenerateAutoDoc` (linha 382-390):
-- Em vez de bloquear com toast, mostrar `AlertDialog` com os campos em falta traduzidos para português:
-  - `fullName` → "Nome Completo"
-  - `deathDate` → "Data de Falecimento"
-  - `familyName` → "Nome do Cliente"
-  - `familyNiss` → "NISS do Cliente"
-- Pergunta: "Há campos por preencher. Quer gerar o documento na mesma?"
-- Se confirmar → prossegue com a geração
-- Se cancelar → não gera
-
-Implementação: adicionar estado `pendingAutoDoc` e um `AlertDialog` ao componente. Criar mapa de tradução `FIELD_LABELS` para converter nomes técnicos em labels legíveis.
-
-### Ficheiros a alterar
-- `src/components/obituaries/AnnouncementGenerator.tsx`
-- `src/components/obituaries/DocumentsTab.tsx`
+### Ficheiro a alterar
+- `src/pages/BudgetQuoteDetail.tsx`
 
