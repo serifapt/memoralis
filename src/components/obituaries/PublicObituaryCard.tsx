@@ -1,11 +1,9 @@
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Building2, Eye, MessageSquare, Flame, Flower2 } from "lucide-react";
+import { MapPin, Building2, Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
-import { SendFlowersModal } from "@/components/flowers/SendFlowersModal";
 import { isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
 
 export interface PublicObituary {
@@ -47,7 +45,6 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
   const navigate = useNavigate();
   const age = getAge(obit.birth_date, obit.death_date);
   const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
-  const [showFlowers, setShowFlowers] = useState(false);
   const showFlowerButton = obit.servico_flores_ativo && isFlowerOrderOpen(obit.ceremony_events || [], obit.flores_limite_horas ?? 4);
 
   return (
@@ -110,15 +107,13 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
               </Button>
               {showFlowerButton && (
                 <Button
+                  asChild
                   size="sm"
                   className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0 bg-primary hover:bg-primary/90"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowFlowers(true);
-                  }}
                 >
-                  <span className="truncate">Enviar Flores</span>
+                  <Link to={`/obituario/${obit.id}/flores`} onClick={(e) => e.stopPropagation()}>
+                    <span className="truncate">Enviar Flores</span>
+                  </Link>
                 </Button>
               )}
             </div>
@@ -142,15 +137,6 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
         </Card>
       </Link>
 
-      {obit.funeraria_id && showFlowers && (
-        <SendFlowersModal
-          open={showFlowers}
-          onOpenChange={setShowFlowers}
-          funerariaId={obit.funeraria_id}
-          obituaryId={obit.id}
-          obituaryName={obit.display_name}
-        />
-      )}
     </>
   );
 }
