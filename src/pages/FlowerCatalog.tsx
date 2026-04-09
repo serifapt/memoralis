@@ -201,6 +201,38 @@ export default function FlowerCatalog() {
         </Button>
       </div>
 
+      {/* Limite de horas */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-end gap-4">
+            <div className="flex-1 max-w-[300px]">
+              <Label htmlFor="limite-horas" className="text-sm font-medium">
+                Limite de pedidos antes do funeral (horas)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Os pedidos de flores ficam indisponíveis X horas antes do funeral.
+              </p>
+              <Input
+                id="limite-horas"
+                type="number"
+                min={0}
+                max={72}
+                value={limiteHoras}
+                onChange={(e) => setLimiteHoras(Number(e.target.value))}
+                className="w-[120px]"
+              />
+            </div>
+            <Button
+              onClick={handleSaveLimite}
+              disabled={savingLimite || limiteHoras === funeraria?.flores_limite_horas}
+              size="sm"
+            >
+              {savingLimite ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
