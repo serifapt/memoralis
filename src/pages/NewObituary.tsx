@@ -19,7 +19,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Camera, Eye, Upload, Heart, MessageCircle, Calendar as CalendarIcon, Clock, MapPin, Map, User, Plus, X, Receipt, Info, Check, Loader2, AlertCircle, Save, ChevronDown, ExternalLink } from "lucide-react";
+import { Camera, Eye, Upload, Building2, MessageSquare, Flame, Calendar as CalendarIcon, Clock, MapPin, Map, User, Plus, X, Receipt, Info, Check, Loader2, AlertCircle, Save, ChevronDown, ExternalLink } from "lucide-react";
+import { getActiveTag, type CeremonyEvent } from "@/lib/ceremony-utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format, parse } from "date-fns";
@@ -2910,76 +2911,104 @@ export default function NewObituary() {
               <h3 className="font-semibold text-center">Pré-visualizar</h3>
             </Card>
 
-            {/* Preview Card - Matching ObituaryArchive Style */}
-            <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative">
-                <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center overflow-hidden">
-                  {photoPreview ? (
-                    <img src={photoPreview} alt="Foto destaque" className="w-full h-full object-cover" />
-                  ) : (
-                    <Camera className="w-16 h-16 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="absolute top-3 left-3 bg-background/90 text-foreground border border-border rounded-md px-2 py-1 text-xs font-medium">
-                  Funeral
-                </div>
-              </div>
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-archivo font-bold text-foreground text-lg mb-1">
-                    {formData.displayName || "Nome do Óbito"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    {formData.birthDate ? formData.birthDate.split("-")[0] : "—"} -{" "}
-                    {formData.deathDate ? formData.deathDate.split("-")[0] : "—"}
-                    {(() => {
-                      if (!formData.birthDate || !formData.deathDate) return "";
-                      const [bY, bM, bD] = formData.birthDate.split("-").map(Number);
-                      const [dY, dM, dD] = formData.deathDate.split("-").map(Number);
-                      let age = dY - bY;
-                      if (dM < bM || (dM === bM && dD < bD)) age--;
-                      return ` | ${age} Anos`;
-                    })()}
-                  </p>
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <span className="text-xs">📍</span>
-                    <span className="text-xs">
-                      {formData.freguesia || "Couto"} - {formData.locality || "Arcos de Valdevez"}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Agência</p>
-                  <p className="text-sm text-foreground font-medium">Funerária S. João</p>
-                </div>
+            {/* Preview Card - Matching PublicObituaryCard */}
+            {(() => {
+              const previewEvents: CeremonyEvent[] = [];
+              if (funeral) previewEvents.push({ event_type: "funeral", event_date: formData.funeralDate || null, event_time: formData.funeralTime || null, location: formData.funeralCemetery || null });
+              if (cremacao) previewEvents.push({ event_type: "cremacao", event_date: formData.cremacaoDate || null, event_time: formData.cremacaoTime || null, location: formData.cremacaoCemetery || null });
+              if (missa7) previewEvents.push({ event_type: "missa7", event_date: formData.missa7Date || null, event_time: formData.missa7Time || null, location: formData.missa7Location || null });
+              if (missa30) previewEvents.push({ event_type: "missa30", event_date: formData.missa30Date || null, event_time: formData.missa30Time || null, location: formData.missa30Location || null });
+              if (missa1ano) previewEvents.push({ event_type: "missa1ano", event_date: formData.missa1anoDate || null, event_time: formData.missa1anoTime || null, location: formData.missa1anoLocation || null });
+              const activeTag = getActiveTag(previewEvents);
+              const locationStr = [formData.freguesia, formData.locality].filter(Boolean).join(" - ");
+              const age = (() => {
+                if (!formData.birthDate || !formData.deathDate) return null;
+                const [bY, bM, bD] = formData.birthDate.split("-").map(Number);
+                const [dY, dM, dD] = formData.deathDate.split("-").map(Number);
+                let a = dY - bY;
+                if (dM < bM || (dM === bM && dD < bD)) a--;
+                return a;
+              })();
 
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    Condolências
-                  </Button>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90">
-                    Enviar Flores
-                  </Button>
-                </div>
+              return (
+                <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative">
+                    <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center overflow-hidden">
+                      {photoPreview ? (
+                        <img src={photoPreview} alt="Foto destaque" className="w-full h-full object-cover" />
+                      ) : (
+                        <Camera className="w-16 h-16 text-muted-foreground" />
+                      )}
+                    </div>
+                    {activeTag && (
+                      <Badge className="absolute top-3 left-3 bg-background/90 text-foreground border-0 text-xs font-medium">
+                        {activeTag}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="p-4 flex flex-col flex-1 space-y-3">
+                    <div className="flex-1 flex flex-col">
+                      <h3 className="font-archivo font-bold text-foreground text-lg mb-1 leading-tight">
+                        {formData.displayName || "Nome do Óbito"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {formData.birthDate ? formData.birthDate.split("-")[0] : "—"} - {formData.deathDate ? formData.deathDate.split("-")[0] : "—"}
+                        {age !== null ? ` | ${age} Anos` : ""}
+                      </p>
+                      <div className="flex-1 flex flex-col justify-center">
+                        {locationStr && (
+                          <div className="flex items-center gap-2 text-muted-foreground mt-2">
+                            <MapPin className="w-3 h-3" />
+                            <span className="text-xs">{locationStr}</span>
+                          </div>
+                        )}
+                        {funerariaInfo?.nome_comercial && (
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Building2 className="w-3 h-3" />
+                            <span className="text-xs">{funerariaInfo.nome_comercial}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    <span>678</span>
+                    <div className="flex gap-1.5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0"
+                        type="button"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <span className="truncate">Condolências</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0 bg-primary hover:bg-primary/90"
+                        type="button"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <span className="truncate">Enviar Flores</span>
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between text-muted-foreground border-t border-border pt-3">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-3.5 h-3.5" />
+                        <span className="text-xs">0</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span className="text-xs">0</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Flame className="w-3.5 h-3.5" />
+                        <span className="text-xs">0</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" />
-                    <span>5</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Heart className="w-4 h-4" />
-                    <span>1</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
+                </Card>
+              );
+            })()}
 
           </div>
         </div>
