@@ -783,6 +783,35 @@ export function DocumentsTab({ obituaryId, obituaryData }: DocumentsTabProps) {
           })}
         </div>
       </Card>
+
+      <AlertDialog open={pendingAutoDoc !== null} onOpenChange={(open) => { if (!open) { setPendingAutoDoc(null); setPendingMissingFields([]); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Campos por preencher</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                <p className="mb-2">Os seguintes campos não estão preenchidos:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  {pendingMissingFields.map((field) => (
+                    <li key={field}>{field}</li>
+                  ))}
+                </ul>
+                <p className="mt-3">Quer gerar o documento na mesma?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (pendingAutoDoc) {
+                executeAutoDocGeneration(pendingAutoDoc);
+              }
+              setPendingAutoDoc(null);
+              setPendingMissingFields([]);
+            }}>Gerar na mesma</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
