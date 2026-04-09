@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Building2, Eye, MessageSquare, Flame } from "lucide-react";
+import { Eye, MessageSquare, Flame } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import { isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
@@ -69,12 +69,18 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                 {obit.display_name}
               </h3>
               <p className="text-sm text-muted-foreground mb-1">
-                {getYear(obit.birth_date)} - {getYear(obit.death_date)}{age !== null ? ` | ${age} Anos` : ""}
+                {age !== null ? (
+                  <>
+                    <span className="hidden sm:inline">{getYear(obit.birth_date)} - {getYear(obit.death_date)} | </span>
+                    {age} Anos
+                  </>
+                ) : (
+                  <>{getYear(obit.birth_date)} - {getYear(obit.death_date)}</>
+                )}
               </p>
               <div className="flex-1 flex flex-col justify-center">
                 {locationStr && (
-                  <div className="flex items-center gap-2 text-muted-foreground mt-2">
-                    <MapPin className="w-3 h-3" />
+                  <div className="text-muted-foreground mt-2">
                     <span className="text-xs">{locationStr}</span>
                   </div>
                 )}
@@ -82,9 +88,8 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                   <Link
                     to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                    className="text-muted-foreground hover:text-primary transition-colors"
                   >
-                    <Building2 className="w-3 h-3" />
                     <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
                   </Link>
                 )}
@@ -92,7 +97,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-1.5">
+            <div className="flex flex-col sm:flex-row gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
