@@ -78,17 +78,15 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                   <>{getYear(obit.birth_date)} - {getYear(obit.death_date)}</>
                 )}
               </p>
-              <div className="flex-1 flex flex-col justify-center">
-                {locationStr && (
-                  <div className="text-muted-foreground mt-2">
-                    <span className="text-xs">{locationStr}</span>
-                  </div>
-                )}
+              {locationStr && (
+                <p className="text-xs text-muted-foreground">{locationStr}</p>
+              )}
+              <div className="flex-1 flex flex-col justify-end">
                 {obit.funerarias && (
                   <Link
                     to={obit.funerarias.slug ? `/funerarias/${obit.funerarias.slug}` : "#"}
                     onClick={(e) => e.stopPropagation()}
-                    className="text-muted-foreground hover:text-primary transition-colors"
+                    className="text-muted-foreground hover:text-primary transition-colors mt-auto"
                   >
                     <span className="text-xs hover:underline">{obit.funerarias.nome_comercial}</span>
                   </Link>
