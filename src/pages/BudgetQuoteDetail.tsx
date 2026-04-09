@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useFunerariaRole } from "@/hooks/useFunerariaRole";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
