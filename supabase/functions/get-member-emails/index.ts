@@ -47,13 +47,23 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Check caller is member of this funeraria
+    // Check caller is member of this funeraria OR platform admin
     const { data: callerRole } = await adminClient.rpc(
       "get_funeraria_member_role",
       { _user_id: caller.id, _funeraria_id: funeraria_id }
     );
 
-    if (!callerRole) {
+    let isAuthorized = !!callerRole;
+
+    if (!isAuthorized) {
+      const { data: isAdmin } = await adminClient.rpc(
+        "has_role",
+        { _user_id: caller.id, _role: "admin" }
+      );
+      isAuthorized = !!isAdmin;
+    }
+
+    if (!isAuthorized) {
       return new Response(
         JSON.stringify({ error: "Sem permissão" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
