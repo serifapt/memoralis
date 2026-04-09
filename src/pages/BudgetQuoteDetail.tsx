@@ -283,6 +283,11 @@ export default function BudgetQuoteDetail() {
     }
   };
 
+  const handleSaveAndScroll = async () => {
+    await handleSave();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleStatusChange = async (newStatus: BudgetQuoteStatus) => {
     if (!quote) return;
     const success = await updateQuoteStatus(quote.id, newStatus);
@@ -708,10 +713,16 @@ export default function BudgetQuoteDetail() {
           ))}
 
           {!isArchived && (
-            <Button variant="outline" className="w-full" onClick={handleAddSection}>
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Secção
-            </Button>
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full" onClick={handleAddSection}>
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Secção
+              </Button>
+              <Button className="w-full" onClick={handleSaveAndScroll} disabled={saving || isArchived}>
+                <Save className="w-4 h-4 mr-2" />
+                {saving ? "A guardar..." : "Guardar"}
+              </Button>
+            </div>
           )}
         </div>
 
