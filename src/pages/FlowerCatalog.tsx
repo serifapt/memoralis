@@ -39,6 +39,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { Label } from "@/components/ui/label";
 import {
   Plus,
   Search,
@@ -70,6 +71,8 @@ export default function FlowerCatalog() {
   );
   const [deleteProduct, setDeleteProduct] = useState<FlowerProduct | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [limiteHoras, setLimiteHoras] = useState<number>(funeraria?.flores_limite_horas ?? 4);
+  const [savingLimite, setSavingLimite] = useState(false);
 
   const filteredProducts = products?.filter((product) => {
     const matchesSearch = product.name
