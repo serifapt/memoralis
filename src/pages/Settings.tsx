@@ -322,7 +322,7 @@ export default function Settings() {
       <Tabs defaultValue="company" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="company"><Building2 className="w-4 h-4 mr-2" />Empresa</TabsTrigger>
-          <TabsTrigger value="services"><Flower className="w-4 h-4 mr-2" />Serviços</TabsTrigger>
+          <TabsTrigger value="services"><Flower className="w-4 h-4 mr-2" />Flores</TabsTrigger>
           <TabsTrigger value="users"><Users className="w-4 h-4 mr-2" />Utilizadores</TabsTrigger>
           <TabsTrigger value="notifications"><Bell className="w-4 h-4 mr-2" />Notificações</TabsTrigger>
         </TabsList>
@@ -422,11 +422,6 @@ export default function Settings() {
             />
           </Card>
 
-          {/* Public Page */}
-          <PublicPageTab funerariaId={funerariaId} />
-        </TabsContent>
-
-        <TabsContent value="services" className="space-y-6">
           {/* Services offered by the funeraria */}
           <Card className="p-6">
             <h3 className="text-lg font-archivo font-semibold text-foreground mb-2">Serviços Prestados</h3>
@@ -478,6 +473,11 @@ export default function Settings() {
             </Button>
           </Card>
 
+          {/* Public Page */}
+          <PublicPageTab funerariaId={funerariaId} />
+        </TabsContent>
+
+        <TabsContent value="services" className="space-y-6">
           {/* Flower service + Stripe Connect */}
           <FlowerStripeOnboarding />
         </TabsContent>
