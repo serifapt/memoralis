@@ -11,6 +11,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { getCurrentFuneraria } from "@/lib/current-funeraria";
 
 interface DashboardStats {
   activeProcesses: number;
@@ -94,15 +95,7 @@ export default function Dashboard() {
 
   const loadDashboardData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Get funeraria
-      const { data: funeraria } = await supabase
-        .from("funerarias")
-        .select("id, nome_comercial")
-        .eq("user_id", user.id)
-        .single();
+      const funeraria = await getCurrentFuneraria<{ id: string; nome_comercial: string }>("id, nome_comercial");
 
       if (!funeraria) return;
       setFunerariaName(funeraria.nome_comercial);
