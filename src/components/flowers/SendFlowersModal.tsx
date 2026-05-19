@@ -34,10 +34,16 @@ import {
 
 const orderSchema = z.object({
   sender_name: z.string().min(1, "Nome é obrigatório"),
-  sender_email: z.string().email("Email inválido").optional().or(z.literal("")),
+  sender_email: z.string().email("Email inválido"),
   sender_phone: z.string().optional(),
   message: z.string().max(500, "Mensagem muito longa").optional(),
   observations: z.string().optional(),
+  want_invoice: z.boolean().optional(),
+  billing_nif: z.string().optional(),
+  billing_name: z.string().optional(),
+  billing_address: z.string().optional(),
+  billing_postal_code: z.string().optional(),
+  billing_city: z.string().optional(),
 });
 
 type OrderFormValues = z.infer<typeof orderSchema>;
@@ -65,12 +71,14 @@ export function SendFlowersModal({
   );
   const [quantity, setQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
+  const [wantInvoice, setWantInvoice] = useState(false);
 
   const { data: products, isLoading } = usePublicFlowerProducts(funerariaId);
-  const { data: commissionConfig } = usePlatformConfig("flower_commission_percent");
+  const { data: pctConfig } = usePlatformConfig("flowers_commission_percent");
+  const { data: minConfig } = usePlatformConfig("flowers_commission_min");
 
-  const commissionPercent = parseFloat(commissionConfig || "10");
+  const commissionPercent = parseFloat(pctConfig || "10");
+  const commissionMin = parseFloat(minConfig || "5");
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
@@ -86,13 +94,14 @@ export function SendFlowersModal({
   const { subtotal, commissionValue, total } = useMemo(() => {
     if (!selectedProduct) return { subtotal: 0, commissionValue: 0, total: 0 };
     const sub = selectedProduct.price * quantity;
-    const comm = (sub * commissionPercent) / 100;
+    const raw = (sub * commissionPercent) / 100;
+    const comm = Math.max(raw, commissionMin);
     return {
       subtotal: sub,
       commissionValue: comm,
       total: sub + comm,
     };
-  }, [selectedProduct, quantity, commissionPercent]);
+  }, [selectedProduct, quantity, commissionPercent, commissionMin]);
 
   const handleProductSelect = (product: FlowerProduct) => {
     setSelectedProduct(product);
@@ -116,52 +125,43 @@ export function SendFlowersModal({
 
     setIsSubmitting(true);
     try {
-      // Create order
-      const orderData = {
-        obituary_id: obituaryId,
-        funeraria_id: funerariaId,
-        sender_name: values.sender_name,
-        sender_email: values.sender_email || null,
-        sender_phone: values.sender_phone || null,
-        message: values.message || null,
-        observations: values.observations || null,
-        subtotal,
-        commission_percent: commissionPercent,
-        commission_value: commissionValue,
-        total,
-        status: "PENDENTE",
-      };
+      const billing = wantInvoice
+        ? {
+            nif: values.billing_nif || undefined,
+            name: values.billing_name || values.sender_name,
+            address: values.billing_address || undefined,
+            postal_code: values.billing_postal_code || undefined,
+            city: values.billing_city || undefined,
+            country: "PT",
+          }
+        : undefined;
 
-      const { data: order, error: orderError } = await supabase
-        .from("flower_orders")
-        .insert(orderData)
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order item
-      const itemData = {
-        order_id: order.id,
-        product_id: selectedProduct.id,
-        product_name_snapshot: selectedProduct.name,
-        product_price_snapshot: selectedProduct.price,
-        quantity,
-        line_total: subtotal,
-      };
-
-      const { error: itemError } = await supabase
-        .from("flower_order_items")
-        .insert(itemData);
-
-      if (itemError) throw itemError;
-
-      setOrderComplete(true);
-      setStep("confirmation");
+      const { data, error } = await supabase.functions.invoke(
+        "create-flower-checkout",
+        {
+          body: {
+            obituary_id: obituaryId,
+            funeraria_id: funerariaId,
+            items: [{ product_id: selectedProduct.id, quantity }],
+            sender_name: values.sender_name,
+            sender_email: values.sender_email,
+            sender_phone: values.sender_phone || undefined,
+            message: values.message || undefined,
+            observations: values.observations || undefined,
+            billing,
+          },
+        }
+      );
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("Sessão de pagamento não criada");
+      }
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Erro ao criar pedido. Tente novamente.");
-    } finally {
+      const msg = error instanceof Error ? error.message : "Erro ao criar pedido.";
+      toast.error(msg);
       setIsSubmitting(false);
     }
   };
@@ -170,7 +170,7 @@ export function SendFlowersModal({
     setStep("catalog");
     setSelectedProduct(null);
     setQuantity(1);
-    setOrderComplete(false);
+    setWantInvoice(false);
     form.reset();
     onOpenChange(false);
   };
