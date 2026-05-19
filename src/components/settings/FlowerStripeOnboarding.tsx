@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -22,6 +24,7 @@ interface ConnectStatus {
   stripe_account_id: string | null;
   stripe_onboarding_completed: boolean;
   stripe_charges_enabled: boolean;
+  email_notificacoes_flores: string | null;
 }
 
 export function FlowerStripeOnboarding() {
@@ -32,15 +35,20 @@ export function FlowerStripeOnboarding() {
   const [creatingAccount, setCreatingAccount] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [openingDashboard, setOpeningDashboard] = useState(false);
+  const [notifEmail, setNotifEmail] = useState("");
+  const [savingEmail, setSavingEmail] = useState(false);
 
   const loadStatus = useCallback(async () => {
     if (!funerariaId) return;
     const { data } = await supabase
       .from("funerarias")
-      .select("stripe_account_id, stripe_onboarding_completed, stripe_charges_enabled")
+      .select("stripe_account_id, stripe_onboarding_completed, stripe_charges_enabled, email_notificacoes_flores")
       .eq("id", funerariaId)
       .maybeSingle();
-    if (data) setStatus(data as ConnectStatus);
+    if (data) {
+      setStatus(data as ConnectStatus);
+      setNotifEmail((data as ConnectStatus).email_notificacoes_flores ?? "");
+    }
     setLoading(false);
   }, [funerariaId]);
 
@@ -121,6 +129,26 @@ export function FlowerStripeOnboarding() {
       toast.error(msg);
     } finally {
       setOpeningDashboard(false);
+    }
+  };
+
+  const handleSaveNotifEmail = async () => {
+    if (!funerariaId) return;
+    const value = notifEmail.trim();
+    if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      toast.error("Email inválido");
+      return;
+    }
+    setSavingEmail(true);
+    const { error } = await supabase
+      .from("funerarias")
+      .update({ email_notificacoes_flores: value || null })
+      .eq("id", funerariaId);
+    setSavingEmail(false);
+    if (error) toast.error("Erro a guardar email");
+    else {
+      toast.success("Email de notificações guardado");
+      loadStatus();
     }
   };
 
@@ -285,6 +313,34 @@ export function FlowerStripeOnboarding() {
               </p>
             </div>
           )}
+
+          {/* Notification email — always shown when service is active */}
+          <div className="mt-6 pt-6 border-t border-border space-y-2">
+            <Label htmlFor="notif-email" className="text-sm font-medium">
+              Email para receber notificações de pedidos
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="notif-email"
+                type="email"
+                placeholder="encomendas@suafuneraria.pt"
+                value={notifEmail}
+                onChange={(e) => setNotifEmail(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                onClick={handleSaveNotifEmail}
+                disabled={savingEmail}
+              >
+                {savingEmail && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Guardar
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Se deixar vazio, as notificações vão para o email do administrador da conta.
+            </p>
+          </div>
         </div>
       )}
     </Card>
