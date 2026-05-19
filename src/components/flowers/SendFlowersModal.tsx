@@ -34,10 +34,16 @@ import {
 
 const orderSchema = z.object({
   sender_name: z.string().min(1, "Nome é obrigatório"),
-  sender_email: z.string().email("Email inválido").optional().or(z.literal("")),
+  sender_email: z.string().email("Email inválido"),
   sender_phone: z.string().optional(),
   message: z.string().max(500, "Mensagem muito longa").optional(),
   observations: z.string().optional(),
+  want_invoice: z.boolean().optional(),
+  billing_nif: z.string().optional(),
+  billing_name: z.string().optional(),
+  billing_address: z.string().optional(),
+  billing_postal_code: z.string().optional(),
+  billing_city: z.string().optional(),
 });
 
 type OrderFormValues = z.infer<typeof orderSchema>;
@@ -65,12 +71,14 @@ export function SendFlowersModal({
   );
   const [quantity, setQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
+  const [wantInvoice, setWantInvoice] = useState(false);
 
   const { data: products, isLoading } = usePublicFlowerProducts(funerariaId);
-  const { data: commissionConfig } = usePlatformConfig("flower_commission_percent");
+  const { data: pctConfig } = usePlatformConfig("flowers_commission_percent");
+  const { data: minConfig } = usePlatformConfig("flowers_commission_min");
 
-  const commissionPercent = parseFloat(commissionConfig || "10");
+  const commissionPercent = parseFloat(pctConfig || "10");
+  const commissionMin = parseFloat(minConfig || "5");
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
@@ -86,13 +94,14 @@ export function SendFlowersModal({
   const { subtotal, commissionValue, total } = useMemo(() => {
     if (!selectedProduct) return { subtotal: 0, commissionValue: 0, total: 0 };
     const sub = selectedProduct.price * quantity;
-    const comm = (sub * commissionPercent) / 100;
+    const raw = (sub * commissionPercent) / 100;
+    const comm = Math.max(raw, commissionMin);
     return {
       subtotal: sub,
       commissionValue: comm,
       total: sub + comm,
     };
-  }, [selectedProduct, quantity, commissionPercent]);
+  }, [selectedProduct, quantity, commissionPercent, commissionMin]);
 
   const handleProductSelect = (product: FlowerProduct) => {
     setSelectedProduct(product);
@@ -116,52 +125,43 @@ export function SendFlowersModal({
 
     setIsSubmitting(true);
     try {
-      // Create order
-      const orderData = {
-        obituary_id: obituaryId,
-        funeraria_id: funerariaId,
-        sender_name: values.sender_name,
-        sender_email: values.sender_email || null,
-        sender_phone: values.sender_phone || null,
-        message: values.message || null,
-        observations: values.observations || null,
-        subtotal,
-        commission_percent: commissionPercent,
-        commission_value: commissionValue,
-        total,
-        status: "PENDENTE",
-      };
+      const billing = wantInvoice
+        ? {
+            nif: values.billing_nif || undefined,
+            name: values.billing_name || values.sender_name,
+            address: values.billing_address || undefined,
+            postal_code: values.billing_postal_code || undefined,
+            city: values.billing_city || undefined,
+            country: "PT",
+          }
+        : undefined;
 
-      const { data: order, error: orderError } = await supabase
-        .from("flower_orders")
-        .insert(orderData)
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order item
-      const itemData = {
-        order_id: order.id,
-        product_id: selectedProduct.id,
-        product_name_snapshot: selectedProduct.name,
-        product_price_snapshot: selectedProduct.price,
-        quantity,
-        line_total: subtotal,
-      };
-
-      const { error: itemError } = await supabase
-        .from("flower_order_items")
-        .insert(itemData);
-
-      if (itemError) throw itemError;
-
-      setOrderComplete(true);
-      setStep("confirmation");
+      const { data, error } = await supabase.functions.invoke(
+        "create-flower-checkout",
+        {
+          body: {
+            obituary_id: obituaryId,
+            funeraria_id: funerariaId,
+            items: [{ product_id: selectedProduct.id, quantity }],
+            sender_name: values.sender_name,
+            sender_email: values.sender_email,
+            sender_phone: values.sender_phone || undefined,
+            message: values.message || undefined,
+            observations: values.observations || undefined,
+            billing,
+          },
+        }
+      );
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("Sessão de pagamento não criada");
+      }
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Erro ao criar pedido. Tente novamente.");
-    } finally {
+      const msg = error instanceof Error ? error.message : "Erro ao criar pedido.";
+      toast.error(msg);
       setIsSubmitting(false);
     }
   };
@@ -170,7 +170,7 @@ export function SendFlowersModal({
     setStep("catalog");
     setSelectedProduct(null);
     setQuantity(1);
-    setOrderComplete(false);
+    setWantInvoice(false);
     form.reset();
     onOpenChange(false);
   };
@@ -327,6 +327,52 @@ export function SendFlowersModal({
                     rows={2}
                   />
                 </div>
+
+                {/* Billing details */}
+                <div className="border-t pt-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={wantInvoice}
+                      onChange={(e) => setWantInvoice(e.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    <span className="font-medium text-sm">
+                      Quero fatura (introduzir NIF e dados de faturação)
+                    </span>
+                  </label>
+                  {wantInvoice && (
+                    <div className="mt-3 space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="billing_nif">NIF</Label>
+                          <Input id="billing_nif" {...form.register("billing_nif")} placeholder="999999999" />
+                        </div>
+                        <div>
+                          <Label htmlFor="billing_name">Nome fiscal</Label>
+                          <Input id="billing_name" {...form.register("billing_name")} placeholder="Se diferente" />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="billing_address">Morada</Label>
+                        <Input id="billing_address" {...form.register("billing_address")} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="billing_postal_code">Código postal</Label>
+                          <Input id="billing_postal_code" {...form.register("billing_postal_code")} placeholder="0000-000" />
+                        </div>
+                        <div>
+                          <Label htmlFor="billing_city">Localidade</Label>
+                          <Input id="billing_city" {...form.register("billing_city")} />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        A fatura é emitida pela funerária.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </ScrollArea>
 
@@ -340,13 +386,13 @@ export function SendFlowersModal({
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  Taxa de serviço ({commissionPercent}%)
+                  Taxa de serviço Memoralis
                 </span>
                 <span>{commissionValue.toFixed(2)} €</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold text-base">
-                <span>Total</span>
+                <span>Total a pagar</span>
                 <span className="text-primary">{total.toFixed(2)} €</span>
               </div>
             </div>
@@ -365,11 +411,11 @@ export function SendFlowersModal({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    A processar...
+                    A redirecionar para Stripe...
                   </>
                 ) : (
                   <>
-                    Confirmar Pedido
+                    Pagar com Stripe
                     <Check className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -378,23 +424,6 @@ export function SendFlowersModal({
           </form>
         )}
 
-        {step === "confirmation" && orderComplete && (
-          <div className="text-center py-8 space-y-4">
-            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-              <Check className="w-8 h-8 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-foreground">
-              Pedido Confirmado!
-            </h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              O seu pedido foi recebido com sucesso. A funerária entrará em contacto
-              consigo em breve para confirmar os detalhes da entrega.
-            </p>
-            <Button onClick={handleClose} className="bg-primary hover:bg-primary/90">
-              Fechar
-            </Button>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );

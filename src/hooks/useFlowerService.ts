@@ -210,3 +210,28 @@ export function usePublicFlowerProducts(funerariaId: string | undefined) {
     enabled: !!funerariaId
   });
 }
+
+/**
+ * Returns whether the funeraria can accept flower orders publicly.
+ * Requires: servico_flores_ativo=true AND stripe_charges_enabled=true
+ */
+export function useFunerariaFlowerStatus(funerariaId: string | undefined) {
+  return useQuery({
+    queryKey: ["funeraria-flower-status-public", funerariaId],
+    queryFn: async () => {
+      if (!funerariaId) return null;
+      const { data, error } = await supabase
+        .from("funerarias")
+        .select("servico_flores_ativo, stripe_charges_enabled, flores_limite_horas")
+        .eq("id", funerariaId)
+        .maybeSingle();
+      if (error) throw error;
+      return data as {
+        servico_flores_ativo: boolean;
+        stripe_charges_enabled: boolean;
+        flores_limite_horas: number;
+      } | null;
+    },
+    enabled: !!funerariaId,
+  });
+}

@@ -15,6 +15,7 @@ import { PublicPageTab } from "@/components/settings/PublicPageTab";
 import { LogoCropper } from "@/components/settings/LogoCropper";
 import { useFunerariaRole } from "@/hooks/useFunerariaRole";
 import { MembersTab } from "@/components/settings/MembersTab";
+import { FlowerStripeOnboarding } from "@/components/settings/FlowerStripeOnboarding";
 
 const DEFAULT_SERVICES = [
   "Funerais e Cerimónias",
@@ -477,31 +478,8 @@ export default function Settings() {
             </Button>
           </Card>
 
-          {/* Flower service toggle */}
-          <Card className="p-6">
-            <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Serviços Opcionais</h3>
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-lg border border-border">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Flower className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Catálogo de Flores</p>
-                    <p className="text-sm text-muted-foreground">Permita que visitantes enviem flores para os funerais</p>
-                  </div>
-                </div>
-                <Switch checked={isFlowerServiceActive} onCheckedChange={handleToggleFlowerService} disabled={!funerariaId} />
-              </div>
-              {isFlowerServiceActive && (
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    O serviço de flores está ativo. Aceda ao <strong>Catálogo de Flores</strong> no menu lateral para gerir os seus produtos.
-                  </p>
-                </div>
-              )}
-            </div>
-          </Card>
+          {/* Flower service + Stripe Connect */}
+          <FlowerStripeOnboarding />
         </TabsContent>
 
         <TabsContent value="users">

@@ -803,6 +803,12 @@ export type Database = {
       }
       flower_orders: {
         Row: {
+          billing_address: string | null
+          billing_city: string | null
+          billing_country: string | null
+          billing_name: string | null
+          billing_nif: string | null
+          billing_postal_code: string | null
           commission_percent: number
           commission_value: number
           created_at: string
@@ -811,15 +817,26 @@ export type Database = {
           message: string | null
           obituary_id: string
           observations: string | null
+          paid_at: string | null
+          refund_amount: number | null
+          refunded_at: string | null
           sender_email: string | null
           sender_name: string
           sender_phone: string | null
           status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
           subtotal: number
           total: number
           updated_at: string
         }
         Insert: {
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_name?: string | null
+          billing_nif?: string | null
+          billing_postal_code?: string | null
           commission_percent?: number
           commission_value?: number
           created_at?: string
@@ -828,15 +845,26 @@ export type Database = {
           message?: string | null
           obituary_id: string
           observations?: string | null
+          paid_at?: string | null
+          refund_amount?: number | null
+          refunded_at?: string | null
           sender_email?: string | null
           sender_name: string
           sender_phone?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           subtotal?: number
           total?: number
           updated_at?: string
         }
         Update: {
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_name?: string | null
+          billing_nif?: string | null
+          billing_postal_code?: string | null
           commission_percent?: number
           commission_value?: number
           created_at?: string
@@ -845,10 +873,15 @@ export type Database = {
           message?: string | null
           obituary_id?: string
           observations?: string | null
+          paid_at?: string | null
+          refund_amount?: number | null
+          refunded_at?: string | null
           sender_email?: string | null
           sender_name?: string
           sender_phone?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           subtotal?: number
           total?: number
           updated_at?: string
@@ -922,6 +955,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      flower_webhook_events: {
+        Row: {
+          id: string
+          payload_json: Json
+          processed_at: string
+          stripe_event_id: string
+          type: string
+        }
+        Insert: {
+          id?: string
+          payload_json: Json
+          processed_at?: string
+          stripe_event_id: string
+          type: string
+        }
+        Update: {
+          id?: string
+          payload_json?: Json
+          processed_at?: string
+          stripe_event_id?: string
+          type?: string
+        }
+        Relationships: []
       }
       funeraria_contacts: {
         Row: {
@@ -1168,6 +1225,9 @@ export type Database = {
           servicos: string[] | null
           slug: string | null
           status: string
+          stripe_account_id: string | null
+          stripe_charges_enabled: boolean
+          stripe_onboarding_completed: boolean
           telefone: string
           telefone_secundario: string | null
           updated_at: string
@@ -1201,6 +1261,9 @@ export type Database = {
           servicos?: string[] | null
           slug?: string | null
           status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_onboarding_completed?: boolean
           telefone: string
           telefone_secundario?: string | null
           updated_at?: string
@@ -1234,6 +1297,9 @@ export type Database = {
           servicos?: string[] | null
           slug?: string | null
           status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_onboarding_completed?: boolean
           telefone?: string
           telefone_secundario?: string | null
           updated_at?: string
