@@ -49,7 +49,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [newService, setNewService] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState("");
   const [slugConflict, setSlugConflict] = useState(false);
@@ -128,20 +127,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
     if (coverInputRef.current) coverInputRef.current.value = "";
   };
 
-  const handleAddService = () => {
-    const raw = newService.trim();
-    if (!raw) return;
-    const items = raw.split(",").map(s => s.trim()).filter(Boolean);
-    const unique = items.filter(s => !data.servicos.includes(s));
-    if (unique.length === 0) { toast.error("Serviço(s) já existe(m)"); return; }
-    setData(prev => ({ ...prev, servicos: [...prev.servicos, ...unique] }));
-    setNewService("");
-  };
-
-  const handleRemoveService = (service: string) => {
-    setData(prev => ({ ...prev, servicos: prev.servicos.filter(s => s !== service) }));
-  };
-
   const handleSave = async () => {
     if (!funerariaId) { toast.error("Funerária não encontrada"); return; }
 
@@ -199,7 +184,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           instagram_url: data.instagram_url || null,
           linkedin_url: data.linkedin_url || null,
           horario: data.horario || null,
-          servicos: data.servicos,
         })
         .eq("id", funerariaId);
 
