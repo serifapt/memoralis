@@ -36,6 +36,7 @@ import BlogPost from "./pages/BlogPost";
 import Sobre from "./pages/Sobre";
 import Contactos from "./pages/Contactos";
 import NotFound from "./pages/NotFound";
+import Unsubscribe from "./pages/Unsubscribe";
 import FlowerCatalog from "./pages/FlowerCatalog";
 import FlowerOrders from "./pages/FlowerOrders";
 import BudgetQuotes from "./pages/BudgetQuotes";
@@ -80,6 +81,7 @@ const App = () => (
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/contactos" element={<Contactos />} />
           <Route path="/login" element={<Auth />} />
+          <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
