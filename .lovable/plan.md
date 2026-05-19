@@ -1,142 +1,78 @@
 
-# Plano: Pagamentos de Flores com Stripe Connect
+# Plano: Notificações de email para pedidos de flores
 
-## Contexto e regras de negócio
+## 1. Atualização rápida da página `/contactos`
 
-- Cliente final encomenda flores num obituário → funerária recebe pedido → trata com floristas e entrega no local do velório/funeral.
-- `flores_limite_horas` (já existe) define janela mínima antes do funeral para aceitar encomendas.
-- **Preços com IVA incluído**.
-- **Fee Memoralis**: `max(10% do subtotal, 5€)`, **adicionado** ao total. Ex.: 80€ → fee 8€ → cliente paga 88€.
-- **Reembolsos**: Memoralis retém **50% do fee** para cobrir custos Stripe; outros 50% devolvidos.
-- **Faturação**: cada funerária emite fatura ao cliente final (Memoralis não fatura ao consumidor).
-- Funerária recebe valor dos produtos diretamente na sua conta Stripe Connect.
+- Telefone: `+351 928 282 582`
+- Morada: `Incubo, 4970-786 Arcos de Valdevez`
+- Horário: `Seg a Sex: 10h-18h`
 
-## Arquitetura
+## 2. Domínio de envio: `memoralis.pt`
 
-```text
-Cliente → Checkout Stripe → Pagamento 88€
-                              ├─► 80€ → Conta Connect da Funerária
-                              └─► 8€  → Conta Memoralis (application_fee)
-```
+Atualmente está verificado `notify.serifa.pt` (não vai ser usado). Vou abrir o diálogo de Email Setup para registar **memoralis.pt** → subdomínio `notify.memoralis.pt` delegado aos nameservers da plataforma.
 
-## Fluxo de ativação no backoffice (dashboard funerária)
+`From: Memoralis <flores@notify.memoralis.pt>`
 
-Aba **Settings → Flores** com card único progressivo:
+> Enquanto o DNS propaga, todo o resto fica configurado e os emails começam a sair assim que ficar verificado.
 
-1. **Estado inicial (serviço inativo)** — card explicativo com:
-   - Como funciona o serviço (cliente encomenda, funerária entrega).
-   - Regras de comissão: 10% min 5€ adicionado ao valor.
-   - Política de reembolso (Memoralis retém 50% do fee).
-   - **Aviso destacado**: "É obrigatório criar conta Stripe para receber pagamentos. A faturação ao cliente final é da responsabilidade da funerária."
-   - Botão "Ativar serviço de flores" (toggle `servico_flores_ativo`).
+## 3. Campo configurável de email na funerária
 
-2. **Após ativação, sem Stripe** — bloco automático:
-   - "Configure a sua conta Stripe para começar a receber pedidos"
-   - Botão "Configurar Stripe Connect" → cria conta Express + abre `account_link` em nova aba.
-   - Enquanto não completo, **frontend público NÃO mostra opção de enviar flores** (mesmo com `servico_flores_ativo=true`).
+### BD
+Adicionar à tabela `funerarias`:
+- `email_notificacoes_flores` (text, nullable, validado por formato)
 
-3. **Onboarding em progresso** — "Continuar configuração no Stripe" + botão "Já completei" (chama refresh-status).
+### UI (Settings → Flores → card de ativação do catálogo)
+- Input opcional **"Email para receber notificações de pedidos"**
+- Helper text: *"Se deixar vazio, as notificações vão para o email do administrador da conta."*
+- Guardado em edição direta (sem toggle).
 
-4. **Ativo** — badge "Pagamentos ativos" + link "Aceder ao dashboard Stripe" (login link Express) + botão para gerir catálogo.
+### Resolução do destinatário (no webhook)
+1. `funerarias.email_notificacoes_flores` se preenchido
+2. Email do admin mais antigo em `funeraria_members` (via service role → `auth.users.email`)
+3. Caso falhe, log de warning (não bloqueia o pedido)
 
-## Fluxo de checkout (cliente final no `SendFlowersModal`)
+## 4. Quando os emails são disparados
 
-Passos atuais (catálogo → detalhes → confirmação) mantidos, com mudanças no passo "detalhes":
+Apenas em `checkout.session.completed` dentro de `flower-stripe-webhook`, após pagamento confirmado. Idempotência garantida pela tabela `flower_webhook_events` já existente.
 
-**Secção "Os seus dados"**:
-- Nome (obrigatório)
-- Email (obrigatório — para recibo Stripe)
-- Telefone
+## 5. Templates (React Email, branding Memoralis)
 
-**Secção nova "Dados de faturação (opcional)"** — colapsada por defeito com toggle "Quero fatura":
-- NIF
-- Nome fiscal (se diferente)
-- Morada
-- Código postal
-- Localidade
-- País (default Portugal)
+### a) Cliente — `flower-order-customer-confirmation`
+- **Para:** email do remetente
+- **Assunto:** "Pedido de flores confirmado — {nomeFalecido}"
+- **Reply-To:** email da funerária
+- Conteúdo: saudação, confirmação de pagamento, resumo (itens + subtotal + taxa serviço + total), mensagem do remetente, aviso que a funerária trata da entrega, nota sobre fatura (emitida pela funerária com NIF se fornecido).
 
-Estes dados são guardados em `flower_orders.billing_*` e passados ao Stripe via `customer_details` + `tax_id_data` para aparecerem no recibo. A **emissão da fatura formal é feita pela funerária** (não automática).
+### b) Funerária — `flower-order-funeraria-notification`
+- **Para:** email resolvido conforme regras acima
+- **Assunto:** "Novo pedido de flores — {nomeFalecido}"
+- **Reply-To:** email do cliente
+- Conteúdo:
+  - Cabeçalho "Novo pedido pago"
+  - Falecido + link para obituário
+  - Local/data do velório/funeral
+  - Lista de produtos
+  - **Valor que vai receber** (subtotal — taxa Memoralis já descontada pelo Stripe Connect)
+  - Dados do cliente (nome, email, telefone)
+  - Mensagem de condolências (para o cartão)
+  - Observações
+  - Dados de faturação (NIF + morada fiscal) com aviso "Cliente solicitou fatura"
+  - Botão "Ver pedido no Memoralis"
 
-**Breakdown final**:
-```
-Subtotal:                    80,00 €
-Taxa de serviço Memoralis:    8,00 €
-─────────────────────────────────────
-Total a pagar:               88,00 €
-```
+Branding: cores `#D85151` / `#2D595E`, fontes do projeto, body bg branco.
 
-Botão "Pagar com Stripe" → redirect para Checkout → retorno em `/obituary/:id/flowers/success` ou `/cancelled`.
+## 6. Implementação técnica
 
-## Mudanças na base de dados
+1. Diálogo Email Setup para `memoralis.pt`.
+2. Migration: `funerarias.email_notificacoes_flores`.
+3. `setup_email_infra` (queue pgmq + cron + tabelas de log/supressão).
+4. `scaffold_transactional_email` (edge functions sender/unsubscribe/supressão + página de unsubscribe no app).
+5. Criar os 2 templates em `_shared/transactional-email-templates/` + atualizar `registry.ts`.
+6. Atualizar `FlowerStripeOnboarding.tsx` com o input de email + save.
+7. Atualizar `flower-stripe-webhook`:
+   - Carregar pedido completo (items, funeraria, obituário, ceremony_events)
+   - Resolver email funerária (campo → admin fallback)
+   - Invocar `send-transactional-email` 2× em paralelo com idempotency keys `flower-order-{id}-customer` / `…-funeraria`
+8. Redeploy: `send-transactional-email`, `handle-email-unsubscribe`, `handle-email-suppression`, `process-email-queue`, `flower-stripe-webhook`.
 
-**`funerarias`** — adicionar:
-- `stripe_account_id` (text)
-- `stripe_onboarding_completed` (boolean, default false)
-- `stripe_charges_enabled` (boolean, default false)
-
-**`flower_orders`** — adicionar:
-- `stripe_checkout_session_id` (text)
-- `stripe_payment_intent_id` (text)
-- `paid_at` (timestamptz)
-- `refunded_at` (timestamptz)
-- `refund_amount` (numeric)
-- **Dados de faturação**:
-  - `billing_nif` (text)
-  - `billing_name` (text)
-  - `billing_address` (text)
-  - `billing_postal_code` (text)
-  - `billing_city` (text)
-  - `billing_country` (text, default 'PT')
-- Novo estado: `AGUARDA_PAGAMENTO` (antes de `PENDENTE`), `REEMBOLSADO`.
-
-**`flower_webhook_events`** (nova) — idempotência:
-- `stripe_event_id` (text, unique), `type`, `payload_json`, `processed_at`.
-
-**`platform_config`**:
-- `flowers_commission_percent` = 10
-- `flowers_commission_min` = 5
-- `flowers_refund_fee_retention_percent` = 50
-
-## Edge functions
-
-1. **`create-flower-connect-account`** — cria conta Stripe Express + devolve `account_link` de onboarding.
-2. **`refresh-flower-connect-status`** — verifica `charges_enabled` e atualiza BD.
-3. **`stripe-connect-login-link`** — gera login link para o dashboard Express.
-4. **`create-flower-checkout`** — valida `isFlowerOrderOpen`, calcula fee, cria Checkout Session com:
-   - `payment_intent_data.application_fee_amount`
-   - `transfer_data.destination = funeraria.stripe_account_id`
-   - `customer_email`, `tax_id_collection` se NIF preenchido
-   - Cria `flower_order` em `AGUARDA_PAGAMENTO`.
-5. **`flower-stripe-webhook`** (`verify_jwt = false`) — `checkout.session.completed`, `payment_intent.payment_failed`, `charge.refunded`; idempotente.
-6. **`refund-flower-order`** — só admin funerária; refund parcial do fee (retém 50% via `ApplicationFeeRefund`).
-
-## Visibilidade pública
-
-`SendFlowersModal` / botão "Enviar flores" só aparece se:
-- `funeraria.servico_flores_ativo = true` **E**
-- `funeraria.stripe_charges_enabled = true` **E**
-- `isFlowerOrderOpen(events, flores_limite_horas) = true`
-
-## Secrets necessários
-
-- `STRIPE_SECRET_KEY` (já existe)
-- **`STRIPE_FLOWERS_WEBHOOK_SECRET`** (novo — endpoint dedicado)
-
-## Ordem de implementação
-
-1. Migration BD (colunas funerarias, flower_orders, webhook events, platform_config)
-2. Edge functions Connect (onboarding, refresh, login link)
-3. UI Settings → Flores (card progressivo com regras + onboarding)
-4. Gate de visibilidade pública (esconder "Enviar flores" sem Stripe ativo)
-5. Edge functions checkout + webhook
-6. SendFlowersModal: secção de faturação opcional + redirect Stripe
-7. Páginas de retorno success/cancelled
-8. Edge function refund + UI no FlowerOrders
-
-## Pré-requisitos do utilizador
-
-1. Ativar **Stripe Connect** no dashboard Stripe da Memoralis (Settings → Connect).
-2. Criar webhook endpoint apontando para `https://oxvpukidtudltzntwlsz.supabase.co/functions/v1/flower-stripe-webhook` e fornecer o **signing secret** (vou pedir via add_secret quando começar).
-
-Confirmas e avanço com implementação?
+Aprovas para avançar?
