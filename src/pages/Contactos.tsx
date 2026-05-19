@@ -92,8 +92,8 @@ const Contactos = () => {
               </div>
               <h3 className="font-semibold mb-1 text-sm">Telefone</h3>
               <p className="text-xs text-muted-foreground">
-                <a href="tel:+351123456789" className="hover:text-primary transition-colors">
-                  +351 123 456 789
+                <a href="tel:+351928282582" className="hover:text-primary transition-colors">
+                  +351 928 282 582
                 </a>
               </p>
             </Card>
@@ -104,7 +104,8 @@ const Contactos = () => {
               </div>
               <h3 className="font-semibold mb-1 text-sm">Morada</h3>
               <p className="text-xs text-muted-foreground">
-                Lisboa, Portugal
+                Incubo<br />
+                4970-786 Arcos de Valdevez
               </p>
             </Card>
 
@@ -114,7 +115,7 @@ const Contactos = () => {
               </div>
               <h3 className="font-semibold mb-1 text-sm">Horário</h3>
               <p className="text-xs text-muted-foreground">
-                Seg-Sex: 9h-18h
+                Seg a Sex: 10h-18h
               </p>
             </Card>
           </div>

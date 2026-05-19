@@ -1207,6 +1207,7 @@ export type Database = {
           descricao: string | null
           distrito: string | null
           email: string | null
+          email_notificacoes_flores: string | null
           facebook_url: string | null
           flores_limite_horas: number
           horario: string | null
@@ -1243,6 +1244,7 @@ export type Database = {
           descricao?: string | null
           distrito?: string | null
           email?: string | null
+          email_notificacoes_flores?: string | null
           facebook_url?: string | null
           flores_limite_horas?: number
           horario?: string | null
@@ -1279,6 +1281,7 @@ export type Database = {
           descricao?: string | null
           distrito?: string | null
           email?: string | null
+          email_notificacoes_flores?: string | null
           facebook_url?: string | null
           flores_limite_horas?: number
           horario?: string | null

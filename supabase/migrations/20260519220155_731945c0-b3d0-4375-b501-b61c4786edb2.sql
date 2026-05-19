@@ -1,0 +1,1 @@
+ALTER TABLE public.funerarias ADD COLUMN IF NOT EXISTS email_notificacoes_flores text;
