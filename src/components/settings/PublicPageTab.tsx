@@ -255,34 +255,6 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
       </Card>
 
       {/* Services */}
-      <Card className="p-6">
-        <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Serviços</h3>
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <Input
-              value={newService}
-              onChange={(e) => setNewService(e.target.value)}
-              placeholder="Ex: Funerais, Cremação, Tanatopraxia..."
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddService())}
-              disabled={loading}
-            />
-            <Button variant="outline" onClick={handleAddService} disabled={loading}>Adicionar</Button>
-          </div>
-          {data.servicos.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {data.servicos.map((service) => (
-                <Badge key={service} variant="secondary" className="gap-1 pr-1">
-                  {service}
-                  <button onClick={() => handleRemoveService(service)} className="ml-1 hover:text-destructive">
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      </Card>
-
       {/* Additional Contacts */}
       <Card className="p-6">
         <h3 className="text-lg font-archivo font-semibold text-foreground mb-4">Contactos Adicionais</h3>
