@@ -15,6 +15,7 @@ import { PublicPageTab } from "@/components/settings/PublicPageTab";
 import { LogoCropper } from "@/components/settings/LogoCropper";
 import { useFunerariaRole } from "@/hooks/useFunerariaRole";
 import { MembersTab } from "@/components/settings/MembersTab";
+import { FlowerStripeOnboarding } from "@/components/settings/FlowerStripeOnboarding";
 
 const DEFAULT_SERVICES = [
   "Funerais e Cerimónias",
