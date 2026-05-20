@@ -176,8 +176,8 @@ serve(async (req) => {
       mode: "payment",
       line_items: lineItems,
       customer_email: sender_email,
-      success_url: `${origin}/obituary/${obituary_id}?flowers=success`,
-      cancel_url: `${origin}/obituary/${obituary_id}?flowers=cancelled`,
+      success_url: `${origin}/obituario/${obituary_id}?flowers=success`,
+      cancel_url: `${origin}/obituario/${obituary_id}?flowers=cancelled`,
       payment_intent_data: {
         application_fee_amount: Math.round(commissionValue * 100),
         transfer_data: { destination: funeraria.stripe_account_id },
