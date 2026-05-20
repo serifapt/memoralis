@@ -480,7 +480,8 @@ export default function ObituaryDetail() {
                         <Flame className="w-4 h-4 mr-2" />
                         {lightingCandle ? "A acender..." : "Acender Vela"}
                       </Button>
-                      {funeraria?.servico_flores_ativo && isFlowerOrderOpen(events, funeraria.flores_limite_horas) && (
+                      {/* DEV: temporariamente sempre visível para desenvolvimento */}
+                      {true && (
                         <Button asChild className="w-full sm:w-auto bg-primary hover:bg-primary/90">
                           <Link to={`/obituario/${id}/flores`}>Enviar Flores</Link>
                         </Button>
