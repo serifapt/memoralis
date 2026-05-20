@@ -94,6 +94,22 @@ export default function ObituaryDetail() {
     if (id) loadObituaryData(id);
   }, [id]);
 
+  // Stripe checkout return handling
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const flowers = params.get("flowers");
+    if (flowers === "success") {
+      toast.success("Pagamento confirmado! O seu pedido de flores foi recebido.");
+    } else if (flowers === "cancelled") {
+      toast.info("Pagamento cancelado. O seu pedido não foi processado.");
+    }
+    if (flowers) {
+      params.delete("flowers");
+      const newSearch = params.toString();
+      window.history.replaceState({}, "", `${location.pathname}${newSearch ? `?${newSearch}` : ""}`);
+    }
+  }, [location.pathname, location.search]);
+
   // SEO: JSON-LD + Open Graph meta tags
   useEffect(() => {
     if (!obituary) return;
