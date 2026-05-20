@@ -90,10 +90,11 @@ serve(async (req) => {
     const { data: cfg } = await admin
       .from("platform_config")
       .select("key, value")
-      .in("key", ["flowers_commission_percent", "flowers_commission_min"]);
+      .in("key", ["flowers_commission_percent", "flowers_commission_min", "flowers_commission_max"]);
     const cfgMap = Object.fromEntries((cfg ?? []).map((c) => [c.key, parseFloat(c.value)]));
     const commissionPercent = cfgMap.flowers_commission_percent ?? 10;
     const commissionMin = cfgMap.flowers_commission_min ?? 5;
+    const commissionMax = cfgMap.flowers_commission_max ?? 15;
 
     // Calculate
     let subtotal = 0;
@@ -105,7 +106,8 @@ serve(async (req) => {
     });
     subtotal = Math.round(subtotal * 100) / 100;
     const rawCommission = (subtotal * commissionPercent) / 100;
-    const commissionValue = Math.round(Math.max(rawCommission, commissionMin) * 100) / 100;
+    const clamped = Math.min(Math.max(rawCommission, commissionMin), commissionMax);
+    const commissionValue = Math.round(clamped * 100) / 100;
     const total = Math.round((subtotal + commissionValue) * 100) / 100;
 
     // Insert order
