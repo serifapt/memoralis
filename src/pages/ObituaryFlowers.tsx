@@ -428,6 +428,51 @@ export default function ObituaryFlowers() {
                     <Textarea id="observations" {...form.register("observations")} placeholder="Notas adicionais..." rows={2} />
                   </div>
 
+                  <div className="border-t pt-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={wantInvoice}
+                        onChange={(e) => setWantInvoice(e.target.checked)}
+                        className="w-4 h-4"
+                      />
+                      <span className="font-medium text-sm">
+                        Quero fatura (introduzir NIF e dados de faturação)
+                      </span>
+                    </label>
+                    {wantInvoice && (
+                      <div className="mt-3 space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="billing_nif">NIF</Label>
+                            <Input id="billing_nif" {...form.register("billing_nif")} placeholder="999999999" />
+                          </div>
+                          <div>
+                            <Label htmlFor="billing_name">Nome fiscal</Label>
+                            <Input id="billing_name" {...form.register("billing_name")} placeholder="Se diferente" />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="billing_address">Morada</Label>
+                          <Input id="billing_address" {...form.register("billing_address")} />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="billing_postal_code">Código postal</Label>
+                            <Input id="billing_postal_code" {...form.register("billing_postal_code")} placeholder="0000-000" />
+                          </div>
+                          <div>
+                            <Label htmlFor="billing_city">Localidade</Label>
+                            <Input id="billing_city" {...form.register("billing_city")} />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          A fatura é emitida pela funerária.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
                   <Separator />
 
                   <div className="space-y-2 text-sm">
@@ -448,9 +493,9 @@ export default function ObituaryFlowers() {
 
                   <Button type="submit" disabled={isSubmitting || cart.length === 0} className="w-full" size="lg">
                     {isSubmitting ? (
-                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />A processar...</>
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />A redirecionar para Stripe...</>
                     ) : (
-                      <><Check className="w-4 h-4 mr-2" />Confirmar Pedido</>
+                      <><Check className="w-4 h-4 mr-2" />Pagar com Stripe</>
                     )}
                   </Button>
                 </form>
