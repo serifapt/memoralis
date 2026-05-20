@@ -98,11 +98,11 @@ export default function ObituaryFlowers() {
       setFuneraria(funRes.data);
       setEvents(evRes.data || []);
 
-      // Check if flowers are open
-      if (!funRes.data?.servico_flores_ativo || !isFlowerOrderOpen(evRes.data || [], funRes.data?.flores_limite_horas ?? 4)) {
-        navigate(`/obituario/${id}`, { replace: true });
-        return;
-      }
+      // DEV: bypass temporário das verificações de servico_flores_ativo / janela de tempo
+      // if (!funRes.data?.servico_flores_ativo || !isFlowerOrderOpen(evRes.data || [], funRes.data?.flores_limite_horas ?? 4)) {
+      //   navigate(`/obituario/${id}`, { replace: true });
+      //   return;
+      // }
       setLoading(false);
     })();
   }, [id]);
