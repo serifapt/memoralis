@@ -1,46 +1,58 @@
-# Integrar pedido de flores com Stripe
+# Preparação para lançamento público
 
-## Problema
-Após o refactor do carrinho multi-produto, a página `/obituario/:id/flores` deixou de usar Stripe. O `onSubmit` faz `insert` direto em `flower_orders` + `flower_order_items` com status `PENDENTE` e mostra "Pedido Confirmado" sem cobrar nada. A edge function `create-flower-checkout` (que já cria sessão Stripe Connect com comissão Memoralis) está pronta mas nunca é chamada a partir da página.
+Plano dividido em 4 frentes. Podem ser implementadas por ordem ou em paralelo — sugiro começar pela Home + Blog porque desbloqueiam comunicação.
 
-O `SendFlowersModal` ainda usa Stripe corretamente, mas a página principal não.
+## 1. Página inicial (Home)
 
-## Objetivo
-Restaurar o fluxo de pagamento Stripe na página, mantendo a UX multi-produto do carrinho.
+Substituir secções com placeholders/lorem ipsum por conteúdo real:
 
-## Alterações
+- **"Adicione uma memória especial"** — reescrever os 4 passos (Criar conta → Adicionar dados do ente querido → Personalizar homenagem → Partilhar com família) com cópia real e CTA correto (apontar para `/funeraria/register` ou fluxo de obituário consoante público-alvo).
+- **Secção "Destaques"** — passar a mostrar funerária(s) reais marcadas como destaque (novo campo `destaque` em `funerarias` ou usar a mais recente/melhor avaliada). Remover placeholder "Funerária S. João".
+- **Secção "Artigos"** — ligar aos artigos reais do blogue (últimos 3 publicados) em vez do array hardcoded.
+- Pequena secção nova **"Serviços"** com cards para: Obituários, Cuidado de Memoriais (Care), Flores, Diretório de Funerárias, Diretório de Floristas (Brevemente), Missas por Paróquia (Brevemente).
 
-### 1. `src/pages/ObituaryFlowers.tsx` — substituir `onSubmit`
-- Remover insert direto em `flower_orders` / `flower_order_items`.
-- Chamar `supabase.functions.invoke("create-flower-checkout", { body: { obituary_id, funeraria_id, items: cart.map(c => ({ product_id: c.product.id, quantity: c.quantity })), sender_name, sender_email, sender_phone, message, observations, billing } })`.
-- Redirecionar `window.location.href = data.url` para o Stripe Checkout.
-- Tornar `sender_email` obrigatório no schema (Stripe precisa para `customer_email`).
-- Remover estado `orderComplete` (Stripe já redireciona para `success_url` = `/obituary/:id?flowers=success`). O ecrã "Pedido Confirmado" deixa de fazer sentido aqui.
-- Trocar texto do botão para `"Pagar com Stripe"`.
+## 2. Blogue editável no admin
 
-### 2. Adicionar bloco "Quero fatura" (NIF + dados faturação)
-Espelhar o que o `SendFlowersModal` já faz: checkbox `wantInvoice` que revela campos `billing_nif`, `billing_name`, `billing_address`, `billing_postal_code`, `billing_city`. Enviar como objeto `billing` no body só se marcado.
+Hoje o `/blog` e `/blog/:slug` usam dados hardcoded. Tornar dinâmico:
 
-### 3. Estado de sucesso/cancelamento
-A página `ObituaryDetail` (em `/obituary/:id`) deve mostrar um toast quando chega com `?flowers=success` ou `?flowers=cancelled`. Verificar se já existe — se não, adicionar `useEffect` que lê o query param e dispara `toast.success(...)` / `toast.info(...)`, depois limpa o URL.
+- Nova tabela `blog_posts` (título, slug, excerpt, conteúdo rich text/markdown, categoria, autor, imagem de capa, tempo de leitura, estado draft/published, publicado_em).
+- Página `/blog` e `/blog/:slug` passam a ler do Supabase (apenas publicados).
+- Novo separador no painel admin: **`/admin/blog`** com lista + criar/editar/eliminar/publicar. Editor de conteúdo simples (textarea markdown ou rich text leve). Upload de imagem de capa para um bucket público novo `blog-images`.
+- Featured article = post mais recente publicado marcado como `is_featured`.
 
-### 4. Backend / Edge function
-**Nenhuma alteração necessária.** `create-flower-checkout` já:
-- aceita `items: [{product_id, quantity}]` (cart),
-- valida funerária ativa + Stripe Connect ligado,
-- calcula comissão `clamp(10%, 5€, 15€)`,
-- cria `flower_orders` com `status: AGUARDA_PAGAMENTO`,
-- cria sessão Stripe com `application_fee_amount` + `transfer_data` para a funerária.
+## 3. Página Sobre com 3 tabs
 
-O webhook `flower-stripe-webhook` já existe para confirmar pagamento e atualizar status.
+Reorganizar `/sobre` com `Tabs` (shadcn):
+
+- **Público / Famílias** — quem somos, missão, como ajudamos famílias, obituários, condolências, partilha de memórias.
+- **Profissional / Funerárias** — proposta de valor para funerárias (gestão de obituários, orçamentos, comunicações, diretório, CTA para `/funeraria/register`).
+- **Serviços** — apenas o Care por agora (resumo + CTA para `/care`). Espaço preparado para Flores, Diretório de Floristas e Missas quando estiverem prontos.
+
+Manter o hero atual partilhado por cima das tabs. Conteúdo existente da página é redistribuído pelas tabs em vez de eliminado.
+
+## 4. Novos diretórios públicos (brevemente)
+
+Duas páginas novas, ambas em modo "Brevemente" para já, mas com rota real para podermos linkar:
+
+- **`/floristas`** — diretório de floristas a nível nacional. Layout placeholder (hero + "Em breve" + formulário "Sou florista, quero ser notificada quando lançar" que grava num leads simples).
+- **`/missas`** — informações de missas por paróquia a nível nacional. Mesmo padrão "Em breve" com captura de email para notificação.
+
+Adicionar links nestes destinos no menu público (`PublicHeader`) e na nova secção Serviços da Home/Sobre, com badge "Brevemente".
 
 ## Detalhes técnicos
-- Schema Zod: `sender_email: z.string().email("Email é obrigatório para pagamento")` (sem `.optional()`).
-- Tratamento de erros: se `data.error` ou `error` da invoke, `toast.error(msg)` e re-habilitar botão.
-- Loading state mantém-se (`isSubmitting`), label muda para `"A redirecionar para Stripe..."`.
-- Manter validação `cart.length === 0` antes de submeter.
 
-## Fora de scope
-- Não alterar `SendFlowersModal` (já funciona).
-- Não alterar edge functions nem webhook.
-- Não alterar regras de comissão.
+- **DB novas tabelas**:
+  - `blog_posts` com RLS: leitura pública apenas para `status = 'published'`; CRUD restrito a admin (`has_role(auth.uid(), 'admin')`).
+  - `coming_soon_leads` (page enum: `floristas`|`missas`, email, created_at) — insert público, leitura só admin.
+  - Bucket público novo `blog-images` com policy de upload restrita a admin.
+- **Admin**: novo item na `AdminSidebar` ("Blog") apontando para `/admin/blog`. Página de lista + dialog/route `/admin/blog/new` e `/admin/blog/:id`.
+- **Routing**: adicionar rotas `/floristas`, `/missas`, `/admin/blog`, `/admin/blog/:id` em `App.tsx`.
+- **Home**: refactor das secções placeholder, ligar a `blog_posts` para os 3 últimos artigos.
+- **Sobre**: usar `Tabs` shadcn já existente; sem alterações de dados.
+- Tudo respeita design tokens existentes (Inter/Archivo, brand #D85151 / #2D595E).
+
+## Fora de scope (sugiro para depois)
+
+- Conteúdo real e completo do diretório de floristas e missas por paróquia (precisa de fonte de dados / parcerias).
+- Editor rich-text avançado (TipTap/Lexical) — começamos com markdown simples e evoluímos se necessário.
+- SEO técnico avançado por post (sitemap dinâmico, JSON-LD Article) — fácil de adicionar numa segunda iteração.
