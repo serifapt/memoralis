@@ -6,6 +6,9 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { FlowerProductCard } from "@/components/flowers/FlowerProductCard";
+import { ProductDetailSheet } from "@/components/flowers/ProductDetailSheet";
+import { CartSheet, type CartItem } from "@/components/flowers/CartSheet";
+import { CartFab } from "@/components/flowers/CartFab";
 import { usePublicFlowerProducts, usePlatformConfig, type FlowerProduct } from "@/hooks/useFlowerService";
 import { isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
 import { Button } from "@/components/ui/button";
@@ -19,7 +22,7 @@ import { toast } from "sonner";
 import obituaryPlaceholder from "@/assets/obituary-placeholder.jpg";
 import {
   Home, ChevronRight, MapPin, Flower2, Loader2,
-  Minus, Plus, Check, ArrowLeft, ArrowRight, X,
+  Check, ArrowLeft, ShoppingBag, Pencil,
 } from "lucide-react";
 
 const orderSchema = z.object({
@@ -63,10 +66,13 @@ export default function ObituaryFlowers() {
   const [funeraria, setFuneraria] = useState<FunerariaData | null>(null);
   const [events, setEvents] = useState<CeremonyEvent[]>([]);
 
-  const [selectedProduct, setSelectedProduct] = useState<FlowerProduct | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [detailProduct, setDetailProduct] = useState<FlowerProduct | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [step, setStep] = useState<"catalog" | "checkout">("catalog");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   const { data: products, isLoading: productsLoading } = usePublicFlowerProducts(funeraria?.id);
   const { data: pctConfig } = usePlatformConfig("flowers_commission_percent");
@@ -112,15 +118,38 @@ export default function ObituaryFlowers() {
   }, [id]);
 
   const { subtotal, commissionValue, total } = useMemo(() => {
-    if (!selectedProduct) return { subtotal: 0, commissionValue: 0, total: 0 };
-    const sub = selectedProduct.price * quantity;
+    const sub = cart.reduce((acc, { product, quantity }) => acc + product.price * quantity, 0);
+    if (sub <= 0) return { subtotal: 0, commissionValue: 0, total: 0 };
     const raw = (sub * commissionPercent) / 100;
     const comm = Math.min(Math.max(raw, commissionMin), commissionMax);
     return { subtotal: sub, commissionValue: comm, total: sub + comm };
-  }, [selectedProduct, quantity, commissionPercent, commissionMin, commissionMax]);
+  }, [cart, commissionPercent, commissionMin, commissionMax]);
+
+  const cartCount = cart.reduce((a, c) => a + c.quantity, 0);
+
+  const addOrUpdateItem = (product: FlowerProduct, quantity: number) => {
+    setCart((prev) => {
+      const exists = prev.find((i) => i.product.id === product.id);
+      if (exists) {
+        return prev.map((i) => (i.product.id === product.id ? { ...i, quantity } : i));
+      }
+      return [...prev, { product, quantity }];
+    });
+  };
+
+  const updateQty = (productId: string, qty: number) => {
+    setCart((prev) => prev.map((i) => (i.product.id === productId ? { ...i, quantity: qty } : i)));
+  };
+
+  const removeItem = (productId: string) => {
+    setCart((prev) => prev.filter((i) => i.product.id !== productId));
+  };
+
+  const getCartQty = (productId: string) =>
+    cart.find((i) => i.product.id === productId)?.quantity ?? 0;
 
   const onSubmit = async (values: OrderFormValues) => {
-    if (!selectedProduct || !obituary || !funeraria) return;
+    if (cart.length === 0 || !obituary || !funeraria) return;
     setIsSubmitting(true);
     try {
       const { data: order, error: orderError } = await supabase
@@ -140,14 +169,15 @@ export default function ObituaryFlowers() {
         .single();
       if (orderError) throw orderError;
 
-      const { error: itemError } = await supabase.from("flower_order_items").insert({
+      const itemsPayload = cart.map(({ product, quantity }) => ({
         order_id: order.id,
-        product_id: selectedProduct.id,
-        product_name_snapshot: selectedProduct.name,
-        product_price_snapshot: selectedProduct.price,
+        product_id: product.id,
+        product_name_snapshot: product.name,
+        product_price_snapshot: product.price,
         quantity,
-        line_total: subtotal,
-      });
+        line_total: product.price * quantity,
+      }));
+      const { error: itemError } = await supabase.from("flower_order_items").insert(itemsPayload);
       if (itemError) throw itemError;
 
       setOrderComplete(true);
@@ -211,7 +241,7 @@ export default function ObituaryFlowers() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-32 lg:pb-8">
         {/* Obituary Summary */}
         <Card className="mb-8">
           <CardContent className="p-4 sm:p-6">
@@ -237,150 +267,240 @@ export default function ObituaryFlowers() {
           </CardContent>
         </Card>
 
-        <div className="grid lg:grid-cols-[1fr_400px] gap-8">
-          {/* Product Catalog */}
-          <div>
-            <h2 className="text-xl font-archivo font-semibold text-foreground mb-6 flex items-center gap-2">
-              <Flower2 className="w-5 h-5 text-primary" />
-              Catálogo de Flores
-            </h2>
+        {step === "catalog" ? (
+          <div className="grid lg:grid-cols-[1fr_400px] gap-8">
+            {/* Product Catalog */}
+            <div>
+              <h2 className="text-xl font-archivo font-semibold text-foreground mb-6 flex items-center gap-2">
+                <Flower2 className="w-5 h-5 text-primary" />
+                Catálogo de Flores
+              </h2>
 
-            {productsLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : products && products.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {products.map((product) => (
-                  <FlowerProductCard
-                    key={product.id}
-                    product={product}
-                    onClick={() => { setSelectedProduct(product); setQuantity(1); }}
-                    selected={selectedProduct?.id === product.id}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Flower2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">Nenhum produto disponível de momento.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Product Detail & Order Form (sidebar) */}
-          <div>
-            {selectedProduct ? (
-              <Card className="sticky top-4">
-                <CardContent className="p-6 space-y-5">
-                  {/* Product Detail */}
-                  {selectedProduct.image_url && (
-                    <img
-                      src={selectedProduct.image_url}
-                      alt={selectedProduct.name}
-                      className="w-full aspect-square object-cover rounded-lg"
+              {productsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : products && products.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {products.map((product) => (
+                    <FlowerProductCard
+                      key={product.id}
+                      product={product}
+                      onClick={() => setDetailProduct(product)}
+                      onAdd={() => setDetailProduct(product)}
+                      inCartQuantity={getCartQty(product.id)}
                     />
-                  )}
-                  <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-lg font-semibold text-foreground">{selectedProduct.name}</h3>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setSelectedProduct(null)}>
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    {selectedProduct.category && (
-                      <span className="text-xs text-muted-foreground">{selectedProduct.category}</span>
-                    )}
-                    <p className="text-xl font-bold text-primary mt-1">{selectedProduct.price.toFixed(2)} €</p>
-                  </div>
-                  {selectedProduct.full_description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">{selectedProduct.full_description}</p>
-                  )}
-                  {!selectedProduct.full_description && selectedProduct.short_description && (
-                    <p className="text-sm text-muted-foreground">{selectedProduct.short_description}</p>
-                  )}
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Flower2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">Nenhum produto disponível de momento.</p>
+                </div>
+              )}
+            </div>
 
-                  {/* Quantity */}
-                  <div className="flex items-center gap-3">
-                    <Label className="text-sm">Quantidade:</Label>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus className="w-4 h-4" /></Button>
-                      <span className="w-8 text-center font-medium">{quantity}</span>
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(quantity + 1)}><Plus className="w-4 h-4" /></Button>
+            {/* Desktop cart sidebar */}
+            <aside className="hidden lg:block">
+              <Card className="sticky top-4">
+                <CardContent className="p-5 space-y-4">
+                  <h3 className="font-archivo font-semibold flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-primary" />
+                    O seu pedido {cartCount > 0 && <span className="text-sm text-muted-foreground">({cartCount})</span>}
+                  </h3>
+                  {cart.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">
+                      Adicione produtos do catálogo para começar.
+                    </p>
+                  ) : (
+                    <>
+                      <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+                        {cart.map(({ product, quantity }) => (
+                          <div key={product.id} className="flex gap-2 items-center text-sm">
+                            <button
+                              type="button"
+                              onClick={() => setDetailProduct(product)}
+                              className="flex-1 text-left hover:text-primary truncate"
+                            >
+                              {quantity}× {product.name}
+                            </button>
+                            <span className="font-medium shrink-0">{(product.price * quantity).toFixed(2)} €</span>
+                          </div>
+                        ))}
+                      </div>
+                      <Separator />
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Subtotal</span>
+                          <span>{subtotal.toFixed(2)} €</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Taxa de serviço ({commissionPercent}%)</span>
+                          <span>{commissionValue.toFixed(2)} €</span>
+                        </div>
+                        <Separator />
+                        <div className="flex justify-between font-semibold text-base">
+                          <span>Total</span>
+                          <span className="text-primary">{total.toFixed(2)} €</span>
+                        </div>
+                      </div>
+                      <Button className="w-full" onClick={() => setStep("checkout")}>
+                        Continuar
+                      </Button>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </aside>
+          </div>
+        ) : (
+          // Checkout step
+          <div className="max-w-2xl mx-auto">
+            <Button variant="ghost" size="sm" onClick={() => setStep("catalog")} className="mb-4">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Voltar ao catálogo
+            </Button>
+
+            {/* Collapsible cart summary */}
+            <Card className="mb-6">
+              <CardContent className="p-4">
+                <button
+                  type="button"
+                  onClick={() => setSummaryOpen((o) => !o)}
+                  className="w-full flex items-center justify-between gap-3"
+                >
+                  <span className="flex items-center gap-2 font-semibold">
+                    <ShoppingBag className="w-4 h-4 text-primary" />
+                    {cartCount} {cartCount === 1 ? "item" : "itens"} no pedido
+                  </span>
+                  <span className="flex items-center gap-3">
+                    <span className="font-bold text-primary">{total.toFixed(2)} €</span>
+                    <span className="text-xs text-muted-foreground underline">
+                      {summaryOpen ? "Ocultar" : "Ver detalhes"}
+                    </span>
+                  </span>
+                </button>
+                {summaryOpen && (
+                  <div className="mt-4 space-y-2 text-sm">
+                    {cart.map(({ product, quantity }) => (
+                      <div key={product.id} className="flex justify-between items-center">
+                        <button
+                          type="button"
+                          onClick={() => setDetailProduct(product)}
+                          className="text-left hover:text-primary flex items-center gap-1.5"
+                        >
+                          {quantity}× {product.name}
+                          <Pencil className="w-3 h-3 opacity-50" />
+                        </button>
+                        <span>{(product.price * quantity).toFixed(2)} €</span>
+                      </div>
+                    ))}
+                    <Separator />
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Subtotal</span><span>{subtotal.toFixed(2)} €</span>
                     </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Taxa de serviço ({commissionPercent}%)</span><span>{commissionValue.toFixed(2)} €</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-5">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <h2 className="font-archivo font-semibold text-lg">Os seus dados</h2>
+                  <div>
+                    <Label htmlFor="sender_name">Nome *</Label>
+                    <Input id="sender_name" {...form.register("sender_name")} placeholder="O seu nome" />
+                    {form.formState.errors.sender_name && (
+                      <p className="text-sm text-destructive mt-1">{form.formState.errors.sender_name.message}</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="sender_email">Email</Label>
+                      <Input id="sender_email" type="email" {...form.register("sender_email")} placeholder="email@exemplo.com" />
+                    </div>
+                    <div>
+                      <Label htmlFor="sender_phone">Telefone</Label>
+                      <Input id="sender_phone" {...form.register("sender_phone")} placeholder="+351..." />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="message">Mensagem de Condolências (opcional)</Label>
+                    <Textarea id="message" {...form.register("message")} placeholder="Sentidas condolências..." rows={3} />
+                  </div>
+                  <div>
+                    <Label htmlFor="observations">Observações (opcional)</Label>
+                    <Textarea id="observations" {...form.register("observations")} placeholder="Notas adicionais..." rows={2} />
                   </div>
 
                   <Separator />
 
-                  {/* Order Form */}
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <h4 className="font-semibold text-foreground">Os seus dados</h4>
-                    <div>
-                      <Label htmlFor="sender_name">Nome *</Label>
-                      <Input id="sender_name" {...form.register("sender_name")} placeholder="O seu nome" />
-                      {form.formState.errors.sender_name && (
-                        <p className="text-sm text-destructive mt-1">{form.formState.errors.sender_name.message}</p>
-                      )}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>{subtotal.toFixed(2)} €</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="sender_email">Email</Label>
-                        <Input id="sender_email" type="email" {...form.register("sender_email")} placeholder="email@exemplo.com" />
-                      </div>
-                      <div>
-                        <Label htmlFor="sender_phone">Telefone</Label>
-                        <Input id="sender_phone" {...form.register("sender_phone")} placeholder="+351..." />
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Taxa de serviço ({commissionPercent}%)</span>
+                      <span>{commissionValue.toFixed(2)} €</span>
                     </div>
-                    <div>
-                      <Label htmlFor="message">Mensagem de Condolências (opcional)</Label>
-                      <Textarea id="message" {...form.register("message")} placeholder="Sentidas condolências..." rows={3} />
-                    </div>
-                    <div>
-                      <Label htmlFor="observations">Observações (opcional)</Label>
-                      <Textarea id="observations" {...form.register("observations")} placeholder="Notas adicionais..." rows={2} />
-                    </div>
-
                     <Separator />
-
-                    {/* Totals */}
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Subtotal</span>
-                        <span>{subtotal.toFixed(2)} €</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Taxa de serviço ({commissionPercent}%)</span>
-                        <span>{commissionValue.toFixed(2)} €</span>
-                      </div>
-                      <Separator />
-                      <div className="flex justify-between font-semibold text-base">
-                        <span>Total</span>
-                        <span className="text-primary">{total.toFixed(2)} €</span>
-                      </div>
+                    <div className="flex justify-between font-semibold text-base">
+                      <span>Total</span>
+                      <span className="text-primary">{total.toFixed(2)} €</span>
                     </div>
+                  </div>
 
-                    <Button type="submit" disabled={isSubmitting} className="w-full">
-                      {isSubmitting ? (
-                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" />A processar...</>
-                      ) : (
-                        <><Check className="w-4 h-4 mr-2" />Confirmar Pedido</>
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="p-6 text-center text-muted-foreground">
-                  <Flower2 className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">Selecione um produto do catálogo para ver os detalhes e fazer o seu pedido.</p>
-                </CardContent>
-              </Card>
-            )}
+                  <Button type="submit" disabled={isSubmitting || cart.length === 0} className="w-full" size="lg">
+                    {isSubmitting ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />A processar...</>
+                    ) : (
+                      <><Check className="w-4 h-4 mr-2" />Confirmar Pedido</>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* Mobile FAB + Cart Sheet */}
+      {step === "catalog" && (
+        <CartFab count={cartCount} total={total} onClick={() => setCartOpen(true)} />
+      )}
+      <CartSheet
+        open={cartOpen}
+        onOpenChange={setCartOpen}
+        items={cart}
+        subtotal={subtotal}
+        commissionValue={commissionValue}
+        commissionPercent={commissionPercent}
+        total={total}
+        onUpdateQty={updateQty}
+        onRemove={removeItem}
+        onEdit={(p) => { setCartOpen(false); setDetailProduct(p); }}
+        onContinue={() => { setCartOpen(false); setStep("checkout"); }}
+      />
+
+      <ProductDetailSheet
+        product={detailProduct}
+        initialQuantity={detailProduct ? getCartQty(detailProduct.id) || 1 : 1}
+        inCart={detailProduct ? getCartQty(detailProduct.id) > 0 : false}
+        onClose={() => setDetailProduct(null)}
+        onConfirm={(q) => {
+          if (detailProduct) addOrUpdateItem(detailProduct, q);
+          setDetailProduct(null);
+        }}
+        onRemove={() => {
+          if (detailProduct) removeItem(detailProduct.id);
+          setDetailProduct(null);
+        }}
+      />
     </div>
   );
 }
