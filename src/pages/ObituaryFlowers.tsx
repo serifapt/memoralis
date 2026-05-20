@@ -326,7 +326,7 @@ export default function ObituaryFlowers() {
                           <span>{subtotal.toFixed(2)} €</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Taxa de serviço ({commissionPercent}%)</span>
+                          <span className="text-muted-foreground">Taxa de serviço</span>
                           <span>{commissionValue.toFixed(2)} €</span>
                         </div>
                         <Separator />
@@ -391,7 +391,7 @@ export default function ObituaryFlowers() {
                       <span>Subtotal</span><span>{subtotal.toFixed(2)} €</span>
                     </div>
                     <div className="flex justify-between text-muted-foreground">
-                      <span>Taxa de serviço ({commissionPercent}%)</span><span>{commissionValue.toFixed(2)} €</span>
+                      <span>Taxa de serviço</span><span>{commissionValue.toFixed(2)} €</span>
                     </div>
                   </div>
                 )}
@@ -481,7 +481,7 @@ export default function ObituaryFlowers() {
                       <span>{subtotal.toFixed(2)} €</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Taxa de serviço ({commissionPercent}%)</span>
+                      <span className="text-muted-foreground">Taxa de serviço</span>
                       <span>{commissionValue.toFixed(2)} €</span>
                     </div>
                     <Separator />
