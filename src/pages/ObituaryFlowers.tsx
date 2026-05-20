@@ -69,8 +69,10 @@ export default function ObituaryFlowers() {
   const [orderComplete, setOrderComplete] = useState(false);
 
   const { data: products, isLoading: productsLoading } = usePublicFlowerProducts(funeraria?.id);
-  const { data: commissionConfig } = usePlatformConfig("flower_commission_percent");
-  const commissionPercent = parseFloat(commissionConfig || "10");
+  const { data: pctConfig } = usePlatformConfig("flowers_commission_percent");
+  const { data: minConfig } = usePlatformConfig("flowers_commission_min");
+  const commissionPercent = parseFloat((pctConfig as string) || "10");
+  const commissionMin = parseFloat((minConfig as string) || "5");
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
@@ -110,9 +112,10 @@ export default function ObituaryFlowers() {
   const { subtotal, commissionValue, total } = useMemo(() => {
     if (!selectedProduct) return { subtotal: 0, commissionValue: 0, total: 0 };
     const sub = selectedProduct.price * quantity;
-    const comm = (sub * commissionPercent) / 100;
+    const raw = (sub * commissionPercent) / 100;
+    const comm = Math.max(raw, commissionMin);
     return { subtotal: sub, commissionValue: comm, total: sub + comm };
-  }, [selectedProduct, quantity, commissionPercent]);
+  }, [selectedProduct, quantity, commissionPercent, commissionMin]);
 
   const onSubmit = async (values: OrderFormValues) => {
     if (!selectedProduct || !obituary || !funeraria) return;
