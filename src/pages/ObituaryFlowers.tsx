@@ -27,10 +27,15 @@ import {
 
 const orderSchema = z.object({
   sender_name: z.string().min(1, "Nome é obrigatório"),
-  sender_email: z.string().email("Email inválido").optional().or(z.literal("")),
+  sender_email: z.string().email("Email é obrigatório para pagamento"),
   sender_phone: z.string().optional(),
   message: z.string().max(500, "Mensagem muito longa").optional(),
   observations: z.string().optional(),
+  billing_nif: z.string().optional(),
+  billing_name: z.string().optional(),
+  billing_address: z.string().optional(),
+  billing_postal_code: z.string().optional(),
+  billing_city: z.string().optional(),
 });
 type OrderFormValues = z.infer<typeof orderSchema>;
 
@@ -71,8 +76,8 @@ export default function ObituaryFlowers() {
   const [cartOpen, setCartOpen] = useState(false);
   const [step, setStep] = useState<"catalog" | "checkout">("catalog");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [wantInvoice, setWantInvoice] = useState(false);
 
   const { data: products, isLoading: productsLoading } = usePublicFlowerProducts(funeraria?.id);
   const { data: pctConfig } = usePlatformConfig("flowers_commission_percent");
@@ -152,39 +157,45 @@ export default function ObituaryFlowers() {
     if (cart.length === 0 || !obituary || !funeraria) return;
     setIsSubmitting(true);
     try {
-      const { data: order, error: orderError } = await supabase
-        .from("flower_orders")
-        .insert({
-          obituary_id: obituary.id,
-          funeraria_id: funeraria.id,
-          sender_name: values.sender_name,
-          sender_email: values.sender_email || null,
-          sender_phone: values.sender_phone || null,
-          message: values.message || null,
-          observations: values.observations || null,
-          subtotal, commission_percent: commissionPercent, commission_value: commissionValue, total,
-          status: "PENDENTE",
-        })
-        .select()
-        .single();
-      if (orderError) throw orderError;
+      const billing = wantInvoice
+        ? {
+            nif: values.billing_nif || undefined,
+            name: values.billing_name || values.sender_name,
+            address: values.billing_address || undefined,
+            postal_code: values.billing_postal_code || undefined,
+            city: values.billing_city || undefined,
+            country: "PT",
+          }
+        : undefined;
 
-      const itemsPayload = cart.map(({ product, quantity }) => ({
-        order_id: order.id,
-        product_id: product.id,
-        product_name_snapshot: product.name,
-        product_price_snapshot: product.price,
-        quantity,
-        line_total: product.price * quantity,
-      }));
-      const { error: itemError } = await supabase.from("flower_order_items").insert(itemsPayload);
-      if (itemError) throw itemError;
-
-      setOrderComplete(true);
+      const { data, error } = await supabase.functions.invoke(
+        "create-flower-checkout",
+        {
+          body: {
+            obituary_id: obituary.id,
+            funeraria_id: funeraria.id,
+            items: cart.map(({ product, quantity }) => ({
+              product_id: product.id,
+              quantity,
+            })),
+            sender_name: values.sender_name,
+            sender_email: values.sender_email,
+            sender_phone: values.sender_phone || undefined,
+            message: values.message || undefined,
+            observations: values.observations || undefined,
+            billing,
+          },
+        }
+      );
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (!data?.url) throw new Error("Sessão de pagamento não criada");
+      window.location.href = data.url;
+      return;
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Erro ao criar pedido. Tente novamente.");
-    } finally {
+      const msg = error instanceof Error ? error.message : "Erro ao criar pedido.";
+      toast.error(msg);
       setIsSubmitting(false);
     }
   };
@@ -201,26 +212,6 @@ export default function ObituaryFlowers() {
   }
 
   if (!obituary || !funeraria) return null;
-
-  if (orderComplete) {
-    return (
-      <div className="min-h-screen bg-background">
-        <PublicHeader />
-        <div className="container mx-auto px-4 py-16 text-center space-y-6">
-          <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-            <Check className="w-10 h-10 text-primary" />
-          </div>
-          <h1 className="text-2xl font-archivo font-bold text-foreground">Pedido Confirmado!</h1>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            O seu pedido foi recebido com sucesso. A funerária entrará em contacto consigo em breve para confirmar os detalhes da entrega.
-          </p>
-          <Button asChild>
-            <Link to={`/obituario/${obituary.id}`}>Voltar ao Obituário</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background font-inter">
