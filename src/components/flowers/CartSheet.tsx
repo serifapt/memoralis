@@ -130,7 +130,7 @@ export function CartSheet({
                 <span>{subtotal.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Taxa de serviço ({commissionPercent}%)</span>
+                <span className="text-muted-foreground">Taxa de serviço</span>
                 <span>{commissionValue.toFixed(2)} €</span>
               </div>
               <Separator />
