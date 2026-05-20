@@ -94,6 +94,22 @@ export default function ObituaryDetail() {
     if (id) loadObituaryData(id);
   }, [id]);
 
+  // Stripe checkout return handling
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const flowers = params.get("flowers");
+    if (flowers === "success") {
+      toast.success("Pagamento confirmado! O seu pedido de flores foi recebido.");
+    } else if (flowers === "cancelled") {
+      toast.info("Pagamento cancelado. O seu pedido não foi processado.");
+    }
+    if (flowers) {
+      params.delete("flowers");
+      const newSearch = params.toString();
+      window.history.replaceState({}, "", `${location.pathname}${newSearch ? `?${newSearch}` : ""}`);
+    }
+  }, [location.pathname, location.search]);
+
   // SEO: JSON-LD + Open Graph meta tags
   useEffect(() => {
     if (!obituary) return;
@@ -480,7 +496,8 @@ export default function ObituaryDetail() {
                         <Flame className="w-4 h-4 mr-2" />
                         {lightingCandle ? "A acender..." : "Acender Vela"}
                       </Button>
-                      {funeraria?.servico_flores_ativo && isFlowerOrderOpen(events, funeraria.flores_limite_horas) && (
+                      {/* DEV: temporariamente sempre visível para desenvolvimento */}
+                      {true && (
                         <Button asChild className="w-full sm:w-auto bg-primary hover:bg-primary/90">
                           <Link to={`/obituario/${id}/flores`}>Enviar Flores</Link>
                         </Button>

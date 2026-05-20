@@ -756,6 +756,93 @@ export type Database = {
         }
         Relationships: []
       }
+      email_send_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          message_id: string | null
+          metadata: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_email?: string
+          status?: string
+          template_name?: string
+        }
+        Relationships: []
+      }
+      email_send_state: {
+        Row: {
+          auth_email_ttl_minutes: number
+          batch_size: number
+          id: number
+          retry_after_until: string | null
+          send_delay_ms: number
+          transactional_email_ttl_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          auth_email_ttl_minutes?: number
+          batch_size?: number
+          id?: number
+          retry_after_until?: string | null
+          send_delay_ms?: number
+          transactional_email_ttl_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          auth_email_ttl_minutes?: number
+          batch_size?: number
+          id?: number
+          retry_after_until?: string | null
+          send_delay_ms?: number
+          transactional_email_ttl_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_unsubscribe_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       flower_order_items: {
         Row: {
           id: string
@@ -803,6 +890,12 @@ export type Database = {
       }
       flower_orders: {
         Row: {
+          billing_address: string | null
+          billing_city: string | null
+          billing_country: string | null
+          billing_name: string | null
+          billing_nif: string | null
+          billing_postal_code: string | null
           commission_percent: number
           commission_value: number
           created_at: string
@@ -811,15 +904,26 @@ export type Database = {
           message: string | null
           obituary_id: string
           observations: string | null
+          paid_at: string | null
+          refund_amount: number | null
+          refunded_at: string | null
           sender_email: string | null
           sender_name: string
           sender_phone: string | null
           status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
           subtotal: number
           total: number
           updated_at: string
         }
         Insert: {
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_name?: string | null
+          billing_nif?: string | null
+          billing_postal_code?: string | null
           commission_percent?: number
           commission_value?: number
           created_at?: string
@@ -828,15 +932,26 @@ export type Database = {
           message?: string | null
           obituary_id: string
           observations?: string | null
+          paid_at?: string | null
+          refund_amount?: number | null
+          refunded_at?: string | null
           sender_email?: string | null
           sender_name: string
           sender_phone?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           subtotal?: number
           total?: number
           updated_at?: string
         }
         Update: {
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_name?: string | null
+          billing_nif?: string | null
+          billing_postal_code?: string | null
           commission_percent?: number
           commission_value?: number
           created_at?: string
@@ -845,10 +960,15 @@ export type Database = {
           message?: string | null
           obituary_id?: string
           observations?: string | null
+          paid_at?: string | null
+          refund_amount?: number | null
+          refunded_at?: string | null
           sender_email?: string | null
           sender_name?: string
           sender_phone?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           subtotal?: number
           total?: number
           updated_at?: string
@@ -922,6 +1042,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      flower_webhook_events: {
+        Row: {
+          id: string
+          payload_json: Json
+          processed_at: string
+          stripe_event_id: string
+          type: string
+        }
+        Insert: {
+          id?: string
+          payload_json: Json
+          processed_at?: string
+          stripe_event_id: string
+          type: string
+        }
+        Update: {
+          id?: string
+          payload_json?: Json
+          processed_at?: string
+          stripe_event_id?: string
+          type?: string
+        }
+        Relationships: []
       }
       funeraria_contacts: {
         Row: {
@@ -1150,6 +1294,7 @@ export type Database = {
           descricao: string | null
           distrito: string | null
           email: string | null
+          email_notificacoes_flores: string | null
           facebook_url: string | null
           flores_limite_horas: number
           horario: string | null
@@ -1168,6 +1313,9 @@ export type Database = {
           servicos: string[] | null
           slug: string | null
           status: string
+          stripe_account_id: string | null
+          stripe_charges_enabled: boolean
+          stripe_onboarding_completed: boolean
           telefone: string
           telefone_secundario: string | null
           updated_at: string
@@ -1183,6 +1331,7 @@ export type Database = {
           descricao?: string | null
           distrito?: string | null
           email?: string | null
+          email_notificacoes_flores?: string | null
           facebook_url?: string | null
           flores_limite_horas?: number
           horario?: string | null
@@ -1201,6 +1350,9 @@ export type Database = {
           servicos?: string[] | null
           slug?: string | null
           status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_onboarding_completed?: boolean
           telefone: string
           telefone_secundario?: string | null
           updated_at?: string
@@ -1216,6 +1368,7 @@ export type Database = {
           descricao?: string | null
           distrito?: string | null
           email?: string | null
+          email_notificacoes_flores?: string | null
           facebook_url?: string | null
           flores_limite_horas?: number
           horario?: string | null
@@ -1234,6 +1387,9 @@ export type Database = {
           servicos?: string[] | null
           slug?: string | null
           status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_onboarding_completed?: boolean
           telefone?: string
           telefone_secundario?: string | null
           updated_at?: string
@@ -1847,6 +2003,30 @@ export type Database = {
           },
         ]
       }
+      suppressed_emails: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          metadata: Json | null
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          metadata?: Json | null
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          metadata?: Json | null
+          reason?: string
+        }
+        Relationships: []
+      }
       technicians: {
         Row: {
           active: boolean
@@ -1921,6 +2101,14 @@ export type Database = {
         }
         Returns: string
       }
+      delete_email: {
+        Args: { message_id: number; queue_name: string }
+        Returns: boolean
+      }
+      enqueue_email: {
+        Args: { payload: Json; queue_name: string }
+        Returns: number
+      }
       generate_client_dedupe_key: {
         Args: { p_email: string; p_nif: string; p_phone: string }
         Returns: string
@@ -1940,6 +2128,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      move_to_dlq: {
+        Args: {
+          dlq_name: string
+          message_id: number
+          payload: Json
+          source_queue: string
+        }
+        Returns: number
+      }
       post_message_funeraria: {
         Args: {
           p_content: string
@@ -1947,6 +2144,14 @@ export type Database = {
           p_sender_id: string
         }
         Returns: string
+      }
+      read_email_batch: {
+        Args: { batch_size: number; queue_name: string; vt: number }
+        Returns: {
+          message: Json
+          msg_id: number
+          read_ct: number
+        }[]
       }
       recalculate_quote_totals: {
         Args: { p_quote_id: string }

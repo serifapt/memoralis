@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { getCurrentFuneraria } from "@/lib/current-funeraria";
 
 interface Obituary {
   id: string;
@@ -38,14 +39,7 @@ export default function Obituaries() {
   const fetchObituaries = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: funeraria } = await supabase
-        .from("funerarias")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      const funeraria = await getCurrentFuneraria<{ id: string }>("id");
 
       if (!funeraria) { setObituaries([]); return; }
 

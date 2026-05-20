@@ -39,6 +39,7 @@ import { DocumentsTab } from "@/components/obituaries/DocumentsTab";
 import { CondolencesTab } from "@/components/obituaries/CondolencesTab";
 import { useClients, Client } from "@/hooks/useClients";
 import { ClientSelector } from "@/components/clients/ClientSelector";
+import { getCurrentFuneraria } from "@/lib/current-funeraria";
 
 export default function NewObituary() {
   const { id } = useParams();
@@ -343,25 +344,26 @@ export default function NewObituary() {
 
   const fetchFunerariaId = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('funerarias')
-          .select('id, nome_comercial, telefone, telefone_secundario, email, website, logo_url')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (data) {
-          setFunerariaId(data.id);
-          setFunerariaInfo({
-            nome_comercial: data.nome_comercial,
-            telefone: data.telefone,
-            telefone_secundario: data.telefone_secundario,
-            email: data.email,
-            website: data.website,
-            logo_url: data.logo_url,
-          });
-        }
+      const data = await getCurrentFuneraria<{
+        id: string;
+        nome_comercial: string;
+        telefone: string;
+        telefone_secundario: string | null;
+        email: string | null;
+        website: string | null;
+        logo_url: string | null;
+      }>('id, nome_comercial, telefone, telefone_secundario, email, website, logo_url');
+
+      if (data) {
+        setFunerariaId(data.id);
+        setFunerariaInfo({
+          nome_comercial: data.nome_comercial,
+          telefone: data.telefone,
+          telefone_secundario: data.telefone_secundario,
+          email: data.email,
+          website: data.website,
+          logo_url: data.logo_url,
+        });
       }
     } catch (error) {
       console.error('Error fetching funeraria:', error);
@@ -435,8 +437,6 @@ export default function NewObituary() {
   useEffect(() => {
     const loadObituaryData = async () => {
       if (!isEditing || !id) return;
-      // Skip reload if we just created this obituary and already have data in state
-      if (savedObituaryIdRef.current === id) return;
       
       try {
         const { data, error } = await supabase

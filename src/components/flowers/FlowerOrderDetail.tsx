@@ -201,7 +201,7 @@ export function FlowerOrderDetail({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
-                Taxa de serviço ({order.commission_percent}%)
+                Taxa de serviço
               </span>
               <span>{order.commission_value.toFixed(2)} €</span>
             </div>
