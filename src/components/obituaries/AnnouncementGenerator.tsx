@@ -21,8 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ObituaryTemplate } from "@/components/ObituaryTemplate";
-import { SeventhDayMassTemplate } from "@/components/SeventhDayMassTemplate";
+import { ObituaryTemplate, VariantObituaryTemplate } from "@/components/ObituaryTemplate";
 
 interface AnnouncementGeneratorProps {
   obituaryId?: string;
@@ -43,6 +42,18 @@ interface AnnouncementGeneratorProps {
     funeralDate?: string;
     funeralTime?: string;
     funeralCemetery?: string;
+    cremacaoDate?: string;
+    cremacaoTime?: string;
+    cremacaoCemetery?: string;
+    missa7Date?: string;
+    missa7Time?: string;
+    missa7Location?: string;
+    missa30Date?: string;
+    missa30Time?: string;
+    missa30Location?: string;
+    missa1anoDate?: string;
+    missa1anoTime?: string;
+    missa1anoLocation?: string;
     photoUrl?: string;
     deathLocation?: string;
     parish?: string;
@@ -116,9 +127,17 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
 
   const formatDatePT = (dateStr: string) => {
     if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    if (year && month && day) {
+      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year.slice(-2)}`;
+    }
+
     const date = new Date(dateStr);
-    const formatted = date.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    return date.toLocaleDateString("pt-PT", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    });
   };
 
   const formatTime = (timeStr?: string) => {
@@ -159,46 +178,32 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
     return styles[template];
   };
 
-  const renderPreview = () => {
-    const styles = getTemplateStyles(selectedTemplate);
+  const renderPreview = (templateType: TemplateType = selectedTemplate, includeExportId = true, isExport = false, isThumbnail = false) => {
+    const styles = getTemplateStyles(templateType);
+    const birthYear = obituaryData.birthDate ? new Date(obituaryData.birthDate).getFullYear() : undefined;
+    const deathYear = obituaryData.deathDate ? new Date(obituaryData.deathDate).getFullYear() : undefined;
+    let calcAge = birthYear && deathYear ? deathYear - birthYear : undefined;
+    if (calcAge !== undefined && obituaryData.birthDate && obituaryData.deathDate) {
+      const birth = new Date(obituaryData.birthDate);
+      const death = new Date(obituaryData.deathDate);
+      const monthDiff = death.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && death.getDate() < birth.getDate())) {
+        calcAge--;
+      }
+    }
+    const deathLocation = obituaryData.deathLocation?.toUpperCase();
+    const announcementLabel =
+      announcementType === "faleceu_local"
+        ? `FALECEU EM ${deathLocation || "LOCAL"}`
+        : announcementType === "missa_7"
+          ? "MISSA 7º DIA"
+          : announcementType === "missa_30"
+            ? "MISSA 30º DIA"
+            : announcementType === "missa_aniversario"
+              ? "MISSA 1º ANIVERSÁRIO"
+              : "FALECEU";
     
-    if (selectedTemplate === "profissional") {
-      const birthYear = obituaryData.birthDate ? new Date(obituaryData.birthDate).getFullYear() : undefined;
-      const deathYear = obituaryData.deathDate ? new Date(obituaryData.deathDate).getFullYear() : undefined;
-      let calcAge = birthYear && deathYear ? deathYear - birthYear : undefined;
-      if (calcAge !== undefined && obituaryData.birthDate && obituaryData.deathDate) {
-        const birth = new Date(obituaryData.birthDate);
-        const death = new Date(obituaryData.deathDate);
-        const monthDiff = death.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && death.getDate() < birth.getDate())) {
-          calcAge--;
-        }
-      }
-
-      if (announcementType === "missa_7") {
-        return (
-          <SeventhDayMassTemplate
-            fullName={obituaryData.displayName}
-            photo={obituaryData.photoUrl}
-            age={calcAge}
-            birthYear={birthYear}
-            deathYear={deathYear}
-            parish={obituaryData.parish}
-            municipality={obituaryData.municipality}
-            massDate={obituaryData.cerimoniaDate ? formatDatePT(obituaryData.cerimoniaDate) : undefined}
-            massStartTime={formatTime(obituaryData.cerimoniaTime)}
-            massLocation={obituaryData.cerimoniaChurch}
-            familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
-            funeralHomeLogo={obituaryData.funerariaLogoUrl}
-            phone1={obituaryData.funerariaPhone}
-            phone2={obituaryData.funerariaPhone2}
-            email={obituaryData.funerariaEmail}
-            website={obituaryData.funerariaWebsite}
-            flowerImage="/images/flores-obituario.png"
-          />
-        );
-      }
-
+    if (templateType === "profissional") {
       return (
         <ObituaryTemplate
           fullName={obituaryData.displayName}
@@ -208,7 +213,8 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           deathYear={deathYear}
           parish={obituaryData.parish}
           municipality={obituaryData.municipality}
-          deathCountry={obituaryData.deathLocation?.toUpperCase()}
+          deathCountry={deathLocation}
+          deathLabelText={announcementLabel}
           familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
           cortejoFunebre={obituaryData.cortejoDate ? {
             date: formatDatePT(obituaryData.cortejoDate),
@@ -225,6 +231,26 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
             time: formatTime(obituaryData.funeralTime),
             location: obituaryData.funeralCemetery,
           } : undefined}
+          cremacao={obituaryData.cremacaoDate ? {
+            date: formatDatePT(obituaryData.cremacaoDate),
+            time: formatTime(obituaryData.cremacaoTime),
+            location: obituaryData.cremacaoCemetery,
+          } : undefined}
+          missa7={(obituaryData.missa7Date || obituaryData.cerimoniaDate) ? {
+            date: formatDatePT(obituaryData.missa7Date || obituaryData.cerimoniaDate),
+            time: formatTime(obituaryData.missa7Time || obituaryData.cerimoniaTime),
+            location: obituaryData.missa7Location || obituaryData.cerimoniaChurch,
+          } : undefined}
+          missa30={obituaryData.missa30Date ? {
+            date: formatDatePT(obituaryData.missa30Date),
+            time: formatTime(obituaryData.missa30Time),
+            location: obituaryData.missa30Location,
+          } : undefined}
+          missa1ano={obituaryData.missa1anoDate ? {
+            date: formatDatePT(obituaryData.missa1anoDate),
+            time: formatTime(obituaryData.missa1anoTime),
+            location: obituaryData.missa1anoLocation,
+          } : undefined}
           cemetery={obituaryData.funeralCemetery ? {
             location: obituaryData.funeralCemetery,
           } : undefined}
@@ -235,18 +261,84 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           website={obituaryData.funerariaWebsite}
           qrCodeImage={qrCodeDataUrl}
           flowerImage="/images/flores-obituario.png"
+          isExport={isExport}
+          eventIconOffsetY={isExport ? 6 : 0}
+          footerContactsOffsetX={isThumbnail ? 0 : 0}
+          footerCondolencesOffsetY={isExport ? -3 : 0}
+          footerQrCodeOffsetY={isExport ? 3 : 0}
         />
       );
     }
     
     return (
       <div 
-        id="announcement-preview"
-        className={`${styles.bg} ${styles.text} ${styles.font} p-8 rounded-lg border-2 ${styles.border} min-h-[600px] flex flex-col justify-center items-center text-center`}
+        id={includeExportId ? "announcement-preview" : undefined}
+        className="inline-block"
       >
-        <div className="space-y-6 max-w-2xl">
-          <div className={`text-6xl ${styles.accent}`}>✞</div>
-          
+        <VariantObituaryTemplate
+          variant={templateType}
+          fullName={obituaryData.displayName}
+          photo={obituaryData.photoUrl}
+          age={calcAge}
+          birthYear={birthYear}
+          deathYear={deathYear}
+          parish={obituaryData.parish}
+          municipality={obituaryData.municipality}
+          deathCountry={deathLocation}
+          deathLabelText={announcementLabel}
+          familyText={includeFamilyMessage ? (obituaryData.publicMessage && obituaryData.publicMessage.length >= 10 ? obituaryData.publicMessage : undefined) : ""}
+          cortejoFunebre={obituaryData.cortejoDate ? {
+            date: formatDatePT(obituaryData.cortejoDate),
+            startTime: formatTime(obituaryData.cortejoTime),
+            location: obituaryData.cortejoLocation,
+          } : undefined}
+          velorio={obituaryData.velorioDate ? {
+            date: formatDatePT(obituaryData.velorioDate),
+            startTime: formatTime(obituaryData.velorioTime),
+            location: obituaryData.velorioLocation,
+          } : undefined}
+          funeral={obituaryData.funeralDate ? {
+            date: formatDatePT(obituaryData.funeralDate),
+            time: formatTime(obituaryData.funeralTime),
+            location: obituaryData.funeralCemetery,
+          } : undefined}
+          cremacao={obituaryData.cremacaoDate ? {
+            date: formatDatePT(obituaryData.cremacaoDate),
+            time: formatTime(obituaryData.cremacaoTime),
+            location: obituaryData.cremacaoCemetery,
+          } : undefined}
+          missa7={(obituaryData.missa7Date || obituaryData.cerimoniaDate) ? {
+            date: formatDatePT(obituaryData.missa7Date || obituaryData.cerimoniaDate),
+            time: formatTime(obituaryData.missa7Time || obituaryData.cerimoniaTime),
+            location: obituaryData.missa7Location || obituaryData.cerimoniaChurch,
+          } : undefined}
+          missa30={obituaryData.missa30Date ? {
+            date: formatDatePT(obituaryData.missa30Date),
+            time: formatTime(obituaryData.missa30Time),
+            location: obituaryData.missa30Location,
+          } : undefined}
+          missa1ano={obituaryData.missa1anoDate ? {
+            date: formatDatePT(obituaryData.missa1anoDate),
+            time: formatTime(obituaryData.missa1anoTime),
+            location: obituaryData.missa1anoLocation,
+          } : undefined}
+          cemetery={obituaryData.funeralCemetery ? {
+            location: obituaryData.funeralCemetery,
+          } : undefined}
+          funeralHomeLogo={obituaryData.funerariaLogoUrl}
+          phone1={obituaryData.funerariaPhone}
+          phone2={obituaryData.funerariaPhone2}
+          email={obituaryData.funerariaEmail}
+          website={obituaryData.funerariaWebsite}
+          qrCodeImage={qrCodeDataUrl}
+          flowerImage="/images/flores-obituario.png"
+          isExport={isExport}
+          eventIconOffsetY={isExport ? 6 : 0}
+          footerContactsOffsetX={isThumbnail ? 0 : 0}
+          footerCondolencesOffsetY={isExport ? -3 : 0}
+          footerQrCodeOffsetY={isExport ? 3 : 0}
+        />
+        <div className="hidden">
           <div>
             <h1 className={`text-4xl font-bold mb-2 ${styles.accent}`}>
               {obituaryData.displayName || "Nome do Falecido"}
@@ -301,9 +393,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   const generatePDF = async () => {
     setIsGenerating(true);
     try {
-      const elementId = selectedTemplate === "profissional" 
-        ? "obituary-template-a4" 
-        : "announcement-preview";
+      const elementId = "obituary-template-a4";
       const element = document.getElementById(elementId);
       if (!element) throw new Error("Template não encontrado");
 
@@ -320,6 +410,9 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
         )
       );
       await new Promise((resolve) => setTimeout(resolve, 500));
+      if ("fonts" in document) {
+        await document.fonts.ready;
+      }
 
       const canvas = await html2canvas(element, {
         scale: 3,
@@ -355,25 +448,51 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   const generateImage = async (format: "story" | "post") => {
     setIsGenerating(true);
     try {
-      const elementId = selectedTemplate === "profissional" ? "obituary-template-a4" : "announcement-preview";
+      const elementId = "obituary-template-a4";
       const element = document.getElementById(elementId);
       if (!element) {
         throw new Error("Preview element not found");
       }
+      if ("fonts" in document) {
+        await document.fonts.ready;
+      }
 
-      // Aspect ratios: 9:16 for stories, 3:4 for posts
-      const aspectRatio = format === "story" ? 9 / 16 : 3 / 4;
-      const width = format === "story" ? 1080 : 1080;
-      const height = Math.round(width / aspectRatio);
+      const width = 1080;
+      const height = format === "story" ? 1920 : 1440;
+      const templateWidth = 595;
+      const templateHeight = 842;
 
-      const canvas = await html2canvas(element, {
+      const templateCanvas = await html2canvas(element, {
         scale: 3,
         backgroundColor: "#ffffff",
         useCORS: true,
         allowTaint: false,
-        width: width,
-        height: height,
+        logging: false,
+        width: templateWidth,
+        height: templateHeight,
+        windowWidth: templateWidth,
+        windowHeight: templateHeight,
       });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas context not available");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      const scale = format === "post"
+        ? Math.max(width / templateCanvas.width, height / templateCanvas.height)
+        : Math.min(width / templateCanvas.width, height / templateCanvas.height);
+      const drawWidth = format === "story" ? width : templateCanvas.width * scale;
+      const drawHeight = format === "story" ? height : templateCanvas.height * scale;
+      const drawX = (width - drawWidth) / 2;
+      const drawY = (height - drawHeight) / 2;
+
+      ctx.drawImage(templateCanvas, drawX, drawY, drawWidth, drawHeight);
 
       canvas.toBlob((blob) => {
         if (blob) {
@@ -457,7 +576,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
                   description={template.description}
                   isSelected={selectedTemplate === template.type}
                   onClick={() => setSelectedTemplate(template.type)}
-                  previewContent={template.type === "profissional" ? renderPreview() : undefined}
+                  previewContent={renderPreview(template.type, false, false, true)}
                 />
               ))}
             </div>
@@ -512,14 +631,25 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       </Card>
 
       {/* Offscreen template for PDF/image export */}
-      {selectedTemplate === "profissional" && (
-        <div id="obituary-template-a4" style={{ position: "fixed", left: "-9999px", top: 0, width: "595px", height: "842px" }}>
-          {renderPreview()}
+      {(
+        <div
+          id="obituary-template-a4"
+          style={{
+            position: "fixed",
+            left: "-9999px",
+            top: 0,
+            width: "595px",
+            height: "842px",
+            overflow: "hidden",
+            backgroundColor: "#ffffff",
+          }}
+        >
+          {renderPreview(selectedTemplate, false, true)}
         </div>
       )}
 
       {/* Non-profissional preview */}
-      {selectedTemplate !== "profissional" && (
+      {(
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Preview do Anúncio</h3>
           <div className="max-w-2xl mx-auto">

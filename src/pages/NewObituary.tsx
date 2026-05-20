@@ -2703,7 +2703,7 @@ export default function NewObituary() {
                 <p className="text-sm text-muted-foreground mb-6">
                   Gere automaticamente anúncios para impressão e redes sociais a partir dos dados do óbito.
                 </p>
-                <AnnouncementGenerator
+                <AnnouncementGenerator // dados passados para pré-visualização e geração de anúncios
                   obituaryId={isEditing ? id : undefined}
                   obituaryData={{
                     displayName: formData.displayName,
@@ -2716,12 +2716,24 @@ export default function NewObituary() {
                     cortejoDate: cortejoEntries[0]?.date || "",
                     cortejoTime: cortejoEntries[0]?.time || "",
                     cortejoLocation: cortejoEntries[0]?.location || "",
-                    cerimoniaDate: formData.missa7Date || "",
-                    cerimoniaTime: formData.missa7Time || "",
-                    cerimoniaChurch: formData.missa7Location || "",
+                    cerimoniaDate: missa7 ? formData.missa7Date || "" : "",
+                    cerimoniaTime: missa7 ? formData.missa7Time || "" : "",
+                    cerimoniaChurch: missa7 ? formData.missa7Location || "" : "",
                     funeralDate: formData.funeralDate,
                     funeralTime: formData.funeralTime,
                     funeralCemetery: formData.funeralCemetery,
+                    cremacaoDate: cremacao ? formData.cremacaoDate : "",
+                    cremacaoTime: cremacao ? formData.cremacaoTime : "",
+                    cremacaoCemetery: cremacao ? formData.cremacaoCemetery : "",
+                    missa7Date: missa7 ? formData.missa7Date : "",
+                    missa7Time: missa7 ? formData.missa7Time : "",
+                    missa7Location: missa7 ? formData.missa7Location : "",
+                    missa30Date: missa30 ? formData.missa30Date : "",
+                    missa30Time: missa30 ? formData.missa30Time : "",
+                    missa30Location: missa30 ? formData.missa30Location : "",
+                    missa1anoDate: missa1ano ? formData.missa1anoDate : "",
+                    missa1anoTime: missa1ano ? formData.missa1anoTime : "",
+                    missa1anoLocation: missa1ano ? formData.missa1anoLocation : "",
                     photoUrl: photoPreview || undefined,
                     deathLocation: formData.deathLocation || undefined,
                     parish: formData.freguesia || undefined,

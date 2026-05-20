@@ -13,12 +13,12 @@ interface TemplateThumbnailProps {
 
 export const TemplateThumbnail = ({ type, name, description, isSelected, onClick, previewContent }: TemplateThumbnailProps) => {
   const renderContent = () => {
-    if (type === "profissional" && previewContent) {
+    if (previewContent) {
       return (
-        <div className="w-full h-full overflow-hidden relative bg-white">
+        <div className="w-full h-full overflow-hidden flex items-center justify-center bg-white">
           <div style={{
-            transform: 'scale(0.28)',
-            transformOrigin: 'top left',
+            transform: 'scale(0.6)',
+            transformOrigin: 'center',
             width: '595px',
             height: '842px',
           }}>
@@ -86,7 +86,6 @@ export const TemplateThumbnail = ({ type, name, description, isSelected, onClick
     } else if (type === "elegante") {
       return (
         <div className="w-full h-full bg-gradient-to-br from-slate-900 to-slate-700 p-2 flex flex-col items-center justify-center">
-          <div className="text-amber-400 text-xl">✞</div>
           <div className="h-2 bg-white/80 rounded w-2/3 mt-2"></div>
           <div className="h-1 bg-white/60 rounded w-1/2 mt-1"></div>
         </div>
@@ -94,7 +93,6 @@ export const TemplateThumbnail = ({ type, name, description, isSelected, onClick
     } else {
       return (
         <div className="w-full h-full bg-white border-2 border-gray-300 p-2 flex flex-col items-center justify-center">
-          <div className="text-blue-900 text-xl">✞</div>
           <div className="h-2 bg-gray-800 rounded w-2/3 mt-2"></div>
           <div className="h-1 bg-gray-600 rounded w-1/2 mt-1"></div>
         </div>

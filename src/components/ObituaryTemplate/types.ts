@@ -43,6 +43,8 @@ export interface ObituaryTemplateProps {
    * Se omitido   → "FALECEU".
    */
   deathCountry?: string;
+  /** Texto explicito do tipo de anuncio, ex: "FALECEU" ou "FALECEU EM ARCO". */
+  deathLabelText?: string;
 
   // ── Texto familiar ────────────────────────────────────────────────────
   /** Texto do anúncio familiar. Suporta \n\n para parágrafos. */
@@ -55,6 +57,10 @@ export interface ObituaryTemplateProps {
   velorio?: EventDetails;
   /** Funeral: date, time (hora única), location */
   funeral?: EventDetails;
+  cremacao?: EventDetails;
+  missa7?: EventDetails;
+  missa30?: EventDetails;
+  missa1ano?: EventDetails;
   /** Cemitério: apenas location */
   cemetery?: Pick<EventDetails, "location">;
 
@@ -75,4 +81,19 @@ export interface ObituaryTemplateProps {
   // ── Decorativo ────────────────────────────────────────────────────────
   /** URL da imagem decorativa de flores (canto inferior direito) */
   flowerImage?: string;
+
+  /** Ajuste vertical dos icones dos eventos usado apenas em exportacao. */
+  eventIconOffsetY?: number;
+
+  /** Indica que o template esta sendo renderizado para exportacao. */
+  isExport?: boolean;
+
+  /** Ajuste horizontal dos contactos no rodape. */
+  footerContactsOffsetX?: number;
+
+  /** Ajuste vertical da mensagem ao lado do QR no rodape. */
+  footerCondolencesOffsetY?: number;
+
+  /** Ajuste vertical do QR code no rodape usado apenas em exportacao. */
+  footerQrCodeOffsetY?: number;
 }
