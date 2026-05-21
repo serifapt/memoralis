@@ -483,9 +483,9 @@ export default function Home() {
             <h2 className="text-3xl font-archivo font-bold text-foreground">
               Últimos Artigos
             </h2>
-            <Button variant="ghost" size="sm">
-              Ver todos →
-            </Button>
+            <Link to="/blog">
+              <Button variant="ghost" size="sm">Ver todos →</Button>
+            </Link>
           </div>
           {articles.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Em breve novos artigos.</p>
