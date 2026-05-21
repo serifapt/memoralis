@@ -55,21 +55,6 @@ const Sobre = () => {
             </Button>
           </div>
           
-          {/* Stats Bar */}
-          <div className="mt-12 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-1">100+</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Funerárias Parceiras</div>
-            </div>
-            <div className="text-center border-x border-border">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-1">5000+</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Famílias Apoiadas</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-1">24/7</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Suporte Disponível</div>
-            </div>
-          </div>
         </div>
       </section>
 
