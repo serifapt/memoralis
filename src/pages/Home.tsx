@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Calendar, Heart, Star } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star, Flower2, Sparkles, Building2, Church, FileText } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { HeroSearchInput, type SearchResult } from "@/components/search/HeroSearchInput";
 import logo from "@/assets/logo-memoralis.svg";
@@ -18,22 +18,22 @@ import type { FunerariaCardData, FunerariaStats } from "@/components/funerarias/
 import { getFunerariaImage } from "@/lib/funeraria-utils";
 import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
-const articles = [
-  {
-    title: "What is lorem ipsum simply text of explained",
-    category: "CATEGORY",
-    image: "/placeholder.svg"
-  },
-  {
-    title: "Types of lorem ipsum",
-    category: "CATEGORY",
-    image: "/placeholder.svg"
-  },
-  {
-    title: "How to transform your home on a budget",
-    category: "CATEGORY",
-    image: "/placeholder.svg"
-  }
+type BlogArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  category: string | null;
+  cover_image_url: string | null;
+};
+
+const services = [
+  { icon: Heart, title: "Obituários", description: "Crie e partilhe homenagens digitais com elegância e dignidade.", href: "/obituarios" },
+  { icon: Sparkles, title: "Memoralis Care", description: "Manutenção contínua de campas e jazigos com relatórios fotográficos.", href: "/care" },
+  { icon: Flower2, title: "Envio de Flores", description: "Encomende flores diretamente para a cerimónia através das funerárias parceiras.", href: "/obituarios" },
+  { icon: Building2, title: "Diretório de Funerárias", description: "Encontre funerárias por localidade em todo o país.", href: "/funerarias" },
+  { icon: Flower2, title: "Diretório de Floristas", description: "Em breve: floristas locais para acompanhar momentos de despedida.", href: "/floristas" },
+  { icon: Church, title: "Missas por Paróquia", description: "Em breve: informação de missas em paróquias a nível nacional.", href: "/missas" },
 ];
 
 export default function Home() {
@@ -43,6 +43,8 @@ export default function Home() {
   const [funerarias, setFunerarias] = useState<FunerariaCardData[]>([]);
   const [funerariaStats, setFunerariaStats] = useState<Record<string, FunerariaStats>>({});
   const [loadingFunerarias, setLoadingFunerarias] = useState(true);
+  const [featured, setFeatured] = useState<FunerariaCardData | null>(null);
+  const [articles, setArticles] = useState<BlogArticle[]>([]);
   const [searchNome, setSearchNome] = useState("");
   const [searchLocal, setSearchLocal] = useState("");
   const [searchFuneraria, setSearchFuneraria] = useState("");
@@ -156,6 +158,29 @@ export default function Home() {
       setLoadingFunerarias(false);
     };
     loadFunerarias();
+
+    const loadFeatured = async () => {
+      const { data } = await supabase
+        .from("funerarias")
+        .select("id, nome_comercial, localidade, distrito, logo_url, cover_image_url, slug")
+        .eq("pagina_publica_visivel", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data) setFeatured(data as FunerariaCardData);
+    };
+    loadFeatured();
+
+    const loadArticles = async () => {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id, title, slug, excerpt, category, cover_image_url")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(3);
+      setArticles((data || []) as BlogArticle[]);
+    };
+    loadArticles();
   }, []);
 
   return (
