@@ -370,7 +370,7 @@ export default function Home() {
           </div>
           <Card className="overflow-hidden">
             <img
-              src={getFunerariaImage(featured) || "/placeholder.svg"}
+              src={getFunerariaImage(featured.cover_image_url, featured.logo_url)}
               alt={featured.nome_comercial}
               className="w-full h-64 object-cover"
               onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
@@ -487,28 +487,38 @@ export default function Home() {
               Ver todos →
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {articles.map((article, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <img 
-                  src={article.image} 
-                  alt={article.title}
-                  className="w-full h-48 object-cover"
-                />
-                <CardContent className="p-6">
-                  <span className="text-xs text-primary font-semibold mb-2 block">
-                    {article.category}
-                  </span>
-                  <h3 className="font-archivo font-semibold text-foreground mb-4">
-                    {article.title}
-                  </h3>
-                  <Button variant="link" className="p-0 h-auto text-primary">
-                    Ler Mais →
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {articles.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Em breve novos artigos.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {articles.map((article) => (
+                <Link key={article.id} to={`/blog/${article.slug}`}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
+                    <img
+                      src={article.cover_image_url || "/placeholder.svg"}
+                      alt={article.title}
+                      className="w-full h-48 object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+                    />
+                    <CardContent className="p-6">
+                      {article.category && (
+                        <span className="text-xs text-primary font-semibold mb-2 block uppercase tracking-wider">
+                          {article.category}
+                        </span>
+                      )}
+                      <h3 className="font-archivo font-semibold text-foreground mb-3 line-clamp-2">
+                        {article.title}
+                      </h3>
+                      {article.excerpt && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{article.excerpt}</p>
+                      )}
+                      <span className="text-primary font-medium text-sm">Ler Mais →</span>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
