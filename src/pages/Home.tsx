@@ -355,31 +355,69 @@ export default function Home() {
       </section>
 
       {/* Featured Funeral Home Section */}
+      {featured && (
       <section className="bg-primary py-16">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-archivo font-bold text-primary-foreground">
               Destaques
             </h2>
-            <Button variant="ghost" size="sm" className="text-primary-foreground hover:text-primary-foreground/90">
-              Ver todos →
-            </Button>
+            <Link to="/funerarias">
+              <Button variant="ghost" size="sm" className="text-primary-foreground hover:text-primary-foreground/90 hover:bg-primary-foreground/10">
+                Ver todos →
+              </Button>
+            </Link>
           </div>
           <Card className="overflow-hidden">
-            <img 
-              src="/placeholder.svg" 
-              alt="Funerária S. João"
+            <img
+              src={getFunerariaImage(featured) || "/placeholder.svg"}
+              alt={featured.nome_comercial}
               className="w-full h-64 object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
             />
             <CardContent className="p-6">
-              <h3 className="text-2xl font-archivo font-bold text-foreground mb-4">
-                Funerária S. João
+              <h3 className="text-2xl font-archivo font-bold text-foreground mb-2">
+                {featured.nome_comercial}
               </h3>
-              <Button className="bg-primary hover:bg-primary/90">
-                Ver Mais
+              {featured.localidade && (
+                <p className="text-muted-foreground mb-4 flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4" /> {featured.localidade}
+                </p>
+              )}
+              <Button className="bg-primary hover:bg-primary/90" asChild>
+                <Link to={`/funerarias/${featured.slug || featured.id}`}>Ver Mais</Link>
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </section>
+      )}
+
+      {/* Serviços Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-archivo font-bold text-foreground mb-3">
+            Os nossos serviços
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Uma plataforma completa ao serviço das famílias e profissionais do setor funerário.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link key={s.title} to={s.href}>
+                <Card className="p-6 h-full hover:shadow-lg hover:border-primary/40 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-archivo font-bold text-foreground mb-2">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.description}</p>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
