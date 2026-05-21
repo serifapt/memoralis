@@ -2,10 +2,11 @@ import { PublicHeader } from "@/components/layout/PublicHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Heart, Users, Shield, Award, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, Users, Shield, Award, CheckCircle2, ArrowRight, Sparkles, Building2, Flower2, Church } from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
-import heroImage from "@/assets/sobre-hero.jpg";
 
 const Sobre = () => {
   return (
@@ -54,62 +55,151 @@ const Sobre = () => {
             </Button>
           </div>
           
-          {/* Stats Bar */}
-          <div className="mt-12 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-1">100+</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Funerárias Parceiras</div>
-            </div>
-            <div className="text-center border-x border-border">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-1">5000+</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Famílias Apoiadas</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-1">24/7</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Suporte Disponível</div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Mission Section */}
-      <section className="py-16 px-4 bg-gradient-to-b from-background to-muted/20">
+      {/* Tabs Section */}
+      <section className="py-12 px-4 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-12">
-            <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider">Nossa Missão</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-              Transformar a Gestão de Memórias
-            </h2>
-            <p className="text-base text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              A Memoralis nasceu com o propósito de transformar a forma como honramos e preservamos 
-              a memória daqueles que partiram. Acreditamos que cada vida merece ser celebrada com 
-              dignidade, respeito e carinho.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
-              <CheckCircle2 className="w-8 h-8 text-primary mb-3" />
-              <h3 className="text-lg font-semibold mb-2">Apoio às Famílias</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm">
-                Num momento de perda, as famílias enfrentam não só a dor emocional, mas também 
-                a complexidade de organizar cerimónias e gerir documentação. Simplificamos estes 
-                processos, permitindo que se concentrem no que realmente importa.
-              </p>
-            </Card>
-            
-            <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
-              <CheckCircle2 className="w-8 h-8 text-primary mb-3" />
-              <h3 className="text-lg font-semibold mb-2">Parceria com Profissionais</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm">
-                Trabalhamos em estreita colaboração com funerárias em todo o país, oferecendo 
-                uma plataforma digital moderna que facilita a gestão de obituários, cerimónias 
-                e toda a documentação necessária, com máximo profissionalismo.
-              </p>
-            </Card>
-          </div>
+          <Tabs defaultValue="publico" className="w-full">
+            <TabsList className="w-full max-w-2xl mx-auto grid grid-cols-3 mb-10 h-auto">
+              <TabsTrigger value="publico" className="py-3">Público</TabsTrigger>
+              <TabsTrigger value="profissional" className="py-3">Profissional</TabsTrigger>
+              <TabsTrigger value="servicos" className="py-3">Serviços</TabsTrigger>
+            </TabsList>
+
+            {/* PUBLICO */}
+            <TabsContent value="publico" className="space-y-8">
+              <div className="text-center max-w-3xl mx-auto">
+                <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">Para as Famílias</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                  Um espaço digno para honrar quem partiu
+                </h2>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Consulte obituários, conheça as cerimónias, partilhe condolências e mantenha viva
+                  a memória dos seus entes queridos — tudo num só lugar, acessível 24 horas por dia.
+                </p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
+                  <Heart className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">Obituários digitais</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Aceda a homenagens com fotografia, biografia, cerimónias e contactos da funerária.
+                  </p>
+                </Card>
+                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
+                  <CheckCircle2 className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">Condolências e velas</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Deixe uma mensagem ou acenda uma vela virtual em memória de quem partiu.
+                  </p>
+                </Card>
+                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
+                  <Flower2 className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">Envio de flores</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Encomende arranjos florais entregues diretamente nas cerimónias.
+                  </p>
+                </Card>
+              </div>
+              <div className="text-center">
+                <Button asChild><Link to="/obituarios">Ver Obituários <ArrowRight className="ml-2 w-4 h-4" /></Link></Button>
+              </div>
+            </TabsContent>
+
+            {/* PROFISSIONAL */}
+            <TabsContent value="profissional" className="space-y-8">
+              <div className="text-center max-w-3xl mx-auto">
+                <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">Para Funerárias</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                  A plataforma que profissionaliza o seu serviço
+                </h2>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Gestão completa de obituários, cerimónias, documentação social, orçamentos e
+                  comunicação com famílias — tudo numa única solução.
+                </p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
+                  <Building2 className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">Página pública dedicada</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Apresente a sua funerária com perfil próprio, obituários ativos e testemunhos.
+                  </p>
+                </Card>
+                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
+                  <Shield className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">Documentação automática</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Geração automática de formulários da Segurança Social e participações.
+                  </p>
+                </Card>
+                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
+                  <Award className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">Orçamentos e clientes</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Crie orçamentos profissionais e mantenha o histórico de clientes organizado.
+                  </p>
+                </Card>
+              </div>
+              <div className="text-center">
+                <Button asChild><Link to="/funeraria/register">Registar Funerária <ArrowRight className="ml-2 w-4 h-4" /></Link></Button>
+              </div>
+            </TabsContent>
+
+            {/* SERVIÇOS */}
+            <TabsContent value="servicos" className="space-y-8">
+              <div className="text-center max-w-3xl mx-auto">
+                <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">Serviços Memoralis</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                  Serviços complementares
+                </h2>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Para além da plataforma digital, oferecemos serviços que continuam a homenagem
+                  muito depois da despedida.
+                </p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
+                  <Sparkles className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">Memoralis Care</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    Manutenção contínua de campas e jazigos, com relatórios fotográficos antes e depois.
+                  </p>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/care">Saber mais</Link>
+                  </Button>
+                </Card>
+                <Card className="p-6 border-2 border-dashed">
+                  <Flower2 className="w-8 h-8 text-muted-foreground mb-3" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-lg font-semibold">Diretório de Floristas</h3>
+                    <Badge variant="secondary" className="text-xs">Brevemente</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Encontre floristas locais para acompanhar momentos de despedida e homenagem.
+                  </p>
+                </Card>
+                <Card className="p-6 border-2 border-dashed">
+                  <Church className="w-8 h-8 text-muted-foreground mb-3" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-lg font-semibold">Missas por Paróquia</h3>
+                    <Badge variant="secondary" className="text-xs">Brevemente</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Horários e informações de missas em paróquias a nível nacional.
+                  </p>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 

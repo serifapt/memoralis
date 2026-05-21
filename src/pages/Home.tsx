@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Calendar, Heart, Star } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star, Flower2, Sparkles, Building2, Church, FileText } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { HeroSearchInput, type SearchResult } from "@/components/search/HeroSearchInput";
 import logo from "@/assets/logo-memoralis.svg";
@@ -18,22 +18,22 @@ import type { FunerariaCardData, FunerariaStats } from "@/components/funerarias/
 import { getFunerariaImage } from "@/lib/funeraria-utils";
 import { fetchFunerariaStats } from "@/hooks/useFunerariaStats";
 
-const articles = [
-  {
-    title: "What is lorem ipsum simply text of explained",
-    category: "CATEGORY",
-    image: "/placeholder.svg"
-  },
-  {
-    title: "Types of lorem ipsum",
-    category: "CATEGORY",
-    image: "/placeholder.svg"
-  },
-  {
-    title: "How to transform your home on a budget",
-    category: "CATEGORY",
-    image: "/placeholder.svg"
-  }
+type BlogArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  category: string | null;
+  cover_image_url: string | null;
+};
+
+const services = [
+  { icon: Heart, title: "Obituários", description: "Crie e partilhe homenagens digitais com elegância e dignidade.", href: "/obituarios" },
+  { icon: Sparkles, title: "Memoralis Care", description: "Manutenção contínua de campas e jazigos com relatórios fotográficos.", href: "/care" },
+  { icon: Flower2, title: "Envio de Flores", description: "Encomende flores diretamente para a cerimónia através das funerárias parceiras.", href: "/obituarios" },
+  { icon: Building2, title: "Diretório de Funerárias", description: "Encontre funerárias por localidade em todo o país.", href: "/funerarias" },
+  { icon: Flower2, title: "Diretório de Floristas", description: "Em breve: floristas locais para acompanhar momentos de despedida.", href: "/floristas" },
+  { icon: Church, title: "Missas por Paróquia", description: "Em breve: informação de missas em paróquias a nível nacional.", href: "/missas" },
 ];
 
 export default function Home() {
@@ -43,6 +43,8 @@ export default function Home() {
   const [funerarias, setFunerarias] = useState<FunerariaCardData[]>([]);
   const [funerariaStats, setFunerariaStats] = useState<Record<string, FunerariaStats>>({});
   const [loadingFunerarias, setLoadingFunerarias] = useState(true);
+  const [featured, setFeatured] = useState<FunerariaCardData | null>(null);
+  const [articles, setArticles] = useState<BlogArticle[]>([]);
   const [searchNome, setSearchNome] = useState("");
   const [searchLocal, setSearchLocal] = useState("");
   const [searchFuneraria, setSearchFuneraria] = useState("");
@@ -156,6 +158,29 @@ export default function Home() {
       setLoadingFunerarias(false);
     };
     loadFunerarias();
+
+    const loadFeatured = async () => {
+      const { data } = await supabase
+        .from("funerarias")
+        .select("id, nome_comercial, localidade, distrito, logo_url, cover_image_url, slug")
+        .eq("pagina_publica_visivel", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data) setFeatured(data as FunerariaCardData);
+    };
+    loadFeatured();
+
+    const loadArticles = async () => {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id, title, slug, excerpt, category, cover_image_url")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(3);
+      setArticles((data || []) as BlogArticle[]);
+    };
+    loadArticles();
   }, []);
 
   return (
@@ -274,7 +299,7 @@ export default function Home() {
               Adicione uma memória especial de quem partiu
             </h2>
             <p className="text-muted-foreground mb-6">
-              Mantenha a memória viva com uma homenagem duradoura.
+              Mantenha a memória viva com uma homenagem duradoura, criada em parceria com a funerária da sua confiança.
             </p>
             <div className="space-y-4 mb-6">
               <div className="flex items-start gap-3">
@@ -282,9 +307,9 @@ export default function Home() {
                   <span className="text-primary font-semibold">1</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Create your account</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Contacte a funerária parceira</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    A funerária responsável pelo seu ente querido cria o obituário na plataforma Memoralis.
                   </p>
                 </div>
               </div>
@@ -293,9 +318,9 @@ export default function Home() {
                   <span className="text-primary font-semibold">2</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Add your property</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Personalize a homenagem</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Fotografia, biografia, cerimónias e contactos — tudo apresentado com dignidade.
                   </p>
                 </div>
               </div>
@@ -304,9 +329,9 @@ export default function Home() {
                   <span className="text-primary font-semibold">3</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Receive your quotly</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Partilhe com familiares e amigos</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Um link único permite que recebam condolências, acendam velas e enviem flores.
                   </p>
                 </div>
               </div>
@@ -315,46 +340,84 @@ export default function Home() {
                   <span className="text-primary font-semibold">4</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Connect with potential clients</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Preserve a memória para sempre</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    A homenagem fica disponível no arquivo público para consulta a qualquer momento.
                   </p>
                 </div>
               </div>
             </div>
-            <Button className="bg-primary hover:bg-primary/90">
-              Criar Obituário
+            <Button className="bg-primary hover:bg-primary/90" asChild>
+              <Link to="/obituarios">Explorar Obituários</Link>
             </Button>
           </div>
         </div>
       </section>
 
       {/* Featured Funeral Home Section */}
+      {featured && (
       <section className="bg-primary py-16">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-archivo font-bold text-primary-foreground">
               Destaques
             </h2>
-            <Button variant="ghost" size="sm" className="text-primary-foreground hover:text-primary-foreground/90">
-              Ver todos →
-            </Button>
+            <Link to="/funerarias">
+              <Button variant="ghost" size="sm" className="text-primary-foreground hover:text-primary-foreground/90 hover:bg-primary-foreground/10">
+                Ver todos →
+              </Button>
+            </Link>
           </div>
           <Card className="overflow-hidden">
-            <img 
-              src="/placeholder.svg" 
-              alt="Funerária S. João"
+            <img
+              src={getFunerariaImage(featured.cover_image_url, featured.logo_url)}
+              alt={featured.nome_comercial}
               className="w-full h-64 object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
             />
             <CardContent className="p-6">
-              <h3 className="text-2xl font-archivo font-bold text-foreground mb-4">
-                Funerária S. João
+              <h3 className="text-2xl font-archivo font-bold text-foreground mb-2">
+                {featured.nome_comercial}
               </h3>
-              <Button className="bg-primary hover:bg-primary/90">
-                Ver Mais
+              {featured.localidade && (
+                <p className="text-muted-foreground mb-4 flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4" /> {featured.localidade}
+                </p>
+              )}
+              <Button className="bg-primary hover:bg-primary/90" asChild>
+                <Link to={`/funerarias/${featured.slug || featured.id}`}>Ver Mais</Link>
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </section>
+      )}
+
+      {/* Serviços Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-archivo font-bold text-foreground mb-3">
+            Os nossos serviços
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Uma plataforma completa ao serviço das famílias e profissionais do setor funerário.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link key={s.title} to={s.href}>
+                <Card className="p-6 h-full hover:shadow-lg hover:border-primary/40 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-archivo font-bold text-foreground mb-2">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.description}</p>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -420,32 +483,42 @@ export default function Home() {
             <h2 className="text-3xl font-archivo font-bold text-foreground">
               Últimos Artigos
             </h2>
-            <Button variant="ghost" size="sm">
-              Ver todos →
-            </Button>
+            <Link to="/blog">
+              <Button variant="ghost" size="sm">Ver todos →</Button>
+            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {articles.map((article, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <img 
-                  src={article.image} 
-                  alt={article.title}
-                  className="w-full h-48 object-cover"
-                />
-                <CardContent className="p-6">
-                  <span className="text-xs text-primary font-semibold mb-2 block">
-                    {article.category}
-                  </span>
-                  <h3 className="font-archivo font-semibold text-foreground mb-4">
-                    {article.title}
-                  </h3>
-                  <Button variant="link" className="p-0 h-auto text-primary">
-                    Ler Mais →
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {articles.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Em breve novos artigos.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {articles.map((article) => (
+                <Link key={article.id} to={`/blog/${article.slug}`}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
+                    <img
+                      src={article.cover_image_url || "/placeholder.svg"}
+                      alt={article.title}
+                      className="w-full h-48 object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+                    />
+                    <CardContent className="p-6">
+                      {article.category && (
+                        <span className="text-xs text-primary font-semibold mb-2 block uppercase tracking-wider">
+                          {article.category}
+                        </span>
+                      )}
+                      <h3 className="font-archivo font-semibold text-foreground mb-3 line-clamp-2">
+                        {article.title}
+                      </h3>
+                      {article.excerpt && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{article.excerpt}</p>
+                      )}
+                      <span className="text-primary font-medium text-sm">Ler Mais →</span>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
