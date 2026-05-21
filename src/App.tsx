@@ -39,6 +39,10 @@ import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import FlowerCatalog from "./pages/FlowerCatalog";
 import FlowerOrders from "./pages/FlowerOrders";
+import Floristas from "./pages/Floristas";
+import Missas from "./pages/Missas";
+import AdminBlog from "./pages/AdminBlog";
+import AdminBlogEdit from "./pages/AdminBlogEdit";
 import BudgetQuotes from "./pages/BudgetQuotes";
 import BudgetQuoteDetail from "./pages/BudgetQuoteDetail";
 import FunerariaContacts from "./pages/FunerariaContacts";
@@ -80,6 +84,8 @@ const App = () => (
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/contactos" element={<Contactos />} />
+          <Route path="/floristas" element={<Floristas />} />
+          <Route path="/missas" element={<Missas />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -114,6 +120,9 @@ const App = () => (
             <Route path="/admin/funerarias/:id" element={<AdminFunerariaDetail />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/chat" element={<AdminChat />} />
+            <Route path="/admin/blog" element={<AdminBlog />} />
+            <Route path="/admin/blog/new" element={<AdminBlogEdit />} />
+            <Route path="/admin/blog/:id" element={<AdminBlogEdit />} />
             <Route path="/admin/care/subscriptions" element={<AdminCareSubscriptions />} />
             <Route path="/admin/care/tasks" element={<AdminCareTasks />} />
             <Route path="/admin/care/technicians" element={<AdminCareTechnicians />} />
