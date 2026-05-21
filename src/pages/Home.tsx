@@ -299,7 +299,7 @@ export default function Home() {
               Adicione uma memória especial de quem partiu
             </h2>
             <p className="text-muted-foreground mb-6">
-              Mantenha a memória viva com uma homenagem duradoura.
+              Mantenha a memória viva com uma homenagem duradoura, criada em parceria com a funerária da sua confiança.
             </p>
             <div className="space-y-4 mb-6">
               <div className="flex items-start gap-3">
@@ -307,9 +307,9 @@ export default function Home() {
                   <span className="text-primary font-semibold">1</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Create your account</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Contacte a funerária parceira</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    A funerária responsável pelo seu ente querido cria o obituário na plataforma Memoralis.
                   </p>
                 </div>
               </div>
@@ -318,9 +318,9 @@ export default function Home() {
                   <span className="text-primary font-semibold">2</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Add your property</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Personalize a homenagem</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Fotografia, biografia, cerimónias e contactos — tudo apresentado com dignidade.
                   </p>
                 </div>
               </div>
@@ -329,9 +329,9 @@ export default function Home() {
                   <span className="text-primary font-semibold">3</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Receive your quotly</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Partilhe com familiares e amigos</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Um link único permite que recebam condolências, acendam velas e enviem flores.
                   </p>
                 </div>
               </div>
@@ -340,15 +340,15 @@ export default function Home() {
                   <span className="text-primary font-semibold">4</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-1">Connect with potential clients</h4>
+                  <h4 className="font-semibold text-foreground mb-1">Preserve a memória para sempre</h4>
                   <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    A homenagem fica disponível no arquivo público para consulta a qualquer momento.
                   </p>
                 </div>
               </div>
             </div>
-            <Button className="bg-primary hover:bg-primary/90">
-              Criar Obituário
+            <Button className="bg-primary hover:bg-primary/90" asChild>
+              <Link to="/obituarios">Explorar Obituários</Link>
             </Button>
           </div>
         </div>
