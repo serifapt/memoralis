@@ -1,116 +1,129 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, User, Facebook, Twitter, Linkedin, Link as LinkIcon, ArrowLeft, Heart } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import logo from "@/assets/logo-memoralis.svg";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-// Mock data - in a real app, this would come from an API/database
-const blogPosts = {
-  "como-preparar-cerimonia-memorial": {
-    id: 1,
-    title: "Como Preparar uma Cerimónia Memorial Significativa",
-    category: "Guias",
-    date: "15 Jan 2025",
-    author: "Maria Silva",
-    readTime: "8 min",
-    heroImage: "/placeholder.svg",
-    content: [
-      {
-        type: "paragraph",
-        text: "Preparar uma cerimónia memorial é um momento profundamente pessoal e especial. Oferecemos neste guia completo algumas orientações essenciais para criar uma homenagem que verdadeiramente honre a memória do seu ente querido, desde a escolha do local até aos pequenos detalhes que fazem toda a diferença."
-      },
-      {
-        type: "heading",
-        text: "1. Defina o estilo e personalização"
-      },
-      {
-        type: "paragraph",
-        text: "O primeiro passo é decidir que tipo de cerimónia melhor reflete a personalidade e os valores da pessoa. Algumas famílias preferem uma cerimónia religiosa tradicional, enquanto outras optam por celebrações mais informais ou temáticas. Considere os gostos pessoais, hobbies e paixões do falecido ao planear cada detalhe."
-      },
-      {
-        type: "paragraph",
-        text: "É importante envolver familiares próximos nesta decisão, garantindo que todos se sintam parte do processo de despedida. Uma cerimónia personalizada pode incluir elementos como música favorita, fotografias, vídeos ou até objetos significativos que contam a história de uma vida."
-      },
-      {
-        type: "heading",
-        text: "2. Escolha o local com significado"
-      },
-      {
-        type: "paragraph",
-        text: "A escolha do local pode ter um impacto profundo no tom da cerimónia. Enquanto muitas famílias optam por locais tradicionais como igrejas ou capelas, outras escolhem espaços ao ar livre, jardins ou locais que tinham significado especial para o falecido."
-      },
-      {
-        type: "image",
-        src: "/placeholder.svg",
-        alt: "Local de cerimónia memorial"
-      },
-      {
-        type: "paragraph",
-        text: "É também importante certificar-se de que o espaço escolhido pode acomodar confortavelmente todos os convidados e possui as facilidades necessárias, como estacionamento, acessibilidade e equipamento de som se necessário."
-      },
-      {
-        type: "heading",
-        text: "3. Prepare a ordem de cerimónia"
-      },
-      {
-        type: "paragraph",
-        text: "Uma ordem de cerimónia bem estruturada ajuda a guiar os participantes e garante que todos os momentos importantes sejam incluídos. Tipicamente, inclui momentos de silêncio, música, leituras, eulogias e tempo para reflexão."
-      },
-      {
-        type: "paragraph",
-        text: "Considere criar um programa impresso que os convidados possam levar consigo como recordação. Este pode incluir fotografias, poemas favoritos, ou mensagens especiais da família."
-      },
-      {
-        type: "heading",
-        text: "4. Selecione música e leituras"
-      },
-      {
-        type: "paragraph",
-        text: "A música tem o poder de evocar emoções profundas e criar momentos memoráveis. Escolha peças que tinham significado especial para o falecido ou que transmitam a mensagem que a família deseja comunicar."
-      },
-      {
-        type: "image",
-        src: "/placeholder.svg",
-        alt: "Música em cerimónias"
-      },
-      {
-        type: "paragraph",
-        text: "As leituras podem incluir textos religiosos, poemas, trechos literários ou até palavras escritas pela própria família. Certifique-se de que os leitores escolhidos se sentem confortáveis e têm tempo para se preparar."
-      }
-    ]
+type BlogPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  category: string | null;
+  author: string | null;
+  cover_image_url: string | null;
+  read_time: string | null;
+  published_at: string | null;
+};
+
+type RelatedPost = {
+  id: string;
+  slug: string;
+  title: string;
+  category: string | null;
+  cover_image_url: string | null;
+  read_time: string | null;
+};
+
+const formatDate = (iso: string | null) => {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("pt-PT", { day: "2-digit", month: "short", year: "numeric" });
+  } catch {
+    return "";
   }
 };
 
-const relatedArticles = [
-  {
-    id: 2,
-    title: "A Importância das Tradições Funerárias em Portugal",
-    category: "Cultura",
-    image: "/placeholder.svg",
-    readTime: "6 min"
-  },
-  {
-    id: 3,
-    title: "Como Escrever um Obituário Memorável",
-    category: "Guias",
-    image: "/placeholder.svg",
-    readTime: "5 min"
-  },
-  {
-    id: 4,
-    title: "O Papel da Música nas Cerimónias de Despedida",
-    category: "Cerimónias",
-    image: "/placeholder.svg",
-    readTime: "7 min"
-  }
-];
+// Minimal markdown renderer: headings (##), images ![alt](url), paragraphs.
+const renderContent = (md: string) => {
+  const blocks = md.split(/\n{2,}/);
+  return blocks.map((raw, i) => {
+    const block = raw.trim();
+    if (!block) return null;
+    if (block.startsWith("## ")) {
+      return (
+        <h2 key={i} className="text-2xl font-archivo font-bold text-foreground mt-12 mb-6">
+          {block.slice(3)}
+        </h2>
+      );
+    }
+    if (block.startsWith("# ")) {
+      return (
+        <h2 key={i} className="text-3xl font-archivo font-bold text-foreground mt-12 mb-6">
+          {block.slice(2)}
+        </h2>
+      );
+    }
+    const img = block.match(/^!\[(.*?)\]\((.*?)\)$/);
+    if (img) {
+      return (
+        <div key={i} className="my-10 rounded-lg overflow-hidden">
+          <img src={img[2]} alt={img[1]} className="w-full" />
+        </div>
+      );
+    }
+    return (
+      <p key={i} className="text-foreground/80 mb-6 leading-relaxed whitespace-pre-line">
+        {block}
+      </p>
+    );
+  });
+};
+
 
 export default function BlogPost() {
   const { slug } = useParams();
-  const post = slug ? blogPosts[slug as keyof typeof blogPosts] : blogPosts["como-preparar-cerimonia-memorial"];
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [related, setRelated] = useState<RelatedPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id, slug, title, excerpt, content, category, author, cover_image_url, read_time, published_at")
+        .eq("slug", slug)
+        .eq("status", "published")
+        .maybeSingle();
+      setPost((data as BlogPost) || null);
+
+      if (data) {
+        const { data: rel } = await supabase
+          .from("blog_posts")
+          .select("id, slug, title, category, cover_image_url, read_time")
+          .eq("status", "published")
+          .neq("id", (data as BlogPost).id)
+          .order("published_at", { ascending: false, nullsFirst: false })
+          .limit(3);
+        setRelated((rel || []) as RelatedPost[]);
+      }
+      setLoading(false);
+    })();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PublicHeader />
+        <div className="container mx-auto px-4 py-16 max-w-4xl space-y-6">
+          <Skeleton className="h-72 w-full rounded-lg" />
+          <Skeleton className="h-10 w-3/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -138,6 +151,7 @@ export default function BlogPost() {
 
     if (platform === 'copy') {
       navigator.clipboard.writeText(url);
+      toast.success("Link copiado");
     } else {
       window.open(shareUrls[platform as keyof typeof shareUrls], '_blank');
     }
@@ -159,9 +173,9 @@ export default function BlogPost() {
 
       {/* Hero Image */}
       <div className="container mx-auto px-4 mb-8">
-        <div className="aspect-[21/9] rounded-lg overflow-hidden">
+        <div className="aspect-[21/9] rounded-lg overflow-hidden bg-muted">
           <img 
-            src={post.heroImage}
+            src={post.cover_image_url || "/placeholder.svg"}
             alt={post.title}
             className="w-full h-full object-cover"
           />
@@ -176,53 +190,24 @@ export default function BlogPost() {
             <div>
               {/* Article Header */}
               <div className="mb-8">
-                <Badge className="mb-4">{post.category}</Badge>
+                {post.category && <Badge className="mb-4">{post.category}</Badge>}
                 <h1 className="text-4xl md:text-5xl font-archivo font-bold text-foreground mb-6 leading-tight">
                   {post.title}
                 </h1>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    <span>{post.author}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{post.date}</span>
-                  </div>
-                  <span>{post.readTime} de leitura</span>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                  {post.author && (
+                    <div className="flex items-center gap-2"><User className="w-4 h-4" /><span>{post.author}</span></div>
+                  )}
+                  {post.published_at && (
+                    <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /><span>{formatDate(post.published_at)}</span></div>
+                  )}
+                  {post.read_time && <span>{post.read_time} de leitura</span>}
                 </div>
               </div>
 
               {/* Article Body */}
               <div className="prose prose-lg max-w-none">
-                {post.content.map((block, index) => {
-                  switch (block.type) {
-                    case 'paragraph':
-                      return (
-                        <p key={index} className="text-foreground/80 mb-6 leading-relaxed">
-                          {block.text}
-                        </p>
-                      );
-                    case 'heading':
-                      return (
-                        <h2 key={index} className="text-2xl font-archivo font-bold text-foreground mt-12 mb-6">
-                          {block.text}
-                        </h2>
-                      );
-                    case 'image':
-                      return (
-                        <div key={index} className="my-10 rounded-lg overflow-hidden">
-                          <img 
-                            src={block.src}
-                            alt={block.alt}
-                            className="w-full"
-                          />
-                        </div>
-                      );
-                    default:
-                      return null;
-                  }
-                })}
+                {renderContent(post.content || "")}
               </div>
             </div>
 
@@ -272,33 +257,33 @@ export default function BlogPost() {
       </article>
 
       {/* Related Articles */}
-      <section className="bg-muted/30 py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-archivo font-bold text-foreground mb-8">
-            Outros artigos
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {relatedArticles.map((article) => (
-              <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-                <div className="aspect-[16/10] overflow-hidden">
-                  <img 
-                    src={article.image}
-                    alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <CardContent className="p-6">
-                  <Badge className="mb-3">{article.category}</Badge>
-                  <h3 className="text-xl font-archivo font-bold text-foreground mb-3 line-clamp-2">
-                    {article.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{article.readTime} de leitura</p>
-                </CardContent>
-              </Card>
-            ))}
+      {related.length > 0 && (
+        <section className="bg-muted/30 py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-archivo font-bold text-foreground mb-8">Outros artigos</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {related.map((article) => (
+                <Link key={article.id} to={`/blog/${article.slug}`}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow group h-full">
+                    <div className="aspect-[16/10] overflow-hidden bg-muted">
+                      <img
+                        src={article.cover_image_url || "/placeholder.svg"}
+                        alt={article.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <CardContent className="p-6">
+                      {article.category && <Badge className="mb-3">{article.category}</Badge>}
+                      <h3 className="text-xl font-archivo font-bold text-foreground mb-3 line-clamp-2">{article.title}</h3>
+                      {article.read_time && <p className="text-sm text-muted-foreground">{article.read_time} de leitura</p>}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-[hsl(var(--footer-bg))] text-[hsl(var(--footer-foreground))] py-12 border-t">

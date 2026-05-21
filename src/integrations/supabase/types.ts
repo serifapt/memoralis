@@ -44,6 +44,60 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          author: string | null
+          category: string | null
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          excerpt: string | null
+          id: string
+          is_featured: boolean
+          published_at: string | null
+          read_time: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          read_time?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          read_time?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       budget_quote_lines: {
         Row: {
           created_at: string
@@ -616,6 +670,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      coming_soon_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          page: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          page: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          page?: string
+        }
+        Relationships: []
       }
       condolences: {
         Row: {

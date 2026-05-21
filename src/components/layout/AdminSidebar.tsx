@@ -5,6 +5,7 @@ import {
   Users, 
   MessageSquare,
   LogOut,
+  FileText,
   Wrench,
   CreditCard,
   ClipboardList,
@@ -19,6 +20,7 @@ const mainNavigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Funerárias", href: "/admin/funerarias", icon: Building2 },
   { name: "Utilizadores", href: "/admin/users", icon: Users },
+  { name: "Blog", href: "/admin/blog", icon: FileText },
   { name: "Chat Suporte", href: "/admin/chat", icon: MessageSquare },
 ];
 
