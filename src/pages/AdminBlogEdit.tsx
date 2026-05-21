@@ -95,7 +95,7 @@ export default function AdminBlogEdit() {
     if (!form.title.trim()) { toast.error("O título é obrigatório"); return; }
     if (!form.slug.trim()) { toast.error("O slug é obrigatório"); return; }
     const finalStatus = publish ? "published" : form.status;
-    const payload: Record<string, unknown> = {
+    const payload: any = {
       title: form.title.trim(),
       slug: slugify(form.slug),
       excerpt: form.excerpt || null,
