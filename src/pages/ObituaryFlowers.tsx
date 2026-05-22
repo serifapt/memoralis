@@ -233,35 +233,49 @@ export default function ObituaryFlowers() {
       </div>
 
       <div className="container mx-auto px-4 py-8 pb-32 lg:pb-8">
-        {/* Obituary Summary */}
-        <Card className="mb-8">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-4">
-              <img
-                src={obituary.photo_url || obituaryPlaceholder}
-                alt={obituary.display_name}
-                className="w-16 h-20 sm:w-20 sm:h-24 object-cover rounded-lg"
-              />
-              <div>
-                <h1 className="text-xl sm:text-2xl font-archivo font-bold text-foreground">{obituary.display_name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {getYear(obituary.birth_date)} - {getYear(obituary.death_date)}
-                </p>
-                {locationStr && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span className="text-xs">{locationStr}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {step === "catalog" ? (
           <div className="grid lg:grid-cols-[1fr_400px] gap-8">
             {/* Product Catalog */}
             <div>
+              {/* Obituary Summary - left column width on desktop, full width on mobile */}
+              <Card className="mb-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={obituary.photo_url || obituaryPlaceholder}
+                      alt={obituary.display_name}
+                      className="w-16 h-20 sm:w-20 sm:h-24 object-cover rounded-lg"
+                    />
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-archivo font-bold text-foreground">{obituary.display_name}</h1>
+                      <p className="text-sm text-muted-foreground">
+                        {getYear(obituary.birth_date)} - {getYear(obituary.death_date)}
+                      </p>
+                      {locationStr && (
+                        <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span className="text-xs">{locationStr}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Service notice - mobile only (desktop version lives in sidebar) */}
+              <Card className="bg-primary/5 border-primary/20 mb-6 lg:hidden">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <Flower2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <p className="text-sm text-foreground leading-relaxed">
+                      Este serviço de envio de flores é realizado pela{" "}
+                      <span className="font-semibold">{funeraria.nome_comercial}</span>, funerária responsável pelo processo de{" "}
+                      <span className="font-semibold">{obituary.display_name}</span>.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
               <h2 className="text-xl font-archivo font-semibold text-foreground mb-6 flex items-center gap-2">
                 <Flower2 className="w-5 h-5 text-primary" />
                 Catálogo de Flores
@@ -293,7 +307,7 @@ export default function ObituaryFlowers() {
 
             {/* Desktop cart sidebar */}
             <aside className="hidden lg:block">
-              <div className="sticky top-4 space-y-4">
+              <div className="space-y-4">
                 {/* Service notice */}
                 <Card className="bg-primary/5 border-primary/20">
                   <CardContent className="p-4">
@@ -307,7 +321,7 @@ export default function ObituaryFlowers() {
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="sticky top-4">
                 <CardContent className="p-5 space-y-4">
                   <h3 className="font-archivo font-semibold flex items-center gap-2">
                     <ShoppingBag className="w-4 h-4 text-primary" />
