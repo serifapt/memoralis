@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, MapPin, Home, ChevronRight, Building } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,9 +29,12 @@ const TAG_OPTIONS = [
 ];
 
 export default function ObituaryArchive() {
+  const [searchParams] = useSearchParams();
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchName, setSearchName] = useState("");
+  const [searchName, setSearchName] = useState(searchParams.get("nome") || "");
+  const [localityText, setLocalityText] = useState(searchParams.get("localidade") || "");
+  const [funerariaText, setFunerariaText] = useState(searchParams.get("funeraria") || "");
   const [selectedLocality, setSelectedLocality] = useState<string>("all");
   const [selectedFreguesia, setSelectedFreguesia] = useState<string>("all");
   const [selectedDistrito, setSelectedDistrito] = useState<string>("all");
@@ -48,7 +51,7 @@ export default function ObituaryArchive() {
 
   useEffect(() => {
     loadObituaries(true);
-  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy]);
+  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy, localityText, funerariaText]);
 
   useEffect(() => {
     loadFilterOptions();
