@@ -224,8 +224,8 @@ const Sobre = () => {
               </div>
               <h3 className="text-lg font-bold mb-2">Empatia</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                Compreendemos profundamente a dor da perda e oferecemos apoio com sensibilidade, 
-                respeito e humanidade em cada interação.
+                Compreendemos a delicadeza do momento e desenvolvemos cada funcionalidade 
+                com respeito, humanidade e a devida sensibilidade.
               </p>
             </Card>
             
