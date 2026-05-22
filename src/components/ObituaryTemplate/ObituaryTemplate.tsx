@@ -1,6 +1,7 @@
 import React from "react";
 import type { ObituaryTemplateProps, EventDetails } from "./types";
 import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../shared/icons";
+import { getNameLayout } from "./name-layout";
 
 // ─── Defaults ───────────────────────────────────────────────────────────────
 
@@ -120,8 +121,10 @@ export function ObituaryTemplate({
   isExport = false,
   eventIconOffsetY = 0,
   footerContactsOffsetX = 0,
+  footerContactsOffsetY = 0,
   footerCondolencesOffsetY = 0,
   footerQrCodeOffsetY = 0,
+  footerOffsetY = 0,
 }: ObituaryTemplateProps) {
   const locationLine = [parish, municipality].filter(Boolean).join(" · ");
   const phoneDisplay = [phone1, phone2].filter(Boolean).join(" | ");
@@ -138,11 +141,7 @@ export function ObituaryTemplate({
   ].filter(Boolean) as Array<{ title: string; event: EventDetails | Pick<EventDetails, "location">; locationOnly?: boolean }>;
   const hasEventDetails = events.length > 0;
   const hasManyEvents = events.length > 3;
-  const ageBlockTop =
-    fullName.length > 42 ? "230px" :
-    fullName.length > 28 ? "210px" :
-    fullName.length > 22 ? "190px" :
-    "160px";
+  const { nameFontSize, nameLineHeight, ageBlockTop } = getNameLayout(fullName);
   const deathLabelFontSize = deathLabel.length > 34 ? "18px" : deathLabel.length > 26 ? "20px" : "22px";
   const deathLabelLineHeight = deathLabel.length > 34 ? "25px" : deathLabel.length > 26 ? "28px" : "30px";
   const familyTextLength = familyText.length;
@@ -205,9 +204,9 @@ export function ObituaryTemplate({
       <div
         style={{
           position: "absolute",
-          left: "40px",
-          top: "48px",
-          width: "220px",
+          left: "63.33px",
+          top: "40px",
+          width: "173.33px",
           height: "240px",
           borderRadius: "30px",
           overflow: "hidden",
@@ -226,7 +225,7 @@ export function ObituaryTemplate({
         {!photo && (
           <div
             style={{
-              width: "220px",
+              width: "173.33px",
               height: "240px",
               display: "flex",
               alignItems: "center",
@@ -248,10 +247,10 @@ export function ObituaryTemplate({
           top: "90px",
           width: "280px",
           margin: 0,
-          fontFamily: "'Playfair Display', 'Georgia', serif",
-          fontWeight: 600,
-          fontSize: "40px",
-          lineHeight: "40px",
+          fontFamily: "'Roboto', sans-serif",
+          fontWeight: 500,
+          fontSize: nameFontSize,
+          lineHeight: nameLineHeight,
           color: "#1d2735",
           textAlign: "center",
           whiteSpace: "normal",
@@ -414,17 +413,20 @@ export function ObituaryTemplate({
           top: "733px",
           width: "205px",
           height: "90px",
+          transform: `translateY(${footerOffsetY}px)`,
         }}
       >
         {funeralHomeLogo && (
-          <div
+          <img
+            src={funeralHomeLogo}
+            alt=""
+            crossOrigin="anonymous"
             style={{
+              display: "block",
               width: "138px",
               height: "42px",
-              backgroundImage: `url(${funeralHomeLogo})`,
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "left bottom",
+              objectFit: "contain",
+              objectPosition: "left bottom",
             }}
           />
         )}
@@ -435,6 +437,7 @@ export function ObituaryTemplate({
             style={{
               marginTop: "-3px",
               marginLeft: `${11 + footerContactsOffsetX}px`,
+              transform: `translateY(${footerContactsOffsetY}px)`,
               width: "205px",
               fontWeight: 400,
               fontSize: "10px",
@@ -458,6 +461,7 @@ export function ObituaryTemplate({
           top: "750px",
           width: "175px",
           height: "64px",
+          transform: `translateY(${footerOffsetY}px)`,
         }}
       >
       <div
@@ -465,28 +469,28 @@ export function ObituaryTemplate({
           position: "absolute",
           left: 0,
           top: `${footerQrCodeOffsetY}px`,
-          width: "64px",
-          height: "64px",
+          width: "58px",
+          height: "58px",
         }}
       >
         {qrCodeImage ? (
-          <div
+          <img
+            src={qrCodeImage}
+            alt=""
             style={{
-              flex: "0 0 auto",
-              width: "64px",
-              height: "64px",
-              backgroundImage: `url(${qrCodeImage})`,
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
+              display: "block",
+              width: "58px",
+              height: "58px",
+              objectFit: "contain",
+              imageRendering: "pixelated",
             }}
           />
         ) : (
           <div
             style={{
               flex: "0 0 auto",
-              width: "64px",
-              height: "64px",
+              width: "58px",
+              height: "58px",
               border: "1px solid #d1d5db",
               display: "flex",
               alignItems: "center",
@@ -528,6 +532,7 @@ export function ObituaryTemplate({
             top: "515px",
             width: "250px",
             height: "300px",
+            transform: `translateY(${footerOffsetY}px)`,
           }}
         >
           <img

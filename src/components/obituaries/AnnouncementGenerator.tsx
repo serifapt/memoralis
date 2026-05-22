@@ -73,6 +73,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   const [includeFamilyMessage, setIncludeFamilyMessage] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | undefined>(undefined);
+  const [grayscalePhotoUrl, setGrayscalePhotoUrl] = useState<string | undefined>(undefined);
   const [pendingGeneration, setPendingGeneration] = useState<"pdf" | "story" | "post" | null>(null);
   const [missingFieldsList, setMissingFieldsList] = useState<string[]>([]);
   
@@ -123,6 +124,53 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
     }, 300);
     return () => clearTimeout(timer);
   }, [publicUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const photoUrl = obituaryData.photoUrl;
+    setGrayscalePhotoUrl(undefined);
+    if (!photoUrl) return;
+
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      if (cancelled) return;
+
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth || image.width;
+        canvas.height = image.naturalHeight || image.height;
+
+        const context = canvas.getContext("2d");
+        if (!context || canvas.width === 0 || canvas.height === 0) return;
+
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const pixels = imageData.data;
+
+        for (let i = 0; i < pixels.length; i += 4) {
+          const gray = Math.round(pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114);
+          pixels[i] = gray;
+          pixels[i + 1] = gray;
+          pixels[i + 2] = gray;
+        }
+
+        context.putImageData(imageData, 0, 0);
+        setGrayscalePhotoUrl(canvas.toDataURL("image/png"));
+      } catch (error) {
+        console.warn("Could not prepare grayscale photo for export:", error);
+        setGrayscalePhotoUrl(undefined);
+      }
+    };
+    image.onerror = () => {
+      if (!cancelled) setGrayscalePhotoUrl(undefined);
+    };
+    image.src = photoUrl;
+
+    return () => {
+      cancelled = true;
+    };
+  }, [obituaryData.photoUrl]);
 
 
   const formatDatePT = (dateStr: string) => {
@@ -192,6 +240,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       }
     }
     const deathLocation = obituaryData.deathLocation?.toUpperCase();
+    const templatePhoto = grayscalePhotoUrl || obituaryData.photoUrl;
     const announcementLabel =
       announcementType === "faleceu_local"
         ? `FALECEU EM ${deathLocation || "LOCAL"}`
@@ -207,7 +256,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       return (
         <ObituaryTemplate
           fullName={obituaryData.displayName}
-          photo={obituaryData.photoUrl}
+          photo={templatePhoto}
           age={calcAge}
           birthYear={birthYear}
           deathYear={deathYear}
@@ -264,8 +313,10 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           isExport={isExport}
           eventIconOffsetY={isExport ? 6 : 0}
           footerContactsOffsetX={isThumbnail ? 0 : 0}
-          footerCondolencesOffsetY={isExport ? -3 : 0}
-          footerQrCodeOffsetY={isExport ? 3 : 0}
+          footerContactsOffsetY={isExport ? -6 : 0}
+          footerCondolencesOffsetY={isExport ? -12 : 0}
+          footerQrCodeOffsetY={6}
+          footerOffsetY={27}
         />
       );
     }
@@ -278,7 +329,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
         <VariantObituaryTemplate
           variant={templateType}
           fullName={obituaryData.displayName}
-          photo={obituaryData.photoUrl}
+          photo={templatePhoto}
           age={calcAge}
           birthYear={birthYear}
           deathYear={deathYear}
@@ -335,8 +386,10 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
           isExport={isExport}
           eventIconOffsetY={isExport ? 6 : 0}
           footerContactsOffsetX={isThumbnail ? 0 : 0}
-          footerCondolencesOffsetY={isExport ? -3 : 0}
-          footerQrCodeOffsetY={isExport ? 3 : 0}
+          footerContactsOffsetY={isExport ? -6 : 0}
+          footerCondolencesOffsetY={isExport ? -12 : 0}
+          footerQrCodeOffsetY={6}
+          footerOffsetY={27}
         />
         <div className="hidden">
           <div>
@@ -484,9 +537,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, width, height);
 
-      const scale = format === "post"
-        ? Math.max(width / templateCanvas.width, height / templateCanvas.height)
-        : Math.min(width / templateCanvas.width, height / templateCanvas.height);
+      const scale = Math.min(width / templateCanvas.width, height / templateCanvas.height);
       const drawWidth = format === "story" ? width : templateCanvas.width * scale;
       const drawHeight = format === "story" ? height : templateCanvas.height * scale;
       const drawX = (width - drawWidth) / 2;
@@ -661,7 +712,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
       {/* Hidden QR code canvas for generating data URL */}
       {publicUrl && (
         <div ref={qrRef} style={{ position: "absolute", left: -9999, top: -9999 }}>
-          <QRCodeCanvas value={publicUrl} size={120} />
+          <QRCodeCanvas value={publicUrl} size={512} />
         </div>
       )}
 

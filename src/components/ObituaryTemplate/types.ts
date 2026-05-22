@@ -91,9 +91,15 @@ export interface ObituaryTemplateProps {
   /** Ajuste horizontal dos contactos no rodape. */
   footerContactsOffsetX?: number;
 
+  /** Ajuste vertical dos contactos no rodape. */
+  footerContactsOffsetY?: number;
+
   /** Ajuste vertical da mensagem ao lado do QR no rodape. */
   footerCondolencesOffsetY?: number;
 
   /** Ajuste vertical do QR code no rodape usado apenas em exportacao. */
   footerQrCodeOffsetY?: number;
+
+  /** Ajuste vertical comum de todos os elementos do rodape. */
+  footerOffsetY?: number;
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import type { ObituaryTemplateProps, EventDetails } from "./types";
 import { IconCalendar, IconClock, IconMapPin, LogoMemoralis } from "../shared/icons";
+import { getNameLayout } from "./name-layout";
 
 type Variant = "elegante" | "classico";
 
@@ -156,8 +157,10 @@ export function VariantObituaryTemplate({
   isExport = false,
   eventIconOffsetY = 0,
   footerContactsOffsetX = 0,
+  footerContactsOffsetY = 0,
   footerCondolencesOffsetY = 0,
   footerQrCodeOffsetY = 0,
+  footerOffsetY = 0,
 }: VariantObituaryTemplateProps) {
   const theme = THEMES[variant];
   const locationLine = [parish, municipality].filter(Boolean).join(" · ");
@@ -175,11 +178,7 @@ export function VariantObituaryTemplate({
   ].filter(Boolean) as Array<{ title: string; event: EventDetails | Pick<EventDetails, "location">; locationOnly?: boolean }>;
   const hasEventDetails = events.length > 0;
   const hasManyEvents = events.length > 3;
-  const ageBlockTop =
-    fullName.length > 42 ? "230px" :
-    fullName.length > 28 ? "210px" :
-    fullName.length > 22 ? "190px" :
-    "160px";
+  const { nameFontSize, nameLineHeight, ageBlockTop } = getNameLayout(fullName);
   const deathLabelFontSize = deathLabel.length > 34 ? "18px" : deathLabel.length > 26 ? "20px" : "22px";
   const deathLabelLineHeight = deathLabel.length > 34 ? "25px" : deathLabel.length > 26 ? "28px" : "30px";
   const familyTextLength = familyText.length;
@@ -242,11 +241,11 @@ export function VariantObituaryTemplate({
       <div
         style={{
           position: "absolute",
-          left: "40px",
-          top: "48px",
-          width: "220px",
+          left: "63.33px",
+          top: "40px",
+          width: "173.33px",
           height: "240px",
-          borderRadius: variant === "elegante" ? "999px 999px 12px 12px" : "8px",
+          borderRadius: "30px",
           overflow: "hidden",
           backgroundColor: variant === "elegante" ? "rgba(255,255,255,0.12)" : "#e5e7eb",
           border: `1px solid ${theme.border}`,
@@ -255,7 +254,7 @@ export function VariantObituaryTemplate({
                 backgroundImage: `url(${photo})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center 20%",
-                filter: variant === "classico" ? "grayscale(100%)" : undefined,
+                filter: "grayscale(100%)",
               }
             : {}),
         }}
@@ -263,7 +262,7 @@ export function VariantObituaryTemplate({
         {!photo && (
           <div
             style={{
-              width: "220px",
+              width: "173.33px",
               height: "240px",
               display: "flex",
               alignItems: "center",
@@ -289,10 +288,10 @@ export function VariantObituaryTemplate({
         <p
           style={{
             margin: 0,
-            fontFamily: theme.font,
-            fontWeight: 600,
-            fontSize: "40px",
-            lineHeight: "40px",
+            fontFamily: "'Roboto', sans-serif",
+            fontWeight: 500,
+            fontSize: nameFontSize,
+            lineHeight: nameLineHeight,
             color: theme.title,
             textAlign: "center",
             whiteSpace: "normal",
@@ -432,17 +431,20 @@ export function VariantObituaryTemplate({
           top: "733px",
           width: "205px",
           height: "90px",
+          transform: `translateY(${footerOffsetY}px)`,
         }}
       >
         {funeralHomeLogo && (
-          <div
+          <img
+            src={funeralHomeLogo}
+            alt=""
+            crossOrigin="anonymous"
             style={{
+              display: "block",
               width: "138px",
               height: "42px",
-              backgroundImage: `url(${funeralHomeLogo})`,
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "left bottom",
+              objectFit: "contain",
+              objectPosition: "left bottom",
               filter: variant === "elegante" ? "brightness(0) invert(1)" : undefined,
             }}
           />
@@ -453,6 +455,7 @@ export function VariantObituaryTemplate({
             style={{
               marginTop: "-3px",
               marginLeft: `${11 + footerContactsOffsetX}px`,
+              transform: `translateY(${footerContactsOffsetY}px)`,
               width: "205px",
               fontWeight: 400,
               fontSize: "10px",
@@ -468,25 +471,26 @@ export function VariantObituaryTemplate({
         )}
       </div>
 
-      <div style={{ position: "absolute", left: "232px", top: "750px", width: "175px", height: "64px" }}>
-        <div style={{ position: "absolute", left: 0, top: `${footerQrCodeOffsetY}px`, width: "64px", height: "64px" }}>
+      <div style={{ position: "absolute", left: "232px", top: "750px", width: "175px", height: "64px", transform: `translateY(${footerOffsetY}px)` }}>
+        <div style={{ position: "absolute", left: 0, top: `${footerQrCodeOffsetY}px`, width: "58px", height: "58px" }}>
         {qrCodeImage ? (
-          <div
+          <img
+            src={qrCodeImage}
+            alt=""
             style={{
-              width: "64px",
-              height: "64px",
-              backgroundImage: `url(${qrCodeImage})`,
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
+              display: "block",
+              width: "58px",
+              height: "58px",
+              objectFit: "contain",
+              imageRendering: "pixelated",
               backgroundColor: "#ffffff",
             }}
           />
         ) : (
           <div
             style={{
-              width: "64px",
-              height: "64px",
+              width: "58px",
+              height: "58px",
               border: `1px solid ${theme.border}`,
               display: "flex",
               alignItems: "center",
@@ -527,6 +531,7 @@ export function VariantObituaryTemplate({
             width: "250px",
             height: "300px",
             opacity: variant === "elegante" ? 0.62 : 1,
+            transform: `translateY(${footerOffsetY}px)`,
           }}
         >
           <img
