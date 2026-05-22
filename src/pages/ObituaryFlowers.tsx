@@ -233,8 +233,8 @@ export default function ObituaryFlowers() {
       </div>
 
       <div className="container mx-auto px-4 py-8 pb-32 lg:pb-8">
-        {/* Obituary Summary */}
-        <Card className="mb-8">
+        {/* Obituary Summary - full on mobile/tablet, hidden on desktop (moved to sidebar) */}
+        <Card className={`mb-8 ${step === "catalog" ? "lg:hidden" : ""}`}>
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-4">
               <img
@@ -293,7 +293,34 @@ export default function ObituaryFlowers() {
 
             {/* Desktop cart sidebar */}
             <aside className="hidden lg:block">
-              <Card className="sticky top-4">
+              <div className="sticky top-4 space-y-4">
+                {/* Compact obituary summary */}
+                <Card>
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={obituary.photo_url || obituaryPlaceholder}
+                        alt={obituary.display_name}
+                        className="w-12 h-14 object-cover rounded-md shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <h1 className="text-base font-archivo font-semibold text-foreground truncate">
+                          {obituary.display_name}
+                        </h1>
+                        <p className="text-xs text-muted-foreground">
+                          {getYear(obituary.birth_date)} - {getYear(obituary.death_date)}
+                        </p>
+                        {locationStr && (
+                          <div className="flex items-center gap-1 text-muted-foreground mt-0.5">
+                            <MapPin className="w-3 h-3 shrink-0" />
+                            <span className="text-xs truncate">{locationStr}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
                 <CardContent className="p-5 space-y-4">
                   <h3 className="font-archivo font-semibold flex items-center gap-2">
                     <ShoppingBag className="w-4 h-4 text-primary" />
