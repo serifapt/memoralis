@@ -28,9 +28,9 @@ type BlogArticle = {
 };
 
 const services = [
-  { icon: Heart, title: "Obituários", description: "Crie e partilhe homenagens digitais com elegância e dignidade.", href: "/obituarios" },
+  { icon: Heart, title: "Obituários", description: "Consulte homenagens digitais publicadas pelas funerárias parceiras, com elegância e dignidade.", href: "/obituarios" },
   { icon: Sparkles, title: "Memoralis Care", description: "Manutenção contínua de campas e jazigos com relatórios fotográficos.", href: "/care" },
-  { icon: Flower2, title: "Envio de Flores", description: "Encomende flores diretamente para a cerimónia através das funerárias parceiras.", href: "/obituarios" },
+  { icon: Flower2, title: "Envio de Flores", description: "Encomende flores para a cerimónia, através do obituário disponibilizado pela funerária.", href: "/obituarios" },
   { icon: Building2, title: "Diretório de Funerárias", description: "Encontre funerárias por localidade em todo o país.", href: "/funerarias" },
   { icon: Flower2, title: "Diretório de Floristas", description: "Em breve: floristas locais para acompanhar momentos de despedida.", href: "/floristas" },
   { icon: Church, title: "Missas por Paróquia", description: "Em breve: informação de missas em paróquias a nível nacional.", href: "/missas" },
