@@ -25,7 +25,7 @@ export const CareHeader = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/care" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="Memoralis" className="w-[165px] md:w-[220px]" />
             <span className="hidden sm:flex items-center gap-1 text-sm font-medium text-primary border-l border-border pl-2 ml-2">
               <Heart className="w-3.5 h-3.5" />
