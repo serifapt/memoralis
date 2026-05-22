@@ -288,7 +288,7 @@ export default function BlogPost() {
       {/* Footer */}
       <footer className="bg-[hsl(var(--footer-bg))] text-[hsl(var(--footer-foreground))] py-12 border-t">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
             <div>
               <div className="mb-4">
                 <img src={logo} alt="Memoralis" className="h-8 brightness-0 invert" />
@@ -305,6 +305,13 @@ export default function BlogPost() {
                 <li><Link to="/blog" className="opacity-80 hover:opacity-100">Blog</Link></li>
                 <li><Link to="/contactos" className="opacity-80 hover:opacity-100">Contactos</Link></li>
                 <li><Link to="/admin/auth" className="opacity-60 hover:opacity-80 text-xs">Admin</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-archivo font-semibold mb-4">Diretórios</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/obituarios" className="opacity-80 hover:opacity-100">Obituários</Link></li>
+                <li><Link to="/funerarias" className="opacity-80 hover:opacity-100">Funerárias</Link></li>
               </ul>
             </div>
             <div>
