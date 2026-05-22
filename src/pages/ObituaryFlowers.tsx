@@ -233,8 +233,8 @@ export default function ObituaryFlowers() {
       </div>
 
       <div className="container mx-auto px-4 py-8 pb-32 lg:pb-8">
-        {/* Obituary Summary - full on mobile/tablet, hidden on desktop (moved to sidebar) */}
-        <Card className={`mb-8 ${step === "catalog" ? "lg:hidden" : ""}`}>
+        {/* Obituary Summary */}
+        <Card className="mb-8">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-4">
               <img
@@ -294,29 +294,16 @@ export default function ObituaryFlowers() {
             {/* Desktop cart sidebar */}
             <aside className="hidden lg:block">
               <div className="sticky top-4 space-y-4">
-                {/* Compact obituary summary */}
-                <Card>
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={obituary.photo_url || obituaryPlaceholder}
-                        alt={obituary.display_name}
-                        className="w-12 h-14 object-cover rounded-md shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <h1 className="text-base font-archivo font-semibold text-foreground truncate">
-                          {obituary.display_name}
-                        </h1>
-                        <p className="text-xs text-muted-foreground">
-                          {getYear(obituary.birth_date)} - {getYear(obituary.death_date)}
-                        </p>
-                        {locationStr && (
-                          <div className="flex items-center gap-1 text-muted-foreground mt-0.5">
-                            <MapPin className="w-3 h-3 shrink-0" />
-                            <span className="text-xs truncate">{locationStr}</span>
-                          </div>
-                        )}
-                      </div>
+                {/* Service notice */}
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardContent className="p-4">
+                    <div className="flex gap-3">
+                      <Flower2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                      <p className="text-sm text-foreground leading-relaxed">
+                        Este serviço de envio de flores é realizado pela{" "}
+                        <span className="font-semibold">{funeraria.nome_comercial}</span>, funerária responsável pelo processo de{" "}
+                        <span className="font-semibold">{obituary.display_name}</span>.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
