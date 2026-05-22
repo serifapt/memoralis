@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, MapPin, Home, ChevronRight, Building } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,9 +29,12 @@ const TAG_OPTIONS = [
 ];
 
 export default function ObituaryArchive() {
+  const [searchParams] = useSearchParams();
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchName, setSearchName] = useState("");
+  const [searchName, setSearchName] = useState(searchParams.get("nome") || "");
+  const [localityText, setLocalityText] = useState(searchParams.get("localidade") || "");
+  const [funerariaText, setFunerariaText] = useState(searchParams.get("funeraria") || "");
   const [selectedLocality, setSelectedLocality] = useState<string>("all");
   const [selectedFreguesia, setSelectedFreguesia] = useState<string>("all");
   const [selectedDistrito, setSelectedDistrito] = useState<string>("all");
@@ -48,7 +51,7 @@ export default function ObituaryArchive() {
 
   useEffect(() => {
     loadObituaries(true);
-  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy]);
+  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy, localityText, funerariaText]);
 
   useEffect(() => {
     loadFilterOptions();
@@ -92,9 +95,13 @@ export default function ObituaryArchive() {
     }
 
     try {
+      const useFunerariaJoin = funerariaText.trim().length > 0;
+      const funerariaSelect = useFunerariaJoin
+        ? "funerarias!inner(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)"
+        : "funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)";
       let query = supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)", { count: "exact" })
+        .select(`id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, ${funerariaSelect}`, { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {
@@ -102,6 +109,9 @@ export default function ObituaryArchive() {
       }
       if (selectedLocality !== "all") {
         query = query.eq("locality", selectedLocality);
+      }
+      if (localityText.trim()) {
+        query = query.ilike("locality", `%${localityText.trim()}%`);
       }
       if (selectedFreguesia !== "all") {
         query = query.eq("freguesia", selectedFreguesia);
@@ -111,6 +121,9 @@ export default function ObituaryArchive() {
       }
       if (selectedFuneraria !== "all") {
         query = query.eq("funeraria_id", selectedFuneraria);
+      }
+      if (useFunerariaJoin) {
+        query = query.ilike("funerarias.nome_comercial", `%${funerariaText.trim()}%`);
       }
 
       if (sortBy === "recent") {

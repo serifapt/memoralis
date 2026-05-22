@@ -188,17 +188,17 @@ export default function Home() {
       <PublicHeader />
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section className="container mx-auto px-4 py-8 md:py-12">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <h1 className="text-4xl md:text-5xl font-archivo font-bold text-foreground mb-6">
+            <h1 className="text-3xl md:text-4xl font-archivo font-bold text-foreground mb-4">
               Homenagens que eternizam memórias e sentimentos.
             </h1>
-            <p className="text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-muted-foreground mb-6 leading-relaxed">
               Na Memoralis, acreditamos que cada vida merece ser celebrada e recordada com dignidade. 
               Oferecemos uma plataforma completa para criar homenagens inesquecíveis e perpetuar a memória de forma significativa e emotiva.
             </p>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <HeroSearchInput
@@ -246,7 +246,7 @@ export default function Home() {
             <img 
               src={heroImage} 
               alt="Memorial ceremony" 
-              className="rounded-lg shadow-lg w-full aspect-[4/5] object-cover"
+              className="rounded-lg shadow-lg w-full aspect-[4/3] md:aspect-[5/4] object-cover"
             />
           </div>
         </div>
