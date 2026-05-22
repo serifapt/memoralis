@@ -369,6 +369,7 @@ export default function ObituaryFlowers() {
                   )}
                 </CardContent>
               </Card>
+              </div>
             </aside>
           </div>
         ) : (
