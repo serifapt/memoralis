@@ -33,9 +33,11 @@ export default function ObituaryArchive() {
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState(searchParams.get("nome") || "");
-  const [localityText, setLocalityText] = useState(searchParams.get("localidade") || "");
-  const [funerariaText, setFunerariaText] = useState(searchParams.get("funeraria") || "");
-  const [selectedLocality, setSelectedLocality] = useState<string>("all");
+  const initialLocality = searchParams.get("localidade") || "";
+  const initialFuneraria = searchParams.get("funeraria") || "";
+  const [localityText, setLocalityText] = useState(initialLocality);
+  const [funerariaText, setFunerariaText] = useState(initialFuneraria);
+  const [selectedLocality, setSelectedLocality] = useState<string>(initialLocality || "all");
   const [selectedFreguesia, setSelectedFreguesia] = useState<string>("all");
   const [selectedDistrito, setSelectedDistrito] = useState<string>("all");
   const [selectedFuneraria, setSelectedFuneraria] = useState<string>("all");
@@ -66,7 +68,16 @@ export default function ObituaryArchive() {
     ]);
 
     if (locRes.data) {
-      setLocalities([...new Set(locRes.data.map(d => d.locality).filter(Boolean) as string[])].sort());
+      const locs = [...new Set(locRes.data.map(d => d.locality).filter(Boolean) as string[])].sort();
+      setLocalities(locs);
+      // If URL came with ?localidade=..., try to match an existing locality (case-insensitive)
+      if (initialLocality) {
+        const match = locs.find(l => l.toLowerCase() === initialLocality.toLowerCase());
+        if (match) {
+          setSelectedLocality(match);
+          setLocalityText("");
+        }
+      }
     }
     if (fregRes.data) {
       setFreguesias([...new Set(fregRes.data.map(d => d.freguesia).filter(Boolean) as string[])].sort());
@@ -81,7 +92,15 @@ export default function ObituaryArchive() {
           funerariaMap.set(d.funeraria_id, d.funerarias.nome_comercial);
         }
       });
-      setFunerariasList(Array.from(funerariaMap.entries()).map(([id, nome_comercial]) => ({ id, nome_comercial })).sort((a, b) => a.nome_comercial.localeCompare(b.nome_comercial)));
+      const list = Array.from(funerariaMap.entries()).map(([id, nome_comercial]) => ({ id, nome_comercial })).sort((a, b) => a.nome_comercial.localeCompare(b.nome_comercial));
+      setFunerariasList(list);
+      if (initialFuneraria) {
+        const match = list.find(f => f.nome_comercial.toLowerCase() === initialFuneraria.toLowerCase());
+        if (match) {
+          setSelectedFuneraria(match.id);
+          setFunerariaText("");
+        }
+      }
     }
   };
 
