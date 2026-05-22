@@ -34,8 +34,9 @@ const Sobre = () => {
           </h1>
           
           <p className="text-lg md:text-xl max-w-3xl mx-auto font-light leading-relaxed mb-8 animate-fade-in text-muted-foreground">
-            Transformamos a forma como honramos memórias, oferecendo dignidade e apoio 
-            às famílias nos momentos mais delicados da vida
+            Unimos tecnologia e sensibilidade para digitalizar o último adeus, 
+            oferecendo às funerárias uma plataforma completa e às famílias um espaço 
+            digno e permanente para honrar quem partiu.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
@@ -78,8 +79,9 @@ const Sobre = () => {
                   Um espaço digno para honrar quem partiu
                 </h2>
                 <p className="text-base text-muted-foreground leading-relaxed">
-                  Consulte obituários, conheça as cerimónias, partilhe condolências e mantenha viva
-                  a memória dos seus entes queridos — tudo num só lugar, acessível 24 horas por dia.
+                  Consulte obituários publicados pelas funerárias parceiras, conheça as cerimónias,
+                  partilhe condolências e mantenha viva a memória dos seus entes queridos — tudo num
+                  só lugar, acessível 24 horas por dia.
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6">
@@ -222,8 +224,8 @@ const Sobre = () => {
               </div>
               <h3 className="text-lg font-bold mb-2">Empatia</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                Compreendemos profundamente a dor da perda e oferecemos apoio com sensibilidade, 
-                respeito e humanidade em cada interação.
+                Compreendemos a delicadeza do momento e desenvolvemos cada funcionalidade 
+                com respeito, humanidade e a devida sensibilidade.
               </p>
             </Card>
             
@@ -361,7 +363,7 @@ const Sobre = () => {
       {/* Footer */}
       <footer className="bg-[hsl(var(--footer-bg))] text-[hsl(var(--footer-foreground))] py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
             <div>
               <div className="mb-4">
                 <img src={logo} alt="Memoralis" className="h-8 brightness-0 invert" />
@@ -378,6 +380,13 @@ const Sobre = () => {
                 <li><Link to="/blog" className="opacity-80 hover:opacity-100 transition-opacity">Blog</Link></li>
                 <li><Link to="/contactos" className="opacity-80 hover:opacity-100 transition-opacity">Contactos</Link></li>
                 <li><Link to="/admin/auth" className="opacity-60 hover:opacity-80 text-xs transition-opacity">Admin</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-archivo font-semibold mb-4">Diretórios</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/obituarios" className="opacity-80 hover:opacity-100">Obituários</Link></li>
+                <li><Link to="/funerarias" className="opacity-80 hover:opacity-100">Funerárias</Link></li>
               </ul>
             </div>
             <div>

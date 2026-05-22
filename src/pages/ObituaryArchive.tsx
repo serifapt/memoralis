@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, MapPin, Home, ChevronRight, Building } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,10 +29,15 @@ const TAG_OPTIONS = [
 ];
 
 export default function ObituaryArchive() {
+  const [searchParams] = useSearchParams();
   const [obituaries, setObituaries] = useState<PublicObituary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchName, setSearchName] = useState("");
-  const [selectedLocality, setSelectedLocality] = useState<string>("all");
+  const [searchName, setSearchName] = useState(searchParams.get("nome") || "");
+  const initialLocality = searchParams.get("localidade") || "";
+  const initialFuneraria = searchParams.get("funeraria") || "";
+  const [localityText, setLocalityText] = useState(initialLocality);
+  const [funerariaText, setFunerariaText] = useState(initialFuneraria);
+  const [selectedLocality, setSelectedLocality] = useState<string>(initialLocality || "all");
   const [selectedFreguesia, setSelectedFreguesia] = useState<string>("all");
   const [selectedDistrito, setSelectedDistrito] = useState<string>("all");
   const [selectedFuneraria, setSelectedFuneraria] = useState<string>("all");
@@ -48,7 +53,7 @@ export default function ObituaryArchive() {
 
   useEffect(() => {
     loadObituaries(true);
-  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy]);
+  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy, localityText, funerariaText]);
 
   useEffect(() => {
     loadFilterOptions();
@@ -63,7 +68,16 @@ export default function ObituaryArchive() {
     ]);
 
     if (locRes.data) {
-      setLocalities([...new Set(locRes.data.map(d => d.locality).filter(Boolean) as string[])].sort());
+      const locs = [...new Set(locRes.data.map(d => d.locality).filter(Boolean) as string[])].sort();
+      setLocalities(locs);
+      // If URL came with ?localidade=..., try to match an existing locality (case-insensitive)
+      if (initialLocality) {
+        const match = locs.find(l => l.toLowerCase() === initialLocality.toLowerCase());
+        if (match) {
+          setSelectedLocality(match);
+          setLocalityText("");
+        }
+      }
     }
     if (fregRes.data) {
       setFreguesias([...new Set(fregRes.data.map(d => d.freguesia).filter(Boolean) as string[])].sort());
@@ -78,7 +92,15 @@ export default function ObituaryArchive() {
           funerariaMap.set(d.funeraria_id, d.funerarias.nome_comercial);
         }
       });
-      setFunerariasList(Array.from(funerariaMap.entries()).map(([id, nome_comercial]) => ({ id, nome_comercial })).sort((a, b) => a.nome_comercial.localeCompare(b.nome_comercial)));
+      const list = Array.from(funerariaMap.entries()).map(([id, nome_comercial]) => ({ id, nome_comercial })).sort((a, b) => a.nome_comercial.localeCompare(b.nome_comercial));
+      setFunerariasList(list);
+      if (initialFuneraria) {
+        const match = list.find(f => f.nome_comercial.toLowerCase() === initialFuneraria.toLowerCase());
+        if (match) {
+          setSelectedFuneraria(match.id);
+          setFunerariaText("");
+        }
+      }
     }
   };
 
@@ -92,9 +114,13 @@ export default function ObituaryArchive() {
     }
 
     try {
+      const useFunerariaJoin = funerariaText.trim().length > 0;
+      const funerariaSelect = useFunerariaJoin
+        ? "funerarias!inner(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)"
+        : "funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)";
       let query = supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)", { count: "exact" })
+        .select(`id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, ${funerariaSelect}`, { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {
@@ -102,6 +128,9 @@ export default function ObituaryArchive() {
       }
       if (selectedLocality !== "all") {
         query = query.eq("locality", selectedLocality);
+      }
+      if (localityText.trim()) {
+        query = query.ilike("locality", `%${localityText.trim()}%`);
       }
       if (selectedFreguesia !== "all") {
         query = query.eq("freguesia", selectedFreguesia);
@@ -111,6 +140,9 @@ export default function ObituaryArchive() {
       }
       if (selectedFuneraria !== "all") {
         query = query.eq("funeraria_id", selectedFuneraria);
+      }
+      if (useFunerariaJoin) {
+        query = query.ilike("funerarias.nome_comercial", `%${funerariaText.trim()}%`);
       }
 
       if (sortBy === "recent") {
@@ -343,7 +375,7 @@ export default function ObituaryArchive() {
       {/* Footer */}
       <footer className="bg-[hsl(var(--footer-bg))] text-[hsl(var(--footer-foreground))] py-12 mt-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
             <div>
               <div className="mb-4">
                 <img src={logo} alt="Memoralis" className="h-8 brightness-0 invert" />
@@ -357,6 +389,13 @@ export default function ObituaryArchive() {
                 <li><Link to="/sobre" className="opacity-80 hover:opacity-100">Sobre</Link></li>
                 <li><Link to="/blog" className="opacity-80 hover:opacity-100">Blog</Link></li>
                 <li><Link to="/contactos" className="opacity-80 hover:opacity-100">Contactos</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-archivo font-semibold mb-4">Diretórios</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/obituarios" className="opacity-80 hover:opacity-100">Obituários</Link></li>
+                <li><Link to="/funerarias" className="opacity-80 hover:opacity-100">Funerárias</Link></li>
               </ul>
             </div>
             <div>
