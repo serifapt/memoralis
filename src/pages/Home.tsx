@@ -189,7 +189,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-8 md:py-12">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div>
             <h1 className="text-3xl md:text-4xl font-archivo font-bold text-foreground mb-4">
               Homenagens que eternizam memórias e sentimentos.
