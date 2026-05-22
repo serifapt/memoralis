@@ -95,9 +95,13 @@ export default function ObituaryArchive() {
     }
 
     try {
+      const useFunerariaJoin = funerariaText.trim().length > 0;
+      const funerariaSelect = useFunerariaJoin
+        ? "funerarias!inner(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)"
+        : "funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)";
       let query = supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)", { count: "exact" })
+        .select(`id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, ${funerariaSelect}`, { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {
@@ -105,6 +109,9 @@ export default function ObituaryArchive() {
       }
       if (selectedLocality !== "all") {
         query = query.eq("locality", selectedLocality);
+      }
+      if (localityText.trim()) {
+        query = query.ilike("locality", `%${localityText.trim()}%`);
       }
       if (selectedFreguesia !== "all") {
         query = query.eq("freguesia", selectedFreguesia);
@@ -114,6 +121,9 @@ export default function ObituaryArchive() {
       }
       if (selectedFuneraria !== "all") {
         query = query.eq("funeraria_id", selectedFuneraria);
+      }
+      if (useFunerariaJoin) {
+        query = query.ilike("funerarias.nome_comercial", `%${funerariaText.trim()}%`);
       }
 
       if (sortBy === "recent") {
