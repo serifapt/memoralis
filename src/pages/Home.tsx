@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Calendar, Heart, Star, Flower2, Sparkles, Building2, Church, FileText } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star, Flower2, Sparkles, Building2, Church, FileText, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { HeroSearchInput, type SearchResult } from "@/components/search/HeroSearchInput";
 import logo from "@/assets/logo-memoralis.svg";
