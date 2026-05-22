@@ -15,8 +15,6 @@ const NAV_LINKS = [
   { to: "/", label: "Início" },
   { to: "/obituario", label: "Obituário" },
   { to: "/funerarias", label: "Funerárias" },
-  { to: "/floristas", label: "Floristas" },
-  { to: "/missas", label: "Missas" },
   { to: "/sobre", label: "Sobre" },
   { to: "/blog", label: "Blog" },
   { to: "/contactos", label: "Contactos" },

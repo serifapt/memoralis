@@ -39,8 +39,6 @@ import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import FlowerCatalog from "./pages/FlowerCatalog";
 import FlowerOrders from "./pages/FlowerOrders";
-import Floristas from "./pages/Floristas";
-import Missas from "./pages/Missas";
 import AdminBlog from "./pages/AdminBlog";
 import AdminBlogEdit from "./pages/AdminBlogEdit";
 import BudgetQuotes from "./pages/BudgetQuotes";
@@ -84,8 +82,6 @@ const App = () => (
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/contactos" element={<Contactos />} />
-          <Route path="/floristas" element={<Floristas />} />
-          <Route path="/missas" element={<Missas />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
