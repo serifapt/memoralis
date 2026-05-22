@@ -1,27 +1,26 @@
-## Objetivo
+## Mudança de layout em `src/pages/ObituaryFlowers.tsx`
 
-Aproveitar melhor o espaço no desktop da página `/obituario/:id/flores`, reduzindo o card grande do falecido (atualmente em full-width acima do catálogo) e colocando uma versão compacta dentro da coluna direita, por cima do "O seu pedido".
+Atualmente o card do obituário ocupa a largura total do contentor (acima do grid catálogo+sidebar) e o aviso de serviço da funerária está dentro da sidebar (sticky com o carrinho).
 
-## Comportamento
-
-**Mobile / Tablet (`<lg`)**
-- Mantém o card atual em full-width no topo (como está hoje). É importante em mobile porque o carrinho fica numa barra fixa em baixo e o utilizador precisa de ver claramente de quem é o obituário.
+### Novo comportamento
 
 **Desktop (`lg+`)**
-- Esconde o card grande do topo.
-- Na coluna direita (sidebar 400px), antes do card "O seu pedido", aparece um mini-card compacto com:
-  - Foto pequena (ex.: 48×56px, cantos arredondados)
-  - Nome do falecido (texto mais pequeno, `text-base` font-archivo semibold)
-  - Anos (`1938 - 2026`) em `text-xs text-muted-foreground`
-  - Localidade opcional, uma linha só, com ícone pequeno
-- O conjunto fica `sticky top-4` junto com o carrinho, para acompanhar o scroll.
-- O espaço libertado em cima permite que o catálogo comece mais alto e mostre mais produtos sem scroll.
+- O card do obituário sai do topo full-width e passa a ficar **dentro da coluna do catálogo**, ocupando apenas a largura dessa coluna.
+- O card de aviso da funerária mantém-se na **coluna da direita (sidebar), na mesma linha** do card do obituário, por cima do "O seu pedido".
+- Resultado visual: numa linha ficam lado a lado o card do falecido (esquerda, largura do catálogo) e o aviso (direita, largura da sidebar). Por baixo, o catálogo de produtos à esquerda e o carrinho à direita.
 
-## Onde mexer
+**Mobile / Tablet (`<lg`)**
+- O grid colapsa para uma coluna.
+- Ordem: card do obituário → card de aviso da funerária → catálogo → (carrinho fixo em baixo, como hoje).
+- Ou seja, o aviso aparece logo abaixo do card do obituário, antes do catálogo.
 
-Apenas em `src/pages/ObituaryFlowers.tsx`:
-1. Envolver o `<Card>` atual do resumo (linhas 237-259) numa div com `className="lg:hidden"`.
-2. Adicionar um novo mini-card dentro do `<aside className="hidden lg:block">` (linha 295), acima do card "O seu pedido", também `sticky top-4` (ou agrupar ambos num contentor sticky com `space-y-4`).
-3. Aplica-se apenas ao `step === "catalog"`. No step de checkout o layout não muda.
+### Implementação
 
-Sem alterações de dados, queries ou lógica — só apresentação.
+Apenas em `src/pages/ObituaryFlowers.tsx`, dentro do bloco `step === "catalog"`:
+
+1. Remover o `<Card>` full-width do resumo do obituário que está antes do grid.
+2. Dentro da coluna esquerda do grid (`<div>` do catálogo), adicionar o card do obituário como primeiro elemento, antes do título "Catálogo de Flores".
+3. Na sidebar (`<aside>`), o aviso da funerária já existe e fica como está — primeiro item, antes do carrinho. Assim ele alinha visualmente na mesma linha do card do obituário à esquerda.
+4. Não mexer no step de checkout (mantém o card do obituário no topo full-width como hoje, já que esse passo não tem grid).
+
+Sem alterações de dados, queries ou lógica — apenas reposicionamento de elementos.
