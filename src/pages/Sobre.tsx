@@ -78,8 +78,9 @@ const Sobre = () => {
                   Um espaço digno para honrar quem partiu
                 </h2>
                 <p className="text-base text-muted-foreground leading-relaxed">
-                  Consulte obituários, conheça as cerimónias, partilhe condolências e mantenha viva
-                  a memória dos seus entes queridos — tudo num só lugar, acessível 24 horas por dia.
+                  Consulte obituários publicados pelas funerárias parceiras, conheça as cerimónias,
+                  partilhe condolências e mantenha viva a memória dos seus entes queridos — tudo num
+                  só lugar, acessível 24 horas por dia.
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6">
