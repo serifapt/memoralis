@@ -74,8 +74,11 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/obituario" element={<ObituaryArchive />} />
+          <Route path="/obituarios" element={<ObituaryArchive />} />
           <Route path="/obituario/:id" element={<ObituaryDetail />} />
+          <Route path="/obituarios/:id" element={<ObituaryDetail />} />
           <Route path="/obituario/:id/flores" element={<ObituaryFlowers />} />
+          <Route path="/obituarios/:id/flores" element={<ObituaryFlowers />} />
           <Route path="/funerarias" element={<FunerariaArchive />} />
           <Route path="/funerarias/:id" element={<FunerariaDetail />} />
           <Route path="/blog" element={<Blog />} />
