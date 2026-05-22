@@ -284,7 +284,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Add Memory Section */}
+      {/* Add Memory Section - hidden for now */}
+      {false && (
       <section className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -353,9 +354,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
-      {/* Featured Funeral Home Section */}
-      {featured && (
+      {/* Featured Funeral Home Section - hidden for now */}
+      {false && featured && (
       <section className="bg-primary py-16">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
