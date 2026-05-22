@@ -35,6 +35,8 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Sobre from "./pages/Sobre";
 import Contactos from "./pages/Contactos";
+import Privacidade from "./pages/Privacidade";
+import Termos from "./pages/Termos";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import FlowerCatalog from "./pages/FlowerCatalog";
@@ -85,6 +87,8 @@ const App = () => (
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/contactos" element={<Contactos />} />
+          <Route path="/privacidade" element={<Privacidade />} />
+          <Route path="/termos" element={<Termos />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
