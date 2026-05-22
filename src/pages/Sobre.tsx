@@ -34,8 +34,9 @@ const Sobre = () => {
           </h1>
           
           <p className="text-lg md:text-xl max-w-3xl mx-auto font-light leading-relaxed mb-8 animate-fade-in text-muted-foreground">
-            Transformamos a forma como honramos memórias, oferecendo dignidade e apoio 
-            às famílias nos momentos mais delicados da vida
+            Unimos tecnologia e sensibilidade para digitalizar o último adeus, 
+            oferecendo às funerárias uma plataforma completa e às famílias um espaço 
+            digno e permanente para honrar quem partiu.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
@@ -223,8 +224,8 @@ const Sobre = () => {
               </div>
               <h3 className="text-lg font-bold mb-2">Empatia</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                Compreendemos profundamente a dor da perda e oferecemos apoio com sensibilidade, 
-                respeito e humanidade em cada interação.
+                Compreendemos a delicadeza do momento e desenvolvemos cada funcionalidade 
+                com respeito, humanidade e a devida sensibilidade.
               </p>
             </Card>
             
