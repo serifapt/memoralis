@@ -23,8 +23,9 @@ import {
   commemorativeDateTypes,
 } from "@/lib/care-status";
 import { CARE_PLANS } from "@/lib/care-plans";
+import { useCemeteriesCascade } from "@/hooks/useCemeteriesCascade";
+import { CareInterestDialog } from "@/components/care/CareInterestDialog";
 
-type Cemetery = { id: string; nome: string; municipio: string; morada: string | null };
 type Plan = { id: string; code: string; name: string; description: string | null; includes_json: unknown };
 type CommemorativeDate = { type: string; date?: string; note?: string; label?: string };
 
@@ -45,11 +46,13 @@ export default function CareSignup() {
   const [authChecked, setAuthChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const [cemeteries, setCemeteries] = useState<Cemetery[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const { localities, parishesFor, cemeteriesFor } = useCemeteriesCascade({ activeOnly: true });
 
   // form state
   const [personal, setPersonal] = useState({ name: "", email: "", phone: "", nif: "" });
+  const [locality, setLocality] = useState<string>("");
+  const [parish, setParish] = useState<string>("");
   const [grave, setGrave] = useState({
     cemetery_id: "" as string | "",
     cemetery_name: "",
@@ -87,11 +90,12 @@ export default function CareSignup() {
   useEffect(() => {
     if (!authChecked) return;
     (async () => {
-      const [{ data: cems }, { data: pls }] = await Promise.all([
-        supabase.from("cemeteries").select("id,nome,municipio,morada").eq("ativo", true).order("nome"),
-        supabase.from("care_plans").select("id,code,name,description,includes_json").eq("active", true).neq("code", "HOMENAGEM").order("display_order"),
-      ]);
-      setCemeteries(cems ?? []);
+      const { data: pls } = await supabase
+        .from("care_plans")
+        .select("id,code,name,description,includes_json")
+        .eq("active", true)
+        .neq("code", "HOMENAGEM")
+        .order("display_order");
       setPlans(pls ?? []);
     })();
   }, [authChecked]);
@@ -112,25 +116,32 @@ export default function CareSignup() {
 
   const canNext = () => {
     if (step === 1) return personal.name.trim().length > 1 && /\S+@\S+\.\S+/.test(personal.email);
-    if (step === 2) return grave.cemetery_name.trim().length > 1;
+    if (step === 2) return !!grave.cemetery_id;
     if (step === 3) return !!selectedPlan && datesValid;
     return true;
   };
 
-  const handleCemeterySelect = (id: string) => {
-    if (id === "__manual") {
-      setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
-      return;
-    }
-    const c = cemeteries.find((x) => x.id === id);
-    if (c) {
-      setGrave((g) => ({
-        ...g,
-        cemetery_id: c.id,
-        cemetery_name: `${c.nome} — ${c.municipio}`,
-        cemetery_address: c.morada ?? "",
-      }));
-    }
+  const parishes = locality ? parishesFor(locality) : [];
+  const filteredCemeteries = locality ? cemeteriesFor(locality, parish) : [];
+
+  const handleLocalityChange = (v: string) => {
+    setLocality(v);
+    setParish("");
+    setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
+  };
+  const handleParishChange = (v: string) => {
+    setParish(v === "__all" ? "" : v);
+    setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
+  };
+  const handleCemeteryChange = (id: string) => {
+    const c = filteredCemeteries.find((x) => x.id === id);
+    if (!c) return;
+    setGrave((g) => ({
+      ...g,
+      cemetery_id: c.id,
+      cemetery_name: `${c.nome}${c.freguesia ? ` — ${c.freguesia}` : ""}, ${c.municipio}`,
+      cemetery_address: c.morada ?? "",
+    }));
   };
 
   const addDate = () =>
