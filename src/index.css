@@ -134,3 +134,13 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Leaflet z-index fix: keep map layers below shadcn Dialog/Popover overlays (z-50) */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1 !important;
+}
+.leaflet-container {
+  z-index: 0;
+}
