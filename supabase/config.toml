@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.handle-email-suppression]
 verify_jwt = false
+
+[functions.care-signup]
+verify_jwt = false

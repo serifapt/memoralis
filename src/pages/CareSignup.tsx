@@ -52,7 +52,6 @@ export default function CareSignup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [authChecked, setAuthChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
@@ -85,26 +84,22 @@ export default function CareSignup() {
   const graveRef = useRef<HTMLDivElement>(null);
   const planRef = useRef<HTMLDivElement>(null);
 
-  // auth gate – require logged-in customer
+  // Pre-fill from existing session if available (optional — no auth required)
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        navigate("/care/auth?redirect=/care/aderir");
-      } else {
-        const u = data.session.user;
+      const u = data.session?.user;
+      if (u) {
         setPersonal((p) => ({
           ...p,
-          email: u.email ?? "",
-          name: (u.user_metadata?.name as string) ?? p.name,
+          email: p.email || u.email || "",
+          name: p.name || ((u.user_metadata?.name as string) ?? ""),
         }));
-        setAuthChecked(true);
       }
     });
-  }, [navigate]);
+  }, []);
 
-  // load data
+  // load plans
   useEffect(() => {
-    if (!authChecked) return;
     (async () => {
       const { data: pls } = await supabase
         .from("care_plans")
@@ -113,7 +108,7 @@ export default function CareSignup() {
         .order("display_order");
       setPlans(pls ?? []);
     })();
-  }, [authChecked]);
+  }, []);
 
   const selectedPlan = useMemo(
     () => plans.find((p) => p.code === planCode) ?? plans[0],
@@ -205,36 +200,24 @@ export default function CareSignup() {
             care_plan_id: selectedPlan!.id,
             billing_period: billingPeriod,
            commemorative_dates: dates,
-           family_message: "",
           },
         },
       });
       if (error) throw error;
-      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
-
-      toast({
-        title: "Pedido enviado",
-        description: "Recebemos o seu pedido. Vamos contactá-lo em breve.",
-      });
-      navigate("/account/care");
+      const res = data as { error?: string; checkout_url?: string };
+      if (res?.error) throw new Error(res.error);
+      if (!res?.checkout_url) throw new Error("Não foi possível iniciar o pagamento");
+      // Redirect to Stripe Checkout
+      window.location.href = res.checkout_url;
     } catch (e) {
       toast({
         title: "Não foi possível enviar",
         description: e instanceof Error ? e.message : "Tente novamente",
         variant: "destructive",
       });
-    } finally {
       setSubmitting(false);
     }
   };
-
-  if (!authChecked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -642,7 +625,7 @@ export default function CareSignup() {
               </Section>
 
               <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-                Ao confirmar, a sua subscrição é registada de imediato. A equipa Memoralis irá rever os dados e contactá-lo a seguir para activar o serviço.
+                Ao continuar, será encaminhado para o pagamento seguro Stripe. Criamos a sua conta automaticamente e enviamos um email para definir a sua palavra-passe — assim poderá acompanhar visitas, fotos e faturas no seu painel.
               </div>
             </div>
 
@@ -658,7 +641,7 @@ export default function CareSignup() {
                 ) : (
                   <Check className="w-4 h-4 mr-2" />
                 )}
-                Enviar pedido
+                Continuar para pagamento
               </Button>
             </div>
         </Card>
