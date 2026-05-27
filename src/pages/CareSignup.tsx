@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CareSiteHeader } from "@/components/care/CareSiteHeader";
@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Info, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, Info, Loader2, MapPin, Plus, Trash2 } from "lucide-react";
 import {
   carePlanPriceByCode,
   commemorativeDateTypes,
@@ -31,20 +30,13 @@ type CommemorativeDate = { type: string; date?: string; note?: string; label?: s
 
 const MAX_DATES = 3;
 
-const steps = [
-  { n: 1, label: "Os seus dados" },
-  { n: 2, label: "A campa" },
-  { n: 3, label: "O plano" },
-  { n: 4, label: "Confirmar" },
-];
-
 export default function CareSignup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
   const [authChecked, setAuthChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const [plans, setPlans] = useState<Plan[]>([]);
   const { localities, parishesFor, cemeteriesFor } = useCemeteriesCascade({ activeOnly: true });
@@ -57,6 +49,10 @@ export default function CareSignup() {
     cemetery_id: "" as string | "",
     cemetery_name: "",
     cemetery_address: "",
+    cemetery_municipio: "",
+    cemetery_freguesia: "",
+    cemetery_lat: null as number | null,
+    cemetery_lng: null as number | null,
     grave_number: "",
     section: "",
     names_on_grave: "",
@@ -68,6 +64,10 @@ export default function CareSignup() {
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [dates, setDates] = useState<CommemorativeDate[]>([]);
   const [familyMessage, setFamilyMessage] = useState("");
+
+  const personalRef = useRef<HTMLDivElement>(null);
+  const graveRef = useRef<HTMLDivElement>(null);
+  const planRef = useRef<HTMLDivElement>(null);
 
   // auth gate – require logged-in customer
   useEffect(() => {
@@ -114,12 +114,14 @@ export default function CareSignup() {
     return def?.hasDate ? (d.date ?? "").length > 0 : true;
   });
 
-  const canNext = () => {
-    if (step === 1) return personal.name.trim().length > 1 && /\S+@\S+\.\S+/.test(personal.email);
-    if (step === 2) return !!grave.cemetery_id;
-    if (step === 3) return !!selectedPlan && datesValid;
-    return true;
+  const errors = {
+    name: personal.name.trim().length < 2 ? "Indique o seu nome" : "",
+    email: !/\S+@\S+\.\S+/.test(personal.email) ? "Email inválido" : "",
+    cemetery: !grave.cemetery_id ? "Escolha o cemitério" : "",
+    plan: !selectedPlan ? "Escolha um plano" : "",
+    dates: !datesValid ? "Complete as datas comemorativas" : "",
   };
+  const isValid = !Object.values(errors).some(Boolean);
 
   const parishes = locality ? parishesFor(locality) : [];
   const filteredCemeteries = locality ? cemeteriesFor(locality, parish) : [];
@@ -141,6 +143,10 @@ export default function CareSignup() {
       cemetery_id: c.id,
       cemetery_name: `${c.nome}${c.freguesia ? ` — ${c.freguesia}` : ""}, ${c.municipio}`,
       cemetery_address: c.morada ?? "",
+      cemetery_municipio: c.municipio ?? "",
+      cemetery_freguesia: c.freguesia ?? "",
+      cemetery_lat: c.lat ?? null,
+      cemetery_lng: c.lng ?? null,
     }));
   };
 
@@ -155,6 +161,16 @@ export default function CareSignup() {
     setDates((d) => d.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
 
   const submit = async () => {
+    setAttemptedSubmit(true);
+    if (!isValid) {
+      const target = errors.name || errors.email
+        ? personalRef.current
+        : errors.cemetery
+        ? graveRef.current
+        : planRef.current;
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     setSubmitting(true);
     try {
       const { data, error } = await supabase.functions.invoke("care-signup", {
@@ -209,22 +225,27 @@ export default function CareSignup() {
       <CareSiteHeader />
 
       <main className="container mx-auto px-4 py-10 max-w-3xl">
-        {/* progress */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-3 text-sm text-muted-foreground">
-            <span>
-              Passo {step} de {steps.length}
-            </span>
-            <span className="font-medium text-foreground">{steps[step - 1].label}</span>
-          </div>
-          <Progress value={(step / steps.length) * 100} className="h-2" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/care")}
+            className="-ml-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+          </Button>
+          <h1 className="text-3xl font-semibold mt-3">Adesão ao serviço Care</h1>
+          <p className="text-muted-foreground mt-2">
+            Preencha tudo nesta página e envie o pedido. Pode rever o resumo no final antes de confirmar.
+          </p>
         </div>
 
-        <Card className="p-6 sm:p-10 text-[16px] leading-relaxed">
-          {step === 1 && (
-            <div className="space-y-6">
+        <Card className="p-6 sm:p-10 text-[16px] leading-relaxed space-y-12">
+            {/* 1. Personal */}
+            <div ref={personalRef} className="space-y-6 scroll-mt-24">
               <div>
-                <h2 className="text-2xl font-semibold mb-2">Comecemos por si</h2>
+                <h2 className="text-2xl font-semibold mb-2">1. Os seus dados</h2>
                 <p className="text-muted-foreground">
                   Precisamos destes dados para o contactar e enviar atualizações sobre a campa.
                 </p>
@@ -234,11 +255,17 @@ export default function CareSignup() {
                   <Label htmlFor="name" className="text-base">Nome completo</Label>
                   <Input id="name" className="h-12 text-base" value={personal.name}
                     onChange={(e) => setPersonal({ ...personal, name: e.target.value })} />
+                  {attemptedSubmit && errors.name && (
+                    <p className="text-sm text-destructive">{errors.name}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-base">Email</Label>
                   <Input id="email" type="email" className="h-12 text-base" value={personal.email}
                     onChange={(e) => setPersonal({ ...personal, email: e.target.value })} />
+                  {attemptedSubmit && errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-base">Telefone</Label>
@@ -252,12 +279,11 @@ export default function CareSignup() {
                 </div>
               </div>
             </div>
-          )}
 
-          {step === 2 && (
-            <div className="space-y-6">
+            {/* 2. Grave */}
+            <div ref={graveRef} className="space-y-6 scroll-mt-24 border-t border-border pt-10">
               <div>
-                <h2 className="text-2xl font-semibold mb-2">Onde fica a campa?</h2>
+                <h2 className="text-2xl font-semibold mb-2">2. Onde fica a campa?</h2>
                 <p className="text-muted-foreground">
                   Indique-nos o cemitério e, se souber, o número e secção da campa.
                 </p>
@@ -321,6 +347,40 @@ export default function CareSignup() {
                       />
                     </div>
                   )}
+                  {attemptedSubmit && errors.cemetery && (
+                    <p className="text-sm text-destructive">{errors.cemetery}</p>
+                  )}
+                </div>
+              )}
+
+              {grave.cemetery_id && (
+                <div className="rounded-lg border border-border bg-muted/40 p-4 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 mt-1 text-primary shrink-0" />
+                    <div className="flex-1 text-sm">
+                      <div className="font-medium text-foreground">{grave.cemetery_name}</div>
+                      {grave.cemetery_address && (
+                        <div className="text-muted-foreground">{grave.cemetery_address}</div>
+                      )}
+                      {(grave.cemetery_municipio || grave.cemetery_freguesia) && (
+                        <div className="text-muted-foreground">
+                          {[grave.cemetery_freguesia, grave.cemetery_municipio]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {grave.cemetery_lat != null && grave.cemetery_lng != null && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${grave.cemetery_lat},${grave.cemetery_lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                    >
+                      Ver no Google Maps <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
                 </div>
               )}
 
@@ -351,12 +411,11 @@ export default function CareSignup() {
                   onChange={(e) => setGrave({ ...grave, notes: e.target.value })} />
               </div>
             </div>
-          )}
 
-          {step === 3 && (
-            <div className="space-y-6">
+            {/* 3. Plan */}
+            <div ref={planRef} className="space-y-6 scroll-mt-24 border-t border-border pt-10">
               <div>
-                <h2 className="text-2xl font-semibold mb-2">Escolha o plano</h2>
+                <h2 className="text-2xl font-semibold mb-2">3. Escolha o plano</h2>
                 <p className="text-muted-foreground">
                   Pode mudar o plano mais tarde a qualquer momento.
                 </p>
@@ -495,14 +554,13 @@ export default function CareSignup() {
                 />
               </div>
             </div>
-          )}
 
-          {step === 4 && (
-            <div className="space-y-6">
+            {/* 4. Confirm */}
+            <div className="space-y-6 border-t border-border pt-10">
               <div>
-                <h2 className="text-2xl font-semibold mb-2">Confirme o seu pedido</h2>
+                <h2 className="text-2xl font-semibold mb-2">4. Resumo do pedido</h2>
                 <p className="text-muted-foreground">
-                  Reveja os dados. Pode voltar atrás para corrigir.
+                  Reveja os dados antes de confirmar.
                 </p>
               </div>
 
@@ -514,7 +572,7 @@ export default function CareSignup() {
               </Section>
 
               <Section title="A campa">
-                <SummaryRow label="Cemitério" value={grave.cemetery_name} />
+                <SummaryRow label="Cemitério" value={grave.cemetery_name || "—"} />
                 {grave.grave_number && <SummaryRow label="Número" value={grave.grave_number} />}
                 {grave.section && <SummaryRow label="Secção" value={grave.section} />}
                 {grave.names_on_grave && <SummaryRow label="Nomes na campa" value={grave.names_on_grave} />}
@@ -551,40 +609,22 @@ export default function CareSignup() {
                 Ao confirmar, a sua subscrição é registada de imediato. A equipa Memoralis irá rever os dados e contactá-lo a seguir para activar o serviço.
               </div>
             </div>
-          )}
 
-          {/* nav buttons */}
-          <div className="mt-10 flex items-center justify-between gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={() => (step === 1 ? navigate("/care") : setStep(step - 1))}
-              disabled={submitting}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
-            </Button>
-            {step < 4 ? (
-              <Button
-                type="button"
-                size="lg"
-                onClick={() => setStep(step + 1)}
-                disabled={!canNext()}
-                className="px-8"
-              >
-                Continuar <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
+            <div className="border-t border-border pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
+              {attemptedSubmit && !isValid && (
+                <p className="text-sm text-destructive flex-1">
+                  Por favor complete os campos em falta acima.
+                </p>
+              )}
               <Button type="button" size="lg" onClick={submit} disabled={submitting} className="px-8">
                 {submitting ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
                   <Check className="w-4 h-4 mr-2" />
                 )}
-                Confirmar pedido
+                Enviar pedido
               </Button>
-            )}
-          </div>
+            </div>
         </Card>
       </main>
     </div>
