@@ -25,11 +25,14 @@ type Form = {
   read_time: string;
   status: "draft" | "published";
   is_featured: boolean;
+  meta_title: string;
+  meta_description: string;
 };
 
 const empty: Form = {
   title: "", slug: "", excerpt: "", content: "", category: "", author: "",
   cover_image_url: "", read_time: "", status: "draft", is_featured: false,
+  meta_title: "", meta_description: "",
 };
 
 export default function AdminBlogEdit() {
@@ -65,6 +68,8 @@ export default function AdminBlogEdit() {
         read_time: data.read_time || "",
         status: (data.status as "draft" | "published") || "draft",
         is_featured: !!data.is_featured,
+        meta_title: (data as any).meta_title || "",
+        meta_description: (data as any).meta_description || "",
       });
       setLoading(false);
     })();
@@ -106,6 +111,8 @@ export default function AdminBlogEdit() {
       read_time: form.read_time || null,
       status: finalStatus,
       is_featured: form.is_featured,
+      meta_title: form.meta_title.trim() || null,
+      meta_description: form.meta_description.trim() || null,
       published_at: finalStatus === "published"
         ? (isEditing && form.status === "published" ? undefined : new Date().toISOString())
         : null,
