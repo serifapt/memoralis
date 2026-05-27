@@ -403,9 +403,12 @@ export type Database = {
       }
       care_subscriptions: {
         Row: {
+          activated_at: string | null
+          activated_by: string | null
           billing_period: string
           cancel_at_period_end: boolean | null
           care_plan_id: string
+          commemorative_dates: Json
           created_at: string
           current_period_end: string | null
           customer_id: string
@@ -417,9 +420,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
           billing_period: string
           cancel_at_period_end?: boolean | null
           care_plan_id: string
+          commemorative_dates?: Json
           created_at?: string
           current_period_end?: string | null
           customer_id: string
@@ -431,9 +437,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          activated_at?: string | null
+          activated_by?: string | null
           billing_period?: string
           cancel_at_period_end?: boolean | null
           care_plan_id?: string
+          commemorative_dates?: Json
           created_at?: string
           current_period_end?: string | null
           customer_id?: string
@@ -550,6 +559,42 @@ export type Database = {
           processed_at?: string
           stripe_event_id?: string
           type?: string
+        }
+        Relationships: []
+      }
+      cemeteries: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          morada: string | null
+          municipio: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          morada?: string | null
+          municipio: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          morada?: string | null
+          municipio?: string
+          nome?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1475,12 +1520,16 @@ export type Database = {
       }
       memorial_locations: {
         Row: {
+          birth_date: string | null
           cemetery_address: string | null
+          cemetery_id: string | null
           cemetery_name: string
           created_at: string
           customer_id: string
+          death_date: string | null
           grave_number: string | null
           id: string
+          names_on_grave: string | null
           notes: string | null
           obituary_id: string | null
           reference_photos: string[] | null
@@ -1489,12 +1538,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          birth_date?: string | null
           cemetery_address?: string | null
+          cemetery_id?: string | null
           cemetery_name: string
           created_at?: string
           customer_id: string
+          death_date?: string | null
           grave_number?: string | null
           id?: string
+          names_on_grave?: string | null
           notes?: string | null
           obituary_id?: string | null
           reference_photos?: string[] | null
@@ -1503,12 +1556,16 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          birth_date?: string | null
           cemetery_address?: string | null
+          cemetery_id?: string | null
           cemetery_name?: string
           created_at?: string
           customer_id?: string
+          death_date?: string | null
           grave_number?: string | null
           id?: string
+          names_on_grave?: string | null
           notes?: string | null
           obituary_id?: string | null
           reference_photos?: string[] | null
@@ -1517,6 +1574,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "memorial_locations_cemetery_id_fkey"
+            columns: ["cemetery_id"]
+            isOneToOne: false
+            referencedRelation: "cemeteries"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "memorial_locations_customer_id_fkey"
             columns: ["customer_id"]
@@ -2078,6 +2142,50 @@ export type Database = {
           },
         ]
       }
+      service_visits: {
+        Row: {
+          after_photo_url: string | null
+          before_photo_url: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          internal_notes: string | null
+          services: Json
+          subscription_id: string
+          visit_date: string
+        }
+        Insert: {
+          after_photo_url?: string | null
+          before_photo_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          internal_notes?: string | null
+          services?: Json
+          subscription_id: string
+          visit_date: string
+        }
+        Update: {
+          after_photo_url?: string | null
+          before_photo_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          internal_notes?: string | null
+          services?: Json
+          subscription_id?: string
+          visit_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_visits_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "care_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -2158,6 +2266,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      visit_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          visit_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          visit_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_reviews_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: true
+            referencedRelation: "service_visits"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
