@@ -44,8 +44,11 @@ const formatDate = (iso: string | null) => {
   }
 };
 
-// Minimal markdown renderer: headings (##), images ![alt](url), paragraphs.
-const renderContent = (md: string) => {
+// Detect if content is HTML (from rich editor) or legacy markdown.
+const isHtml = (s: string) => /<\/?(p|h[1-6]|ul|ol|li|img|blockquote|div|br|strong|em|a|figure)\b/i.test(s);
+
+// Minimal markdown renderer kept for legacy posts: headings (##), images ![alt](url), paragraphs.
+const renderMarkdown = (md: string) => {
   const blocks = md.split(/\n{2,}/);
   return blocks.map((raw, i) => {
     const block = raw.trim();
@@ -78,6 +81,19 @@ const renderContent = (md: string) => {
       </p>
     );
   });
+};
+
+const renderContent = (content: string) => {
+  if (!content) return null;
+  if (isHtml(content)) {
+    return (
+      <div
+        className="prose prose-lg max-w-none prose-headings:font-archivo prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-primary prose-img:rounded-lg prose-img:my-8"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+    );
+  }
+  return <>{renderMarkdown(content)}</>;
 };
 
 
