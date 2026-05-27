@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame, Phone } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Link, useParams, useLocation } from "react-router-dom";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -66,8 +66,13 @@ interface RelatedObituary {
 }
 
 export default function ObituaryDetail() {
-  const { id } = useParams();
-  
+  const params = useParams();
+  const navigate = useNavigate();
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const funerariaSlugParam = params.funerariaSlug;
+  const obituarySlugParam = params.obituarySlug;
+  const idParam = params.id && UUID_RE.test(params.id) ? params.id : undefined;
+
   const [loading, setLoading] = useState(true);
   const [obituary, setObituary] = useState<Obituary | null>(null);
   const [events, setEvents] = useState<CeremonyEvent[]>([]);
@@ -91,8 +96,15 @@ export default function ObituaryDetail() {
   const location = useLocation();
 
   useEffect(() => {
-    if (id) loadObituaryData(id);
-  }, [id]);
+    if (idParam) {
+      loadObituaryById(idParam);
+    } else if (funerariaSlugParam && obituarySlugParam) {
+      loadObituaryBySlug(funerariaSlugParam, obituarySlugParam);
+    } else {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idParam, funerariaSlugParam, obituarySlugParam]);
 
   // Stripe checkout return handling
   useEffect(() => {
@@ -185,6 +197,39 @@ export default function ObituaryDetail() {
   }, [loading, obituary, location.hash]);
 
   const [notPublished, setNotPublished] = useState(false);
+
+  const loadObituaryById = async (obituaryId: string) => {
+    // Resolve slug pair and redirect to the canonical URL
+    const { data: obit } = await supabase
+      .from("obituaries")
+      .select("slug, funerarias!inner(slug)")
+      .eq("id", obituaryId)
+      .maybeSingle();
+    const funSlug = (obit as any)?.funerarias?.slug;
+    const obSlug = (obit as any)?.slug;
+    if (funSlug && obSlug) {
+      navigate(`/obituario/${funSlug}/${obSlug}${location.search}${location.hash}`, { replace: true });
+      return;
+    }
+    await loadObituaryData(obituaryId);
+  };
+
+  const loadObituaryBySlug = async (funerariaSlug: string, obituarySlug: string) => {
+    const { data: fun } = await supabase
+      .from("funerarias")
+      .select("id")
+      .eq("slug", funerariaSlug)
+      .maybeSingle();
+    if (!fun) { setLoading(false); return; }
+    const { data: obit } = await supabase
+      .from("obituaries")
+      .select("id")
+      .eq("funeraria_id", fun.id)
+      .eq("slug", obituarySlug)
+      .maybeSingle();
+    if (!obit) { setLoading(false); return; }
+    await loadObituaryData(obit.id);
+  };
 
   const loadObituaryData = async (obituaryId: string) => {
     try {
