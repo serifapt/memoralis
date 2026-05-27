@@ -412,6 +412,7 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           customer_id: string
+          family_message: string | null
           id: string
           memorial_location_id: string
           operational_pause: boolean | null
@@ -429,6 +430,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           customer_id: string
+          family_message?: string | null
           id?: string
           memorial_location_id: string
           operational_pause?: boolean | null
@@ -446,6 +448,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           customer_id?: string
+          family_message?: string | null
           id?: string
           memorial_location_id?: string
           operational_pause?: boolean | null

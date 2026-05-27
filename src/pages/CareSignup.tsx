@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CareSiteHeader } from "@/components/care/CareSiteHeader";
 import { Button } from "@/components/ui/button";
@@ -15,16 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Info, Loader2, Plus, Trash2 } from "lucide-react";
 import {
   carePlanPriceByCode,
   commemorativeDateTypes,
 } from "@/lib/care-status";
+import { CARE_PLANS } from "@/lib/care-plans";
 
 type Cemetery = { id: string; nome: string; municipio: string; morada: string | null };
 type Plan = { id: string; code: string; name: string; description: string | null; includes_json: unknown };
-type CommemorativeDate = { type: string; date?: string; note?: string };
+type CommemorativeDate = { type: string; date?: string; note?: string; label?: string };
+
+const MAX_DATES = 3;
 
 const steps = [
   { n: 1, label: "Os seus dados" },
@@ -35,6 +39,7 @@ const steps = [
 
 export default function CareSignup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [authChecked, setAuthChecked] = useState(false);
@@ -54,9 +59,12 @@ export default function CareSignup() {
     names_on_grave: "",
     notes: "",
   });
-  const [planCode, setPlanCode] = useState<string>("mensal");
+  const [planCode, setPlanCode] = useState<string>(
+    () => searchParams.get("plano") || "mensal"
+  );
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [dates, setDates] = useState<CommemorativeDate[]>([]);
+  const [familyMessage, setFamilyMessage] = useState("");
 
   // auth gate – require logged-in customer
   useEffect(() => {
@@ -81,7 +89,7 @@ export default function CareSignup() {
     (async () => {
       const [{ data: cems }, { data: pls }] = await Promise.all([
         supabase.from("cemeteries").select("id,nome,municipio,morada").eq("ativo", true).order("nome"),
-        supabase.from("care_plans").select("id,code,name,description,includes_json").eq("active", true).order("display_order"),
+        supabase.from("care_plans").select("id,code,name,description,includes_json").eq("active", true).neq("code", "HOMENAGEM").order("display_order"),
       ]);
       setCemeteries(cems ?? []);
       setPlans(pls ?? []);
@@ -96,10 +104,16 @@ export default function CareSignup() {
   const monthlyPrice = carePlanPriceByCode[planCode] ?? 0;
   const displayPrice = billingPeriod === "yearly" ? monthlyPrice * 12 * 0.9 : monthlyPrice;
 
+  const datesValid = dates.every((d) => {
+    if (d.type === "outra") return (d.label ?? "").trim().length > 0 && (d.date ?? "").length > 0;
+    const def = commemorativeDateTypes.find((x) => x.value === d.type);
+    return def?.hasDate ? (d.date ?? "").length > 0 : true;
+  });
+
   const canNext = () => {
     if (step === 1) return personal.name.trim().length > 1 && /\S+@\S+\.\S+/.test(personal.email);
     if (step === 2) return grave.cemetery_name.trim().length > 1;
-    if (step === 3) return !!selectedPlan;
+    if (step === 3) return !!selectedPlan && datesValid;
     return true;
   };
 
@@ -120,7 +134,11 @@ export default function CareSignup() {
   };
 
   const addDate = () =>
-    setDates((d) => [...d, { type: commemorativeDateTypes[0].value, date: "", note: "" }]);
+    setDates((d) =>
+      d.length >= MAX_DATES
+        ? d
+        : [...d, { type: commemorativeDateTypes[0].value, date: "", note: "", label: "" }]
+    );
   const removeDate = (i: number) => setDates((d) => d.filter((_, idx) => idx !== i));
   const updateDate = (i: number, patch: Partial<CommemorativeDate>) =>
     setDates((d) => d.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
@@ -144,6 +162,7 @@ export default function CareSignup() {
             care_plan_id: selectedPlan!.id,
             billing_period: billingPeriod,
             commemorative_dates: dates,
+            family_message: familyMessage,
           },
         },
       });
@@ -304,24 +323,56 @@ export default function CareSignup() {
               <div className="grid sm:grid-cols-2 gap-3">
                 {plans.map((p) => {
                   const active = p.code === planCode;
+                  const info = CARE_PLANS.find((x) => x.code === p.code);
                   return (
-                    <button
+                    <div
                       key={p.id}
-                      type="button"
-                      onClick={() => setPlanCode(p.code)}
-                      className={`text-left rounded-lg border-2 p-4 transition-all ${
+                      className={`relative rounded-lg border-2 p-4 transition-all ${
                         active ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                       }`}
                     >
-                      <div className="font-semibold text-lg">{p.name}</div>
-                      {p.description && (
-                        <div className="text-sm text-muted-foreground mt-1">{p.description}</div>
+                      <button
+                        type="button"
+                        onClick={() => setPlanCode(p.code)}
+                        className="text-left w-full"
+                      >
+                        <div className="font-semibold text-lg pr-8">{info?.name ?? p.name}</div>
+                        {(info?.freq || p.description) && (
+                          <div className="text-sm text-muted-foreground mt-1">{info?.freq ?? p.description}</div>
+                        )}
+                        <div className="mt-3 text-xl font-bold text-primary">
+                          {carePlanPriceByCode[p.code] ?? info?.price ?? "—"} €
+                          <span className="text-sm font-normal text-muted-foreground"> / mês</span>
+                        </div>
+                      </button>
+                      {info && (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-primary"
+                              aria-label="Ver detalhes do plano"
+                            >
+                              <Info className="w-4 h-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent align="end" className="w-72">
+                            <div className="font-semibold mb-2">{info.name}</div>
+                            <div className="text-xs text-muted-foreground mb-3">{info.freq} · IVA incluído</div>
+                            <ul className="space-y-1.5 text-sm">
+                              {info.items.map((it) => (
+                                <li key={it} className="flex gap-2">
+                                  <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                  <span className="text-muted-foreground">{it}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </PopoverContent>
+                        </Popover>
                       )}
-                      <div className="mt-3 text-xl font-bold text-primary">
-                        {carePlanPriceByCode[p.code] ?? "—"} €
-                        <span className="text-sm font-normal text-muted-foreground"> / mês</span>
-                      </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -342,35 +393,64 @@ export default function CareSignup() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-base">Datas comemorativas (opcional)</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addDate}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addDate}
+                    disabled={dates.length >= MAX_DATES}
+                  >
                     <Plus className="w-4 h-4 mr-1" /> Adicionar
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  A equipa visita a campa em datas especiais como o aniversário ou o Dia de Todos os Santos.
+                  Pode escolher até {MAX_DATES} datas especiais. A equipa coloca um ramo na campa nessas ocasiões — Dia de Todos os Santos, aniversários, ou outras à sua escolha.
                 </p>
                 {dates.map((d, i) => {
                   const def = commemorativeDateTypes.find((x) => x.value === d.type);
+                  const isOutra = d.type === "outra";
                   return (
-                    <div key={i} className="grid sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
-                      <Select value={d.type} onValueChange={(v) => updateDate(i, { type: v, date: "" })}>
-                        <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {commemorativeDateTypes.map((t) => (
-                            <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {def?.hasDate && (
-                        <Input type="date" className="h-11" value={d.date ?? ""}
-                          onChange={(e) => updateDate(i, { date: e.target.value })} />
+                    <div key={i} className="rounded-md border border-border p-3 space-y-2">
+                      <div className="grid sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
+                        <Select value={d.type} onValueChange={(v) => updateDate(i, { type: v, date: "", label: "" })}>
+                          <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {commemorativeDateTypes.map((t) => (
+                              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {def?.hasDate && (
+                          <Input type="date" className="h-11" value={d.date ?? ""}
+                            onChange={(e) => updateDate(i, { date: e.target.value })} />
+                        )}
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeDate(i)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      {isOutra && (
+                        <Input
+                          className="h-11"
+                          placeholder="Que data é esta? Ex.: Aniversário de casamento"
+                          value={d.label ?? ""}
+                          onChange={(e) => updateDate(i, { label: e.target.value })}
+                        />
                       )}
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeDate(i)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
                   );
                 })}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="family-message" className="text-base">Mensagem do familiar (opcional)</Label>
+                <Textarea
+                  id="family-message"
+                  rows={3}
+                  className="text-base"
+                  placeholder="Uma dedicatória ou indicação que queira partilhar com a nossa equipa."
+                  value={familyMessage}
+                  onChange={(e) => setFamilyMessage(e.target.value)}
+                />
               </div>
             </div>
           )}
@@ -413,14 +493,20 @@ export default function CareSignup() {
                   <SummaryRow
                     label="Datas especiais"
                     value={dates
-                      .map((d) => commemorativeDateTypes.find((x) => x.value === d.type)?.label ?? d.type)
+                      .map((d) => {
+                        if (d.type === "outra" && d.label) return d.label;
+                        return commemorativeDateTypes.find((x) => x.value === d.type)?.label ?? d.type;
+                      })
                       .join(", ")}
                   />
+                )}
+                {familyMessage.trim() && (
+                  <SummaryRow label="Mensagem" value={familyMessage} />
                 )}
               </Section>
 
               <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-                Após confirmar, a nossa equipa irá contactá-lo para combinar os detalhes e ativar o serviço.
+                Ao confirmar, a sua subscrição é registada de imediato. A equipa Memoralis irá rever os dados e contactá-lo a seguir para activar o serviço.
               </div>
             </div>
           )}

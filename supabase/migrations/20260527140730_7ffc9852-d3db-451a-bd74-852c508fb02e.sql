@@ -1,0 +1,1 @@
+ALTER TABLE public.care_subscriptions ADD COLUMN IF NOT EXISTS family_message text;
