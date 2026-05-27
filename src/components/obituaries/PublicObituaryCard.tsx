@@ -8,6 +8,7 @@ import { isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
 
 export interface PublicObituary {
   id: string;
+  slug?: string | null;
   display_name: string;
   birth_date: string | null;
   death_date: string | null;
@@ -46,10 +47,13 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
   const age = getAge(obit.birth_date, obit.death_date);
   const locationStr = [obit.freguesia, obit.locality].filter(Boolean).join(" - ");
   const showFlowerButton = obit.servico_flores_ativo && isFlowerOrderOpen(obit.ceremony_events || [], obit.flores_limite_horas ?? 4);
+  const obitHref = obit.funerarias?.slug && obit.slug
+    ? `/obituario/${obit.funerarias.slug}/${obit.slug}`
+    : `/obituario/${obit.id}`;
 
   return (
     <>
-      <Link to={`/obituario/${obit.id}`}>
+      <Link to={obitHref}>
         <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
           <div className="relative">
             <img
@@ -104,7 +108,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  navigate(`/obituario/${obit.id}#condolencias`);
+                  navigate(`${obitHref}#condolencias`);
                 }}
               >
                 <span className="truncate">Condolências</span>
@@ -115,7 +119,7 @@ export function PublicObituaryCard({ obit }: { obit: PublicObituary }) {
                   size="sm"
                   className="flex-1 h-7 sm:h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs min-w-0 bg-primary hover:bg-primary/90"
                 >
-                  <Link to={`/obituario/${obit.id}/flores`} onClick={(e) => e.stopPropagation()}>
+                  <Link to={`${obitHref}/flores`} onClick={(e) => e.stopPropagation()}>
                     <span className="truncate">Enviar Flores</span>
                   </Link>
                 </Button>
