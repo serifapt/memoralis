@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, MapPin, Pencil, Plus, Trash2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CemeteryPicker } from "@/components/care/CemeteryPicker";
 
@@ -54,6 +54,8 @@ export default function AdminCemeteries() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<typeof empty>(empty);
   const [saving, setSaving] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -73,6 +75,7 @@ export default function AdminCemeteries() {
 
   const openNew = () => {
     setForm(empty);
+    setImportUrl("");
     setOpen(true);
   };
 
@@ -87,7 +90,43 @@ export default function AdminCemeteries() {
       lng: r.lng != null ? Number(r.lng) : null,
       ativo: r.ativo,
     });
+    setImportUrl("");
     setOpen(true);
+  };
+
+  const handleImport = async () => {
+    const url = importUrl.trim();
+    if (!url) {
+      toast({ title: "Cole o link do Google Maps", variant: "destructive" });
+      return;
+    }
+    setImporting(true);
+    const { data, error } = await supabase.functions.invoke("import-google-maps-place", {
+      body: { url },
+    });
+    setImporting(false);
+    if (error || !data || (data as { error?: string }).error) {
+      toast({
+        title: "Não foi possível importar",
+        description: (data as { error?: string })?.error || error?.message || "Verifique o link e tente novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const d = data as {
+      name?: string | null; lat?: number; lng?: number;
+      morada?: string; freguesia?: string; municipio?: string;
+    };
+    setForm((f) => ({
+      ...f,
+      nome: f.nome || d.name || f.nome,
+      municipio: d.municipio || f.municipio,
+      freguesia: d.freguesia || f.freguesia,
+      morada: d.morada || f.morada,
+      lat: typeof d.lat === "number" ? d.lat : f.lat,
+      lng: typeof d.lng === "number" ? d.lng : f.lng,
+    }));
+    toast({ title: "Dados importados", description: "Reveja os campos antes de guardar." });
   };
 
   const save = async () => {
@@ -214,6 +253,26 @@ export default function AdminCemeteries() {
             <DialogTitle>{form.id ? "Editar cemitério" : "Novo cemitério"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-2">
+            <div className="rounded-md border border-dashed bg-muted/30 p-3 space-y-2">
+              <Label className="flex items-center gap-2 text-sm">
+                <Sparkles className="w-4 h-4 text-primary" /> Importar do Google Maps
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Cole um link partilhado (share.google, maps.app.goo.gl ou google.com/maps) para preencher automaticamente nome, morada, localidade e pin no mapa.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://share.google/..."
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                  disabled={importing}
+                />
+                <Button type="button" onClick={handleImport} disabled={importing || !importUrl.trim()}>
+                  {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Importar"}
+                </Button>
+              </div>
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Nome *</Label>
