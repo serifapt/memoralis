@@ -1,41 +1,43 @@
 ## Objetivo
-1. Substituir o seletor único de cemitério por filtros em cascata (Localidade → Freguesia → Cemitério) no formulário de adesão e no diálogo "Avise-me".
-2. Criar gestão de cemitérios ativos no admin com possibilidade de colocar pin no mapa.
-3. Corrigir os bugs visíveis nas imagens.
 
-## Bugs identificados
-- **Mapa Leaflet por cima do diálogo** (imagem 3): tiles e marcadores do `CemeteryMap` da landing aparecem sobre o `CareInterestDialog`. Causa: `.leaflet-pane`/`.leaflet-top` têm `z-index: 400/1000`, maiores que o overlay do Dialog (z-50 do Radix). Solução: regra global em `index.css` baixando z-index do Leaflet (`.leaflet-pane, .leaflet-top, .leaflet-bottom { z-index: 1 !important; }`) — mantém interatividade do mapa mas deixa de sobrepor modais.
-- **"Outro / não está na lista"** (imagem 1): será removido — sempre que a localidade existir o cliente seleciona em cascata; só se nenhum cemitério estiver ativo na sua zona usa o diálogo de interesse.
+No diálogo "Novo cemitério" (`/admin/care/cemeterios`), adicionar um campo "Link do Google Maps" com botão **Importar**. Ao clicar, os campos do formulário (Nome, Localidade, Freguesia, Morada, Lat/Lng e pin no mapa) são preenchidos automaticamente a partir do link.
 
-## Mudanças de base de dados
-- Adicionar coluna `freguesia text` à tabela `public.cemeteries` (migration). `municipio` passa a ser a "Localidade".
-- Adicionar coluna `freguesia text` à tabela `public.care_interest_leads` (já existe `locality` e `parish`).
+Suporta links curtos `https://share.google/...`, `https://maps.app.goo.gl/...` e URLs completos do Google Maps.
 
-## Filtros em cascata (frontend)
-Hook partilhado `useCemeteriesCascade()` em `src/hooks/useCemeteriesCascade.ts`:
-- carrega cemitérios `ativo=true`
-- expõe `localities`, `parishesFor(loc)`, `cemeteriesFor(loc, parish)`
+## Como vai funcionar
 
-Aplicado a:
-- **`CareSignup.tsx` (passo 2)**: três selects encadeados. Remove input livre "Nome do cemitério"; mantém `section`, `grave_number`, fotos.
-- **`CareInterestDialog.tsx`**: mesmos três selects. Localidade e cemitério permitem opção "Não encontro a minha"; nesse caso aparecem inputs de texto livres (`locality`, `parish`, `cemetery_name`) — esta é a única via para manuscrever cemitério.
+1. Utilizador cola o link partilhado e clica em **Importar**.
+2. Uma Edge Function `import-google-maps-place` faz o seguinte:
+   - Segue os redirects do link curto até chegar ao URL final do Google Maps.
+   - Extrai do URL:
+     - **Nome** do local (a partir do segmento `/place/<nome>/`).
+     - **Coordenadas** (a partir de `!3d<lat>!4d<lng>` ou `/@lat,lng,zoom`).
+   - Faz **reverse geocoding** via [OpenStreetMap Nominatim](https://nominatim.org/) (gratuito, sem chave) para obter de forma estruturada: `morada` (road + número), `freguesia` (suburb/village/parish), `municipio` (city/town/municipality) e código postal.
+3. A resposta volta ao frontend, que faz `setForm({...})` com os campos preenchidos e centra o pin do `LeafletPicker` nas coordenadas.
 
-## Admin — Gestão de cemitérios
-Nova página `src/pages/AdminCemeteries.tsx` (rota `/admin/care/cemeterios`):
-- Tabela: Nome, Freguesia, Localidade (município), Ativo, Ações (editar / desativar).
-- Dialog "Adicionar / Editar cemitério" com: nome, freguesia, localidade, morada, switch `ativo`, e um pequeno `LeafletPicker` (mapa centrado em Portugal, clique coloca pin → preenche `lat`/`lng`; mostra coords editáveis).
-- Componente `src/components/care/CemeteryPicker.tsx` (Leaflet com `useMapEvents` para captar clique).
+Não é necessário ligar a conta Google Maps Platform — a Nominatim cobre a parte de morada/freguesia/município. Se o link já trouxer o nome e as coordenadas, o resto é apenas refinamento da morada.
 
-Entrada no `AdminSidebar` em "CUIDADO & HOMENAGEM": **Cemitérios** (ícone `MapPin`), rota `/admin/care/cemeterios`. Registar rota em `App.tsx`.
+## Alterações
 
-## Edge function
-`care-signup` aceita já `cemetery_id`; nenhuma alteração necessária para o fluxo principal. Apenas garantir que `cemetery_name` é derivado de "{nome} — {freguesia}, {municipio}" para histórico.
+**Nova Edge Function** `supabase/functions/import-google-maps-place/index.ts`
+- Recebe `{ url: string }`.
+- `fetch(url, { redirect: "follow" })` para resolver shortlinks.
+- Regex sobre o URL final para extrair `name`, `lat`, `lng`.
+- Chama `https://nominatim.openstreetmap.org/reverse?lat=&lon=&format=json&addressdetails=1&accept-language=pt` com `User-Agent: Memoralis/1.0`.
+- Devolve `{ name, lat, lng, morada, freguesia, municipio, postcode, raw_address }`.
+- `verify_jwt = false` (consulta admin, mas a action é trivial).
 
-## Ficheiros a criar/editar
-- **Migration**: adiciona `freguesia` em `cemeteries` e `care_interest_leads`.
-- **Criar**: `src/hooks/useCemeteriesCascade.ts`, `src/pages/AdminCemeteries.tsx`, `src/components/care/CemeteryPicker.tsx`.
-- **Editar**: `src/pages/CareSignup.tsx` (passo 2 reescrito com cascade), `src/components/care/CareInterestDialog.tsx` (cascade + fallback manual), `src/components/layout/AdminSidebar.tsx` (nova entrada), `src/App.tsx` (rota), `src/index.css` (fix z-index Leaflet).
+**Editado** `src/pages/AdminCemeteries.tsx`
+- No `Dialog` "Novo / Editar cemitério", adicionar acima dos campos atuais:
+  - Input "Link do Google Maps" + botão "Importar" (com loader).
+  - Pequeno texto de ajuda: *"Cole o link partilhado do Google Maps para preencher automaticamente."*
+- Função `handleImport()` chama a edge function via `supabase.functions.invoke("import-google-maps-place", { body: { url } })` e faz `setForm({...form, nome, morada, freguesia, municipio, lat, lng })`.
+- Mostra toast de sucesso / erro ("Não foi possível ler o link").
 
-## Fora de âmbito
-- Importação em massa de cemitérios (continuam a ser adicionados manualmente pelo admin).
-- Geocodificação automática de morada → coordenadas.
+**Sem alterações na BD** — usa as colunas existentes (`nome`, `municipio`, `freguesia`, `morada`, `lat`, `lng`).
+
+## Notas
+
+- O nome devolvido pelo Google ("Cemitério de São Romão de Neiva") é mantido tal e qual no campo Nome — o utilizador pode editar antes de guardar.
+- Se a Nominatim falhar (raro), o formulário ainda recebe nome + coordenadas; o utilizador preenche município/freguesia à mão.
+- O pin do `LeafletPicker` move-se para o `lat,lng` importado.
