@@ -327,6 +327,54 @@ export type Database = {
           },
         ]
       }
+      care_interest_leads: {
+        Row: {
+          cemetery_name: string
+          contacted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          locality: string | null
+          message: string | null
+          name: string
+          parish: string | null
+          phone: string | null
+          plan_code: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cemetery_name: string
+          contacted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          locality?: string | null
+          message?: string | null
+          name: string
+          parish?: string | null
+          phone?: string | null
+          plan_code?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cemetery_name?: string
+          contacted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          locality?: string | null
+          message?: string | null
+          name?: string
+          parish?: string | null
+          phone?: string | null
+          plan_code?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       care_plan_prices: {
         Row: {
           active: boolean
