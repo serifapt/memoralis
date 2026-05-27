@@ -22,6 +22,8 @@ type BlogPost = {
   cover_image_url: string | null;
   read_time: string | null;
   published_at: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
 };
 
 type RelatedPost = {
@@ -91,7 +93,7 @@ export default function BlogPost() {
       setLoading(true);
       const { data } = await supabase
         .from("blog_posts")
-        .select("id, slug, title, excerpt, content, category, author, cover_image_url, read_time, published_at")
+        .select("id, slug, title, excerpt, content, category, author, cover_image_url, read_time, published_at, meta_title, meta_description")
         .eq("slug", slug)
         .eq("status", "published")
         .maybeSingle();
