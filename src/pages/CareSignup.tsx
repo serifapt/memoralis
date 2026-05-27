@@ -80,7 +80,6 @@ export default function CareSignup() {
   );
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [dates, setDates] = useState<CommemorativeDate[]>([]);
-  const [familyMessage, setFamilyMessage] = useState("");
 
   const personalRef = useRef<HTMLDivElement>(null);
   const graveRef = useRef<HTMLDivElement>(null);
@@ -639,9 +638,6 @@ export default function CareSignup() {
                       })
                       .join(", ")}
                   />
-                )}
-                {familyMessage.trim() && (
-                  <SummaryRow label="Mensagem" value={familyMessage} />
                 )}
               </Section>
 
