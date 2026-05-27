@@ -14,7 +14,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { CARE_STATUS_LABELS } from "@/lib/care-status";
+import { careStatusLabel } from "@/lib/care-status";
 import {
   Heart,
   Loader2,
@@ -153,7 +153,7 @@ export default function CustomerDashboard() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <CardTitle className="text-2xl font-serif">
-                        {location.names_on_grave || location.cemetery_name}
+                        {(location as any).names_on_grave || location.cemetery_name}
                       </CardTitle>
                       <p className="text-muted-foreground mt-1 text-base flex items-center gap-2">
                         <MapPin className="w-4 h-4" />
@@ -163,7 +163,7 @@ export default function CustomerDashboard() {
                     </div>
                     {sub && (
                       <Badge variant="outline" className="text-sm py-1 px-3">
-                        {CARE_STATUS_LABELS[sub.status] || sub.status}
+                        {careStatusLabel[sub.status] || sub.status}
                       </Badge>
                     )}
                   </div>
