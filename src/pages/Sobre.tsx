@@ -5,8 +5,67 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Heart, Users, Shield, Award, CheckCircle2, ArrowRight, Sparkles, Building2, Flower2, Church } from "lucide-react";
+import {
+  Heart,
+  Users,
+  Shield,
+  Award,
+  CheckCircle2,
+  ArrowRight,
+  Sparkles,
+  Building2,
+  Flower2,
+  Church,
+  ClipboardList,
+  FileCheck2,
+  Newspaper,
+  FolderArchive,
+  Calculator,
+  BarChart3,
+} from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
+import mockupDashboard from "@/assets/mockup-dashboard.png";
+import mockupObituaryEditor from "@/assets/mockup-obituary-editor.png";
+import mockupSsForms from "@/assets/mockup-ss-forms.png";
+import mockupFlowersBudget from "@/assets/mockup-flowers-budget.png";
+
+const funerariaFeatures = [
+  {
+    icon: ClipboardList,
+    title: "Gestão do processo fúnebre",
+    description: "Centralize todo o processo do falecido, do primeiro contacto à cerimónia, num único fluxo.",
+  },
+  {
+    icon: FileCheck2,
+    title: "Formulários SS e CGA automáticos",
+    description: "9 formulários da Segurança Social e Caixa Geral de Aposentações preenchidos automaticamente.",
+  },
+  {
+    icon: Newspaper,
+    title: "Anúncio fúnebre automático",
+    description: "Gere anúncios em formato A4 prontos a imprimir ou partilhar nas redes sociais.",
+  },
+  {
+    icon: FolderArchive,
+    title: "Arquivo de documentação",
+    description: "Mantenha documentos da funerária e de cada falecido organizados e seguros na nuvem.",
+  },
+  {
+    icon: Calculator,
+    title: "Orçamentação digital",
+    description: "Crie orçamentos profissionais em minutos, converta em obituários e siga o estado em tempo real.",
+  },
+  {
+    icon: Flower2,
+    title: "Catálogo de flores",
+    description: "Permita que o público envie flores para o funeral diretamente a partir do obituário.",
+  },
+  {
+    icon: BarChart3,
+    title: "Eventos e estatísticas",
+    description: "Acompanhe próximas cerimónias, visualizações e métricas de engagement num só painel.",
+  },
+];
 
 const Sobre = () => {
   return (
