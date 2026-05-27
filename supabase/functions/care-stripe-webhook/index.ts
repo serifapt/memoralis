@@ -70,20 +70,103 @@ serve(async (req) => {
         if (session.mode === "subscription" && session.subscription) {
           const metadata = session.metadata;
           if (metadata?.customer_id && metadata?.memorial_location_id && metadata?.care_plan_id) {
-            // Create the subscription record
-            const { error: subError } = await supabaseAdmin.from("care_subscriptions").insert({
-              customer_id: metadata.customer_id,
-              memorial_location_id: metadata.memorial_location_id,
-              care_plan_id: metadata.care_plan_id,
-              billing_period: metadata.billing_period || "monthly",
-              stripe_subscription_id: session.subscription as string,
-              status: "active"
-            });
-
-            if (subError) {
-              logStep("Error creating subscription", { error: subError.message });
+            // Prefer updating the pre-created subscription row (from care-signup)
+            if (metadata.subscription_id) {
+              const { error: updErr } = await supabaseAdmin
+                .from("care_subscriptions")
+                .update({
+                  stripe_subscription_id: session.subscription as string,
+                  status: "active",
+                })
+                .eq("id", metadata.subscription_id);
+              if (updErr) {
+                logStep("Error updating pre-created subscription", { error: updErr.message });
+              }
             } else {
-              logStep("Subscription created successfully");
+              const { error: subError } = await supabaseAdmin.from("care_subscriptions").insert({
+                customer_id: metadata.customer_id,
+                memorial_location_id: metadata.memorial_location_id,
+                care_plan_id: metadata.care_plan_id,
+                billing_period: metadata.billing_period || "monthly",
+                stripe_subscription_id: session.subscription as string,
+                status: "active",
+              });
+              if (subError) logStep("Error creating subscription", { error: subError.message });
+            }
+
+            // Save Stripe customer id on the customer record
+            if (session.customer && metadata.customer_id) {
+              await supabaseAdmin
+                .from("customers")
+                .update({ stripe_customer_id: session.customer as string })
+                .eq("id", metadata.customer_id);
+            }
+
+            // Send welcome email with password-setup link
+            try {
+              const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+              const recipient = session.customer_details?.email
+                || session.customer_email
+                || (await supabaseAdmin
+                    .from("customers")
+                    .select("email,name")
+                    .eq("id", metadata.customer_id)
+                    .maybeSingle()).data?.email;
+
+              const { data: custRow } = await supabaseAdmin
+                .from("customers")
+                .select("name,email")
+                .eq("id", metadata.customer_id)
+                .maybeSingle();
+              const { data: planRow } = await supabaseAdmin
+                .from("care_plans")
+                .select("name")
+                .eq("id", metadata.care_plan_id)
+                .maybeSingle();
+              const { data: locRow } = await supabaseAdmin
+                .from("memorial_locations")
+                .select("cemetery_name,grave_number")
+                .eq("id", metadata.memorial_location_id)
+                .maybeSingle();
+
+              const siteUrl = Deno.env.get("PUBLIC_SITE_URL") || "https://memoralis.pt";
+              let passwordSetupUrl: string | undefined;
+              if (recipient) {
+                const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+                  type: "recovery",
+                  email: recipient,
+                  options: { redirectTo: `${siteUrl}/reset-password` },
+                });
+                passwordSetupUrl = linkData?.properties?.action_link;
+              }
+
+              const amountTotal = (session.amount_total ?? 0) / 100;
+              if (recipient) {
+                await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""}`,
+                  },
+                  body: JSON.stringify({
+                    templateName: "care-welcome",
+                    recipientEmail: recipient,
+                    idempotencyKey: `care-welcome-${session.id}`,
+                    templateData: {
+                      name: custRow?.name ?? "",
+                      planName: planRow?.name ?? "",
+                      cemeteryName: locRow?.cemetery_name ?? "",
+                      graveNumber: locRow?.grave_number ?? "",
+                      amount: amountTotal,
+                      billingPeriod: metadata.billing_period || "monthly",
+                      passwordSetupUrl,
+                      accountUrl: `${siteUrl}/account/care`,
+                    },
+                  }),
+                }).catch((e) => logStep("welcome email send failed", { error: String(e) }));
+              }
+            } catch (e) {
+              logStep("welcome email block failed", { error: String(e) });
             }
           }
         }
