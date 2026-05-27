@@ -625,7 +625,7 @@ export default function CareSignup() {
               </Section>
 
               <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-                Ao confirmar, a sua subscrição é registada de imediato. A equipa Memoralis irá rever os dados e contactá-lo a seguir para activar o serviço.
+                Ao continuar, será encaminhado para o pagamento seguro Stripe. Criamos a sua conta automaticamente e enviamos um email para definir a sua palavra-passe — assim poderá acompanhar visitas, fotos e faturas no seu painel.
               </div>
             </div>
 
@@ -641,7 +641,7 @@ export default function CareSignup() {
                 ) : (
                   <Check className="w-4 h-4 mr-2" />
                 )}
-                Enviar pedido
+                Continuar para pagamento
               </Button>
             </div>
         </Card>
