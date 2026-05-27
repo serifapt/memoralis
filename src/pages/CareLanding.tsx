@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CareSiteHeader } from "@/components/care/CareSiteHeader";
 import { CemeteryMap, Cemetery } from "@/components/care/CemeteryMap";
 import { CARE_PLANS as PLANS } from "@/lib/care-plans";
+import { CareInterestDialog } from "@/components/care/CareInterestDialog";
 
 const STEPS = [
   { n: 1, title: "Escolhe o teu plano", icon: ClipboardList, desc: "Seleciona a frequência de visitas que preferires: mensal, quinzenal ou semanal." },
@@ -164,9 +165,11 @@ export default function CareLanding() {
           </div>
           <CemeteryMap cemeteries={cemeteries} />
           <div className="text-center mt-8">
-            <Button asChild variant="outline">
-              <a href="#contacto">Não encontra o seu cemitério?</a>
-            </Button>
+            <CareInterestDialog
+              trigger={
+                <Button variant="outline">Não encontra o seu cemitério?</Button>
+              }
+            />
           </div>
         </div>
       </section>
