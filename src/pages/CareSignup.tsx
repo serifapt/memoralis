@@ -38,6 +38,15 @@ type Plan = { id: string; code: string; name: string; description: string | null
 type CommemorativeDate = { type: string; date?: string; note?: string; label?: string };
 
 const MAX_DATES = 3;
+const MAX_NOTE_WORDS = 25;
+
+const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
+const isHomenagemPlan = (p?: { code?: string; name?: string | null } | null) => {
+  if (!p) return false;
+  const code = (p.code ?? "").toLowerCase();
+  const name = (p.name ?? "").toLowerCase();
+  return code === "premium" || code === "homenagem" || name.includes("homenagem");
+};
 
 export default function CareSignup() {
   const navigate = useNavigate();
@@ -71,7 +80,6 @@ export default function CareSignup() {
   );
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [dates, setDates] = useState<CommemorativeDate[]>([]);
-  const [familyMessage, setFamilyMessage] = useState("");
 
   const personalRef = useRef<HTMLDivElement>(null);
   const graveRef = useRef<HTMLDivElement>(null);
@@ -102,7 +110,6 @@ export default function CareSignup() {
         .from("care_plans")
         .select("id,code,name,description,includes_json")
         .eq("active", true)
-        .neq("code", "HOMENAGEM")
         .order("display_order");
       setPlans(pls ?? []);
     })();
@@ -113,13 +120,25 @@ export default function CareSignup() {
     [plans, planCode]
   );
 
+  const showCommemorative = isHomenagemPlan(selectedPlan);
+
+  // Clear dates when switching away from Homenagem
+  useEffect(() => {
+    if (!showCommemorative && dates.length > 0) {
+      setDates([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCommemorative]);
+
   const monthlyPrice = carePlanPriceByCode[planCode] ?? 0;
   const displayPrice = billingPeriod === "yearly" ? monthlyPrice * 12 * 0.9 : monthlyPrice;
 
   const datesValid = dates.every((d) => {
     if (d.type === "outra") return (d.label ?? "").trim().length > 0 && (d.date ?? "").length > 0;
     const def = commemorativeDateTypes.find((x) => x.value === d.type);
-    return def?.hasDate ? (d.date ?? "").length > 0 : true;
+    if (def?.hasDate && !(d.date ?? "").length) return false;
+    if (countWords(d.note ?? "") > MAX_NOTE_WORDS) return false;
+    return true;
   });
 
   const errors = {
@@ -185,8 +204,8 @@ export default function CareSignup() {
           plan: {
             care_plan_id: selectedPlan!.id,
             billing_period: billingPeriod,
-            commemorative_dates: dates,
-            family_message: familyMessage,
+           commemorative_dates: dates,
+           family_message: "",
           },
         },
       });
@@ -501,6 +520,7 @@ export default function CareSignup() {
                 </Select>
               </div>
 
+              {showCommemorative && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-base">Datas comemorativas (opcional)</Label>
@@ -515,11 +535,13 @@ export default function CareSignup() {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Pode escolher até {MAX_DATES} datas especiais. A equipa coloca um ramo na campa nessas ocasiões — Dia de Todos os Santos, aniversários, ou outras à sua escolha.
+                  Pode escolher até {MAX_DATES} datas especiais. A equipa coloca um ramo na campa nessas ocasiões — Dia de Todos os Santos, aniversários, ou outras à sua escolha. Para cada data pode escrever uma pequena mensagem que será impressa num cartão.
                 </p>
                 {dates.map((d, i) => {
                   const def = commemorativeDateTypes.find((x) => x.value === d.type);
                   const isOutra = d.type === "outra";
+                  const noteWords = countWords(d.note ?? "");
+                  const noteOver = noteWords > MAX_NOTE_WORDS;
                   return (
                     <div key={i} className="rounded-md border border-border p-3 space-y-2">
                       <div className="grid sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
@@ -547,22 +569,29 @@ export default function CareSignup() {
                           onChange={(e) => updateDate(i, { label: e.target.value })}
                         />
                       )}
+                      <div className="space-y-1">
+                        <Label className="text-sm text-muted-foreground">
+                          Mensagem para o cartão (opcional)
+                        </Label>
+                        <Textarea
+                          rows={2}
+                          className="text-sm"
+                          placeholder="Ex.: Saudades eternas, com amor da família."
+                          value={d.note ?? ""}
+                          onChange={(e) => updateDate(i, { note: e.target.value })}
+                        />
+                        <div className={cn(
+                          "text-xs flex justify-end",
+                          noteOver ? "text-destructive" : "text-muted-foreground"
+                        )}>
+                          {noteWords}/{MAX_NOTE_WORDS} palavras
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="family-message" className="text-base">Mensagem do familiar (opcional)</Label>
-                <Textarea
-                  id="family-message"
-                  rows={3}
-                  className="text-base"
-                  placeholder="Uma dedicatória ou indicação que queira partilhar com a nossa equipa."
-                  value={familyMessage}
-                  onChange={(e) => setFamilyMessage(e.target.value)}
-                />
-              </div>
+              )}
             </div>
 
             {/* 4. Confirm */}
@@ -609,9 +638,6 @@ export default function CareSignup() {
                       })
                       .join(", ")}
                   />
-                )}
-                {familyMessage.trim() && (
-                  <SummaryRow label="Mensagem" value={familyMessage} />
                 )}
               </Section>
 
