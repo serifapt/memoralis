@@ -195,8 +195,7 @@ export default function Home() {
               Homenagens que eternizam memórias e sentimentos.
             </h1>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Na Memoralis, acreditamos que cada vida merece ser celebrada e recordada com dignidade. 
-              Oferecemos uma plataforma completa para criar homenagens inesquecíveis e perpetuar a memória de forma significativa e emotiva.
+              Na Memoralis, acreditamos que cada vida merece ser celebrada e recordada com dignidade.
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-4">
