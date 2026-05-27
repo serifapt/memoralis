@@ -30,6 +30,7 @@ interface Obituary {
   public_message: string | null;
   hide_condolences: boolean | null;
   funeraria_id: string;
+  slug?: string | null;
 }
 
 interface CeremonyEvent {
@@ -239,7 +240,7 @@ export default function ObituaryDetail() {
       // Fetch obituary
       const { data: obit, error } = await supabase
         .from("obituaries")
-        .select("id, display_name, full_name, birth_date, death_date, locality, freguesia, photo_url, public_message, hide_condolences, funeraria_id")
+        .select("id, slug, display_name, full_name, birth_date, death_date, locality, freguesia, photo_url, public_message, hide_condolences, funeraria_id")
         .eq("id", obituaryId)
         .maybeSingle();
 
