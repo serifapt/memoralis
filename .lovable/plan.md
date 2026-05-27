@@ -1,43 +1,34 @@
+# Adesão Care: página única + cemitério ligado à BD
+
 ## Objetivo
-
-No diálogo "Novo cemitério" (`/admin/care/cemeterios`), adicionar um campo "Link do Google Maps" com botão **Importar**. Ao clicar, os campos do formulário (Nome, Localidade, Freguesia, Morada, Lat/Lng e pin no mapa) são preenchidos automaticamente a partir do link.
-
-Suporta links curtos `https://share.google/...`, `https://maps.app.goo.gl/...` e URLs completos do Google Maps.
-
-## Como vai funcionar
-
-1. Utilizador cola o link partilhado e clica em **Importar**.
-2. Uma Edge Function `import-google-maps-place` faz o seguinte:
-   - Segue os redirects do link curto até chegar ao URL final do Google Maps.
-   - Extrai do URL:
-     - **Nome** do local (a partir do segmento `/place/<nome>/`).
-     - **Coordenadas** (a partir de `!3d<lat>!4d<lng>` ou `/@lat,lng,zoom`).
-   - Faz **reverse geocoding** via [OpenStreetMap Nominatim](https://nominatim.org/) (gratuito, sem chave) para obter de forma estruturada: `morada` (road + número), `freguesia` (suburb/village/parish), `municipio` (city/town/municipality) e código postal.
-3. A resposta volta ao frontend, que faz `setForm({...})` com os campos preenchidos e centra o pin do `LeafletPicker` nas coordenadas.
-
-Não é necessário ligar a conta Google Maps Platform — a Nominatim cobre a parte de morada/freguesia/município. Se o link já trouxer o nome e as coordenadas, o resto é apenas refinamento da morada.
+Substituir o atual wizard de 4 passos (`/care/aderir`, `src/pages/CareSignup.tsx`) por uma página de subscrição corrida, onde todas as secções aparecem na mesma vista. Ao selecionar o cemitério (a partir dos cemitérios ativos da BD), os campos relacionados são preenchidos automaticamente e mostrados ao cliente.
 
 ## Alterações
 
-**Nova Edge Function** `supabase/functions/import-google-maps-place/index.ts`
-- Recebe `{ url: string }`.
-- `fetch(url, { redirect: "follow" })` para resolver shortlinks.
-- Regex sobre o URL final para extrair `name`, `lat`, `lng`.
-- Chama `https://nominatim.openstreetmap.org/reverse?lat=&lon=&format=json&addressdetails=1&accept-language=pt` com `User-Agent: Memoralis/1.0`.
-- Devolve `{ name, lat, lng, morada, freguesia, municipio, postcode, raw_address }`.
-- `verify_jwt = false` (consulta admin, mas a action é trivial).
+### 1. `src/pages/CareSignup.tsx` — layout corrido
+- Remover o estado `step`, a `Progress`, e os botões "Anterior/Continuar".
+- Manter o mesmo `Card` central, mas dentro renderizar 4 secções empilhadas, cada uma com título e separador subtil:
+  1. **Os seus dados** (nome, email, telefone, NIF)
+  2. **A campa** (cemitério + detalhes)
+  3. **O plano** (cards de planos, periodicidade, datas comemorativas, mensagem)
+  4. **Confirmar e enviar** (resumo + botão "Enviar pedido")
+- Um único botão CTA no fim ("Enviar pedido"), com validação inline (mostrar mensagens de erro por secção em vez de bloquear navegação). Reaproveitar a função `submit()` existente e o resumo do passo 4 atual.
+- Manter o `searchParams.get("plano")` para pré-selecionar plano.
+- Scroll suave para a primeira secção inválida ao tentar submeter.
 
-**Editado** `src/pages/AdminCemeteries.tsx`
-- No `Dialog` "Novo / Editar cemitério", adicionar acima dos campos atuais:
-  - Input "Link do Google Maps" + botão "Importar" (com loader).
-  - Pequeno texto de ajuda: *"Cole o link partilhado do Google Maps para preencher automaticamente."*
-- Função `handleImport()` chama a edge function via `supabase.functions.invoke("import-google-maps-place", { body: { url } })` e faz `setForm({...form, nome, morada, freguesia, municipio, lat, lng })`.
-- Mostra toast de sucesso / erro ("Não foi possível ler o link").
+### 2. Auto-preenchimento ao escolher cemitério
+- Estender `useCemeteriesCascade` / `CemeteryRow` para já trazer `freguesia`, `morada`, `lat`, `lng` (já estão na query — só falta usá-los).
+- Em `handleCemeteryChange`, além de preencher `cemetery_name` e `cemetery_address`, guardar também `lat`/`lng` no estado `grave` (adicionar campos `lat` e `lng`).
+- Abaixo do `Select` do cemitério, mostrar um cartão informativo com:
+  - Morada completa
+  - Município · Freguesia
+  - Mini-mapa de leitura (reaproveitar `CemeteryPicker` em modo só-leitura, ou um `<a>` para Google Maps com `lat,lng`) quando existirem coordenadas
+- Estes dados são meramente informativos para o cliente confirmar que é o cemitério correto. Não passam novos campos para o backend além dos já existentes (`cemetery_id` é a fonte de verdade no servidor).
 
-**Sem alterações na BD** — usa as colunas existentes (`nome`, `municipio`, `freguesia`, `morada`, `lat`, `lng`).
+### 3. Sem alterações de BD nem de Edge Functions
+- A tabela `cemeteries` e a função `care-signup` ficam iguais. A página continua a invocar `care-signup` com o mesmo payload.
 
-## Notas
-
-- O nome devolvido pelo Google ("Cemitério de São Romão de Neiva") é mantido tal e qual no campo Nome — o utilizador pode editar antes de guardar.
-- Se a Nominatim falhar (raro), o formulário ainda recebe nome + coordenadas; o utilizador preenche município/freguesia à mão.
-- O pin do `LeafletPicker` move-se para o `lat,lng` importado.
+## Notas técnicas
+- Reutilizar componentes já existentes: `Card`, `Input`, `Select`, `Popover`, `CareInterestDialog`, `CemeteryPicker`.
+- Tokens semânticos do design system (`bg-primary/5`, `border-border`, `text-muted-foreground`) — sem cores hardcoded.
+- Validação: derivar um objeto `errors` a partir do estado atual e mostrar `<p className="text-destructive text-sm">` por campo, sem bloquear a interação com as outras secções.
