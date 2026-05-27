@@ -22,20 +22,53 @@ export default function CareAuth() {
   const [name, setName] = useState('');
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    let cancelled = false;
+
+    const checkCareCustomer = async (userId: string) => {
+      const { data } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      return !!data;
+    };
+
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (cancelled || !session) return;
+      const isCare = await checkCareCustomer(session.user.id);
+      if (cancelled) return;
+      if (isCare) {
         navigate(redirect);
+      } else {
+        // Sessão pertence a outro tipo de utilizador (funerária/admin/técnico).
+        // Termina silenciosamente para permitir login com a conta Care correta.
+        await supabase.auth.signOut();
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate(redirect);
-      }
+      if (event !== 'SIGNED_IN' || !session) return;
+      (async () => {
+        const isCare = await checkCareCustomer(session.user.id);
+        if (cancelled) return;
+        if (isCare) {
+          navigate(redirect);
+        } else {
+          await supabase.auth.signOut();
+          toast({
+            title: "Conta não compatível",
+            description: "Esta conta não é uma conta Memoralis Care. Inicie sessão com a sua conta Care.",
+            variant: "destructive"
+          });
+        }
+      })();
     });
 
-    return () => subscription.unsubscribe();
-  }, [navigate, redirect]);
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [navigate, redirect, toast]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
