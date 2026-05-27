@@ -120,7 +120,7 @@ export default function ObituaryArchive() {
         : "funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)";
       let query = supabase
         .from("obituaries")
-        .select(`id, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, ${funerariaSelect}`, { count: "exact" })
+        .select(`id, slug, display_name, birth_date, death_date, locality, freguesia, distrito, photo_url, funeraria_id, ${funerariaSelect}`, { count: "exact" })
         .eq("is_public", true);
 
       if (searchName.trim()) {

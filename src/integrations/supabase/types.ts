@@ -1762,6 +1762,7 @@ export type Database = {
           responsible_client_id: string | null
           service_price: number | null
           service_type: string | null
+          slug: string | null
           social_security: string | null
           tax_id: string | null
           updated_at: string
@@ -1817,6 +1818,7 @@ export type Database = {
           responsible_client_id?: string | null
           service_price?: number | null
           service_type?: string | null
+          slug?: string | null
           social_security?: string | null
           tax_id?: string | null
           updated_at?: string
@@ -1872,6 +1874,7 @@ export type Database = {
           responsible_client_id?: string | null
           service_price?: number | null
           service_type?: string | null
+          slug?: string | null
           social_security?: string | null
           tax_id?: string | null
           updated_at?: string
@@ -2439,6 +2442,7 @@ export type Database = {
         Args: { p_admin_id: string; p_conversation_id: string }
         Returns: string
       }
+      slugify: { Args: { input: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "funeraria" | "technician" | "customer"

@@ -80,6 +80,8 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/obituario" element={<ObituaryArchive />} />
           <Route path="/obituarios" element={<ObituaryArchive />} />
+          <Route path="/obituario/:funerariaSlug/:obituarySlug" element={<ObituaryDetail />} />
+          <Route path="/obituario/:funerariaSlug/:obituarySlug/flores" element={<ObituaryFlowers />} />
           <Route path="/obituario/:id" element={<ObituaryDetail />} />
           <Route path="/obituarios/:id" element={<ObituaryDetail />} />
           <Route path="/obituario/:id/flores" element={<ObituaryFlowers />} />

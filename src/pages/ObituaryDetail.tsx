@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Facebook, MessageCircle, Mail, Link as LinkIcon, Printer, MapPin, Calendar, Clock, Heart, ThumbsUp, ChevronRight, Home, Eye, MessageSquare, Flame, Phone } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Link, useParams, useLocation } from "react-router-dom";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +30,7 @@ interface Obituary {
   public_message: string | null;
   hide_condolences: boolean | null;
   funeraria_id: string;
+  slug?: string | null;
 }
 
 interface CeremonyEvent {
@@ -66,8 +67,13 @@ interface RelatedObituary {
 }
 
 export default function ObituaryDetail() {
-  const { id } = useParams();
-  
+  const params = useParams();
+  const navigate = useNavigate();
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const funerariaSlugParam = params.funerariaSlug;
+  const obituarySlugParam = params.obituarySlug;
+  const idParam = params.id && UUID_RE.test(params.id) ? params.id : undefined;
+
   const [loading, setLoading] = useState(true);
   const [obituary, setObituary] = useState<Obituary | null>(null);
   const [events, setEvents] = useState<CeremonyEvent[]>([]);
@@ -91,8 +97,15 @@ export default function ObituaryDetail() {
   const location = useLocation();
 
   useEffect(() => {
-    if (id) loadObituaryData(id);
-  }, [id]);
+    if (idParam) {
+      loadObituaryById(idParam);
+    } else if (funerariaSlugParam && obituarySlugParam) {
+      loadObituaryBySlug(funerariaSlugParam, obituarySlugParam);
+    } else {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idParam, funerariaSlugParam, obituarySlugParam]);
 
   // Stripe checkout return handling
   useEffect(() => {
@@ -166,15 +179,15 @@ export default function ObituaryDetail() {
 
   // Register view
   useEffect(() => {
-    if (!id || loading || !obituary) return;
-    const key = `viewed_${id}`;
+    if (!obituary || loading) return;
+    const key = `viewed_${obituary.id}`;
     if (!sessionStorage.getItem(key)) {
-      supabase.from("obituary_views").insert({ obituary_id: id }).then(() => {
+      supabase.from("obituary_views").insert({ obituary_id: obituary.id }).then(() => {
         sessionStorage.setItem(key, "true");
         setViewCount((prev) => prev + 1);
       });
     }
-  }, [id, loading, obituary]);
+  }, [obituary, loading]);
 
   useEffect(() => {
     if (!loading && obituary && location.hash === '#condolencias') {
@@ -186,6 +199,39 @@ export default function ObituaryDetail() {
 
   const [notPublished, setNotPublished] = useState(false);
 
+  const loadObituaryById = async (obituaryId: string) => {
+    // Resolve slug pair and redirect to the canonical URL
+    const { data: obit } = await supabase
+      .from("obituaries")
+      .select("slug, funerarias!inner(slug)")
+      .eq("id", obituaryId)
+      .maybeSingle();
+    const funSlug = (obit as any)?.funerarias?.slug;
+    const obSlug = (obit as any)?.slug;
+    if (funSlug && obSlug) {
+      navigate(`/obituario/${funSlug}/${obSlug}${location.search}${location.hash}`, { replace: true });
+      return;
+    }
+    await loadObituaryData(obituaryId);
+  };
+
+  const loadObituaryBySlug = async (funerariaSlug: string, obituarySlug: string) => {
+    const { data: fun } = await supabase
+      .from("funerarias")
+      .select("id")
+      .eq("slug", funerariaSlug)
+      .maybeSingle();
+    if (!fun) { setLoading(false); return; }
+    const { data: obit } = await supabase
+      .from("obituaries")
+      .select("id")
+      .eq("funeraria_id", fun.id)
+      .eq("slug", obituarySlug)
+      .maybeSingle();
+    if (!obit) { setLoading(false); return; }
+    await loadObituaryData(obit.id);
+  };
+
   const loadObituaryData = async (obituaryId: string) => {
     try {
       setLoading(true);
@@ -194,7 +240,7 @@ export default function ObituaryDetail() {
       // Fetch obituary
       const { data: obit, error } = await supabase
         .from("obituaries")
-        .select("id, display_name, full_name, birth_date, death_date, locality, freguesia, photo_url, public_message, hide_condolences, funeraria_id")
+        .select("id, slug, display_name, full_name, birth_date, death_date, locality, freguesia, photo_url, public_message, hide_condolences, funeraria_id")
         .eq("id", obituaryId)
         .maybeSingle();
 
@@ -229,7 +275,7 @@ export default function ObituaryDetail() {
       const [eventsRes, funerariaRes, relatedRes] = await Promise.all([
         supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, map_link").eq("obituary_id", obit.id).order("event_date", { ascending: true }),
         supabase.from("funerarias").select("id, nome_comercial, telefone, email, morada, logo_url, slug, localidade, codigo_postal, servico_flores_ativo, flores_limite_horas").eq("id", obit.funeraria_id).maybeSingle(),
-        supabase.from("obituaries").select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(5),
+        supabase.from("obituaries").select("id, slug, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(5),
       ]);
 
       setEvents(eventsRes.data || []);
@@ -499,7 +545,7 @@ export default function ObituaryDetail() {
                       {/* DEV: temporariamente sempre visível para desenvolvimento */}
                       {true && (
                         <Button asChild className="w-full sm:w-auto bg-primary hover:bg-primary/90">
-                          <Link to={`/obituario/${id}/flores`}>Enviar Flores</Link>
+                          <Link to={funeraria?.slug && obituary.slug ? `/obituario/${funeraria.slug}/${obituary.slug}/flores` : `/obituario/${obituary.id}/flores`}>Enviar Flores</Link>
                         </Button>
                       )}
                     </div>

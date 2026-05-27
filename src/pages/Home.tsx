@@ -52,7 +52,7 @@ export default function Home() {
   const searchByName = useCallback(async (query: string): Promise<SearchResult[]> => {
     const { data } = await supabase
       .from("obituaries")
-      .select("id, display_name, locality, funeraria_id, funerarias(slug)")
+      .select("id, slug, display_name, locality, funeraria_id, funerarias(slug)")
       .eq("is_public", true)
       .ilike("display_name", `%${query}%`)
       .limit(5);
@@ -99,7 +99,7 @@ export default function Home() {
       // Load recent obituaries
       const { data } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)")
+        .select("id, slug, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug, servico_flores_ativo, flores_limite_horas)")
         .eq("is_public", true)
         .order("death_date", { ascending: false, nullsFirst: false })
         .limit(12);
