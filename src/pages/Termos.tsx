@@ -135,7 +135,7 @@ const Termos = () => {
           <p>
             Memoralis, Lda – Incubo, 4970-786 Arcos de Valdevez
             <br />
-            Email: <a href="mailto:info@memoralis.pt">info@memoralis.pt</a> · Telefone: <a href="tel:+351928282582">+351 928 282 582</a>
+            <a href="mailto:info@memoralis.pt">info@memoralis.pt</a> · Telefone: <a href="tel:+351928282582">+351 928 282 582</a>
           </p>
         </div>
       </section>

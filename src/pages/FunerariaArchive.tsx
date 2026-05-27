@@ -204,7 +204,7 @@ export default function FunerariaArchive() {
             <div>
               <h4 className="font-archivo font-semibold mb-4">Contacto</h4>
               <p className="text-sm opacity-80">
-                Email: info@memoralis.pt
+                info@memoralis.pt
               </p>
             </div>
           </div>
