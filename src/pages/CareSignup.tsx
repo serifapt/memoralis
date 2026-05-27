@@ -39,6 +39,7 @@ const steps = [
 
 export default function CareSignup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [authChecked, setAuthChecked] = useState(false);
@@ -58,9 +59,12 @@ export default function CareSignup() {
     names_on_grave: "",
     notes: "",
   });
-  const [planCode, setPlanCode] = useState<string>("mensal");
+  const [planCode, setPlanCode] = useState<string>(
+    () => searchParams.get("plano") || "mensal"
+  );
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [dates, setDates] = useState<CommemorativeDate[]>([]);
+  const [familyMessage, setFamilyMessage] = useState("");
 
   // auth gate – require logged-in customer
   useEffect(() => {
@@ -85,7 +89,7 @@ export default function CareSignup() {
     (async () => {
       const [{ data: cems }, { data: pls }] = await Promise.all([
         supabase.from("cemeteries").select("id,nome,municipio,morada").eq("ativo", true).order("nome"),
-        supabase.from("care_plans").select("id,code,name,description,includes_json").eq("active", true).order("display_order"),
+        supabase.from("care_plans").select("id,code,name,description,includes_json").eq("active", true).neq("code", "HOMENAGEM").order("display_order"),
       ]);
       setCemeteries(cems ?? []);
       setPlans(pls ?? []);
@@ -100,10 +104,16 @@ export default function CareSignup() {
   const monthlyPrice = carePlanPriceByCode[planCode] ?? 0;
   const displayPrice = billingPeriod === "yearly" ? monthlyPrice * 12 * 0.9 : monthlyPrice;
 
+  const datesValid = dates.every((d) => {
+    if (d.type === "outra") return (d.label ?? "").trim().length > 0 && (d.date ?? "").length > 0;
+    const def = commemorativeDateTypes.find((x) => x.value === d.type);
+    return def?.hasDate ? (d.date ?? "").length > 0 : true;
+  });
+
   const canNext = () => {
     if (step === 1) return personal.name.trim().length > 1 && /\S+@\S+\.\S+/.test(personal.email);
     if (step === 2) return grave.cemetery_name.trim().length > 1;
-    if (step === 3) return !!selectedPlan;
+    if (step === 3) return !!selectedPlan && datesValid;
     return true;
   };
 
@@ -124,7 +134,11 @@ export default function CareSignup() {
   };
 
   const addDate = () =>
-    setDates((d) => [...d, { type: commemorativeDateTypes[0].value, date: "", note: "" }]);
+    setDates((d) =>
+      d.length >= MAX_DATES
+        ? d
+        : [...d, { type: commemorativeDateTypes[0].value, date: "", note: "", label: "" }]
+    );
   const removeDate = (i: number) => setDates((d) => d.filter((_, idx) => idx !== i));
   const updateDate = (i: number, patch: Partial<CommemorativeDate>) =>
     setDates((d) => d.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
@@ -148,6 +162,7 @@ export default function CareSignup() {
             care_plan_id: selectedPlan!.id,
             billing_period: billingPeriod,
             commemorative_dates: dates,
+            family_message: familyMessage,
           },
         },
       });
