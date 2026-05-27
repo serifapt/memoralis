@@ -215,7 +215,7 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
     );
   }
 
-  const publicUrl = data.slug ? `memoralis.lovable.app/funerarias/${data.slug}` : "";
+  const publicUrl = data.slug ? `memoralis.pt/funerarias/${data.slug}` : "";
 
   return (
     <div className="space-y-6">
@@ -327,7 +327,7 @@ export function PublicPageTab({ funerariaId }: PublicPageTabProps) {
           <div className="space-y-2">
             <Label htmlFor="slug">Link personalizado</Label>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">memoralis.lovable.app/funerarias/</span>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">memoralis.pt/funerarias/</span>
               <Input
                 id="slug"
                 value={data.slug}
