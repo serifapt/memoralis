@@ -49,8 +49,13 @@ Deno.serve(async (req) => {
     }
 
     if (lat == null || lng == null) {
+      const isKgShare = /\/search\?.*kgmid=/i.test(finalUrl);
+      const hint = isKgShare
+        ? "Este tipo de link partilhado (share.google) não inclui coordenadas. Abra o local no Google Maps, toque em Partilhar e escolha \"Copiar link\" — o URL deverá começar por https://maps.app.goo.gl/ ou https://www.google.com/maps/place/..."
+        : "Não foi possível extrair coordenadas do link. Use um link do Google Maps que contenha a localização (maps.app.goo.gl ou google.com/maps).";
       return new Response(JSON.stringify({
-        error: "Não foi possível extrair coordenadas do link. Cole um link do Google Maps com localização.",
+        error: hint,
+        final_url: finalUrl,
       }), { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
