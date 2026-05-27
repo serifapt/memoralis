@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, ChevronRight, Building } from "lucide-react";
+import { Search, MapPin, Home, ChevronRight, Building, SlidersHorizontal } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo-memoralis.svg";
 import { PublicHeader } from "@/components/layout/PublicHeader";
@@ -17,6 +17,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PublicObituaryCard, type PublicObituary } from "@/components/obituaries/PublicObituaryCard";
 import { fetchObituaryCounts } from "@/hooks/useObituaryCounts";
 import { getActiveTag, hasUpcomingMass, isFlowerOrderOpen, type CeremonyEvent } from "@/lib/ceremony-utils";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 
 const PAGE_SIZE = 12;
 
@@ -227,6 +229,69 @@ export default function ObituaryArchive() {
     setSearchTimeout(timeout);
   };
 
+  const activeFilterCount = [selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria].filter(v => v !== "all").length;
+  const clearAdvancedFilters = () => {
+    setSelectedLocality("all");
+    setSelectedFreguesia("all");
+    setSelectedDistrito("all");
+    setSelectedFuneraria("all");
+    setLocalityText("");
+    setFunerariaText("");
+  };
+
+  const advancedFiltersBody = (
+    <>
+      <Select value={selectedLocality} onValueChange={setSelectedLocality}>
+        <SelectTrigger>
+          <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+          <SelectValue placeholder="Localidade" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas as localidades</SelectItem>
+          {localities.map(loc => (
+            <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={selectedFreguesia} onValueChange={setSelectedFreguesia}>
+        <SelectTrigger>
+          <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+          <SelectValue placeholder="Freguesia" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas as freguesias</SelectItem>
+          {freguesias.map(f => (
+            <SelectItem key={f} value={f}>{f}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={selectedDistrito} onValueChange={setSelectedDistrito}>
+        <SelectTrigger>
+          <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+          <SelectValue placeholder="Distrito" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todos os distritos</SelectItem>
+          {distritos.map(d => (
+            <SelectItem key={d} value={d}>{d}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={selectedFuneraria} onValueChange={setSelectedFuneraria}>
+        <SelectTrigger>
+          <Building className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
+          <SelectValue placeholder="Funerária" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas as funerárias</SelectItem>
+          {funerariasList.map(f => (
+            <SelectItem key={f.id} value={f.id}>{f.nome_comercial}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-background font-inter">
       <PublicHeader />
@@ -251,7 +316,48 @@ export default function ObituaryArchive() {
 
         {/* Filters */}
         <div className="space-y-4 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {/* Mobile: search + filter trigger */}
+          <div className="flex gap-2 md:hidden">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
+              <Input
+                placeholder="Pesquisar por nome..."
+                className="pl-10"
+                onChange={(e) => handleSearchChange(e.target.value)}
+              />
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="relative shrink-0">
+                  <SlidersHorizontal className="w-4 h-4" />
+                  {activeFilterCount > 0 && (
+                    <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center border-2 border-background">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[85vh] flex flex-col">
+                <SheetHeader>
+                  <SheetTitle>Filtros</SheetTitle>
+                </SheetHeader>
+                <div className="flex-1 overflow-y-auto py-4 space-y-3">
+                  {advancedFiltersBody}
+                </div>
+                <SheetFooter className="flex-row gap-2 sm:flex-row sm:justify-stretch">
+                  <Button variant="outline" className="flex-1" onClick={clearAdvancedFilters}>
+                    Limpar
+                  </Button>
+                  <SheetClose asChild>
+                    <Button className="flex-1">Ver resultados</Button>
+                  </SheetClose>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Desktop: full grid */}
+          <div className="hidden md:grid md:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
               <Input
@@ -260,65 +366,18 @@ export default function ObituaryArchive() {
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
-            <Select value={selectedLocality} onValueChange={setSelectedLocality}>
-              <SelectTrigger>
-                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
-                <SelectValue placeholder="Localidade" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as localidades</SelectItem>
-                {localities.map(loc => (
-                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedFreguesia} onValueChange={setSelectedFreguesia}>
-              <SelectTrigger>
-                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
-                <SelectValue placeholder="Freguesia" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as freguesias</SelectItem>
-                {freguesias.map(f => (
-                  <SelectItem key={f} value={f}>{f}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedDistrito} onValueChange={setSelectedDistrito}>
-              <SelectTrigger>
-                <MapPin className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
-                <SelectValue placeholder="Distrito" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os distritos</SelectItem>
-                {distritos.map(d => (
-                  <SelectItem key={d} value={d}>{d}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedFuneraria} onValueChange={setSelectedFuneraria}>
-              <SelectTrigger>
-                <Building className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
-                <SelectValue placeholder="Funerária" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as funerárias</SelectItem>
-                {funerariasList.map(f => (
-                  <SelectItem key={f.id} value={f.id}>{f.nome_comercial}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {advancedFiltersBody}
           </div>
 
           {/* Tag pills + counter + sort */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex sm:flex-wrap gap-2 overflow-x-auto sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 w-full sm:w-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {TAG_OPTIONS.map(tag => (
                 <Button
                   key={tag.value}
                   variant={selectedTag === tag.value ? "default" : "outline"}
                   size="sm"
-                  className="rounded-full"
+                  className="rounded-full shrink-0"
                   onClick={() => setSelectedTag(tag.value)}
                 >
                   {tag.label}

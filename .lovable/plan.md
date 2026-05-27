@@ -1,34 +1,33 @@
-# Adesão Care: página única + cemitério ligado à BD
-
 ## Objetivo
-Substituir o atual wizard de 4 passos (`/care/aderir`, `src/pages/CareSignup.tsx`) por uma página de subscrição corrida, onde todas as secções aparecem na mesma vista. Ao selecionar o cemitério (a partir dos cemitérios ativos da BD), os campos relacionados são preenchidos automaticamente e mostrados ao cliente.
 
-## Alterações
+No `/obituario` (e equivalente em `/funerarias` se aplicável), no **mobile** os 4 selects (Localidade, Freguesia, Distrito, Funerária) ficam escondidos atrás de um botão de filtros, e as **tag pills** (Todos, Funeral, Missa 7º dia, etc.) passam a ser uma fila com scroll horizontal por swipe. No desktop nada muda.
 
-### 1. `src/pages/CareSignup.tsx` — layout corrido
-- Remover o estado `step`, a `Progress`, e os botões "Anterior/Continuar".
-- Manter o mesmo `Card` central, mas dentro renderizar 4 secções empilhadas, cada uma com título e separador subtil:
-  1. **Os seus dados** (nome, email, telefone, NIF)
-  2. **A campa** (cemitério + detalhes)
-  3. **O plano** (cards de planos, periodicidade, datas comemorativas, mensagem)
-  4. **Confirmar e enviar** (resumo + botão "Enviar pedido")
-- Um único botão CTA no fim ("Enviar pedido"), com validação inline (mostrar mensagens de erro por secção em vez de bloquear navegação). Reaproveitar a função `submit()` existente e o resumo do passo 4 atual.
-- Manter o `searchParams.get("plano")` para pré-selecionar plano.
-- Scroll suave para a primeira secção inválida ao tentar submeter.
+## Alterações em `src/pages/ObituaryArchive.tsx`
 
-### 2. Auto-preenchimento ao escolher cemitério
-- Estender `useCemeteriesCascade` / `CemeteryRow` para já trazer `freguesia`, `morada`, `lat`, `lng` (já estão na query — só falta usá-los).
-- Em `handleCemeteryChange`, além de preencher `cemetery_name` e `cemetery_address`, guardar também `lat`/`lng` no estado `grave` (adicionar campos `lat` e `lng`).
-- Abaixo do `Select` do cemitério, mostrar um cartão informativo com:
-  - Morada completa
-  - Município · Freguesia
-  - Mini-mapa de leitura (reaproveitar `CemeteryPicker` em modo só-leitura, ou um `<a>` para Google Maps com `lat,lng`) quando existirem coordenadas
-- Estes dados são meramente informativos para o cliente confirmar que é o cemitério correto. Não passam novos campos para o backend além dos já existentes (`cemetery_id` é a fonte de verdade no servidor).
+1. **Barra superior mobile** (`md:hidden`)
+   - Input de pesquisa por nome ocupa toda a largura
+   - Ao lado, botão de ícone `SlidersHorizontal` com badge a mostrar o nº de filtros ativos (contagem dos selects diferentes de `"all"`)
+   - Esconder a grid de selects atual no mobile (`hidden md:grid`)
 
-### 3. Sem alterações de BD nem de Edge Functions
-- A tabela `cemeteries` e a função `care-signup` ficam iguais. A página continua a invocar `care-signup` com o mesmo payload.
+2. **Drawer de filtros** (componente `Sheet` do shadcn, lado `bottom`, altura ~85vh)
+   - Título "Filtros"
+   - Corpo com os 4 selects empilhados (Localidade, Freguesia, Distrito, Funerária) — mesmos componentes/estado já existentes
+   - Rodapé com dois botões: "Limpar" (repõe os 4 selects + textos a `"all"`/`""`) e "Ver resultados" (`SheetClose`)
+   - Reutilizar os mesmos selects no desktop para não duplicar lógica
 
-## Notas técnicas
-- Reutilizar componentes já existentes: `Card`, `Input`, `Select`, `Popover`, `CareInterestDialog`, `CemeteryPicker`.
-- Tokens semânticos do design system (`bg-primary/5`, `border-border`, `text-muted-foreground`) — sem cores hardcoded.
-- Validação: derivar um objeto `errors` a partir do estado atual e mostrar `<p className="text-destructive text-sm">` por campo, sem bloquear a interação com as outras secções.
+3. **Tag pills com swipe no mobile**
+   - Container muda de `flex flex-wrap` para `flex overflow-x-auto scrollbar-hide` no mobile e mantém `sm:flex-wrap sm:overflow-visible` no desktop
+   - Cada pill ganha `shrink-0` para não comprimir
+   - Margens negativas laterais (`-mx-4 px-4 sm:mx-0 sm:px-0`) para o scroll alinhar com o conteúdo
+
+## Detalhes técnicos
+
+- Componentes novos importados: `Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose` de `@/components/ui/sheet`, `Badge` de `@/components/ui/badge`, ícone `SlidersHorizontal` do `lucide-react`.
+- Sem alterações à lógica de query/Supabase — só reorganização visual.
+- `scrollbar-hide`: se o utilitário não existir no Tailwind, uso `[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]` inline.
+- Verifico no preview mobile (375px) que (a) o drawer abre, fecha e aplica filtros, (b) o badge mostra o nº correto, (c) o "Limpar" repõe, (d) as pills fazem scroll horizontal suave e a pill ativa mantém o estilo `bg-primary text-primary-foreground`.
+
+## Fora do âmbito
+
+- Não mexo no `FunerariaArchive` nesta tarefa (posso replicar depois se quiseres).
+- Não toco no sort ("Mais recentes") nem na grelha de resultados.
