@@ -113,6 +113,52 @@ export default function BlogPost() {
     })();
   }, [slug]);
 
+  useEffect(() => {
+    if (!post) return;
+    const prevTitle = document.title;
+    const title = post.meta_title || post.title;
+    const description = post.meta_description || post.excerpt || "";
+    const url = `https://www.memoralis.pt/blog/${post.slug}`;
+    document.title = title;
+
+    const setMeta = (selector: string, attr: "name" | "property", key: string, content: string) => {
+      if (!content) return null;
+      let el = document.head.querySelector<HTMLMetaElement>(selector);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+      return el;
+    };
+
+    const metas = [
+      setMeta(`meta[name="description"]`, "name", "description", description),
+      setMeta(`meta[property="og:title"]`, "property", "og:title", title),
+      setMeta(`meta[property="og:description"]`, "property", "og:description", description),
+      setMeta(`meta[property="og:url"]`, "property", "og:url", url),
+      setMeta(`meta[property="og:type"]`, "property", "og:type", "article"),
+      post.cover_image_url ? setMeta(`meta[property="og:image"]`, "property", "og:image", post.cover_image_url) : null,
+    ];
+
+    let canonical = document.head.querySelector<HTMLLinkElement>(`link[rel="canonical"]`);
+    const createdCanonical = !canonical;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    const prevCanonical = canonical.getAttribute("href");
+    canonical.setAttribute("href", url);
+
+    return () => {
+      document.title = prevTitle;
+      if (createdCanonical) canonical?.remove();
+      else if (prevCanonical) canonical?.setAttribute("href", prevCanonical);
+    };
+  }, [post]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
