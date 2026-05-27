@@ -1,94 +1,77 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { 
-  Heart, 
-  Loader2, 
-  MapPin, 
-  Calendar, 
-  CreditCard, 
-  Settings,
-  LogOut,
-  Plus,
-  ExternalLink,
-  Image
-} from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { 
-  useCustomerProfile, 
-  useMemorialLocations, 
+import {
+  useCustomerProfile,
+  useMemorialLocations,
   useCareSubscriptions,
-  useOpenCustomerPortal
+  useOpenCustomerPortal,
 } from "@/hooks/useCareService";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { careStatusLabel } from "@/lib/care-status";
+import {
+  Heart,
+  Loader2,
+  MapPin,
+  Calendar,
+  Phone,
+  LogOut,
+  Plus,
+  FileText,
+  Info,
+  HelpCircle,
+  ExternalLink,
+} from "lucide-react";
+import { CareSiteHeader } from "@/components/care/CareSiteHeader";
+
+const MOLONI_ENABLED = false; // server flag — will turn on once MOLONI_CLIENT_ID is set
 
 export default function CustomerDashboard() {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const { data: customer, isLoading: loadingCustomer } = useCustomerProfile();
   const { data: locations } = useMemorialLocations(customer?.id);
-  const { data: subscriptions, isLoading: loadingSubscriptions } = useCareSubscriptions(customer?.id);
+  const { data: subscriptions } = useCareSubscriptions(customer?.id);
   const openPortal = useOpenCustomerPortal();
 
-  // Get service history for customer
-  const { data: serviceHistory } = useQuery({
-    queryKey: ['service-history', customer?.id],
+  const { data: visits } = useQuery({
+    queryKey: ["customer-visits", customer?.id],
+    enabled: !!customer?.id,
     queryFn: async () => {
-      if (!customer?.id) return [];
-      
       const { data, error } = await supabase
-        .from('service_tasks')
+        .from("service_tasks")
         .select(`
           *,
-          care_subscriptions!inner (
-            customer_id,
-            care_plans (name),
-            memorial_locations (cemetery_name, grave_number)
-          ),
-          service_task_media (id, type, file_url)
+          care_subscriptions!inner ( id, customer_id, memorial_location_id ),
+          service_task_media ( id, type, file_url )
         `)
-        .eq('care_subscriptions.customer_id', customer.id)
-        .eq('status', 'completed')
-        .order('completed_at', { ascending: false })
-        .limit(10);
-
+        .eq("care_subscriptions.customer_id", customer!.id)
+        .order("completed_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
-    enabled: !!customer?.id
   });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session);
-      if (!session) {
-        navigate('/care/auth?redirect=/account/care');
-      }
+      setAuthChecked(true);
+      if (!session) navigate("/care/auth?redirect=/account/care");
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setIsAuthenticated(!!session);
-      if (!session) {
-        navigate('/care/auth?redirect=/account/care');
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate('/care');
+    navigate("/care");
   };
 
-  if (isAuthenticated === null || loadingCustomer) {
+  if (!authChecked || loadingCustomer) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -101,14 +84,12 @@ export default function CustomerDashboard() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle>Perfil Incompleto</CardTitle>
-            <CardDescription>
-              Complete a sua subscrição para aceder ao dashboard.
-            </CardDescription>
+            <CardTitle className="text-2xl">Ainda não tem um plano</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link to="/care/plans">Escolher Plano</Link>
+          <CardContent className="space-y-4 text-base">
+            <p>Para aceder à sua área pessoal, comece por aderir a um dos nossos planos.</p>
+            <Button asChild size="lg" className="w-full text-base">
+              <Link to="/care/aderir">Aderir agora</Link>
             </Button>
           </CardContent>
         </Card>
@@ -116,297 +97,231 @@ export default function CustomerDashboard() {
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-      active: { label: "Ativo", variant: "default" },
-      trialing: { label: "Período de Teste", variant: "secondary" },
-      past_due: { label: "Pagamento Pendente", variant: "destructive" },
-      canceled: { label: "Cancelado", variant: "outline" },
-      paused: { label: "Pausado", variant: "secondary" }
-    };
-    const s = statusMap[status] || { label: status, variant: "outline" as const };
-    return <Badge variant={s.variant}>{s.label}</Badge>;
-  };
+  // Group subscriptions by memorial location
+  const locationsWithSub = (locations || []).map((loc) => ({
+    location: loc,
+    sub: subscriptions?.find((s) => s.memorial_location_id === loc.id),
+    visits: (visits || []).filter(
+      (v: any) => v.care_subscriptions?.memorial_location_id === loc.id
+    ),
+  }));
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/care" className="flex items-center gap-2">
-            <Heart className="w-6 h-6 text-primary" />
-            <span className="font-semibold">Cuidado & Homenagem</span>
-          </Link>
-          
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:block">
-              {customer.name}
-            </span>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sair
+    <div className="min-h-screen bg-muted/20 text-[16px] leading-relaxed">
+      <CareSiteHeader />
+
+      <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+        {/* Greeting */}
+        <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-serif">
+              Olá, {customer.name.split(" ")[0]}
+            </h1>
+            <p className="text-muted-foreground mt-1 text-base">
+              Bem-vindo à sua área pessoal Memoralis Care.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button asChild variant="default" size="lg" className="text-base">
+              <a href="tel:+351210000000">
+                <HelpCircle className="w-5 h-5 mr-2" /> Pedir Ajuda
+              </a>
+            </Button>
+            <Button variant="outline" size="lg" onClick={handleLogout} className="text-base">
+              <LogOut className="w-5 h-5 mr-2" /> Sair
             </Button>
           </div>
-        </div>
-      </header>
+        </section>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">A Minha Conta</h1>
+        {locationsWithSub.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center space-y-4">
+              <Heart className="w-10 h-10 text-primary mx-auto" />
+              <p className="text-lg">Ainda não tem nenhuma campa registada.</p>
+              <Button asChild size="lg">
+                <Link to="/care/aderir">
+                  <Plus className="w-5 h-5 mr-2" /> Adicionar uma campa
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {locationsWithSub.map(({ location, sub, visits }) => (
+              <Card key={location.id} className="shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <CardTitle className="text-2xl font-serif">
+                        {(location as any).names_on_grave || location.cemetery_name}
+                      </CardTitle>
+                      <p className="text-muted-foreground mt-1 text-base flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        {location.cemetery_name}
+                        {location.grave_number && ` • Campa ${location.grave_number}`}
+                      </p>
+                    </div>
+                    {sub && (
+                      <Badge variant="outline" className="text-sm py-1 px-3">
+                        {careStatusLabel[sub.status] || sub.status}
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
 
-        <Tabs defaultValue="subscription" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="subscription">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Subscrição
-            </TabsTrigger>
-            <TabsTrigger value="locations">
-              <MapPin className="w-4 h-4 mr-2" />
-              Locais
-            </TabsTrigger>
-            <TabsTrigger value="history">
-              <Calendar className="w-4 h-4 mr-2" />
-              Histórico
-            </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Settings className="w-4 h-4 mr-2" />
-              Definições
-            </TabsTrigger>
-          </TabsList>
+                <CardContent>
+                  <Tabs defaultValue="info">
+                    <TabsList className="grid grid-cols-3 w-full max-w-md h-12">
+                      <TabsTrigger value="info" className="text-base">
+                        <Info className="w-4 h-4 mr-2" /> Informação
+                      </TabsTrigger>
+                      <TabsTrigger value="visits" className="text-base">
+                        <Calendar className="w-4 h-4 mr-2" /> Visitas
+                      </TabsTrigger>
+                      <TabsTrigger value="invoices" className="text-base">
+                        <FileText className="w-4 h-4 mr-2" /> Faturas
+                      </TabsTrigger>
+                    </TabsList>
 
-          {/* Subscription Tab */}
-          <TabsContent value="subscription">
-            <div className="grid gap-6">
-              {loadingSubscriptions ? (
-                <Card>
-                  <CardContent className="py-8 flex justify-center">
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  </CardContent>
-                </Card>
-              ) : subscriptions && subscriptions.length > 0 ? (
-                subscriptions.map((sub) => (
-                  <Card key={sub.id}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
+                    {/* INFO */}
+                    <TabsContent value="info" className="pt-6 space-y-4 text-base">
+                      <InfoRow label="Plano" value={sub?.care_plans?.name || "—"} />
+                      <InfoRow
+                        label="Periodicidade"
+                        value={sub?.billing_period === "yearly" ? "Anual" : "Mensal"}
+                      />
+                      {sub?.current_period_end && (
+                        <InfoRow
+                          label="Próxima cobrança"
+                          value={format(new Date(sub.current_period_end), "d 'de' MMMM 'de' yyyy", { locale: pt })}
+                        />
+                      )}
+                      {location.cemetery_address && (
+                        <InfoRow label="Morada" value={location.cemetery_address} />
+                      )}
+                      {location.section && (
+                        <InfoRow label="Secção" value={location.section} />
+                      )}
+                      {location.notes && (
                         <div>
-                          <CardTitle className="flex items-center gap-2">
-                            {sub.care_plans?.name || 'Plano'}
-                            {getStatusBadge(sub.status)}
-                          </CardTitle>
-                          <CardDescription>
-                            {sub.memorial_locations?.cemetery_name}
-                            {sub.memorial_locations?.grave_number && 
-                              ` • Campa ${sub.memorial_locations.grave_number}`
-                            }
-                          </CardDescription>
+                          <p className="text-muted-foreground text-sm">Notas</p>
+                          <p className="whitespace-pre-line">{location.notes}</p>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap gap-6 text-sm">
-                          <div>
-                            <p className="text-muted-foreground">Periodicidade</p>
-                            <p className="font-medium">
-                              {sub.billing_period === 'monthly' ? 'Mensal' : 'Anual'}
-                            </p>
-                          </div>
-                          {sub.current_period_end && (
-                            <div>
-                              <p className="text-muted-foreground">Próxima Cobrança</p>
-                              <p className="font-medium">
-                                {format(new Date(sub.current_period_end), "d 'de' MMMM, yyyy", { locale: pt })}
-                              </p>
-                            </div>
-                          )}
-                          {sub.cancel_at_period_end && (
-                            <Badge variant="outline">Cancelamento agendado</Badge>
-                          )}
-                        </div>
-
-                        <Separator />
-
-                        <Button 
-                          variant="outline" 
+                      )}
+                      {sub && sub.status === "active" && (
+                        <Button
+                          variant="outline"
                           onClick={() => openPortal.mutate()}
                           disabled={openPortal.isPending}
+                          className="text-base"
                         >
                           {openPortal.isPending ? (
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           ) : (
                             <ExternalLink className="w-4 h-4 mr-2" />
                           )}
-                          Gerir Subscrição
+                          Gerir pagamento
                         </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Card>
-                  <CardContent className="py-8 text-center">
-                    <p className="text-muted-foreground mb-4">
-                      Ainda não tem uma subscrição ativa.
-                    </p>
-                    <Button asChild>
-                      <Link to="/care/plans">Escolher Plano</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </TabsContent>
+                      )}
+                    </TabsContent>
 
-          {/* Locations Tab */}
-          <TabsContent value="locations">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Locais Memoriais</CardTitle>
-                  <CardDescription>
-                    Gerir os locais associados às suas subscrições
-                  </CardDescription>
-                </div>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/care/checkout?plan=new">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adicionar
-                  </Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {locations && locations.length > 0 ? (
-                  <div className="space-y-4">
-                    {locations.map((loc) => (
-                      <div key={loc.id} className="flex items-start gap-3 p-4 border rounded-lg">
-                        <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
-                        <div className="flex-1">
-                          <p className="font-medium">{loc.cemetery_name}</p>
-                          {loc.grave_number && (
-                            <p className="text-sm text-muted-foreground">
-                              Campa: {loc.grave_number}
-                              {loc.section && ` • Secção: ${loc.section}`}
-                            </p>
-                          )}
-                          {loc.cemetery_address && (
-                            <p className="text-sm text-muted-foreground">{loc.cemetery_address}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-center py-4">
-                    Nenhum local registado.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    {/* VISITS */}
+                    <TabsContent value="visits" className="pt-6">
+                      {visits.length === 0 ? (
+                        <p className="text-muted-foreground text-base py-6 text-center">
+                          Ainda não há visitas registadas. Receberá um email assim que a primeira for concluída.
+                        </p>
+                      ) : (
+                        <ol className="space-y-6">
+                          {visits.map((v: any) => (
+                            <li key={v.id} className="border-l-2 border-primary/40 pl-4">
+                              <p className="font-medium text-lg">
+                                {v.completed_at
+                                  ? format(new Date(v.completed_at), "d 'de' MMMM 'de' yyyy", { locale: pt })
+                                  : "Visita agendada"}
+                              </p>
+                              {v.technician_notes && (
+                                <p className="text-muted-foreground mt-1">{v.technician_notes}</p>
+                              )}
+                              {v.service_task_media?.length > 0 && (
+                                <div className="flex gap-3 flex-wrap mt-3">
+                                  {v.service_task_media.map((m: any) => (
+                                    <a
+                                      key={m.id}
+                                      href={m.file_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="block w-28 h-28 rounded-lg overflow-hidden border relative hover:opacity-90"
+                                    >
+                                      <img src={m.file_url} alt={m.type} className="w-full h-full object-cover" />
+                                      <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs text-center py-1">
+                                        {m.type === "before" ? "Antes" : m.type === "after" ? "Depois" : ""}
+                                      </span>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                    </TabsContent>
 
-          {/* History Tab */}
-          <TabsContent value="history">
-            <Card>
-              <CardHeader>
-                <CardTitle>Histórico de Serviços</CardTitle>
-                <CardDescription>
-                  Visualize os serviços realizados e as fotografias
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {serviceHistory && serviceHistory.length > 0 ? (
-                  <div className="space-y-4">
-                    {serviceHistory.map((task: any) => (
-                      <div key={task.id} className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <p className="font-medium">
-                              {task.care_subscriptions?.care_plans?.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {task.care_subscriptions?.memorial_locations?.cemetery_name}
-                              {task.care_subscriptions?.memorial_locations?.grave_number &&
-                                ` • Campa ${task.care_subscriptions.memorial_locations.grave_number}`
-                              }
-                            </p>
-                          </div>
-                          <Badge variant="outline">
-                            {task.completed_at && 
-                              format(new Date(task.completed_at), "d MMM yyyy", { locale: pt })
-                            }
-                          </Badge>
-                        </div>
-                        
-                        {task.technician_notes && (
-                          <p className="text-sm text-muted-foreground mb-3">
-                            {task.technician_notes}
+                    {/* INVOICES */}
+                    <TabsContent value="invoices" className="pt-6">
+                      {!MOLONI_ENABLED ? (
+                        <div className="text-center py-8 space-y-2">
+                          <FileText className="w-10 h-10 text-muted-foreground mx-auto" />
+                          <p className="text-lg font-medium">Em breve</p>
+                          <p className="text-muted-foreground text-base">
+                            As suas faturas estarão disponíveis aqui muito em breve.
                           </p>
-                        )}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">Sem faturas a apresentar.</p>
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            ))}
 
-                        {task.service_task_media && task.service_task_media.length > 0 && (
-                          <div className="flex gap-2 flex-wrap">
-                            {task.service_task_media.map((media: any) => (
-                              <a 
-                                key={media.id}
-                                href={media.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="relative w-20 h-20 rounded overflow-hidden border hover:opacity-80 transition-opacity"
-                              >
-                                <img 
-                                  src={media.file_url} 
-                                  alt={media.type}
-                                  className="w-full h-full object-cover"
-                                />
-                                <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-0.5">
-                                  {media.type === 'before' ? 'Antes' : media.type === 'after' ? 'Depois' : 'Outro'}
-                                </span>
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Image className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>Ainda não há serviços concluídos.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <div className="text-center pt-2">
+              <Button asChild variant="outline" size="lg" className="text-base">
+                <Link to="/care/aderir">
+                  <Plus className="w-5 h-5 mr-2" /> Adicionar outra campa
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
 
-          {/* Settings Tab */}
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Definições da Conta</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-sm text-muted-foreground">Nome</Label>
-                  <p className="font-medium">{customer.name}</p>
-                </div>
-                <div>
-                  <Label className="text-sm text-muted-foreground">Email</Label>
-                  <p className="font-medium">{customer.email}</p>
-                </div>
-                {customer.phone && (
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Telefone</Label>
-                    <p className="font-medium">{customer.phone}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Contact card */}
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              <p className="text-lg font-medium">Precisa de ajuda?</p>
+              <p className="text-muted-foreground">A nossa equipa fala consigo em português, sem pressas.</p>
+            </div>
+            <div className="flex gap-3">
+              <Button asChild size="lg" variant="default" className="text-base">
+                <a href="tel:+351210000000">
+                  <Phone className="w-5 h-5 mr-2" /> 21 000 00 00
+                </a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
 }
 
-function Label({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <p className={className}>{children}</p>;
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+      <span className="text-muted-foreground sm:w-44 text-sm">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
+  );
 }

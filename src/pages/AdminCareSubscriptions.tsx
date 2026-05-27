@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Search, Filter, Eye, Plus } from "lucide-react";
-import { useAdminCareSubscriptions } from "@/hooks/useCareOperations";
+import { Loader2, Search, Filter, Eye, CheckCircle2, PauseCircle, XCircle } from "lucide-react";
+import { useAdminCareSubscriptions, useUpdateCareSubscriptionStatus } from "@/hooks/useCareOperations";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -17,6 +17,7 @@ export default function AdminCareSubscriptions() {
   const [searchTerm, setSearchTerm] = useState('');
   
   const { data: subscriptions, isLoading } = useAdminCareSubscriptions();
+  const updateStatus = useUpdateCareSubscriptionStatus();
 
   const filteredSubscriptions = subscriptions?.filter(sub => {
     const matchesStatus = statusFilter === 'all' || sub.status === statusFilter;
@@ -30,6 +31,8 @@ export default function AdminCareSubscriptions() {
     const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
       active: { label: "Ativo", variant: "default" },
       pending: { label: "Pendente", variant: "secondary" },
+      pending_payment: { label: "Aguarda Pagamento", variant: "secondary" },
+      pending_activation: { label: "Aguarda Ativação", variant: "secondary" },
       trialing: { label: "Teste", variant: "secondary" },
       past_due: { label: "Pagamento Pendente", variant: "destructive" },
       canceled: { label: "Cancelado", variant: "outline" },
@@ -73,7 +76,9 @@ export default function AdminCareSubscriptions() {
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="active">Ativos</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
+                <SelectItem value="pending_activation">Aguarda Ativação</SelectItem>
+                <SelectItem value="pending_payment">Aguarda Pagamento</SelectItem>
+                <SelectItem value="paused">Pausados</SelectItem>
                 <SelectItem value="past_due">Pagamento Pendente</SelectItem>
                 <SelectItem value="canceled">Cancelados</SelectItem>
               </SelectContent>
@@ -131,6 +136,44 @@ export default function AdminCareSubscriptions() {
                       ) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {(sub.status === 'pending_payment' || sub.status === 'pending_activation' || sub.status === 'paused') && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Ativar"
+                            onClick={() => updateStatus.mutate({ id: sub.id, status: 'active' })}
+                            disabled={updateStatus.isPending}
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          </Button>
+                        )}
+                        {sub.status === 'active' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Pausar"
+                            onClick={() => updateStatus.mutate({ id: sub.id, status: 'paused' })}
+                            disabled={updateStatus.isPending}
+                          >
+                            <PauseCircle className="w-4 h-4 text-yellow-600" />
+                          </Button>
+                        )}
+                        {sub.status !== 'canceled' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Cancelar"
+                            onClick={() => {
+                              if (confirm('Cancelar esta subscrição?')) {
+                                updateStatus.mutate({ id: sub.id, status: 'canceled' });
+                              }
+                            }}
+                            disabled={updateStatus.isPending}
+                          >
+                            <XCircle className="w-4 h-4 text-destructive" />
+                          </Button>
+                        )}
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="sm">
@@ -167,6 +210,7 @@ export default function AdminCareSubscriptions() {
                           </div>
                         </DialogContent>
                       </Dialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
