@@ -122,10 +122,30 @@ const Sobre = () => {
       <section className="py-12 px-4 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto max-w-5xl">
           <Tabs defaultValue="publico" className="w-full">
-            <TabsList className="w-full max-w-2xl mx-auto grid grid-cols-3 mb-10 h-auto">
-              <TabsTrigger value="publico" className="py-3">Público</TabsTrigger>
-              <TabsTrigger value="profissional" className="py-3">Agências Funerárias</TabsTrigger>
-              <TabsTrigger value="servicos" className="py-3">Serviços</TabsTrigger>
+            <TabsList className="w-full max-w-3xl mx-auto grid grid-cols-3 mb-12 h-auto p-1.5 bg-muted/60 backdrop-blur-sm">
+              <TabsTrigger
+                value="publico"
+                className="py-3.5 gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+              >
+                <Users className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                <span className="hidden sm:inline">Público</span>
+                <span className="sm:hidden">Família</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="profissional"
+                className="py-3.5 gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+              >
+                <Building2 className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                <span className="hidden sm:inline">Agências Funerárias</span>
+                <span className="sm:hidden">Funerárias</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="servicos"
+                className="py-3.5 gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+              >
+                <Sparkles className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                <span>Serviços</span>
+              </TabsTrigger>
             </TabsList>
 
             {/* PUBLICO */}
@@ -134,7 +154,7 @@ const Sobre = () => {
                 <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
                   <span className="text-xs font-semibold text-primary uppercase tracking-wider">Para as Famílias</span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-primary">
                   Um espaço digno para honrar quem partiu
                 </h2>
                 <p className="text-base text-muted-foreground leading-relaxed">
