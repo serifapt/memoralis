@@ -273,3 +273,30 @@ export function useUpdateTaskStatus() {
     }
   });
 }
+
+// Admin: Update care subscription status
+export function useUpdateCareSubscriptionStatus() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const updateData: Record<string, unknown> = { status, updated_at: new Date().toISOString() };
+      if (status === 'active') {
+        updateData.activated_at = new Date().toISOString();
+      }
+      const { error } = await supabase
+        .from('care_subscriptions')
+        .update(updateData)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-care-subscriptions'] });
+      toast({ title: `Subscrição atualizada para ${vars.status}` });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Erro ao atualizar subscrição", description: error.message, variant: "destructive" });
+    }
+  });
+}
