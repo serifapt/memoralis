@@ -57,6 +57,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminCareSubscriptions from "./pages/AdminCareSubscriptions";
 import AdminCareTasks from "./pages/AdminCareTasks";
 import AdminCareTechnicians from "./pages/AdminCareTechnicians";
+import AdminCareInterest from "./pages/AdminCareInterest";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import TechnicianAuth from "./pages/TechnicianAuth";
 
@@ -131,6 +132,7 @@ const App = () => (
             <Route path="/admin/care/subscriptions" element={<AdminCareSubscriptions />} />
             <Route path="/admin/care/tasks" element={<AdminCareTasks />} />
             <Route path="/admin/care/technicians" element={<AdminCareTechnicians />} />
+            <Route path="/admin/care/interest" element={<AdminCareInterest />} />
           </Route>
           <Route
             element={
