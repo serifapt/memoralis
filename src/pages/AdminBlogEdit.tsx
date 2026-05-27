@@ -11,6 +11,7 @@ import { ArrowLeft, Upload, Loader2, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { slugify } from "@/lib/slug";
+import RichTextEditor from "@/components/editor/RichTextEditor";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -215,15 +216,12 @@ export default function AdminBlogEdit() {
         </div>
 
         <div className="space-y-2">
-          <Label>Conteúdo (Markdown)</Label>
-          <Textarea
+          <Label>Conteúdo</Label>
+          <RichTextEditor
             value={form.content}
-            onChange={(e) => update("content", e.target.value)}
-            rows={20}
-            className="font-mono text-sm"
-            placeholder={`Parágrafo de introdução...\n\n## Subtítulo\n\nOutro parágrafo.\n\n![Legenda](https://...)`}
+            onChange={(html) => update("content", html)}
+            placeholder="Escreva o conteúdo do artigo..."
           />
-          <p className="text-xs text-muted-foreground">Use linha em branco entre parágrafos. <code>## título</code> para subtítulos. <code>![alt](url)</code> para imagens.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
