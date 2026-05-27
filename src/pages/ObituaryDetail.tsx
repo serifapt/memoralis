@@ -545,7 +545,7 @@ export default function ObituaryDetail() {
                       {/* DEV: temporariamente sempre visível para desenvolvimento */}
                       {true && (
                         <Button asChild className="w-full sm:w-auto bg-primary hover:bg-primary/90">
-                          <Link to={`/obituario/${obituary.id}/flores`}>Enviar Flores</Link>
+                          <Link to={funeraria?.slug && obituary.slug ? `/obituario/${funeraria.slug}/${obituary.slug}/flores` : `/obituario/${obituary.id}/flores`}>Enviar Flores</Link>
                         </Button>
                       )}
                     </div>
