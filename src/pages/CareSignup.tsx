@@ -355,7 +355,7 @@ export default function CareSignup() {
                                 key={c.id}
                                 value={searchValue}
                                 onSelect={() => handleCemeteryChange(c.id)}
-                                className="flex items-start gap-2 py-2"
+                                className="flex items-start gap-2 py-2 data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground [&[data-selected=true]_.text-muted-foreground]:text-primary-foreground/80"
                               >
                                 <Check
                                   className={cn(
