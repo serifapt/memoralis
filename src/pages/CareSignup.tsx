@@ -263,35 +263,66 @@ export default function CareSignup() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label className="text-base">Cemitério</Label>
-                <Select value={grave.cemetery_id || "__manual"} onValueChange={handleCemeterySelect}>
+                <Label className="text-base">Localidade</Label>
+                <Select value={locality} onValueChange={handleLocalityChange}>
                   <SelectTrigger className="h-12 text-base">
-                    <SelectValue placeholder="Escolher cemitério" />
+                    <SelectValue placeholder="Escolher localidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {cemeteries.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nome} — {c.municipio}
-                      </SelectItem>
+                    {localities.map((l) => (
+                      <SelectItem key={l} value={l}>{l}</SelectItem>
                     ))}
-                    <SelectItem value="__manual">Outro / não está na lista</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {!grave.cemetery_id && (
+              {locality && parishes.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-base">Nome do cemitério</Label>
-                  <Input className="h-12 text-base" value={grave.cemetery_name}
-                    onChange={(e) => setGrave({ ...grave, cemetery_name: e.target.value })} />
+                  <Label className="text-base">Freguesia</Label>
+                  <Select value={parish || "__all"} onValueChange={handleParishChange}>
+                    <SelectTrigger className="h-12 text-base">
+                      <SelectValue placeholder="Escolher freguesia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all">Todas as freguesias</SelectItem>
+                      {parishes.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
 
-              <div className="space-y-2">
-                <Label className="text-base">Morada do cemitério (opcional)</Label>
-                <Input className="h-12 text-base" value={grave.cemetery_address}
-                  onChange={(e) => setGrave({ ...grave, cemetery_address: e.target.value })} />
-              </div>
+              {locality && (
+                <div className="space-y-2">
+                  <Label className="text-base">Cemitério</Label>
+                  {filteredCemeteries.length > 0 ? (
+                    <Select value={grave.cemetery_id} onValueChange={handleCemeteryChange}>
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder="Escolher cemitério" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredCemeteries.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.nome}{c.freguesia ? ` — ${c.freguesia}` : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground space-y-3">
+                      <p>Ainda não temos cemitérios ativos nesta zona.</p>
+                      <CareInterestDialog
+                        trigger={
+                          <Button type="button" variant="outline" size="sm">
+                            Avise-me quando estiver disponível
+                          </Button>
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
