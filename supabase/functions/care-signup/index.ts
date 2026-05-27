@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -6,7 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const log = (s: string, d?: unknown) => console.log(`[CARE-SIGNUP] ${s}`, d ? JSON.stringify(d) : "");
+const log = (s: string, d?: unknown) =>
+  console.log(`[CARE-SIGNUP] ${s}`, d ? JSON.stringify(d) : "");
 
 interface Payload {
   personal: { name: string; email: string; phone?: string; nif?: string };
@@ -22,9 +24,8 @@ interface Payload {
   };
   plan: {
     care_plan_id: string;
-    billing_period: string; // monthly | yearly
-    commemorative_dates?: Array<{ type: string; date?: string; note?: string }>;
-    family_message?: string;
+    billing_period: "monthly" | "yearly";
+    commemorative_dates?: Array<{ type: string; date?: string; note?: string; label?: string }>;
   };
 }
 
@@ -34,43 +35,55 @@ serve(async (req) => {
   try {
     const url = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const stripeEnabled = !!Deno.env.get("STRIPE_SECRET_KEY");
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY not configured");
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-
-    const userClient = createClient(url, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const admin = createClient(url, serviceKey);
-
-    const { data: userData, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !userData.user) throw new Error("Not authenticated");
-    const user = userData.user;
+    const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     const body = (await req.json()) as Payload;
-    if (!body?.personal?.name || !body?.personal?.email) throw new Error("Missing personal info");
-    if (!body?.grave?.cemetery_name) throw new Error("Missing cemetery");
-    if (!body?.plan?.care_plan_id || !body?.plan?.billing_period) throw new Error("Missing plan");
+    if (!body?.personal?.name || !body?.personal?.email) throw new Error("Faltam dados pessoais");
+    if (!body?.grave?.cemetery_name) throw new Error("Falta indicar o cemitério");
+    if (!body?.plan?.care_plan_id || !body?.plan?.billing_period) throw new Error("Falta o plano");
 
-    log("user", { id: user.id, email: user.email });
+    const email = body.personal.email.trim().toLowerCase();
+    const billing = body.plan.billing_period === "yearly" ? "yearly" : "monthly";
 
-    // 1. upsert customer
+    // 1. Get or create auth user (passwordless; will set password via email link later)
+    let userId: string | null = null;
+    const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    const found = list?.users?.find((u) => (u.email ?? "").toLowerCase() === email);
+    if (found) {
+      userId = found.id;
+    } else {
+      const { data: created, error: createErr } = await admin.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        user_metadata: {
+          name: body.personal.name,
+          phone: body.personal.phone ?? null,
+          source: "care_signup",
+        },
+      });
+      if (createErr) throw new Error(`Não foi possível criar conta: ${createErr.message}`);
+      userId = created.user!.id;
+    }
+    log("user", { userId });
+
+    // 2. Upsert customer linked to auth user
     let customerId: string;
     const { data: existing } = await admin
       .from("customers")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("user_id", userId!)
       .maybeSingle();
-
     if (existing) {
       customerId = existing.id;
       await admin
         .from("customers")
         .update({
           name: body.personal.name,
-          email: body.personal.email,
+          email,
           phone: body.personal.phone ?? null,
         })
         .eq("id", customerId);
@@ -78,9 +91,9 @@ serve(async (req) => {
       const { data: ins, error: insErr } = await admin
         .from("customers")
         .insert({
-          user_id: user.id,
+          user_id: userId!,
           name: body.personal.name,
-          email: body.personal.email,
+          email,
           phone: body.personal.phone ?? null,
         })
         .select("id")
@@ -89,7 +102,13 @@ serve(async (req) => {
       customerId = ins.id;
     }
 
-    // 2. memorial_location
+    // Ensure customer role
+    await admin.from("user_roles").upsert(
+      { user_id: userId!, role: "customer" },
+      { onConflict: "user_id,role", ignoreDuplicates: true },
+    );
+
+    // 3. Memorial location
     const { data: loc, error: locErr } = await admin
       .from("memorial_locations")
       .insert({
@@ -107,73 +126,90 @@ serve(async (req) => {
       .single();
     if (locErr) throw locErr;
 
-    // 3. subscription (pending_payment)
-    const { data: sub, error: subErr } = await admin
+    // 4. Pre-create subscription row (pending_payment) so webhook can match by metadata.subscription_id
+    const { data: subRow, error: subErr } = await admin
       .from("care_subscriptions")
       .insert({
         customer_id: customerId,
         memorial_location_id: loc.id,
         care_plan_id: body.plan.care_plan_id,
-        billing_period: body.plan.billing_period,
-        status: stripeEnabled ? "pending_payment" : "pending_activation",
+        billing_period: billing,
+        status: "pending_payment",
         commemorative_dates: body.plan.commemorative_dates ?? [],
-        family_message: body.plan.family_message ?? null,
       })
       .select("id")
       .single();
     if (subErr) throw subErr;
 
-    log("created", { customerId, locationId: loc.id, subscriptionId: sub.id, stripeEnabled });
+    // 5. Look up plan + price (monthly base)
+    const { data: plan } = await admin
+      .from("care_plans")
+      .select("name, code")
+      .eq("id", body.plan.care_plan_id)
+      .maybeSingle();
+    const { data: price } = await admin
+      .from("care_plan_prices")
+      .select("amount, currency, stripe_price_id")
+      .eq("care_plan_id", body.plan.care_plan_id)
+      .eq("billing_period", "monthly")
+      .eq("active", true)
+      .maybeSingle();
+    if (!price) throw new Error("Plano sem preço configurado");
 
-    // 4. fire transactional emails (best-effort; ignore failures)
-    try {
-      const sendUrl = `${url}/functions/v1/send-transactional-email`;
-      await Promise.all([
-        fetch(sendUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${serviceKey}`,
-          },
-          body: JSON.stringify({
-            templateName: "care-signup-customer",
-            recipientEmail: body.personal.email,
-            idempotencyKey: `care-signup-customer-${sub.id}`,
-            templateData: { name: body.personal.name },
-          }),
-        }).catch(() => null),
-        fetch(sendUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${serviceKey}`,
-          },
-          body: JSON.stringify({
-            templateName: "care-signup-admin",
-            recipientEmail: Deno.env.get("ADMIN_EMAIL") ?? "geral@memoralis.pt",
-            idempotencyKey: `care-signup-admin-${sub.id}`,
-            templateData: {
-              name: body.personal.name,
-              email: body.personal.email,
-              phone: body.personal.phone ?? "",
-              cemetery: body.grave.cemetery_name,
-              grave: body.grave.grave_number ?? "",
+    const currency = (price.currency ?? "eur").toLowerCase();
+    const monthlyCents = Math.round(Number(price.amount) * 100);
+    const interval: "month" | "year" = billing === "yearly" ? "year" : "month";
+    const unitAmount = billing === "yearly" ? Math.round(monthlyCents * 12 * 0.9) : monthlyCents;
+
+    const origin = req.headers.get("origin") || "https://memoralis.pt";
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer_email: email,
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency,
+            unit_amount: unitAmount,
+            recurring: { interval },
+            product_data: {
+              name: `Memoralis Care — ${plan?.name ?? "Plano"}`,
+              description:
+                billing === "yearly"
+                  ? "Subscrição anual (–10%)"
+                  : "Subscrição mensal",
             },
-          }),
-        }).catch(() => null),
-      ]);
-    } catch (e) {
-      log("email send failed (non-fatal)", { error: String(e) });
-    }
+          },
+        },
+      ],
+      success_url: `${origin}/account/care?welcome=1&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/care/aderir?canceled=1`,
+      metadata: {
+        customer_id: customerId,
+        memorial_location_id: loc.id,
+        care_plan_id: body.plan.care_plan_id,
+        billing_period: billing,
+        subscription_id: subRow.id,
+        user_id: userId!,
+      },
+      subscription_data: {
+        metadata: {
+          customer_id: customerId,
+          memorial_location_id: loc.id,
+          care_plan_id: body.plan.care_plan_id,
+          billing_period: billing,
+          subscription_id: subRow.id,
+          user_id: userId!,
+        },
+      },
+    });
+
+    log("checkout created", { sessionId: session.id, sub: subRow.id });
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        subscription_id: sub.id,
-        memorial_location_id: loc.id,
-        stripe_enabled: stripeEnabled,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ checkout_url: session.url, subscription_id: subRow.id }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
