@@ -24,6 +24,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Check } from "lucide-react";
 import { CARE_PLANS } from "@/lib/care-plans";
+import { useCemeteriesCascade } from "@/hooks/useCemeteriesCascade";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Indique o seu nome").max(120),
@@ -41,6 +42,7 @@ export function CareInterestDialog({ trigger }: { trigger: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const { localities, parishesFor, cemeteriesFor } = useCemeteriesCascade({ activeOnly: false });
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -51,8 +53,14 @@ export function CareInterestDialog({ trigger }: { trigger: React.ReactNode }) {
     plan_code: "",
     message: "",
   });
+  const [localityMode, setLocalityMode] = useState<"select" | "manual">("select");
+  const [parishMode, setParishMode] = useState<"select" | "manual">("select");
+  const [cemeteryMode, setCemeteryMode] = useState<"select" | "manual">("select");
 
   const update = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const parishes = form.locality && localityMode === "select" ? parishesFor(form.locality) : [];
+  const cems = form.locality && localityMode === "select" ? cemeteriesFor(form.locality, parishMode === "select" ? form.parish : "") : [];
 
   const submit = async () => {
     const parsed = schema.safeParse(form);
@@ -101,6 +109,9 @@ export function CareInterestDialog({ trigger }: { trigger: React.ReactNode }) {
       plan_code: "",
       message: "",
     });
+    setLocalityMode("select");
+    setParishMode("select");
+    setCemeteryMode("select");
   };
 
   return (
@@ -147,24 +158,87 @@ export function CareInterestDialog({ trigger }: { trigger: React.ReactNode }) {
                 <Label htmlFor="ci-phone">Telefone</Label>
                 <Input id="ci-phone" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
               </div>
-              <div className="grid sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="ci-locality">Localidade</Label>
-                  <Input id="ci-locality" value={form.locality} onChange={(e) => update("locality", e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="ci-parish">Freguesia</Label>
-                  <Input id="ci-parish" value={form.parish} onChange={(e) => update("parish", e.target.value)} />
-                </div>
-              </div>
               <div className="space-y-1.5">
-                <Label htmlFor="ci-cemetery">Cemitério *</Label>
-                <Input
-                  id="ci-cemetery"
-                  placeholder="Nome do cemitério"
-                  value={form.cemetery_name}
-                  onChange={(e) => update("cemetery_name", e.target.value)}
-                />
+                <Label>Localidade *</Label>
+                {localityMode === "select" && localities.length > 0 ? (
+                  <Select
+                    value={form.locality}
+                    onValueChange={(v) => {
+                      if (v === "__manual") {
+                        setLocalityMode("manual");
+                        setForm((f) => ({ ...f, locality: "", parish: "", cemetery_name: "" }));
+                        setParishMode("manual");
+                        setCemeteryMode("manual");
+                      } else {
+                        setForm((f) => ({ ...f, locality: v, parish: "", cemetery_name: "" }));
+                      }
+                    }}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Escolher localidade" /></SelectTrigger>
+                    <SelectContent>
+                      {localities.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                      <SelectItem value="__manual">Outra / não está na lista</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input placeholder="Localidade" value={form.locality} onChange={(e) => update("locality", e.target.value)} />
+                )}
+              </div>
+
+              {form.locality && (
+                <div className="space-y-1.5">
+                  <Label>Freguesia</Label>
+                  {parishMode === "select" && parishes.length > 0 ? (
+                    <Select
+                      value={form.parish || "__all"}
+                      onValueChange={(v) => {
+                        if (v === "__manual") {
+                          setParishMode("manual");
+                          setCemeteryMode("manual");
+                          setForm((f) => ({ ...f, parish: "", cemetery_name: "" }));
+                        } else {
+                          setForm((f) => ({ ...f, parish: v === "__all" ? "" : v, cemetery_name: "" }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Escolher freguesia" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__all">Todas / não sei</SelectItem>
+                        {parishes.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                        <SelectItem value="__manual">Outra</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input placeholder="Freguesia" value={form.parish} onChange={(e) => update("parish", e.target.value)} />
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <Label>Cemitério *</Label>
+                {cemeteryMode === "select" && cems.length > 0 ? (
+                  <Select
+                    value={form.cemetery_name}
+                    onValueChange={(v) => {
+                      if (v === "__manual") {
+                        setCemeteryMode("manual");
+                        update("cemetery_name", "");
+                      } else update("cemetery_name", v);
+                    }}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Escolher cemitério" /></SelectTrigger>
+                    <SelectContent>
+                      {cems.map((c) => (
+                        <SelectItem key={c.id} value={c.nome}>
+                          {c.nome}{c.freguesia ? ` — ${c.freguesia}` : ""}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="__manual">Outro / não está na lista</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input placeholder="Nome do cemitério" value={form.cemetery_name} onChange={(e) => update("cemetery_name", e.target.value)} />
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label>Plano de interesse</Label>

@@ -58,6 +58,7 @@ import AdminCareSubscriptions from "./pages/AdminCareSubscriptions";
 import AdminCareTasks from "./pages/AdminCareTasks";
 import AdminCareTechnicians from "./pages/AdminCareTechnicians";
 import AdminCareInterest from "./pages/AdminCareInterest";
+import AdminCemeteries from "./pages/AdminCemeteries";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import TechnicianAuth from "./pages/TechnicianAuth";
 
@@ -133,6 +134,7 @@ const App = () => (
             <Route path="/admin/care/tasks" element={<AdminCareTasks />} />
             <Route path="/admin/care/technicians" element={<AdminCareTechnicians />} />
             <Route path="/admin/care/interest" element={<AdminCareInterest />} />
+            <Route path="/admin/care/cemeterios" element={<AdminCemeteries />} />
           </Route>
           <Route
             element={

@@ -333,6 +333,7 @@ export type Database = {
           contacted_at: string | null
           created_at: string
           email: string
+          freguesia: string | null
           id: string
           locality: string | null
           message: string | null
@@ -348,6 +349,7 @@ export type Database = {
           contacted_at?: string | null
           created_at?: string
           email: string
+          freguesia?: string | null
           id?: string
           locality?: string | null
           message?: string | null
@@ -363,6 +365,7 @@ export type Database = {
           contacted_at?: string | null
           created_at?: string
           email?: string
+          freguesia?: string | null
           id?: string
           locality?: string | null
           message?: string | null
@@ -617,6 +620,7 @@ export type Database = {
         Row: {
           ativo: boolean
           created_at: string
+          freguesia: string | null
           id: string
           lat: number | null
           lng: number | null
@@ -628,6 +632,7 @@ export type Database = {
         Insert: {
           ativo?: boolean
           created_at?: string
+          freguesia?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -639,6 +644,7 @@ export type Database = {
         Update: {
           ativo?: boolean
           created_at?: string
+          freguesia?: string | null
           id?: string
           lat?: number | null
           lng?: number | null

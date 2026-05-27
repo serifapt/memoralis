@@ -10,7 +10,8 @@ import {
   CreditCard,
   ClipboardList,
   Heart,
-  MailQuestion
+  MailQuestion,
+  MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo-memoralis.svg";
@@ -29,6 +30,7 @@ const careNavigation = [
   { name: "Subscrições", href: "/admin/care/subscriptions", icon: CreditCard },
   { name: "Tarefas", href: "/admin/care/tasks", icon: ClipboardList },
   { name: "Técnicos", href: "/admin/care/technicians", icon: Wrench },
+  { name: "Cemitérios", href: "/admin/care/cemeterios", icon: MapPin },
   { name: "Interessados", href: "/admin/care/interest", icon: MailQuestion },
 ];
 

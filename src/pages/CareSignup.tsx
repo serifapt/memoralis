@@ -23,8 +23,9 @@ import {
   commemorativeDateTypes,
 } from "@/lib/care-status";
 import { CARE_PLANS } from "@/lib/care-plans";
+import { useCemeteriesCascade } from "@/hooks/useCemeteriesCascade";
+import { CareInterestDialog } from "@/components/care/CareInterestDialog";
 
-type Cemetery = { id: string; nome: string; municipio: string; morada: string | null };
 type Plan = { id: string; code: string; name: string; description: string | null; includes_json: unknown };
 type CommemorativeDate = { type: string; date?: string; note?: string; label?: string };
 
@@ -45,11 +46,13 @@ export default function CareSignup() {
   const [authChecked, setAuthChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const [cemeteries, setCemeteries] = useState<Cemetery[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const { localities, parishesFor, cemeteriesFor } = useCemeteriesCascade({ activeOnly: true });
 
   // form state
   const [personal, setPersonal] = useState({ name: "", email: "", phone: "", nif: "" });
+  const [locality, setLocality] = useState<string>("");
+  const [parish, setParish] = useState<string>("");
   const [grave, setGrave] = useState({
     cemetery_id: "" as string | "",
     cemetery_name: "",
@@ -87,11 +90,12 @@ export default function CareSignup() {
   useEffect(() => {
     if (!authChecked) return;
     (async () => {
-      const [{ data: cems }, { data: pls }] = await Promise.all([
-        supabase.from("cemeteries").select("id,nome,municipio,morada").eq("ativo", true).order("nome"),
-        supabase.from("care_plans").select("id,code,name,description,includes_json").eq("active", true).neq("code", "HOMENAGEM").order("display_order"),
-      ]);
-      setCemeteries(cems ?? []);
+      const { data: pls } = await supabase
+        .from("care_plans")
+        .select("id,code,name,description,includes_json")
+        .eq("active", true)
+        .neq("code", "HOMENAGEM")
+        .order("display_order");
       setPlans(pls ?? []);
     })();
   }, [authChecked]);
@@ -112,25 +116,32 @@ export default function CareSignup() {
 
   const canNext = () => {
     if (step === 1) return personal.name.trim().length > 1 && /\S+@\S+\.\S+/.test(personal.email);
-    if (step === 2) return grave.cemetery_name.trim().length > 1;
+    if (step === 2) return !!grave.cemetery_id;
     if (step === 3) return !!selectedPlan && datesValid;
     return true;
   };
 
-  const handleCemeterySelect = (id: string) => {
-    if (id === "__manual") {
-      setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
-      return;
-    }
-    const c = cemeteries.find((x) => x.id === id);
-    if (c) {
-      setGrave((g) => ({
-        ...g,
-        cemetery_id: c.id,
-        cemetery_name: `${c.nome} — ${c.municipio}`,
-        cemetery_address: c.morada ?? "",
-      }));
-    }
+  const parishes = locality ? parishesFor(locality) : [];
+  const filteredCemeteries = locality ? cemeteriesFor(locality, parish) : [];
+
+  const handleLocalityChange = (v: string) => {
+    setLocality(v);
+    setParish("");
+    setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
+  };
+  const handleParishChange = (v: string) => {
+    setParish(v === "__all" ? "" : v);
+    setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
+  };
+  const handleCemeteryChange = (id: string) => {
+    const c = filteredCemeteries.find((x) => x.id === id);
+    if (!c) return;
+    setGrave((g) => ({
+      ...g,
+      cemetery_id: c.id,
+      cemetery_name: `${c.nome}${c.freguesia ? ` — ${c.freguesia}` : ""}, ${c.municipio}`,
+      cemetery_address: c.morada ?? "",
+    }));
   };
 
   const addDate = () =>
@@ -252,35 +263,66 @@ export default function CareSignup() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label className="text-base">Cemitério</Label>
-                <Select value={grave.cemetery_id || "__manual"} onValueChange={handleCemeterySelect}>
+                <Label className="text-base">Localidade</Label>
+                <Select value={locality} onValueChange={handleLocalityChange}>
                   <SelectTrigger className="h-12 text-base">
-                    <SelectValue placeholder="Escolher cemitério" />
+                    <SelectValue placeholder="Escolher localidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {cemeteries.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nome} — {c.municipio}
-                      </SelectItem>
+                    {localities.map((l) => (
+                      <SelectItem key={l} value={l}>{l}</SelectItem>
                     ))}
-                    <SelectItem value="__manual">Outro / não está na lista</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {!grave.cemetery_id && (
+              {locality && parishes.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-base">Nome do cemitério</Label>
-                  <Input className="h-12 text-base" value={grave.cemetery_name}
-                    onChange={(e) => setGrave({ ...grave, cemetery_name: e.target.value })} />
+                  <Label className="text-base">Freguesia</Label>
+                  <Select value={parish || "__all"} onValueChange={handleParishChange}>
+                    <SelectTrigger className="h-12 text-base">
+                      <SelectValue placeholder="Escolher freguesia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all">Todas as freguesias</SelectItem>
+                      {parishes.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
 
-              <div className="space-y-2">
-                <Label className="text-base">Morada do cemitério (opcional)</Label>
-                <Input className="h-12 text-base" value={grave.cemetery_address}
-                  onChange={(e) => setGrave({ ...grave, cemetery_address: e.target.value })} />
-              </div>
+              {locality && (
+                <div className="space-y-2">
+                  <Label className="text-base">Cemitério</Label>
+                  {filteredCemeteries.length > 0 ? (
+                    <Select value={grave.cemetery_id} onValueChange={handleCemeteryChange}>
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder="Escolher cemitério" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredCemeteries.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.nome}{c.freguesia ? ` — ${c.freguesia}` : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground space-y-3">
+                      <p>Ainda não temos cemitérios ativos nesta zona.</p>
+                      <CareInterestDialog
+                        trigger={
+                          <Button type="button" variant="outline" size="sm">
+                            Avise-me quando estiver disponível
+                          </Button>
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">

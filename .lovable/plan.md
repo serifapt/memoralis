@@ -1,52 +1,41 @@
-## Continuação da implementação Memoralis Care
+## Objetivo
+1. Substituir o seletor único de cemitério por filtros em cascata (Localidade → Freguesia → Cemitério) no formulário de adesão e no diálogo "Avise-me".
+2. Criar gestão de cemitérios ativos no admin com possibilidade de colocar pin no mapa.
+3. Corrigir os bugs visíveis nas imagens.
 
-Já está feito: migração de BD, `care-status.ts`, `CareSiteHeader`, `CemeteryMap`, redesign de `/care` (landing).
+## Bugs identificados
+- **Mapa Leaflet por cima do diálogo** (imagem 3): tiles e marcadores do `CemeteryMap` da landing aparecem sobre o `CareInterestDialog`. Causa: `.leaflet-pane`/`.leaflet-top` têm `z-index: 400/1000`, maiores que o overlay do Dialog (z-50 do Radix). Solução: regra global em `index.css` baixando z-index do Leaflet (`.leaflet-pane, .leaflet-top, .leaflet-bottom { z-index: 1 !important; }`) — mantém interatividade do mapa mas deixa de sobrepor modais.
+- **"Outro / não está na lista"** (imagem 1): será removido — sempre que a localidade existir o cliente seleciona em cascata; só se nenhum cemitério estiver ativo na sua zona usa o diálogo de interesse.
 
-Falta implementar nas próximas fases:
+## Mudanças de base de dados
+- Adicionar coluna `freguesia text` à tabela `public.cemeteries` (migration). `municipio` passa a ser a "Localidade".
+- Adicionar coluna `freguesia text` à tabela `public.care_interest_leads` (já existe `locality` e `parish`).
 
-### Fase 1 — Fluxo de adesão (`/care/aderir`)
-- `src/pages/CareSignup.tsx` — wizard de 4 passos:
-  1. Dados pessoais (nome, email, telefone, NIF opcional)
-  2. Dados da campa (cemitério via dropdown de `cemeteries`, número, secção, fotos opcionais para `care-media`)
-  3. Plano + periodicidade (Mensal/Quinzenal/Semanal/Premium) e datas comemorativas (aniversário, dia de finados, etc.)
-  4. Resumo + confirmação
-- Componentes: `CareSignupWizard.tsx`, `StepPersonal.tsx`, `StepGrave.tsx`, `StepPlan.tsx`, `StepReview.tsx`
-- Edge Function `care-signup`: cria `customers`, `memorial_locations`, `care_subscriptions` (status `pending_payment`). Se `STRIPE_SECRET_KEY` existir → chama `create-care-checkout`; caso contrário fica em `pending_payment` e envia emails.
-- Rota em `App.tsx` e proteção via `CareAuth` quando necessário.
+## Filtros em cascata (frontend)
+Hook partilhado `useCemeteriesCascade()` em `src/hooks/useCemeteriesCascade.ts`:
+- carrega cemitérios `ativo=true`
+- expõe `localities`, `parishesFor(loc)`, `cemeteriesFor(loc, parish)`
 
-### Fase 2 — Dashboard do cliente (`/account/care` redesign)
-Reescrever `CustomerDashboard.tsx`:
-- Cabeçalho com saudação simples ("Olá, [Nome]") e botão grande "Pedir Ajuda"
-- Uma card por campa, com 3 separadores:
-  - **Informação**: dados da campa, plano, próxima visita, notas editáveis (`memorial_locations.notes`)
-  - **Histórico de Visitas**: lista cronológica de `service_tasks` concluídas com fotos antes/depois e estrelas (`visit_reviews`)
-  - **Faturas**: "Em breve" se `MOLONI_CLIENT_ID` vazio, senão tabela de faturas
-- Tipografia 16–17px, espaçamento generoso, sem jargão técnico.
+Aplicado a:
+- **`CareSignup.tsx` (passo 2)**: três selects encadeados. Remove input livre "Nome do cemitério"; mantém `section`, `grave_number`, fotos.
+- **`CareInterestDialog.tsx`**: mesmos três selects. Localidade e cemitério permitem opção "Não encontro a minha"; nesse caso aparecem inputs de texto livres (`locality`, `parish`, `cemetery_name`) — esta é a única via para manuscrever cemitério.
 
-### Fase 3 — Painel admin (`/admin/care/*`)
-- `AdminCareSubscriptions.tsx` (já existe) — adicionar ações: **Ativar** (status `pending_payment` → `active`), **Pausar**, **Cancelar**
-- `AdminCareTasks.tsx` (já existe) — adicionar form de registo de visita: upload fotos antes/depois (`care-media`), checklist, notas → atualiza `service_tasks` para `completed`
-- Nova página `AdminCemeteries.tsx` — CRUD de cemitérios (lat/lng com pino no `CemeteryMap`)
-- Adicionar entradas ao `AdminSidebar`.
+## Admin — Gestão de cemitérios
+Nova página `src/pages/AdminCemeteries.tsx` (rota `/admin/care/cemeterios`):
+- Tabela: Nome, Freguesia, Localidade (município), Ativo, Ações (editar / desativar).
+- Dialog "Adicionar / Editar cemitério" com: nome, freguesia, localidade, morada, switch `ativo`, e um pequeno `LeafletPicker` (mapa centrado em Portugal, clique coloca pin → preenche `lat`/`lng`; mostra coords editáveis).
+- Componente `src/components/care/CemeteryPicker.tsx` (Leaflet com `useMapEvents` para captar clique).
 
-### Fase 4 — Emails transacionais
-4 templates em `supabase/functions/_shared/transactional-email-templates/`:
-1. `care-signup-customer.tsx` — confirmação de pedido ao cliente
-2. `care-signup-admin.tsx` — alerta a `geral@memoralis.pt`
-3. `care-activated-customer.tsx` — quando admin ativa a subscrição
-4. `care-visit-completed.tsx` — relatório de visita (com fotos antes/depois)
-Registar em `registry.ts` e disparar via `send-transactional-email`.
+Entrada no `AdminSidebar` em "CUIDADO & HOMENAGEM": **Cemitérios** (ícone `MapPin`), rota `/admin/care/cemeterios`. Registar rota em `App.tsx`.
 
-### Fase 5 — Integrações condicionais
-- **Stripe**: já existe `create-care-checkout` e `care-stripe-webhook`. Confirmar que o webhook atualiza `status='active'` e `activated_at`. Detetar ausência de `STRIPE_SECRET_KEY` no signup edge function.
-- **Moloni**: criar edge function stub `moloni-invoices` que devolve `[]` se `MOLONI_CLIENT_ID` ausente; senão lista faturas via API. Adicionar `MOLONI_CLIENT_ID` e `MOLONI_CLIENT_SECRET` aos secrets (perguntar ao user antes).
+## Edge function
+`care-signup` aceita já `cemetery_id`; nenhuma alteração necessária para o fluxo principal. Apenas garantir que `cemetery_name` é derivado de "{nome} — {freguesia}, {municipio}" para histórico.
 
-### Ordem de execução proposta
-1. Fase 1 (signup wizard + edge function) — bloco maior
-2. Fase 4 (emails, ficam prontos para serem chamados pelo signup)
-3. Fase 2 (dashboard cliente)
-4. Fase 3 (admin)
-5. Fase 5 (Moloni stub)
+## Ficheiros a criar/editar
+- **Migration**: adiciona `freguesia` em `cemeteries` e `care_interest_leads`.
+- **Criar**: `src/hooks/useCemeteriesCascade.ts`, `src/pages/AdminCemeteries.tsx`, `src/components/care/CemeteryPicker.tsx`.
+- **Editar**: `src/pages/CareSignup.tsx` (passo 2 reescrito com cascade), `src/components/care/CareInterestDialog.tsx` (cascade + fallback manual), `src/components/layout/AdminSidebar.tsx` (nova entrada), `src/App.tsx` (rota), `src/index.css` (fix z-index Leaflet).
 
-### Pergunta antes de avançar
-Queres que avance já com **Fase 1 + Fase 4 juntas** (wizard de adesão + emails), ou preferes ver primeiro só o wizard funcional (sem emails) e validar o UX antes de passar ao resto?
+## Fora de âmbito
+- Importação em massa de cemitérios (continuam a ser adicionados manualmente pelo admin).
+- Geocodificação automática de morada → coordenadas.
