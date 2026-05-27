@@ -29,11 +29,13 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { CareSiteHeader } from "@/components/care/CareSiteHeader";
+import { useToast } from "@/hooks/use-toast";
 
 const MOLONI_ENABLED = false; // server flag — will turn on once MOLONI_CLIENT_ID is set
 
 export default function CustomerDashboard() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [authChecked, setAuthChecked] = useState(false);
 
   const { data: customer, isLoading: loadingCustomer } = useCustomerProfile();
@@ -60,11 +62,37 @@ export default function CustomerDashboard() {
   });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let cancelled = false;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (!session) {
+        navigate("/care/auth?redirect=/account/care");
+        return;
+      }
+      // Confirmar que a sessão pertence a um cliente Care
+      const { data: customerRow } = await supabase
+        .from("customers")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (!customerRow) {
+        await supabase.auth.signOut();
+        toast({
+          title: "Sessão não compatível",
+          description: "Inicie sessão com a sua conta Memoralis Care.",
+          variant: "destructive",
+        });
+        navigate("/care/auth?redirect=/account/care");
+        return;
+      }
       setAuthChecked(true);
-      if (!session) navigate("/care/auth?redirect=/account/care");
-    });
-  }, [navigate]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, toast]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
