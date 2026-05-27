@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Search, Filter, Calendar, User, Plus } from "lucide-react";
+import { Loader2, Search, Filter, Calendar, User, Plus, Camera } from "lucide-react";
 import { useAdminServiceTasks, useAdminTechnicians, useAssignTask, useCreateServiceTask, useAdminCareSubscriptions } from "@/hooks/useCareOperations";
+import { RegisterVisitDialog } from "@/components/care/RegisterVisitDialog";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -18,6 +19,7 @@ export default function AdminCareTasks() {
   const [technicianFilter, setTechnicianFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [visitTask, setVisitTask] = useState<{ id: string; subscription_id: string } | null>(null);
   const [newTaskData, setNewTaskData] = useState({
     subscription_id: '',
     scheduled_for: format(new Date(), 'yyyy-MM-dd'),
@@ -237,20 +239,31 @@ export default function AdminCareTasks() {
                       </TableCell>
                       <TableCell>{getStatusBadge(task.status)}</TableCell>
                       <TableCell className="text-right">
-                        {task.status === 'scheduled' && !task.assigned_to && (
-                          <Select onValueChange={(v) => assignTask.mutate({ taskId: task.id, technicianUserId: v })}>
-                            <SelectTrigger className="w-[140px]">
-                              <SelectValue placeholder="Atribuir" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {technicians?.filter(t => t.active).map(tech => (
-                                <SelectItem key={tech.id} value={tech.user_id}>
-                                  {tech.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
+                        <div className="flex items-center justify-end gap-2">
+                          {task.status === 'scheduled' && !task.assigned_to && (
+                            <Select onValueChange={(v) => assignTask.mutate({ taskId: task.id, technicianUserId: v })}>
+                              <SelectTrigger className="w-[140px]">
+                                <SelectValue placeholder="Atribuir" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {technicians?.filter(t => t.active).map(tech => (
+                                  <SelectItem key={tech.id} value={tech.user_id}>
+                                    {tech.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                          {(task.status === 'scheduled' || task.status === 'in_progress') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setVisitTask({ id: task.id, subscription_id: task.subscription_id })}
+                            >
+                              <Camera className="w-4 h-4 mr-1" /> Registar
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
@@ -267,6 +280,14 @@ export default function AdminCareTasks() {
           )}
         </CardContent>
       </Card>
+      {visitTask && (
+        <RegisterVisitDialog
+          open={!!visitTask}
+          onOpenChange={(open) => !open && setVisitTask(null)}
+          taskId={visitTask.id}
+          subscriptionId={visitTask.subscription_id}
+        />
+      )}
     </div>
   );
 }
