@@ -521,6 +521,7 @@ export default function CareSignup() {
                 </Select>
               </div>
 
+              {showCommemorative && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-base">Datas comemorativas (opcional)</Label>
@@ -535,11 +536,13 @@ export default function CareSignup() {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Pode escolher até {MAX_DATES} datas especiais. A equipa coloca um ramo na campa nessas ocasiões — Dia de Todos os Santos, aniversários, ou outras à sua escolha.
+                  Pode escolher até {MAX_DATES} datas especiais. A equipa coloca um ramo na campa nessas ocasiões — Dia de Todos os Santos, aniversários, ou outras à sua escolha. Para cada data pode escrever uma pequena mensagem que será impressa num cartão.
                 </p>
                 {dates.map((d, i) => {
                   const def = commemorativeDateTypes.find((x) => x.value === d.type);
                   const isOutra = d.type === "outra";
+                  const noteWords = countWords(d.note ?? "");
+                  const noteOver = noteWords > MAX_NOTE_WORDS;
                   return (
                     <div key={i} className="rounded-md border border-border p-3 space-y-2">
                       <div className="grid sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
@@ -567,22 +570,29 @@ export default function CareSignup() {
                           onChange={(e) => updateDate(i, { label: e.target.value })}
                         />
                       )}
+                      <div className="space-y-1">
+                        <Label className="text-sm text-muted-foreground">
+                          Mensagem para o cartão (opcional)
+                        </Label>
+                        <Textarea
+                          rows={2}
+                          className="text-sm"
+                          placeholder="Ex.: Saudades eternas, com amor da família."
+                          value={d.note ?? ""}
+                          onChange={(e) => updateDate(i, { note: e.target.value })}
+                        />
+                        <div className={cn(
+                          "text-xs flex justify-end",
+                          noteOver ? "text-destructive" : "text-muted-foreground"
+                        )}>
+                          {noteWords}/{MAX_NOTE_WORDS} palavras
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="family-message" className="text-base">Mensagem do familiar (opcional)</Label>
-                <Textarea
-                  id="family-message"
-                  rows={3}
-                  className="text-base"
-                  placeholder="Uma dedicatória ou indicação que queira partilhar com a nossa equipa."
-                  value={familyMessage}
-                  onChange={(e) => setFamilyMessage(e.target.value)}
-                />
-              </div>
+              )}
             </div>
 
             {/* 4. Confirm */}
