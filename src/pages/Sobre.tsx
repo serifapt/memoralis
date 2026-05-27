@@ -192,44 +192,239 @@ const Sobre = () => {
             </TabsContent>
 
             {/* PROFISSIONAL */}
-            <TabsContent value="profissional" className="space-y-8">
+            <TabsContent value="profissional" className="space-y-20">
+              {/* Hero interno + mockup */}
               <div className="text-center max-w-3xl mx-auto">
                 <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
                   <span className="text-xs font-semibold text-primary uppercase tracking-wider">Para Funerárias</span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                <h2 className="text-3xl md:text-5xl font-bold mb-5 tracking-tight text-primary leading-tight">
                   A plataforma que profissionaliza o seu serviço
                 </h2>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  Gestão completa de obituários, cerimónias, documentação social, orçamentos e
-                  comunicação com famílias — tudo numa única solução.
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
+                  Gestão completa do processo fúnebre, formulários automáticos, orçamentos, anúncios
+                  e catálogo de flores — tudo numa única solução pensada para funerárias modernas.
                 </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <Button size="lg" className="px-6 group" asChild>
+                    <Link to="/funeraria/register">
+                      Registar Funerária
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <a href="#funcionalidades-funeraria">Ver funcionalidades</a>
+                  </Button>
+                </div>
               </div>
-              <div className="grid md:grid-cols-3 gap-6">
-                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
-                  <Building2 className="w-8 h-8 text-primary mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">Página pública dedicada</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Apresente a sua funerária com perfil próprio, obituários ativos e testemunhos.
-                  </p>
-                </Card>
-                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
-                  <Shield className="w-8 h-8 text-primary mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">Documentação automática</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Geração automática de formulários da Segurança Social e participações.
-                  </p>
-                </Card>
-                <Card className="p-6 border-2 hover:border-primary/50 transition-colors">
-                  <Award className="w-8 h-8 text-primary mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">Orçamentos e clientes</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Crie orçamentos profissionais e mantenha o histórico de clientes organizado.
-                  </p>
-                </Card>
+
+              {/* Mockup principal de portátil */}
+              <div className="relative max-w-5xl mx-auto">
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent blur-3xl scale-90" />
+                <img
+                  src={mockupDashboard}
+                  alt="Dashboard Memoralis para funerárias"
+                  width={1536}
+                  height={1024}
+                  loading="lazy"
+                  className="relative w-full h-auto drop-shadow-2xl"
+                />
               </div>
-              <div className="text-center">
-                <Button asChild><Link to="/funeraria/register">Registar Funerária <ArrowRight className="ml-2 w-4 h-4" /></Link></Button>
+
+              {/* Grelha "Tudo num só sítio" */}
+              <div id="funcionalidades-funeraria" className="scroll-mt-24">
+                <div className="text-center max-w-2xl mx-auto mb-10">
+                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight">
+                    Tudo num <span className="text-primary">só sítio</span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    As ferramentas essenciais para gerir a sua funerária de ponta a ponta.
+                  </p>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {funerariaFeatures.map(({ icon: Icon, title, description }) => (
+                    <Card
+                      key={title}
+                      className="p-6 border-2 hover:border-primary/50 hover:shadow-lg transition-all group"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
+                        <Icon className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="text-lg font-semibold mb-2">{title}</h4>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              {/* Zigzag 1 — Gestão do processo fúnebre */}
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div className="relative order-2 lg:order-1">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent blur-2xl scale-90" />
+                  <img
+                    src={mockupObituaryEditor}
+                    alt="Editor de obituário com gestão do processo fúnebre"
+                    width={1536}
+                    height={1024}
+                    loading="lazy"
+                    className="relative w-full h-auto drop-shadow-2xl"
+                  />
+                </div>
+                <div className="order-1 lg:order-2">
+                  <div className="inline-block px-2.5 py-1 bg-primary/10 rounded-full mb-3">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                      Processo Fúnebre
+                    </span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight text-primary">
+                    Gestão completa do falecido, do início ao fim
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-5">
+                    Centralize todos os dados do falecido, família, cerimónias e documentação num
+                    único editor com autosave, progresso em tempo real e pré-visualização instantânea.
+                  </p>
+                  <ul className="space-y-2.5">
+                    {[
+                      "Editor com autosave e indicador de progresso",
+                      "Multi-cerimónias: velório, missa, cortejo, cremação",
+                      "Pré-visualização do obituário público antes de publicar",
+                    ].map((item) => (
+                      <li key={item} className="flex gap-2.5 text-sm">
+                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Zigzag 2 — Formulários SS/CGA */}
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div>
+                  <div className="inline-block px-2.5 py-1 bg-primary/10 rounded-full mb-3">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                      Segurança Social & CGA
+                    </span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight text-primary">
+                    9 formulários preenchidos automaticamente
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-5">
+                    Esqueça o preenchimento manual repetitivo. A Memoralis gera automaticamente os
+                    formulários da Segurança Social, Caixa Geral de Aposentações e participações de
+                    óbito a partir dos dados do processo.
+                  </p>
+                  <ul className="space-y-2.5">
+                    {[
+                      "Subsídio de Funeral, Pensão de Sobrevivência e mais 7 formulários",
+                      "PDFs prontos a imprimir, assinar e entregar",
+                      "Horas poupadas em cada processo",
+                    ].map((item) => (
+                      <li key={item} className="flex gap-2.5 text-sm">
+                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-bl from-primary/15 to-transparent blur-2xl scale-90" />
+                  <img
+                    src={mockupSsForms}
+                    alt="Formulários da Segurança Social e CGA gerados automaticamente"
+                    width={1536}
+                    height={1024}
+                    loading="lazy"
+                    className="relative w-full h-auto drop-shadow-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Zigzag 3 — Flores + Orçamentação */}
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div className="relative order-2 lg:order-1">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent blur-2xl scale-90" />
+                  <img
+                    src={mockupFlowersBudget}
+                    alt="Catálogo de flores e orçamentação digital"
+                    width={1536}
+                    height={1024}
+                    loading="lazy"
+                    className="relative w-full h-auto drop-shadow-2xl"
+                  />
+                </div>
+                <div className="order-1 lg:order-2">
+                  <div className="inline-block px-2.5 py-1 bg-primary/10 rounded-full mb-3">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                      Flores & Orçamentos
+                    </span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight text-primary">
+                    Catálogo de flores e orçamentação digital
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-5">
+                    Permita que o público envie flores para o funeral diretamente a partir do
+                    obituário e gere orçamentos profissionais que se convertem em obituários com
+                    um clique.
+                  </p>
+                  <ul className="space-y-2.5">
+                    {[
+                      "Catálogo de flores integrado em cada obituário",
+                      "Orçamentos com PDF profissional automático",
+                      "Conversão direta de orçamento aceite para novo obituário",
+                    ].map((item) => (
+                      <li key={item} className="flex gap-2.5 text-sm">
+                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Banda escura com stats */}
+              <div className="relative overflow-hidden rounded-3xl bg-[hsl(var(--footer-bg))] text-white p-10 md:p-14">
+                <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/30 rounded-full blur-3xl" />
+                <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
+                <div className="relative text-center max-w-2xl mx-auto mb-10">
+                  <h3 className="text-2xl md:text-4xl font-bold tracking-tight">
+                    Poupe tempo. Profissionalize o serviço.
+                  </h3>
+                  <p className="text-white/70 mt-2">
+                    Resultados reais que as funerárias parceiras já sentem no dia-a-dia.
+                  </p>
+                </div>
+                <div className="relative grid sm:grid-cols-3 gap-6">
+                  {[
+                    { value: "9", label: "Formulários SS e CGA preenchidos automaticamente" },
+                    { value: "+5h", label: "Poupadas por processo fúnebre" },
+                    { value: "100%", label: "Digital, sem papel, sem perdas" },
+                  ].map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10"
+                    >
+                      <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{stat.value}</div>
+                      <p className="text-sm text-white/80 leading-relaxed">{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA final */}
+              <div className="text-center max-w-xl mx-auto">
+                <h3 className="text-2xl md:text-3xl font-bold mb-3 tracking-tight">
+                  Pronto para profissionalizar a sua funerária?
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Registo gratuito. Sem cartão de crédito. Comece em minutos.
+                </p>
+                <Button size="lg" className="px-8 group" asChild>
+                  <Link to="/funeraria/register">
+                    Registar Funerária
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
               </div>
             </TabsContent>
 
@@ -239,7 +434,7 @@ const Sobre = () => {
                 <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
                   <span className="text-xs font-semibold text-primary uppercase tracking-wider">Serviços Memoralis</span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-primary">
                   Serviços complementares
                 </h2>
                 <p className="text-base text-muted-foreground leading-relaxed">
