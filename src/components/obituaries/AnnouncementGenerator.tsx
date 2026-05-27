@@ -403,7 +403,7 @@ export const AnnouncementGenerator = ({ obituaryId, obituaryData }: Announcement
   };
 
   const templates = [
-    { type: "profissional" as const, name: "Profissional", description: "Layout moderno com foto e detalhes" },
+    { type: "profissional" as const, name: "Agências Funerárias", description: "Layout moderno com foto e detalhes" },
     { type: "elegante" as const, name: "Elegante", description: "Fundo escuro com elementos dourados" },
     { type: "classico" as const, name: "Clássico", description: "Design tradicional e sóbrio" },
   ];

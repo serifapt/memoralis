@@ -65,7 +65,7 @@ const Sobre = () => {
           <Tabs defaultValue="publico" className="w-full">
             <TabsList className="w-full max-w-2xl mx-auto grid grid-cols-3 mb-10 h-auto">
               <TabsTrigger value="publico" className="py-3">Público</TabsTrigger>
-              <TabsTrigger value="profissional" className="py-3">Profissional</TabsTrigger>
+              <TabsTrigger value="profissional" className="py-3">Agências Funerárias</TabsTrigger>
               <TabsTrigger value="servicos" className="py-3">Serviços</TabsTrigger>
             </TabsList>
 
