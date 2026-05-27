@@ -51,6 +51,7 @@ import TestimonialsManagement from "./pages/TestimonialsManagement";
 import CareLanding from "./pages/CareLanding";
 
 import CareCheckout from "./pages/CareCheckout";
+import CareSignup from "./pages/CareSignup";
 import CareAuth from "./pages/CareAuth";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminCareSubscriptions from "./pages/AdminCareSubscriptions";
@@ -99,6 +100,7 @@ const App = () => (
           <Route path="/care" element={<CareLanding />} />
           
           <Route path="/care/checkout" element={<CareCheckout />} />
+          <Route path="/care/aderir" element={<CareSignup />} />
           <Route path="/care/auth" element={<CareAuth />} />
           <Route path="/account/care" element={<CustomerDashboard />} />
           <Route path="/technician/auth" element={<TechnicianAuth />} />
