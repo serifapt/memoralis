@@ -1,33 +1,37 @@
-## Objetivo
+## Problema
 
-No `/obituario` (e equivalente em `/funerarias` se aplicável), no **mobile** os 4 selects (Localidade, Freguesia, Distrito, Funerária) ficam escondidos atrás de um botão de filtros, e as **tag pills** (Todos, Funeral, Missa 7º dia, etc.) passam a ser uma fila com scroll horizontal por swipe. No desktop nada muda.
+Em `/account/care` (`CustomerDashboard.tsx`) e em `/care/auth` (`CareAuth.tsx`) a verificação de autenticação é apenas `supabase.auth.getSession()`. Como o Supabase persiste a sessão por projeto inteiro (não por área), basta o utilizador ter sessão iniciada em qualquer outra zona da plataforma (ex.: funerária, admin, técnico) para o `/account/care` aceitar essa sessão como sendo um cliente Care — daí ver "Olá, Rui" automaticamente sem ter feito login específico.
 
-## Alterações em `src/pages/ObituaryArchive.tsx`
+## Solução
 
-1. **Barra superior mobile** (`md:hidden`)
-   - Input de pesquisa por nome ocupa toda a largura
-   - Ao lado, botão de ícone `SlidersHorizontal` com badge a mostrar o nº de filtros ativos (contagem dos selects diferentes de `"all"`)
-   - Esconder a grid de selects atual no mobile (`hidden md:grid`)
+Tratar "estar autenticado como cliente Care" como um estado distinto de "ter sessão Supabase". Um utilizador só é considerado cliente Care se existir um registo em `public.customers` com `user_id = session.user.id`.
 
-2. **Drawer de filtros** (componente `Sheet` do shadcn, lado `bottom`, altura ~85vh)
-   - Título "Filtros"
-   - Corpo com os 4 selects empilhados (Localidade, Freguesia, Distrito, Funerária) — mesmos componentes/estado já existentes
-   - Rodapé com dois botões: "Limpar" (repõe os 4 selects + textos a `"all"`/`""`) e "Ver resultados" (`SheetClose`)
-   - Reutilizar os mesmos selects no desktop para não duplicar lógica
+### 1. `src/pages/CustomerDashboard.tsx` (`/account/care`)
+- Manter o `getSession()` mas deixar de aceitar a sessão como suficiente.
+- Carregar o `customer` (já existe via `useCustomerProfile`) e:
+  - Se não houver sessão → `navigate('/care/auth?redirect=/account/care')`.
+  - Se houver sessão mas `customer` é `null` (a sessão pertence a um utilizador funerária/admin/técnico, não Care) → fazer **sign-out** dessa sessão e redirecionar para `/care/auth?redirect=/account/care` com um toast a explicar "Inicie sessão com a sua conta Memoralis Care".
+  - Só renderizar o dashboard quando ambos existem.
+- Remover o fallback "Ainda não tem um plano" para o caso de sessão sem `customer` (passa a ser sign-out + redirect). Manter esse cartão apenas se quiseres mostrá-lo a um cliente Care confirmado mas sem subscrições — mas, na prática, se há `customer` há subscrições; mantenho a remoção.
 
-3. **Tag pills com swipe no mobile**
-   - Container muda de `flex flex-wrap` para `flex overflow-x-auto scrollbar-hide` no mobile e mantém `sm:flex-wrap sm:overflow-visible` no desktop
-   - Cada pill ganha `shrink-0` para não comprimir
-   - Margens negativas laterais (`-mx-4 px-4 sm:mx-0 sm:px-0`) para o scroll alinhar com o conteúdo
+### 2. `src/pages/CareAuth.tsx`
+- No `useEffect` que verifica sessão existente, deixar de redirecionar imediatamente quando há `session`. Em vez disso:
+  - Verificar se existe registo em `customers` para esse `user.id`.
+  - Se sim → `navigate(redirect)`.
+  - Se não → **não** redirecionar (deixar o formulário de login visível) e fazer `supabase.auth.signOut()` silenciosamente, para que o utilizador possa entrar com a sua conta Care sem conflito.
+- Mesma verificação no `onAuthStateChange`: só navegar depois de confirmar que o utilizador autenticado tem `customer`. Caso contrário, mostrar toast "Esta conta não é uma conta Memoralis Care" e fazer sign-out.
+- No `handleLogin`, após `signInWithPassword` bem-sucedido, fazer a mesma verificação antes de navegar.
 
-## Detalhes técnicos
+### 3. `src/components/care/CareSiteHeader.tsx`
+- Sem alterações: o link "A minha conta" continua a apontar para `/account/care`. A nova lógica do dashboard trata da redireção.
 
-- Componentes novos importados: `Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose` de `@/components/ui/sheet`, `Badge` de `@/components/ui/badge`, ícone `SlidersHorizontal` do `lucide-react`.
-- Sem alterações à lógica de query/Supabase — só reorganização visual.
-- `scrollbar-hide`: se o utilitário não existir no Tailwind, uso `[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]` inline.
-- Verifico no preview mobile (375px) que (a) o drawer abre, fecha e aplica filtros, (b) o badge mostra o nº correto, (c) o "Limpar" repõe, (d) as pills fazem scroll horizontal suave e a pill ativa mantém o estilo `bg-primary text-primary-foreground`.
+## Notas técnicas
+
+- Usar `supabase.from('customers').select('id').eq('user_id', user.id).maybeSingle()` para a verificação leve.
+- Toda a lógica fica no frontend; não há alterações de DB nem de RLS.
+- Não confundir com o login normal `/auth` da plataforma — utilizadores de funerária/admin continuam com sessão válida noutras áreas; apenas a área Care passa a exigir um vínculo explícito a `customers`.
 
 ## Fora do âmbito
 
-- Não mexo no `FunerariaArchive` nesta tarefa (posso replicar depois se quiseres).
-- Não toco no sort ("Mais recentes") nem na grelha de resultados.
+- Não mexer no fluxo de checkout/Stripe nem na criação automática de conta após pagamento.
+- Não unificar os dois sistemas de login.
