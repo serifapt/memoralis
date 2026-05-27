@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Check, Sparkles, MapPin, Camera, ClipboardList, Phone, Mail } from "lucide-react";
+import { Check, Sparkles, MapPin, Camera, ClipboardList, Phone, Mail, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CareSiteHeader } from "@/components/care/CareSiteHeader";
 import { CemeteryMap, Cemetery } from "@/components/care/CemeteryMap";
@@ -50,48 +51,64 @@ export default function CareLanding() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground text-[17px] leading-relaxed">
+    <div className="min-h-screen bg-background text-foreground">
       <CareSiteHeader />
 
       {/* HERO */}
-      <section id="inicio" className="py-20 md:py-28 bg-gradient-to-b from-primary/5 to-background">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h1 className="font-playfair text-4xl md:text-6xl font-semibold leading-tight mb-6">
-            Cuidamos da campa do seu ente querido,<br className="hidden md:block" /> mesmo à distância.
+      <section id="inicio" className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-muted/30 to-primary/10">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto py-20">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full mb-6 animate-fade-in">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Memoralis Care</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-tight animate-fade-in">
+            Cuidamos da campa do seu ente querido,<br className="hidden md:block" /> mesmo à <span className="text-primary">distância</span>.
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto">
-            Um serviço de limpeza, flores e cuidado regular — com foto de cada visita para ter sempre a certeza que está tudo bem.
+          <p className="text-lg md:text-xl max-w-3xl mx-auto font-light leading-relaxed mb-8 text-muted-foreground animate-fade-in">
+            Limpeza, flores e cuidado regular — com foto de cada visita para ter sempre a certeza que está tudo bem.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="text-lg h-14 px-8">
-              <a href="#planos">Ver os planos</a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
+            <Button size="lg" className="px-6 py-5 group" asChild>
+              <a href="#planos">
+                Ver os planos
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </a>
             </Button>
-            <Button asChild size="lg" variant="outline" className="text-lg h-14 px-8">
-              <a href="#como-funciona">Como funciona?</a>
+            <Button size="lg" variant="outline" className="px-6 py-5" asChild>
+              <a href="#como-funciona">Como funciona</a>
             </Button>
           </div>
         </div>
       </section>
 
       {/* COMO FUNCIONA */}
-      <section id="como-funciona" className="py-20 md:py-28">
+      <section id="como-funciona" className="py-16 md:py-20 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="font-playfair text-3xl md:text-5xl font-semibold text-center mb-4">Como funciona</h2>
-          <p className="text-center text-muted-foreground text-lg mb-14 max-w-2xl mx-auto">
-            Quatro passos simples para garantir que a campa do seu ente querido está sempre cuidada.
-          </p>
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider">Processo</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Como funciona</h2>
+            <p className="text-muted-foreground text-lg">
+              Quatro passos simples para garantir que a campa do seu ente querido está sempre cuidada.
+            </p>
+          </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {STEPS.map((s) => {
               const Icon = s.icon;
               return (
-                <div key={s.n} className="relative bg-card border border-border rounded-2xl p-8">
-                  <div className="absolute -top-5 left-8 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold shadow-md">
+                <Card key={s.n} className="relative p-6 pt-8">
+                  <div className="absolute -top-4 left-6 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-base font-bold shadow-md">
                     {s.n}
                   </div>
-                  <Icon className="w-10 h-10 text-primary mb-4 mt-2" />
-                  <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
-                  <p className="text-muted-foreground">{s.desc}</p>
-                </div>
+                  <Icon className="w-8 h-8 text-primary mb-3 mt-1" />
+                  <h3 className="text-lg font-semibold mb-2 tracking-tight">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                </Card>
               );
             })}
           </div>
@@ -99,72 +116,87 @@ export default function CareLanding() {
       </section>
 
       {/* PLANOS */}
-      <section id="planos" className="py-20 md:py-28 bg-muted/30">
+      <section id="planos" className="py-16 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4 max-w-7xl">
-          <h2 className="font-playfair text-3xl md:text-5xl font-semibold text-center mb-4">Planos</h2>
-          <p className="text-center text-muted-foreground text-lg mb-14">Escolha o que melhor se adequa a si.</p>
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider">Planos</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Escolha o seu plano</h2>
+            <p className="text-muted-foreground text-lg">O que melhor se adequa a si.</p>
+          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((p) => (
-              <div key={p.code} className={`relative bg-card border-2 rounded-2xl p-6 flex flex-col ${p.popular ? "border-primary shadow-lg" : "border-border"}`}>
+              <Card key={p.code} className={`relative p-6 flex flex-col ${p.popular ? "border-2 border-primary shadow-lg" : ""}`}>
                 {p.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-sm font-semibold px-4 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                     Mais popular
                   </div>
                 )}
-                <h3 className="text-2xl font-semibold mb-2">{p.name}</h3>
+                <h3 className="text-xl font-bold mb-2 tracking-tight">{p.name}</h3>
                 <div className="mb-1">
-                  <span className="text-4xl font-bold">{p.price}€</span>
-                  <span className="text-muted-foreground">/mês</span>
+                  <span className="text-3xl font-bold">{p.price}€</span>
+                  <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">IVA incluído</p>
-                <p className="text-base font-medium text-primary mb-5">{p.freq}</p>
-                <ul className="space-y-3 mb-8 flex-1">
+                <p className="text-xs text-muted-foreground mb-2">IVA incluído</p>
+                <p className="text-sm font-medium text-primary mb-5">{p.freq}</p>
+                <ul className="space-y-2.5 mb-6 flex-1">
                   {p.items.map((it) => (
-                    <li key={it} className="flex gap-2 text-[15px]">
-                      <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                      <span>{it}</span>
+                    <li key={it} className="flex gap-2 text-sm">
+                      <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{it}</span>
                     </li>
                   ))}
                 </ul>
-                <Button asChild size="lg" className="w-full h-12 text-base" variant={p.popular ? "default" : "outline"}>
+                <Button asChild className="w-full" variant={p.popular ? "default" : "outline"}>
                   <Link to={`/care/aderir?plano=${p.code}`}>Selecionar</Link>
                 </Button>
-              </div>
+              </Card>
             ))}
           </div>
-          <p className="text-center text-muted-foreground mt-10 text-base">
+          <p className="text-center text-sm text-muted-foreground mt-10">
             Todos os planos podem ser cancelados a qualquer momento. Sem contratos. Sem permanência.
           </p>
         </div>
       </section>
 
       {/* CEMITÉRIOS */}
-      <section id="cemiterios" className="py-20 md:py-28">
+      <section id="cemiterios" className="py-16 md:py-20">
         <div className="container mx-auto px-4 max-w-7xl">
-          <h2 className="font-playfair text-3xl md:text-5xl font-semibold text-center mb-4">Onde atuamos</h2>
-          <p className="text-center text-muted-foreground text-lg mb-12 max-w-2xl mx-auto">
-            Atualmente operamos nos seguintes cemitérios. Se o cemitério que procura não estiver na lista, entre em contacto connosco.
-          </p>
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider">Cobertura</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Onde atuamos</h2>
+            <p className="text-muted-foreground text-lg">
+              Operamos nos seguintes cemitérios. Se o cemitério que procura não estiver na lista, fale connosco.
+            </p>
+          </div>
           <CemeteryMap cemeteries={cemeteries} />
-          <div className="text-center mt-10">
-            <Button asChild variant="outline" size="lg">
-              <a href="#contacto">Não encontra o seu cemitério? Fale connosco</a>
+          <div className="text-center mt-8">
+            <Button asChild variant="outline">
+              <a href="#contacto">Não encontra o seu cemitério?</a>
             </Button>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-20 md:py-28 bg-muted/30">
+      <section id="faq" className="py-16 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4 max-w-3xl">
-          <h2 className="font-playfair text-3xl md:text-5xl font-semibold text-center mb-12">Perguntas frequentes</h2>
+          <div className="text-center mb-10">
+            <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider">FAQ</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Perguntas frequentes</h2>
+          </div>
           <Accordion type="single" collapsible className="space-y-3">
             {FAQ.map((f, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="bg-card border border-border rounded-xl px-6">
-                <AccordionTrigger className="text-left text-lg font-medium py-5 hover:no-underline">
+              <AccordionItem key={i} value={`item-${i}`} className="bg-card border border-border rounded-lg px-5">
+                <AccordionTrigger className="text-left text-base font-medium py-4 hover:no-underline">
                   {f.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-base pb-5">
+                <AccordionContent className="text-sm text-muted-foreground pb-4 leading-relaxed">
                   {f.a}
                 </AccordionContent>
               </AccordionItem>
@@ -174,26 +206,36 @@ export default function CareLanding() {
       </section>
 
       {/* CONTACTO */}
-      <section id="contacto" className="py-20 md:py-28">
+      <section id="contacto" className="py-16 md:py-20">
         <div className="container mx-auto px-4 max-w-3xl text-center">
-          <h2 className="font-playfair text-3xl md:text-5xl font-semibold mb-4">Fale connosco</h2>
+          <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Contacto</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Fale connosco</h2>
           <p className="text-lg text-muted-foreground mb-10">
             Estamos disponíveis para esclarecer qualquer dúvida sobre o nosso serviço.
           </p>
           <div className="grid sm:grid-cols-2 gap-6 mb-10">
-            <a href="mailto:info@memoralis.pt" className="bg-card border border-border rounded-2xl p-8 hover:border-primary transition-colors flex flex-col items-center gap-3">
-              <Mail className="w-8 h-8 text-primary" />
-              <div className="font-semibold text-lg">Email</div>
-              <div className="text-muted-foreground">info@memoralis.pt</div>
-            </a>
-            <a href="tel:+351928282582" className="bg-card border border-border rounded-2xl p-8 hover:border-primary transition-colors flex flex-col items-center gap-3">
-              <Phone className="w-8 h-8 text-primary" />
-              <div className="font-semibold text-lg">Telefone</div>
-              <div className="text-muted-foreground">+351 928 282 582</div>
-            </a>
+            <Card className="p-6 hover:border-primary transition-colors">
+              <a href="mailto:info@memoralis.pt" className="flex flex-col items-center gap-2">
+                <Mail className="w-7 h-7 text-primary" />
+                <div className="font-semibold">Email</div>
+                <div className="text-sm text-muted-foreground">info@memoralis.pt</div>
+              </a>
+            </Card>
+            <Card className="p-6 hover:border-primary transition-colors">
+              <a href="tel:+351928282582" className="flex flex-col items-center gap-2">
+                <Phone className="w-7 h-7 text-primary" />
+                <div className="font-semibold">Telefone</div>
+                <div className="text-sm text-muted-foreground">+351 928 282 582</div>
+              </a>
+            </Card>
           </div>
-          <Button asChild size="lg" className="h-14 px-8 text-lg">
-            <Link to="/care/aderir">Aderir ao serviço</Link>
+          <Button asChild size="lg" className="px-6 py-5 group">
+            <Link to="/care/aderir">
+              Aderir ao serviço
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </Button>
         </div>
       </section>
