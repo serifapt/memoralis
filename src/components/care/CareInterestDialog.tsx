@@ -80,6 +80,7 @@ export function CareInterestDialog({ trigger }: { trigger: React.ReactNode }) {
         phone: parsed.data.phone || null,
         locality: parsed.data.locality || null,
         parish: parsed.data.parish || null,
+        freguesia: parsed.data.parish || null,
         cemetery_name: parsed.data.cemetery_name,
         plan_code: parsed.data.plan_code || null,
         message: parsed.data.message || null,
