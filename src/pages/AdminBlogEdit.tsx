@@ -25,11 +25,14 @@ type Form = {
   read_time: string;
   status: "draft" | "published";
   is_featured: boolean;
+  meta_title: string;
+  meta_description: string;
 };
 
 const empty: Form = {
   title: "", slug: "", excerpt: "", content: "", category: "", author: "",
   cover_image_url: "", read_time: "", status: "draft", is_featured: false,
+  meta_title: "", meta_description: "",
 };
 
 export default function AdminBlogEdit() {
@@ -65,6 +68,8 @@ export default function AdminBlogEdit() {
         read_time: data.read_time || "",
         status: (data.status as "draft" | "published") || "draft",
         is_featured: !!data.is_featured,
+        meta_title: (data as any).meta_title || "",
+        meta_description: (data as any).meta_description || "",
       });
       setLoading(false);
     })();
@@ -106,6 +111,8 @@ export default function AdminBlogEdit() {
       read_time: form.read_time || null,
       status: finalStatus,
       is_featured: form.is_featured,
+      meta_title: form.meta_title.trim() || null,
+      meta_description: form.meta_description.trim() || null,
       published_at: finalStatus === "published"
         ? (isEditing && form.status === "published" ? undefined : new Date().toISOString())
         : null,
@@ -234,6 +241,62 @@ export default function AdminBlogEdit() {
             <Switch id="featured" checked={form.is_featured} onCheckedChange={(v) => update("is_featured", v)} />
             <Label htmlFor="featured" className="cursor-pointer">Artigo em destaque</Label>
           </div>
+        </div>
+      </Card>
+
+      <Card className="p-6 space-y-5">
+        <div>
+          <h2 className="text-lg font-archivo font-bold">SEO — Listagem nos motores de pesquisa</h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Personaliza como este artigo aparece nos resultados do Google. Se deixar em branco, será usado o título e excerto do artigo.
+          </p>
+        </div>
+
+        {/* Google-style preview */}
+        <div className="rounded-lg border bg-card p-4 space-y-1">
+          <p className="text-xs font-medium text-muted-foreground mb-2">Listagem do motor de pesquisa</p>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <img src="/favicon.ico" alt="" className="w-4 h-4 rounded-sm" onError={(e) => ((e.currentTarget.style.display = "none"))} />
+            <div>
+              <div className="font-medium text-foreground">Memoralis</div>
+              <div className="truncate">https://www.memoralis.pt › blog › {form.slug || "..."}</div>
+            </div>
+          </div>
+          <h3 className="text-[#1a0dab] text-lg leading-snug mt-1">
+            {form.meta_title || form.title || "Título do artigo"}
+          </h3>
+          <p className="text-sm text-foreground/70">
+            {form.meta_description || form.excerpt || "Descrição do artigo aparecerá aqui."}
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Título da página</Label>
+          <Input
+            value={form.meta_title}
+            onChange={(e) => update("meta_title", e.target.value.slice(0, 70))}
+            placeholder={form.title || "Título para os motores de pesquisa"}
+            maxLength={70}
+          />
+          <p className="text-xs text-muted-foreground">{form.meta_title.length} de 70 caracteres utilizados</p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Metadescrição</Label>
+          <Textarea
+            value={form.meta_description}
+            onChange={(e) => update("meta_description", e.target.value.slice(0, 160))}
+            rows={3}
+            placeholder={form.excerpt || "Descrição curta para os motores de pesquisa"}
+            maxLength={160}
+          />
+          <p className="text-xs text-muted-foreground">{form.meta_description.length} de 160 caracteres utilizados</p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Identificador do URL</Label>
+          <Input value={form.slug} onChange={(e) => update("slug", e.target.value)} placeholder="como-preparar-cerimonia-memorial" />
+          <p className="text-xs text-muted-foreground break-all">https://www.memoralis.pt/blog/{form.slug || "..."}</p>
         </div>
       </Card>
     </div>
