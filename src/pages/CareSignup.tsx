@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CareSiteHeader } from "@/components/care/CareSiteHeader";
 import { Button } from "@/components/ui/button";
@@ -15,16 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Info, Loader2, Plus, Trash2 } from "lucide-react";
 import {
   carePlanPriceByCode,
   commemorativeDateTypes,
 } from "@/lib/care-status";
+import { CARE_PLANS } from "@/lib/care-plans";
 
 type Cemetery = { id: string; nome: string; municipio: string; morada: string | null };
 type Plan = { id: string; code: string; name: string; description: string | null; includes_json: unknown };
-type CommemorativeDate = { type: string; date?: string; note?: string };
+type CommemorativeDate = { type: string; date?: string; note?: string; label?: string };
+
+const MAX_DATES = 3;
 
 const steps = [
   { n: 1, label: "Os seus dados" },
