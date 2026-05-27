@@ -24,6 +24,7 @@ interface Payload {
     care_plan_id: string;
     billing_period: string; // monthly | yearly
     commemorative_dates?: Array<{ type: string; date?: string; note?: string }>;
+    family_message?: string;
   };
 }
 
@@ -116,6 +117,7 @@ serve(async (req) => {
         billing_period: body.plan.billing_period,
         status: stripeEnabled ? "pending_payment" : "pending_activation",
         commemorative_dates: body.plan.commemorative_dates ?? [],
+        family_message: body.plan.family_message ?? null,
       })
       .select("id")
       .single();
