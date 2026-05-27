@@ -374,7 +374,7 @@ export default function FunerariaDetail() {
                   {obituaries.map((obit) => {
                     const age = getAge(obit.birth_date, obit.death_date);
                     return (
-                      <Link key={obit.id} to={(funeraria?.slug && (obit as any).slug) ? `/obituario/${funeraria.slug}/${(obit as any).slug}` : `/obituario/${obit.id}`}>
+                      <Link key={obit.id} to={((funeraria as any)?.slug && (obit as any).slug) ? `/obituario/${(funeraria as any).slug}/${(obit as any).slug}` : `/obituario/${obit.id}`}>
                         <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
                           <div className="relative">
                             <img
