@@ -111,7 +111,7 @@ export default function FunerariaDetail() {
       // Load public obituaries for this funeraria
       const { data: obits } = await supabase
         .from("obituaries")
-        .select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, service_type")
+        .select("id, slug, display_name, birth_date, death_date, locality, freguesia, photo_url, service_type")
         .eq("funeraria_id", data.id)
         .eq("is_public", true)
         .eq("is_completed", true)
@@ -374,7 +374,7 @@ export default function FunerariaDetail() {
                   {obituaries.map((obit) => {
                     const age = getAge(obit.birth_date, obit.death_date);
                     return (
-                      <Link key={obit.id} to={`/obituario/${obit.id}`}>
+                      <Link key={obit.id} to={(data?.slug && (obit as any).slug) ? `/obituario/${data.slug}/${(obit as any).slug}` : `/obituario/${obit.id}`}>
                         <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
                           <div className="relative">
                             <img
