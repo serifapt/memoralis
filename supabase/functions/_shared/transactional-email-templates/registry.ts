@@ -11,8 +11,10 @@ export interface TemplateEntry {
 
 import { template as flowerOrderCustomerConfirmation } from './flower-order-customer-confirmation.tsx'
 import { template as flowerOrderFunerariaNotification } from './flower-order-funeraria-notification.tsx'
+import { template as careWelcome } from './care-welcome.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'flower-order-customer-confirmation': flowerOrderCustomerConfirmation,
   'flower-order-funeraria-notification': flowerOrderFunerariaNotification,
+  'care-welcome': careWelcome,
 }
