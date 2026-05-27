@@ -408,7 +408,7 @@ export default function ObituaryArchive() {
             </div>
             <div>
               <h4 className="font-archivo font-semibold mb-4">Contacto</h4>
-              <p className="text-sm opacity-80">Email: info@memoralis.pt</p>
+              <p className="text-sm opacity-80">info@memoralis.pt</p>
             </div>
           </div>
           <div className="pt-8 border-t border-[hsl(var(--footer-foreground))]/20 text-center text-sm opacity-80">
