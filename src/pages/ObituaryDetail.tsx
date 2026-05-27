@@ -275,7 +275,7 @@ export default function ObituaryDetail() {
       const [eventsRes, funerariaRes, relatedRes] = await Promise.all([
         supabase.from("ceremony_events").select("id, event_type, event_date, event_time, location, map_link").eq("obituary_id", obit.id).order("event_date", { ascending: true }),
         supabase.from("funerarias").select("id, nome_comercial, telefone, email, morada, logo_url, slug, localidade, codigo_postal, servico_flores_ativo, flores_limite_horas").eq("id", obit.funeraria_id).maybeSingle(),
-        supabase.from("obituaries").select("id, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(5),
+        supabase.from("obituaries").select("id, slug, display_name, birth_date, death_date, locality, freguesia, photo_url, funeraria_id, funerarias(nome_comercial, slug)").eq("funeraria_id", obit.funeraria_id).eq("is_public", true).neq("id", obit.id).order("created_at", { ascending: false }).limit(5),
       ]);
 
       setEvents(eventsRes.data || []);
