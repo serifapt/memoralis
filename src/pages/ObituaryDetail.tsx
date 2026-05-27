@@ -178,15 +178,15 @@ export default function ObituaryDetail() {
 
   // Register view
   useEffect(() => {
-    if (!id || loading || !obituary) return;
-    const key = `viewed_${id}`;
+    if (!obituary || loading) return;
+    const key = `viewed_${obituary.id}`;
     if (!sessionStorage.getItem(key)) {
-      supabase.from("obituary_views").insert({ obituary_id: id }).then(() => {
+      supabase.from("obituary_views").insert({ obituary_id: obituary.id }).then(() => {
         sessionStorage.setItem(key, "true");
         setViewCount((prev) => prev + 1);
       });
     }
-  }, [id, loading, obituary]);
+  }, [obituary, loading]);
 
   useEffect(() => {
     if (!loading && obituary && location.hash === '#condolencias') {
