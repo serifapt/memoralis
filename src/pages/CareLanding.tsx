@@ -15,8 +15,15 @@ const PLANS = [
     items: ["Limpeza geral da campa", "2 composições de flores frescas da época (vaso e jarra)", "1 círio branco/vermelho 60LL", "Foto antes/depois"] },
   { code: "semanal", name: "Semanal", price: 160, freq: "4 visitas por mês", popular: true,
     items: ["Limpeza geral da campa", "2 composições de flores frescas da época (vaso e jarra)", "1 círio branco/vermelho 60LL", "Foto antes/depois"] },
-  { code: "premium", name: "Premium", price: 200, freq: "4 visitas por mês + extras", popular: false,
-    items: ["Limpeza geral da campa + limpeza dos livros da campa", "2 composições de flores frescas da época", "1 círio branco/vermelho 60LL", "Foto antes/depois", "3 datas comemorativas à escolha", "Ramo especial em cada data comemorativa"] },
+  { code: "premium", name: "Homenagem", price: 200, freq: "4 visitas por mês + extras", popular: false,
+    items: [
+      "Limpeza da campa",
+      "Ramo de flores frescas premium",
+      "Círios / velas ilimitados",
+      "Foto de comprovação",
+      "Limpeza profunda mensal",
+      "3 datas comemorativas à escolha (Dia de Todos os Santos, aniversários, Dia do Pai / da Mãe, entre outras)",
+    ] },
 ];
 
 const STEPS = [
