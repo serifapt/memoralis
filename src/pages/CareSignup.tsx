@@ -15,8 +15,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Check, ExternalLink, Info, Loader2, MapPin, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, ChevronsUpDown, ExternalLink, Info, Loader2, MapPin, Plus, Trash2 } from "lucide-react";
 import {
   carePlanPriceByCode,
   commemorativeDateTypes,
@@ -24,6 +32,7 @@ import {
 import { CARE_PLANS } from "@/lib/care-plans";
 import { useCemeteriesCascade } from "@/hooks/useCemeteriesCascade";
 import { CareInterestDialog } from "@/components/care/CareInterestDialog";
+import { cn } from "@/lib/utils";
 
 type Plan = { id: string; code: string; name: string; description: string | null; includes_json: unknown };
 type CommemorativeDate = { type: string; date?: string; note?: string; label?: string };
@@ -39,12 +48,11 @@ export default function CareSignup() {
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const [plans, setPlans] = useState<Plan[]>([]);
-  const { localities, parishesFor, cemeteriesFor } = useCemeteriesCascade({ activeOnly: true });
+  const { cemeteries } = useCemeteriesCascade({ activeOnly: true });
+  const [cemeteryPopoverOpen, setCemeteryPopoverOpen] = useState(false);
 
   // form state
   const [personal, setPersonal] = useState({ name: "", email: "", phone: "", nif: "" });
-  const [locality, setLocality] = useState<string>("");
-  const [parish, setParish] = useState<string>("");
   const [grave, setGrave] = useState({
     cemetery_id: "" as string | "",
     cemetery_name: "",
@@ -123,20 +131,8 @@ export default function CareSignup() {
   };
   const isValid = !Object.values(errors).some(Boolean);
 
-  const parishes = locality ? parishesFor(locality) : [];
-  const filteredCemeteries = locality ? cemeteriesFor(locality, parish) : [];
-
-  const handleLocalityChange = (v: string) => {
-    setLocality(v);
-    setParish("");
-    setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
-  };
-  const handleParishChange = (v: string) => {
-    setParish(v === "__all" ? "" : v);
-    setGrave((g) => ({ ...g, cemetery_id: "", cemetery_name: "", cemetery_address: "" }));
-  };
   const handleCemeteryChange = (id: string) => {
-    const c = filteredCemeteries.find((x) => x.id === id);
+    const c = cemeteries.find((x) => x.id === id);
     if (!c) return;
     setGrave((g) => ({
       ...g,
@@ -148,6 +144,7 @@ export default function CareSignup() {
       cemetery_lat: c.lat ?? null,
       cemetery_lng: c.lng ?? null,
     }));
+    setCemeteryPopoverOpen(false);
   };
 
   const addDate = () =>
@@ -289,69 +286,82 @@ export default function CareSignup() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label className="text-base">Localidade</Label>
-                <Select value={locality} onValueChange={handleLocalityChange}>
-                  <SelectTrigger className="h-12 text-base">
-                    <SelectValue placeholder="Escolher localidade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {localities.map((l) => (
-                      <SelectItem key={l} value={l}>{l}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-base">Cemitério</Label>
+                <Popover open={cemeteryPopoverOpen} onOpenChange={setCemeteryPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "h-12 w-full justify-between text-base font-normal",
+                        !grave.cemetery_id && "text-muted-foreground",
+                      )}
+                    >
+                      <span className="truncate">
+                        {grave.cemetery_id
+                          ? grave.cemetery_name
+                          : "Pesquisar cemitério por nome, freguesia ou município..."}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command
+                      filter={(value, search) =>
+                        value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
+                      }
+                    >
+                      <CommandInput placeholder="Escrever para pesquisar..." className="h-11" />
+                      <CommandList>
+                        <CommandEmpty>
+                          <div className="px-2 py-4 text-sm text-muted-foreground space-y-3">
+                            <p>Não encontrámos cemitérios com esse nome.</p>
+                            <CareInterestDialog
+                              trigger={
+                                <Button type="button" variant="outline" size="sm">
+                                  Avise-me quando estiver disponível
+                                </Button>
+                              }
+                            />
+                          </div>
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {cemeteries.map((c) => {
+                            const searchValue = [c.nome, c.freguesia, c.municipio]
+                              .filter(Boolean)
+                              .join(" ");
+                            return (
+                              <CommandItem
+                                key={c.id}
+                                value={searchValue}
+                                onSelect={() => handleCemeteryChange(c.id)}
+                                className="flex items-start gap-2 py-2"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mt-1 h-4 w-4 shrink-0",
+                                    grave.cemetery_id === c.id ? "opacity-100" : "opacity-0",
+                                  )}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium truncate">{c.nome}</div>
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    {[c.freguesia, c.municipio].filter(Boolean).join(" · ")}
+                                  </div>
+                                </div>
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {attemptedSubmit && errors.cemetery && (
+                  <p className="text-sm text-destructive">{errors.cemetery}</p>
+                )}
               </div>
-
-              {locality && parishes.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-base">Freguesia</Label>
-                  <Select value={parish || "__all"} onValueChange={handleParishChange}>
-                    <SelectTrigger className="h-12 text-base">
-                      <SelectValue placeholder="Escolher freguesia" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__all">Todas as freguesias</SelectItem>
-                      {parishes.map((p) => (
-                        <SelectItem key={p} value={p}>{p}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {locality && (
-                <div className="space-y-2">
-                  <Label className="text-base">Cemitério</Label>
-                  {filteredCemeteries.length > 0 ? (
-                    <Select value={grave.cemetery_id} onValueChange={handleCemeteryChange}>
-                      <SelectTrigger className="h-12 text-base">
-                        <SelectValue placeholder="Escolher cemitério" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredCemeteries.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.nome}{c.freguesia ? ` — ${c.freguesia}` : ""}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground space-y-3">
-                      <p>Ainda não temos cemitérios ativos nesta zona.</p>
-                      <CareInterestDialog
-                        trigger={
-                          <Button type="button" variant="outline" size="sm">
-                            Avise-me quando estiver disponível
-                          </Button>
-                        }
-                      />
-                    </div>
-                  )}
-                  {attemptedSubmit && errors.cemetery && (
-                    <p className="text-sm text-destructive">{errors.cemetery}</p>
-                  )}
-                </div>
-              )}
 
               {grave.cemetery_id && (
                 <div className="rounded-lg border border-border bg-muted/40 p-4 space-y-2">
