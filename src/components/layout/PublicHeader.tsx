@@ -41,11 +41,11 @@ export const PublicHeader = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Memoralis" className="w-[165px] md:w-[220px]" />
+            <img src={logo} alt="Memoralis" className="w-[165px] lg:w-[220px]" />
           </Link>
 
           {/* Centered Navigation (desktop) */}
-          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+          <nav className="hidden lg:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
             {NAV_LINKS.map((link) => {
               const active =
                 isActive(link.to) &&
@@ -96,17 +96,17 @@ export const PublicHeader = () => {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            <Button size="sm" variant="outline" asChild className="hidden md:inline-flex">
+            <Button size="sm" variant="outline" asChild className="hidden lg:inline-flex">
               <Link to="/login">Entrar</Link>
             </Button>
-            <Button size="sm" asChild className="hidden md:inline-flex">
+            <Button size="sm" asChild className="hidden lg:inline-flex">
               <Link to="/funeraria/register">Registar</Link>
             </Button>
 
             {/* Mobile menu */}
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
+                <Button variant="ghost" size="icon" className="lg:hidden">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
