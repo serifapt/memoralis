@@ -341,7 +341,7 @@ export default function ObituaryArchive() {
                 <SheetHeader>
                   <SheetTitle>Filtros</SheetTitle>
                 </SheetHeader>
-                <div className="flex-1 overflow-y-auto py-4 space-y-3">
+                <div className="flex-1 overflow-y-auto px-1 py-4 space-y-3">
                   {advancedFiltersBody}
                 </div>
                 <SheetFooter className="flex-row gap-2 sm:flex-row sm:justify-stretch">
