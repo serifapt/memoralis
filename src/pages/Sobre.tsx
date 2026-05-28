@@ -405,6 +405,43 @@ const Sobre = () => {
                 </div>
               </div>
 
+              {/* Zigzag 4 — Anúncios automáticos */}
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center py-10">
+                <div>
+                  <div className="inline-block px-2.5 py-1 bg-primary/10 rounded-full mb-3">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                      Anúncios Fúnebres
+                    </span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight text-primary">
+                    Geração automática de anúncios profissionais
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-5">
+                    Crie anúncios fúnebres em formato A4 em segundos, com templates elegantes prontos
+                    a imprimir, partilhar nas redes sociais ou enviar por email à família.
+                  </p>
+                  <ul className="space-y-2.5">
+                    {[
+                      "Vários templates profissionais à escolha",
+                      "Preenchimento automático a partir do processo do falecido",
+                      "Exportação em PDF de alta qualidade para impressão",
+                    ].map((item) => (
+                      <li key={item} className="flex gap-2.5 text-sm">
+                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <BrowserFrame
+                    src={screenAnnouncements}
+                    alt="Geração automática de anúncios fúnebres em A4"
+                    url="memoralis.pt/obituaries/anuncios"
+                  />
+                </div>
+              </div>
+
               {/* CTA Agendamento */}
               <div className="text-center max-w-2xl mx-auto py-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full mb-4">
