@@ -546,7 +546,7 @@ const Sobre = () => {
                 </div>
                 <div className="relative grid sm:grid-cols-3 gap-6">
                   {[
-                    { value: "9", label: "Formulários SS e CGA preenchidos automaticamente" },
+                    { value: "+10", label: "Formulários SS e CGA preenchidos automaticamente" },
                     { value: "+5h", label: "Poupadas por processo fúnebre" },
                     { value: "100%", label: "Digital, sem papel, sem perdas" },
                   ].map((stat) => (
