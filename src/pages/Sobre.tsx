@@ -24,10 +24,44 @@ import {
   BarChart3,
 } from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
-import mockupDashboard from "@/assets/mockup-dashboard.png";
-import mockupObituaryEditor from "@/assets/mockup-obituary-editor.png";
-import mockupSsForms from "@/assets/mockup-ss-forms.png";
-import mockupFlowersBudget from "@/assets/mockup-flowers-budget.png";
+import screenDashboard from "@/assets/screen-dashboard.png";
+import screenObituaryEditor from "@/assets/screen-obituary-editor.png";
+import screenSsForms from "@/assets/screen-ss-forms.png";
+import screenFlowersBudget from "@/assets/screen-flowers-budget.png";
+
+const BrowserFrame = ({
+  src,
+  alt,
+  url = "memoralis.pt/dashboard",
+}: {
+  src: string;
+  alt: string;
+  url?: string;
+}) => (
+  <div className="relative">
+    <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent blur-3xl scale-90 -z-10" />
+    <div className="relative rounded-xl overflow-hidden border border-border bg-card shadow-2xl">
+      <div className="flex items-center gap-2 px-3 py-2 bg-muted border-b border-border">
+        <div className="flex gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+          <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/70" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+        </div>
+        <div className="flex-1 mx-3 px-3 py-0.5 rounded-md bg-background/60 text-[10px] text-muted-foreground truncate">
+          {url}
+        </div>
+      </div>
+      <img
+        src={src}
+        alt={alt}
+        width={1440}
+        height={900}
+        loading="lazy"
+        className="block w-full h-auto"
+      />
+    </div>
+  </div>
+);
 
 const funerariaFeatures = [
   {
