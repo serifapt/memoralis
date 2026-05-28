@@ -354,36 +354,6 @@ const Sobre = () => {
                 </div>
               </div>
 
-              {/* CTA Junte-se */}
-              <div className="relative overflow-hidden rounded-3xl py-12 px-4">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-primary/5" />
-                <div className="container mx-auto max-w-4xl text-center relative z-10">
-                  <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-4">
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Comece Hoje</span>
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-                    Junte-se à Memoralis
-                  </h2>
-                  <p className="text-base text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-                    Faça parte da nossa rede de profissionais dedicados a oferecer o melhor serviço
-                    às famílias portuguesas em momentos de despedida.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <Button size="lg" className="px-6 py-5" asChild>
-                      <Link to="/funeraria/register">
-                        Registar Funerária
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Link>
-                    </Button>
-                    <Button size="lg" variant="outline" className="px-6 py-5" asChild>
-                      <Link to="/contactos">Entre em Contacto</Link>
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-6">
-                    Tem dúvidas? A nossa equipa está disponível para ajudar.
-                  </p>
-                </div>
-              </div>
             </TabsContent>
 
             {/* PROFISSIONAL */}
