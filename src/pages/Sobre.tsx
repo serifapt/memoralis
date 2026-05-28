@@ -23,6 +23,7 @@ import {
   FolderArchive,
   Calculator,
   BarChart3,
+  Calendar,
 } from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
 import screenDashboard from "@/assets/screen-dashboard.png";
