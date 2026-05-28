@@ -311,6 +311,17 @@ const Sobre = () => {
                   Gestão completa do processo fúnebre, formulários automáticos, orçamentos, anúncios
                   e catálogo de flores — tudo numa única solução pensada para funerárias modernas.
                 </p>
+                <Button size="lg" className="px-8 group" asChild>
+                  <a
+                    href="https://calendar.app.google/oirxZJvVLVSMZ5JN7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Calendar className="mr-2 w-4 h-4" />
+                    Agendar Demonstração
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </Button>
               </div>
 
               {/* Screen principal — Dashboard real */}
