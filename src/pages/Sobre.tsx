@@ -31,6 +31,7 @@ import screenDashboard from "@/assets/screen-dashboard.png";
 import screenObituaryEditor from "@/assets/screen-obituary-editor.png";
 import screenSsForms from "@/assets/screen-ss-forms.png";
 import screenFlowersBudget from "@/assets/screen-flowers-budget.png";
+import screenAnnouncements from "@/assets/screen-announcements.png";
 
 const BrowserFrame = ({
   src,
