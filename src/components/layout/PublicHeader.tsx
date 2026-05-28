@@ -36,7 +36,7 @@ export const PublicHeader = () => {
   };
 
   return (
-    <header className="border-b border-border bg-background">
+    <header className="relative z-50 border-b border-border bg-background">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -45,17 +45,17 @@ export const PublicHeader = () => {
           </Link>
 
           {/* Centered Navigation (desktop) */}
-          <nav className="hidden md:flex gap-6 absolute left-1/2 transform -translate-x-1/2">
+          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
             {NAV_LINKS.map((link) => {
               const active =
                 isActive(link.to) &&
                 !(link.to === "/" && (isActive("/obituario") || isActive("/funerarias")));
               if (link.to === "/sobre") {
                 return (
-                  <div key={link.to} className="relative group">
+                  <div key={link.to} className="relative group flex items-center">
                     <Link
                       to={link.to}
-                      className={`text-sm hover:text-primary transition-colors inline-flex items-center gap-1 ${
+                      className={`text-sm leading-none hover:text-primary transition-colors inline-flex items-center gap-1 ${
                         active ? "text-foreground font-medium" : "text-muted-foreground"
                       }`}
                     >
