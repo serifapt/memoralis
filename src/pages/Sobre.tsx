@@ -128,7 +128,7 @@ const Sobre = () => {
       <PublicHeader />
       
       {/* Hero Section */}
-      <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-muted/30 to-primary/10">
+      <section className="relative min-h-[400px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-muted/30 to-primary/10">
         
         {/* Floating Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -137,7 +137,7 @@ const Sobre = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto py-20">
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto py-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full mb-6 animate-fade-in">
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-xs font-semibold uppercase tracking-wider">Inovação com Sensibilidade</span>
