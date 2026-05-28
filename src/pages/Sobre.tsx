@@ -24,6 +24,8 @@ import {
   Calculator,
   BarChart3,
   Calendar,
+  Star,
+  MessageCircle,
 } from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
 import screenDashboard from "@/assets/screen-dashboard.png";
@@ -100,6 +102,16 @@ const funerariaFeatures = [
     icon: BarChart3,
     title: "Eventos e estatísticas",
     description: "Acompanhe próximas cerimónias, visualizações e métricas de engagement num só painel.",
+  },
+  {
+    icon: Users,
+    title: "Base de dados de clientes",
+    description: "Histórico completo de familiares e contactos, com pesquisa rápida e reutilização em novos processos.",
+  },
+  {
+    icon: Star,
+    title: "Testemunhos públicos",
+    description: "Recolha avaliações de famílias e reforce a sua reputação na página pública da funerária.",
   },
 ];
 
