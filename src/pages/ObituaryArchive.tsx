@@ -25,9 +25,9 @@ const PAGE_SIZE = 12;
 const TAG_OPTIONS = [
   { label: "Todos", value: "all" },
   { label: "Funeral", value: "Funeral" },
-  { label: "Missa 7º dia", value: "Missa 7º dia" },
-  { label: "Missa 30º dia", value: "Missa 30º dia" },
-  { label: "Missa Anual", value: "Missa 1 Ano" },
+  { label: "Missa 7º Dia", value: "Missa 7º Dia" },
+  { label: "Missa 30º Dia", value: "Missa 30º Dia" },
+  { label: "Missa 1 Ano", value: "Missa 1 Ano" },
 ];
 
 export default function ObituaryArchive() {
