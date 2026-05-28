@@ -75,7 +75,7 @@ const funerariaFeatures = [
   {
     icon: FileCheck2,
     title: "Formulários SS e CGA automáticos",
-    description: "9 formulários da Segurança Social e Caixa Geral de Aposentações preenchidos automaticamente.",
+    description: "Formulários da Segurança Social e Caixa Geral de Aposentações preenchidos automaticamente.",
   },
   {
     icon: Newspaper,
@@ -337,7 +337,7 @@ const Sobre = () => {
                     </span>
                   </div>
                   <h3 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight text-primary">
-                    9 formulários preenchidos automaticamente
+                    Formulários preenchidos automaticamente
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-5">
                     Esqueça o preenchimento manual repetitivo. A Memoralis gera automaticamente os
