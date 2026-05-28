@@ -23,6 +23,7 @@ import {
   FolderArchive,
   Calculator,
   BarChart3,
+  Calendar,
 } from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
 import screenDashboard from "@/assets/screen-dashboard.png";
@@ -230,7 +231,7 @@ const Sobre = () => {
             </TabsContent>
 
             {/* PROFISSIONAL */}
-            <TabsContent value="profissional" className="space-y-20">
+            <TabsContent value="profissional" className="space-y-32">
               {/* Hero interno + mockup */}
               <div className="text-center max-w-3xl mx-auto">
                 <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
@@ -280,7 +281,7 @@ const Sobre = () => {
                 </div>
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center py-10">
                 <div className="order-2 lg:order-1">
                   <BrowserFrame
                     src={screenObituaryEditor}
@@ -317,7 +318,7 @@ const Sobre = () => {
               </div>
 
               {/* Zigzag 2 — Formulários SS/CGA */}
-              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center py-10">
                 <div>
                   <div className="inline-block px-2.5 py-1 bg-primary/10 rounded-full mb-3">
                     <span className="text-xs font-semibold text-primary uppercase tracking-wider">
@@ -355,7 +356,7 @@ const Sobre = () => {
               </div>
 
               {/* Zigzag 3 — Flores + Orçamentação */}
-              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center py-10">
                 <div className="order-2 lg:order-1">
                   <BrowserFrame
                     src={screenFlowersBudget}
@@ -390,6 +391,30 @@ const Sobre = () => {
                     ))}
                   </ul>
                 </div>
+              </div>
+
+              {/* CTA Agendamento */}
+              <div className="text-center max-w-2xl mx-auto py-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full mb-4">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">Demonstração Gratuita</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-3 tracking-tight">
+                  Quer ver a plataforma em ação?
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Agende uma chamada de 15 minutos connosco. Conheça as funcionalidades e tire todas as suas dúvidas.
+                </p>
+                <Button size="lg" className="px-8 group" asChild>
+                  <a
+                    href="https://calendar.app.google/oirxZJvVLVSMZ5JN7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Agendar Demonstração
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </Button>
               </div>
 
               {/* Banda escura com stats */}
