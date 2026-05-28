@@ -200,7 +200,7 @@ const Sobre = () => {
             </TabsList>
 
             {/* PUBLICO */}
-            <TabsContent value="publico" className="space-y-8">
+            <TabsContent value="publico" className="space-y-20">
               <div className="text-center max-w-3xl mx-auto">
                 <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
                   <span className="text-xs font-semibold text-primary uppercase tracking-wider">Para as Famílias</span>
@@ -239,6 +239,150 @@ const Sobre = () => {
               </div>
               <div className="text-center">
                 <Button asChild><Link to="/obituarios">Ver Obituários <ArrowRight className="ml-2 w-4 h-4" /></Link></Button>
+              </div>
+
+              {/* Values */}
+              <div>
+                <div className="text-center mb-12">
+                  <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Nossos Valores</span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight">
+                    Princípios que nos Guiam
+                  </h2>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Heart className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Empatia</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm">
+                      Compreendemos a delicadeza do momento e desenvolvemos cada funcionalidade
+                      com respeito, humanidade e a devida sensibilidade.
+                    </p>
+                  </Card>
+                  <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Segurança</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm">
+                      Protegemos os dados e memórias das famílias com os mais elevados padrões de
+                      segurança e privacidade digital.
+                    </p>
+                  </Card>
+                  <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Comunidade</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm">
+                      Fortalecemos laços entre famílias e profissionais, criando uma rede de apoio
+                      mútuo e solidariedade.
+                    </p>
+                  </Card>
+                  <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Award className="w-7 h-7 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Excelência</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm">
+                      Comprometemo-nos com a máxima qualidade em cada detalhe do nosso serviço e
+                      plataforma tecnológica.
+                    </p>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Platform Features */}
+              <div>
+                <div className="text-center mb-12">
+                  <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Nossa Plataforma</span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                    Soluções Integradas e Eficientes
+                  </h2>
+                  <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+                    Tecnologia avançada ao serviço de profissionais e famílias
+                  </p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
+                      <Heart className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Para Famílias</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm mb-4">
+                      Espaço digital seguro para consultar obituários, informações sobre cerimónias e partilhar
+                      memórias. Disponível 24 horas por dia.
+                    </p>
+                    <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
+                      <span>Acesso simplificado</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Card>
+                  <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
+                      <Shield className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Para Funerárias</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm mb-4">
+                      Plataforma completa que centraliza obituários, documentação e comunicação com famílias.
+                      Automatize processos e eleve o padrão de serviço.
+                    </p>
+                    <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
+                      <span>Gestão profissional</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Card>
+                  <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
+                      <Award className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">Tecnologia Humanizada</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm mb-4">
+                      Inovação tecnológica com profundo respeito pela dimensão humana. Cada funcionalidade
+                      considera a delicadeza do contexto.
+                    </p>
+                    <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
+                      <span>Inovação com empatia</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Card>
+                </div>
+              </div>
+
+              {/* CTA Junte-se */}
+              <div className="relative overflow-hidden rounded-3xl py-12 px-4">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-primary/5" />
+                <div className="container mx-auto max-w-4xl text-center relative z-10">
+                  <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-4">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Comece Hoje</span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+                    Junte-se à Memoralis
+                  </h2>
+                  <p className="text-base text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Faça parte da nossa rede de profissionais dedicados a oferecer o melhor serviço
+                    às famílias portuguesas em momentos de despedida.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Button size="lg" className="px-6 py-5" asChild>
+                      <Link to="/funeraria/register">
+                        Registar Funerária
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
+                    </Button>
+                    <Button size="lg" variant="outline" className="px-6 py-5" asChild>
+                      <Link to="/contactos">Entre em Contacto</Link>
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-6">
+                    Tem dúvidas? A nossa equipa está disponível para ajudar.
+                  </p>
+                </div>
               </div>
             </TabsContent>
 
@@ -560,161 +704,6 @@ const Sobre = () => {
               </div>
             </TabsContent>
           </Tabs>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider">Nossos Valores</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight">
-              Princípios que nos Guiam
-            </h2>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
-              <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">Empatia</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm">
-                Compreendemos a delicadeza do momento e desenvolvemos cada funcionalidade 
-                com respeito, humanidade e a devida sensibilidade.
-              </p>
-            </Card>
-            
-            <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
-              <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">Segurança</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm">
-                Protegemos os dados e memórias das famílias com os mais elevados padrões de 
-                segurança e privacidade digital.
-              </p>
-            </Card>
-            
-            <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
-              <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Users className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">Comunidade</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm">
-                Fortalecemos laços entre famílias e profissionais, criando uma rede de apoio 
-                mútuo e solidariedade.
-              </p>
-            </Card>
-            
-            <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30">
-              <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Award className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">Excelência</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm">
-                Comprometemo-nos com a máxima qualidade em cada detalhe do nosso serviço e 
-                plataforma tecnológica.
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Platform Features */}
-      <section className="py-16 px-4 bg-gradient-to-b from-background to-muted/20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider">Nossa Plataforma</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-              Soluções Integradas e Eficientes
-            </h2>
-            <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-              Tecnologia avançada ao serviço de profissionais e famílias
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
-                <Heart className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Para Famílias</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm mb-4">
-                Espaço digital seguro para consultar obituários, informações sobre cerimónias e partilhar 
-                memórias. Disponível 24 horas por dia.
-              </p>
-              <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
-                <span>Acesso simplificado</span>
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Card>
-            
-            <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Para Funerárias</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm mb-4">
-                Plataforma completa que centraliza obituários, documentação e comunicação com famílias. 
-                Automatize processos e eleve o padrão de serviço.
-              </p>
-              <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
-                <span>Gestão profissional</span>
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Card>
-            
-            <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
-                <Award className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Tecnologia Humanizada</h3>
-              <p className="text-muted-foreground leading-relaxed text-sm mb-4">
-                Inovação tecnológica com profundo respeito pela dimensão humana. Cada funcionalidade 
-                considera a delicadeza do contexto.
-              </p>
-              <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
-                <span>Inovação com empatia</span>
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-primary/5" />
-        <div className="container mx-auto max-w-4xl text-center relative z-10">
-          <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-4">
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Comece Hoje</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            Junte-se à Memoralis
-          </h2>
-          <p className="text-base text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Faça parte da nossa rede de profissionais dedicados a oferecer o melhor serviço 
-            às famílias portuguesas em momentos de despedida.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="px-6 py-5" asChild>
-              <Link to="/funeraria/register">
-                Registar Funerária
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="px-6 py-5" asChild>
-              <Link to="/contactos">Entre em Contacto</Link>
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-6">
-            Tem dúvidas? A nossa equipa está disponível para ajudar.
-          </p>
         </div>
       </section>
 
