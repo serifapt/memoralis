@@ -156,28 +156,28 @@ const Sobre = () => {
       <section className="py-12 px-4 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto max-w-5xl">
           <Tabs defaultValue="publico" className="w-full">
-            <TabsList className="w-full max-w-3xl mx-auto grid grid-cols-3 mb-12 h-auto p-1.5 bg-muted/60 backdrop-blur-sm">
+            <TabsList className="w-full max-w-3xl mx-auto grid grid-cols-3 mb-12 h-auto p-1.5 bg-muted">
               <TabsTrigger
                 value="publico"
-                className="py-3.5 gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+                className="flex-col gap-1.5 py-3 px-4 h-auto text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                <Users className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                <Users className="w-5 h-5" />
                 <span className="hidden sm:inline">Público</span>
                 <span className="sm:hidden">Família</span>
               </TabsTrigger>
               <TabsTrigger
                 value="profissional"
-                className="py-3.5 gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+                className="flex-col gap-1.5 py-3 px-4 h-auto text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                <Building2 className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                <Building2 className="w-5 h-5" />
                 <span className="hidden sm:inline">Agências Funerárias</span>
                 <span className="sm:hidden">Funerárias</span>
               </TabsTrigger>
               <TabsTrigger
                 value="servicos"
-                className="py-3.5 gap-2 text-sm md:text-base font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+                className="flex-col gap-1.5 py-3 px-4 h-auto text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                <Sparkles className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                <Sparkles className="w-5 h-5" />
                 <span>Serviços</span>
               </TabsTrigger>
             </TabsList>
