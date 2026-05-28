@@ -239,29 +239,14 @@ const Sobre = () => {
                   Gestão completa do processo fúnebre, formulários automáticos, orçamentos, anúncios
                   e catálogo de flores — tudo numa única solução pensada para funerárias modernas.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                  <Button size="lg" className="px-6 group" asChild>
-                    <Link to="/funeraria/register">
-                      Registar Funerária
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild>
-                    <a href="#funcionalidades-funeraria">Ver funcionalidades</a>
-                  </Button>
-                </div>
               </div>
 
-              {/* Mockup principal de portátil */}
-              <div className="relative max-w-5xl mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent blur-3xl scale-90" />
-                <img
-                  src={mockupDashboard}
+              {/* Screen principal — Dashboard real */}
+              <div className="max-w-5xl mx-auto">
+                <BrowserFrame
+                  src={screenDashboard}
                   alt="Dashboard Memoralis para funerárias"
-                  width={1536}
-                  height={1024}
-                  loading="lazy"
-                  className="relative w-full h-auto drop-shadow-2xl"
+                  url="memoralis.pt/dashboard"
                 />
               </div>
 
@@ -291,17 +276,12 @@ const Sobre = () => {
                 </div>
               </div>
 
-              {/* Zigzag 1 — Gestão do processo fúnebre */}
               <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                <div className="relative order-2 lg:order-1">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent blur-2xl scale-90" />
-                  <img
-                    src={mockupObituaryEditor}
+                <div className="order-2 lg:order-1">
+                  <BrowserFrame
+                    src={screenObituaryEditor}
                     alt="Editor de obituário com gestão do processo fúnebre"
-                    width={1536}
-                    height={1024}
-                    loading="lazy"
-                    className="relative w-full h-auto drop-shadow-2xl"
+                    url="memoralis.pt/obituaries/editar"
                   />
                 </div>
                 <div className="order-1 lg:order-2">
@@ -361,30 +341,22 @@ const Sobre = () => {
                     ))}
                   </ul>
                 </div>
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-bl from-primary/15 to-transparent blur-2xl scale-90" />
-                  <img
-                    src={mockupSsForms}
+                <div>
+                  <BrowserFrame
+                    src={screenSsForms}
                     alt="Formulários da Segurança Social e CGA gerados automaticamente"
-                    width={1536}
-                    height={1024}
-                    loading="lazy"
-                    className="relative w-full h-auto drop-shadow-2xl"
+                    url="memoralis.pt/obituaries/documentos"
                   />
                 </div>
               </div>
 
               {/* Zigzag 3 — Flores + Orçamentação */}
               <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                <div className="relative order-2 lg:order-1">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent blur-2xl scale-90" />
-                  <img
-                    src={mockupFlowersBudget}
+                <div className="order-2 lg:order-1">
+                  <BrowserFrame
+                    src={screenFlowersBudget}
                     alt="Catálogo de flores e orçamentação digital"
-                    width={1536}
-                    height={1024}
-                    loading="lazy"
-                    className="relative w-full h-auto drop-shadow-2xl"
+                    url="memoralis.pt/budgets"
                   />
                 </div>
                 <div className="order-1 lg:order-2">
