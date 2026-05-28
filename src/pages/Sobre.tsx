@@ -170,7 +170,7 @@ const Sobre = () => {
       </section>
 
       {/* Tabs Section */}
-      <section className="py-12 px-4 bg-gradient-to-b from-background to-muted/20">
+      <section className="pt-12 pb-24 px-4 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto max-w-5xl">
           <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="w-full max-w-3xl mx-auto grid grid-cols-3 mb-12 h-auto p-1.5 bg-muted">
