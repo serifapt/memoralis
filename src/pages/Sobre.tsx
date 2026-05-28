@@ -295,65 +295,6 @@ const Sobre = () => {
                 </div>
               </div>
 
-              {/* Platform Features */}
-              <div>
-                <div className="text-center mb-12">
-                  <div className="inline-block px-3 py-1.5 bg-primary/10 rounded-full mb-3">
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Nossa Plataforma</span>
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-                    Soluções Integradas e Eficientes
-                  </h2>
-                  <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-                    Tecnologia avançada ao serviço de profissionais e famílias
-                  </p>
-                </div>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
-                      <Heart className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">Para Famílias</h3>
-                    <p className="text-muted-foreground leading-relaxed text-sm mb-4">
-                      Espaço digital seguro para consultar obituários, informações sobre cerimónias e partilhar
-                      memórias. Disponível 24 horas por dia.
-                    </p>
-                    <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
-                      <span>Acesso simplificado</span>
-                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </Card>
-                  <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
-                      <Shield className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">Para Funerárias</h3>
-                    <p className="text-muted-foreground leading-relaxed text-sm mb-4">
-                      Plataforma completa que centraliza obituários, documentação e comunicação com famílias.
-                      Automatize processos e eleve o padrão de serviço.
-                    </p>
-                    <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
-                      <span>Gestão profissional</span>
-                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </Card>
-                  <Card className="p-6 border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
-                      <Award className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">Tecnologia Humanizada</h3>
-                    <p className="text-muted-foreground leading-relaxed text-sm mb-4">
-                      Inovação tecnológica com profundo respeito pela dimensão humana. Cada funcionalidade
-                      considera a delicadeza do contexto.
-                    </p>
-                    <div className="flex items-center text-primary font-medium text-sm group-hover:gap-2 transition-all">
-                      <span>Inovação com empatia</span>
-                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </Card>
-                </div>
-              </div>
-
             </TabsContent>
 
             {/* PROFISSIONAL */}
