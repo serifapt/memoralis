@@ -55,7 +55,7 @@ export default function ObituaryArchive() {
 
   useEffect(() => {
     loadObituaries(true);
-  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, sortBy, localityText, funerariaText]);
+  }, [searchName, selectedLocality, selectedFreguesia, selectedDistrito, selectedFuneraria, selectedTag, sortBy, localityText, funerariaText]);
 
   useEffect(() => {
     loadFilterOptions();
@@ -155,7 +155,9 @@ export default function ObituaryArchive() {
         query = query.order("display_name", { ascending: true });
       }
 
-      query = query.range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
+      if (selectedTag === "all") {
+        query = query.range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
+      }
 
       const { data, count, error } = await query;
 
@@ -197,12 +199,21 @@ export default function ObituaryArchive() {
         }
       }
 
-      if (reset) {
-        setObituaries(obits);
+      const filteredObits = selectedTag === "all"
+        ? obits
+        : obits.filter((o) => (o as any).active_tag === selectedTag);
+
+      if (selectedTag === "all") {
+        if (reset) {
+          setObituaries(filteredObits);
+        } else {
+          setObituaries(prev => [...prev, ...filteredObits]);
+        }
+        setTotalCount(count || 0);
       } else {
-        setObituaries(prev => [...prev, ...obits]);
+        setObituaries(filteredObits);
+        setTotalCount(filteredObits.length);
       }
-      setTotalCount(count || 0);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -214,7 +225,7 @@ export default function ObituaryArchive() {
     loadObituaries(false);
   };
 
-  const hasMore = obituaries.length < totalCount;
+  const hasMore = selectedTag === "all" && obituaries.length < totalCount;
 
   // Filter by tag client-side
   const displayedObituaries = selectedTag === "all"
