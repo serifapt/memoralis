@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, Building2, Users, Sparkles, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo-memoralis.svg";
 import {
   Sheet,
@@ -18,6 +18,12 @@ const NAV_LINKS = [
   { to: "/sobre", label: "Sobre" },
   { to: "/blog", label: "Blog" },
   { to: "/contactos", label: "Contactos" },
+];
+
+const SOBRE_TABS = [
+  { to: "/sobre#profissional", label: "Agências Funerárias", icon: Building2 },
+  { to: "/sobre#publico", label: "Público / Famílias", icon: Users },
+  { to: "/sobre#servicos", label: "Serviços", icon: Sparkles },
 ];
 
 export const PublicHeader = () => {
@@ -40,19 +46,52 @@ export const PublicHeader = () => {
 
           {/* Centered Navigation (desktop) */}
           <nav className="hidden md:flex gap-6 absolute left-1/2 transform -translate-x-1/2">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`text-sm hover:text-primary transition-colors ${
-                  isActive(link.to) && !(link.to === "/" && (isActive("/obituario") || isActive("/funerarias")))
-                    ? "text-foreground font-medium"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active =
+                isActive(link.to) &&
+                !(link.to === "/" && (isActive("/obituario") || isActive("/funerarias")));
+              if (link.to === "/sobre") {
+                return (
+                  <div key={link.to} className="relative group">
+                    <Link
+                      to={link.to}
+                      className={`text-sm hover:text-primary transition-colors inline-flex items-center gap-1 ${
+                        active ? "text-foreground font-medium" : "text-muted-foreground"
+                      }`}
+                    >
+                      {link.label}
+                      <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                    </Link>
+                    {/* Hover bridge to avoid menu closing */}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 hidden group-hover:block z-50">
+                      <div className="min-w-[240px] rounded-md border border-border bg-popover shadow-lg p-1">
+                        {SOBRE_TABS.map(({ to, label, icon: Icon }) => (
+                          <Link
+                            key={to}
+                            to={to}
+                            className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-sm text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
+                            <Icon className="w-4 h-4" />
+                            {label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`text-sm hover:text-primary transition-colors ${
+                    active ? "text-foreground font-medium" : "text-muted-foreground"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right side */}

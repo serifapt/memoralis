@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   Heart,
   Users,
@@ -102,6 +103,26 @@ const funerariaFeatures = [
 ];
 
 const Sobre = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const validTabs = ["profissional", "publico", "servicos"];
+  const hash = location.hash.replace("#", "");
+  const initial = validTabs.includes(hash) ? hash : "profissional";
+  const [tab, setTab] = useState(initial);
+
+  useEffect(() => {
+    const h = location.hash.replace("#", "");
+    if (validTabs.includes(h) && h !== tab) {
+      setTab(h);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [location.hash]);
+
+  const handleTabChange = (value: string) => {
+    setTab(value);
+    navigate(`/sobre#${value}`, { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <PublicHeader />
@@ -131,40 +152,15 @@ const Sobre = () => {
             oferecendo às funerárias uma plataforma completa e às famílias um espaço 
             digno e permanente para honrar quem partiu.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
-            <Button size="lg" className="px-6 py-5 bg-primary hover:bg-primary/90 group" asChild>
-              <Link to="/funeraria/register">
-                Comece Agora
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="px-6 py-5" 
-              asChild
-            >
-              <Link to="/contactos">Saber Mais</Link>
-            </Button>
-          </div>
-          
+
         </div>
       </section>
 
       {/* Tabs Section */}
       <section className="py-12 px-4 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto max-w-5xl">
-          <Tabs defaultValue="publico" className="w-full">
+          <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="w-full max-w-3xl mx-auto grid grid-cols-3 mb-12 h-auto p-1.5 bg-muted">
-              <TabsTrigger
-                value="publico"
-                className="flex-col gap-1.5 py-3 px-4 h-auto text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <Users className="w-5 h-5" />
-                <span className="hidden sm:inline">Público</span>
-                <span className="sm:hidden">Família</span>
-              </TabsTrigger>
               <TabsTrigger
                 value="profissional"
                 className="flex-col gap-1.5 py-3 px-4 h-auto text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -172,6 +168,14 @@ const Sobre = () => {
                 <Building2 className="w-5 h-5" />
                 <span className="hidden sm:inline">Agências Funerárias</span>
                 <span className="sm:hidden">Funerárias</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="publico"
+                className="flex-col gap-1.5 py-3 px-4 h-auto text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Users className="w-5 h-5" />
+                <span className="hidden sm:inline">Público</span>
+                <span className="sm:hidden">Família</span>
               </TabsTrigger>
               <TabsTrigger
                 value="servicos"
